@@ -132,62 +132,7 @@ df['instruction'] = df['trial_type'].apply(lambda t: 'Active' if 'active' in t e
 df.to_excel(conditions_filename, index=False)
 
 
-##########################################################################################################################################################################################
-##########################################################################################################################################################################################
-##########################################################################################################################################################################################
 
-# Start experiment set up
-# Set up the window
-win = visual.Window([1920,1080], fullscr=True, units='pix')
-
-# Set up stimuli parameters
-# Initialize parameters for the cue
-initial_radius = 0.7  # Starting size of the cue
-final_radius = 0.2    # Final size of the cue
-duration = 2.0        # Time in seconds to shrink
-hold_time = 1.5       # Time in seconds to hold after reaching final size
-    
-cue_started = False    # To track when the cue starts shrinking
-cue_start_time = None  # To store when the cue started shrinking
-
-# Create Objects
-fixation_cross = visual.TextStim(win=win, name='fixation_cross',
-    text='+',
-    font='Arial',
-    pos=(0, 0), draggable=False, height=0.5, wrapWidth=None, ori=0.0, 
-    color='white', colorSpace='rgb', opacity=None, 
-    languageStyle='LTR',
-    depth=0.0)
-
-cue = visual.ShapeStim(
-    win=win, name='cue',
-    size=(0.7, 0.7), vertices='circle',
-    ori=0.0, pos=(0, 0), draggable=False, anchor='center',
-    lineWidth=1.0,
-    colorSpace='rgb', lineColor=[-1.0000, -1.0000, -1.0000], fillColor=[-1.0000, -1.0000, -1.0000],
-    opacity=None, depth=-2.0, interpolate=True)
-
-target = visual.ShapeStim(
-    win=win, name='target',
-    size=(0.2, 0.2), vertices='circle',
-    ori=0.0, pos=(0, 0), draggable=False, anchor='center',
-    lineWidth=2.0,
-    colorSpace='rgb', lineColor='white', fillColor=[0.0000, 0.0000, 0.0000],
-    opacity=1.0, depth=-3.0, interpolate=True)
-
-normal_probe_file = os.path.join(stimuli_path, f"{subject_id}_normal_probe.wav")  
-normal_probe = sound.Sound(normal_probe_file,
-    stereo=True, 
-    hamming=True, 
-    speaker='normal_probe',    name='normal_probe'
-    )
-normal_probe.setSound(normal_probe_file, hamming=True)
-normal_probe.setVolume(1.0, log=False)
-
-
-
-# End the experiment
-win.close()
 core.quit()
 
 
