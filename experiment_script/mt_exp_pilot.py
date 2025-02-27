@@ -66,18 +66,27 @@ if missing_paths:
 # Set up condition file  
 conditions_filename = os.path.join(stimuli_path, f"{subject_id}_conditions.xlsx")
 
-# Set up number of trials  
-n_trials = 16 # Set to 960
-n_practice_trials = 10 # Set to 20
+import os
+import random
+import pandas as pd
 
-# Set up practice trials  
-practice_trials = ['passive_practice'] * (n_practice_trials // 2) + ['active_practice'] * (n_practice_trials // 2)  
-random.shuffle(practice_trials)
+import os
+import random
+import pandas as pd
+
+# Set up parameters
+n_trials = 16  # Adjust this to 960 if needed
 
 # Define trial types and their counts  
 trial_types = {
-    'passive_no_probe': n_trials // 4,
-    'active_no_probe': n_trials // 4,
+    'passive_early_normal_sham': n_trials // 16,
+    'active_early_normal_sham': n_trials // 16,
+    'passive_early_pitch_sham': n_trials // 16,
+    'active_early_pitch_sham': n_trials // 16,
+    'passive_late_normal_sham': n_trials // 16,
+    'active_late_normal_sham': n_trials // 16,
+    'passive_late_pitch_sham': n_trials // 16,
+    'active_late_pitch_sham': n_trials // 16,
     'passive_early_normal_probe': n_trials // 16,
     'active_early_normal_probe': n_trials // 16,
     'passive_early_pitch_probe': n_trials // 16,
@@ -88,48 +97,57 @@ trial_types = {
     'active_late_pitch_probe': n_trials // 16
 }
 
-# Generate trials  
+# Generate trials and shuffle
 trials = [trial for trial, count in trial_types.items() for _ in range(count)]
 random.shuffle(trials)
 
-# Combine practice trials with main trials  
-trials = practice_trials + trials  
-
-# Create DataFrame  
-df = pd.DataFrame({'trial_type': trials})
-
-# Mapping functions  
-def get_probe_params(trial_type):
-    """Returns probe_onset, probe_duration, probe_type, and probe_intensity based on trial type."""
+# Function to get trial properties
+def get_trial_params(trial_type):
+    """Returns task, probe, probe_type, probe_onset_cat, probe_onset, probe_duration, probe_intensity, and probe_file."""
     
-    if 'no_probe' in trial_type or 'practice' in trial_type:
-        return 0, 0, '', 0  # No probe trials → onset = 0, duration = 0, no file, intensity = 0
+    # Task Type (Active/Passive)
+    task = "Active" if "active" in trial_type else "Passive"
+    
+    # Probe Presence (Yes/No)
+    probe = "No" if "sham" in trial_type else "Yes"
+    
+    # Probe Type (Normal/Pitch) - Sham trials inherit the same probe properties
+    probe_type = "Pitch" if "pitch" in trial_type else "Normal"
+    
+    # Probe Onset Category (Early/Late)
+    probe_onset_cat = "Early" if "early" in trial_type else "Late"
+    
+    # Probe Onset (2.8 for early, 2.9 for late, empty for sham)
+    probe_onset = 2.8 if "early" in trial_type and probe == "Yes" else (2.9 if "late" in trial_type and probe == "Yes" else 0)
 
-    # Determine onset time explicitly
-    if 'early' in trial_type:
-        onset = 2.8
-    elif 'late' in trial_type:
-        onset = 2.9
-    else:
-        onset = quit()
+    # Probe Duration (0.08 for probes, 0 for sham)
+    probe_duration = 0.08 if probe == "Yes" else 0
 
-    # Determine probe type
-    if 'pitch' in trial_type:
-        probe_type = f"{subject_id}_pitch_probe.wav"
-    else:
-        probe_type = f"{subject_id}_normal_probe.wav"
+    # Probe Intensity (1 for probes, 0 for sham)
+    probe_intensity = 1 if probe == "Yes" else 0
 
-    return onset, 0.08, os.path.join(stimuli_path, probe_type), 1  # Return full parameters
+    # Probe File (None for sham, otherwise filename based on probe type)
+    probe_file = None if probe == "No" else os.path.join(stimuli_path, f"{subject_id}_{probe_type.lower()}_probe.wav")
 
+    return task, probe, probe_type, probe_onset_cat, probe_onset, probe_duration, probe_intensity, probe_file
 
-# Apply mapping functions  
-df[['probe_onset', 'probe_duration', 'probe_type', 'probe_intensity']] = df['trial_type'].apply(
-    lambda t: pd.Series(get_probe_params(t))
-)
-df['instruction'] = df['trial_type'].apply(lambda t: 'Active' if 'active' in t else 'Passive')
+# Create DataFrame with required columns
+df = pd.DataFrame({
+    "subj": subject_id,
+    "trial_type": trials,
+    "trial_counter": range(len(trials))  # Sequential trial counter
+})
 
-# Save DataFrame  
+# Apply the mapping function
+df[[
+    "task", "probe", "probe_type", "probe_onset_cat",
+    "probe_onset", "probe_duration", "probe_intensity", "probe_file"
+]] = df["trial_type"].apply(lambda t: pd.Series(get_trial_params(t)))
+
+# Save DataFrame
+conditions_filename = os.path.join(stimuli_path, f"{subject_id}_conditions.xlsx")
 df.to_excel(conditions_filename, index=False)
+
 
 
 

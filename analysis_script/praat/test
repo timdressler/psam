@@ -1,0 +1,100 @@
+################################################################################
+# Praat Script (Fixed Paths, Table Handling)
+# - Reads .wav files from a fixed folder
+# - Processes: onset detection, trimming, F0 extraction
+# - Selects median F0 file and saves it
+# - Creates a pitch-shifted version (-400 cents)
+################################################################################
+# An empty table is created to ensure Remove is available
+Create Table with column names: "placeholder", 10, { "placeholder1" }
+clearinfo
+select all
+Remove
+
+# Set fixed input/output folder and subject ID
+folder$ = "C:\\Users\\timdr\\OneDrive\\Uni_Oldenburg\\4_Semester\\Master_Thesis\\Analysis_Experiment\\psam_private\\praat\\test2"
+subjectID$ = "999"
+
+# Get list of all .wav files in the folder
+Create Strings as file list: "fileList", folder$ + "/*.wav"
+numberOfFiles = Get number of strings
+
+# Create table with two columns: F0 values and filenames
+Create Table with column names: "F0_Table", numberOfFiles, "f0_tab filename_tab"
+
+rowIndex = 1
+
+writeInfoLine: "Number of files: ", numberOfFiles
+
+for i from 1 to numberOfFiles
+    select Strings fileList
+    file$ = Get string: i 
+    fullPath$ = folder$ + "\\" + file$
+
+    Read from file: fullPath$
+    soundName$ = selected$("Sound")
+    writeInfoLine: "Original file: ", soundName$
+
+    # Detect onset and offset
+    To TextGrid (silences): 100, 0, -15, 0.1, 0.1, "silent", "sounding"
+    
+    select TextGrid 'soundName$'
+    onset = Get starting point: 1, 2
+    offset = Get end point: 1, 2
+    duration = offset - onset
+
+    # writeInfoLine: "Offset: ", offset
+
+    
+    select Sound 'soundName$'
+        
+    # Extract and rename trimmed sound safely
+    Extract part: onset, onset + 0.08, "rectangular", 1, "no"
+    trimmedFile$ = "trimmed_" + soundName$  
+    Rename: trimmedFile$
+        
+    writeInfoLine: "Trimmed file: ", trimmedFile$
+
+    # Select and analyze F0
+    select Sound 'trimmedFile$'
+    To Pitch: 0.01, 75, 600
+    f0 = Get mean: 0, 0, "Hertz"
+
+    # Add F0 and filename to the table
+    select Table F0_Table
+    Set numeric value... rowIndex f0_tab f0
+    select Table F0_Table
+    Set string value... rowIndex filename_tab 'trimmedFile$'
+    rowIndex = rowIndex + 1
+    
+endfor
+
+
+Save as WAV file: normalProbePath$
+
+# Pitch shift -400 cents
+To Manipulation: 0.01, 75, 600
+select Manipulation medianFile$
+Extract pitch tier
+select PitchTier
+Multiply frequencies: 0, 0.784  # 400 cents down
+Replace pitch tier
+Get resynthesis (overlap-add)
+
+# Save pitch-shifted version
+pitchProbePath$ = folder$ + "\\sub-" + subjectID$ + "_pitch_probe.wav"
+Save as WAV file: pitchProbePath$
+
+# Cleanup
+# select all
+# Remove
+
+print "Processing complete! Files saved:"
+print normalProbePath$
+print pitchProbePath$
+
+
+
+
+
+
