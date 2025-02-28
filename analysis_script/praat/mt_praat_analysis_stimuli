@@ -26,6 +26,8 @@ rowIndex = 1
 
 writeInfoLine: "Number of files: ", numberOfFiles
 
+numberOfFiles = 1
+
 for i from 1 to numberOfFiles
     select Strings fileList
     file$ = Get string: i 
@@ -53,7 +55,7 @@ for i from 1 to numberOfFiles
     trimmedFile$ = "trimmed_" + soundName$  
     Rename: trimmedFile$
         
-    writeInfoLine: "Trimmed file: ", trimmedFile$
+    # writeInfoLine: "Trimmed file: ", trimmedFile$
 
     # Select and analyze F0
     select Sound 'trimmedFile$'
@@ -66,32 +68,70 @@ for i from 1 to numberOfFiles
     select Table F0_Table
     Set string value... rowIndex filename_tab 'trimmedFile$'
     rowIndex = rowIndex + 1
+
+    # Pitch shift 0 ST
+    select Sound 'trimmedFile$'
+    To Manipulation: 0.01, 75, 600
+    writeInfoLine: trimmedFile$
+    selectObject: "Manipulation " + trimmedFile$
+    Extract pitch tier
+    selectObject: "PitchTier " + trimmedFile$
+    Shift frequencies: 0, 80, 0, "semitones"
+
+    selectObject: "Manipulation " + trimmedFile$
+    plusObject: "PitchTier " + trimmedFile$
+    Replace pitch tier
+    selectObject: "Manipulation " + trimmedFile$
+    # View & Edit
+    Get resynthesis (LPC)
+
+
+    normalProbePath$ = "C:\\Users\\timdr\\OneDrive\\Uni_Oldenburg\\4_Semester\\Master_Thesis\\Analysis_Experiment\\psam_private\\praat\\test3"
+    select Sound 'trimmedFile$'
+    Save as WAV file: normalProbePath$ + "\\" + trimmedFile$ + "_normal.wav"
+
+
+    # Pitch shift -2 ST
+    To Manipulation: 0.01, 75, 600
+    writeInfoLine: trimmedFile$
+    selectObject: "Manipulation " + trimmedFile$
+    Extract pitch tier
+    selectObject: "PitchTier " + trimmedFile$
+    Shift frequencies: 0, 80, -2, "semitones"
+
+    selectObject: "Manipulation " + trimmedFile$
+    plusObject: "PitchTier " + trimmedFile$
+    Replace pitch tier
+    selectObject: "Manipulation " + trimmedFile$
+    # View & Edit
+    Get resynthesis (LPC)
+    
+
+    # Save pitch-shifted version
+    pitchProbePath$ = "C:\\Users\\timdr\\OneDrive\\Uni_Oldenburg\\4_Semester\\Master_Thesis\\Analysis_Experiment\\psam_private\\praat\\test4"
+    Save as WAV file: pitchProbePath$ + "\\" + trimmedFile$ + "_pitched.wav"
+
+    
     
 endfor
 
 
-Save as WAV file: normalProbePath$
-
-# Pitch shift -400 cents
-To Manipulation: 0.01, 75, 600
-select Manipulation medianFile$
-Extract pitch tier
-select PitchTier
-Multiply frequencies: 0, 0.784  # 400 cents down
-Replace pitch tier
-Get resynthesis (overlap-add)
-
-# Save pitch-shifted version
-pitchProbePath$ = folder$ + "\\sub-" + subjectID$ + "_pitch_probe.wav"
-Save as WAV file: pitchProbePath$
 
 # Cleanup
 # select all
 # Remove
 
-print "Processing complete! Files saved:"
-print normalProbePath$
-print pitchProbePath$
+writeInfoLine: "Processing complete! Files saved!"
+
+
+
+
+
+
+
+
+
+
 
 
 
