@@ -11,12 +11,26 @@ clearinfo
 select all
 Remove
 
-# Set fixed input/output folder and subject ID
-folder$ = "C:\\Users\\timdr\\OneDrive\\Uni_Oldenburg\\4_Semester\\Master_Thesis\\Analysis_Experiment\\psam_private\\praat\\test2"
-subjectID$ = "999"
+# Get subject ID
+form Enter Subject ID
+    
+	sentence subjectID "leading zeros!"
+endform
+
+
+# Set up paths
+
+scriptPath$ = "C:\Users\timdr\OneDrive\Uni_Oldenburg\4_Semester\Master_Thesis\Analysis_Experiment\psam\analysis_script\praat"
+mainPath$ = replace$ (scriptPath$, "\analysis_script\praat", "", 0)
+pluginPath$ = scriptPath$ + "\\" + "plugin_VocalToolkit"
+inPath_raw$ = mainPath$ + "\data\sub-" + subjectID$ + "\stimuli\all_raw"
+outPath_normal$ = mainPath$ + "\data\sub-" + subjectID$ + "\stimuli\all_normal"
+outPath_pitched$ = mainPath$ + "\data\sub-" + subjectID$ + "\stimuli\all_pitched"
+
+
 
 # Get list of all .wav files in the folder
-Create Strings as file list: "fileList", folder$ + "/*.wav"
+Create Strings as file list: "fileList", inPath_raw$ + "/*.wav"
 numberOfFiles = Get number of strings
 
 # Create table
@@ -34,7 +48,7 @@ for i from 1 to numberOfFiles
     # Load raw file
     select Strings fileList
     file_raw$ = Get string: i 
-    fullPath_raw$ = folder$ + "\\" + file_raw$ 
+    fullPath_raw$ = inPath_raw$ + "\\" + file_raw$ 
 
     Read from file: fullPath_raw$
     soundName$ = selected$("Sound")
@@ -50,14 +64,14 @@ for i from 1 to numberOfFiles
     duration = offset - onset
     
     # Extract actual sound
-    select Sound 'soundName_raw$'   
+    selectObject: "Sound " + soundName_raw$
     Extract part: onset, offset, "rectangular", 1, "no"
     soundName_trimmed_raw$ = soundName$ + "_trimmed_raw"   
     Rename: soundName_trimmed_raw$        
 
     # Apply zero (0) pitchshift
     select Sound 'soundName_trimmed_raw$'
-    runScript: "C:\Users\timdr\Downloads\Praat Vocal Toolkit\Praat Vocal Toolkit\plugin_VocalToolkit\changesemitones.praat", 0, "no"
+    runScript: pluginPath$ + "\changesemitones.praat", 0, "no"
     selectObject: "Sound " + soundName_trimmed_raw$ + "-changesemitones_0"
     soundName_zeroST$ = soundName$ + "_zeroST"
     Rename: soundName_zeroST$
@@ -71,7 +85,7 @@ for i from 1 to numberOfFiles
     
     # Apply 10ms fade-in and 10ms fade-out
     selectObject: "Sound " + soundName_trimmed80_zeroST$
-    runScript: "C:\Users\timdr\Downloads\Praat Vocal Toolkit\Praat Vocal Toolkit\plugin_VocalToolkit\fade.praat",  0.01, 0.01, "no"
+    runScript: pluginPath$ + "\fade.praat",  0.01, 0.01, "no"
     selectObject: "Sound " + soundName_trimmed80_zeroST$ + "-fade"
     soundName_export_zeroST$ = "EXPORT_" + soundName$ + "_zeroST"
     Rename: soundName_export_zeroST$
@@ -88,13 +102,12 @@ for i from 1 to numberOfFiles
     Set string value... rowIndex filename_tab 'soundName$'
 
     # Export final normal (zero pitchshift) probe
-    normalProbePath$ = "C:\\Users\\timdr\\OneDrive\\Uni_Oldenburg\\4_Semester\\Master_Thesis\\Analysis_Experiment\\psam_private\\praat\\test3"
     select Sound 'soundName_export_zeroST$'
-    Save as WAV file: normalProbePath$ + "\\" + soundName$ + "_normal.wav"
+    Save as WAV file: outPath_normal$ + "\\" + soundName$ + "_normal.wav"
 
     # Apply minus two (-2) pitchshift
     select Sound 'soundName_trimmed_raw$'
-    runScript: "C:\Users\timdr\Downloads\Praat Vocal Toolkit\Praat Vocal Toolkit\plugin_VocalToolkit\changesemitones.praat", -2, "no"
+    runScript: pluginPath$ + "\changesemitones.praat", -2, "no"
     selectObject: "Sound " + soundName_trimmed_raw$ + "-changesemitones_-2"
     soundName_twoST$ = soundName$ + "_twoST"
     Rename: soundName_twoST$
@@ -108,7 +121,7 @@ for i from 1 to numberOfFiles
     
     # Apply 10ms fade-in and 10ms fade-out
     selectObject: "Sound " + soundName_trimmed80_twoST$
-    runScript: "C:\Users\timdr\Downloads\Praat Vocal Toolkit\Praat Vocal Toolkit\plugin_VocalToolkit\fade.praat",  0.01, 0.01, "no"
+    runScript: pluginPath$ + "\fade.praat",  0.01, 0.01, "no"
     selectObject: "Sound " + soundName_trimmed80_twoST$ + "-fade"
     soundName_export_twoST$ = "EXPORT_" + soundName$ + "_twoST"
     Rename: soundName_export_twoST$
@@ -125,9 +138,8 @@ for i from 1 to numberOfFiles
     Set string value... rowIndex filename_tab 'soundName$'
 
     # Export final shifted (minus two pitchshift) probe
-    pitchProbePath$ = "C:\\Users\\timdr\\OneDrive\\Uni_Oldenburg\\4_Semester\\Master_Thesis\\Analysis_Experiment\\psam_private\\praat\\test4"
     select Sound 'soundName_export_twoST$'
-    Save as WAV file: pitchProbePath$ + "\\" + soundName$ + "_pitched.wav"
+    Save as WAV file: outPath_pitched$ + "\\" + soundName$ + "_pitched.wav"
 
     # Update counter
     rowIndex = rowIndex + 1
@@ -136,7 +148,7 @@ endfor
 
 # Export table
 selectObject: "Table F0_Table"
-Save as comma-separated file: pitchProbePath$ + "\\" + "f0_table.csv"
+Save as comma-separated file: inPath_raw$ + "\\" + "f0_table.csv"
 
 writeInfoLine: "Processing complete! Files saved!"
 
