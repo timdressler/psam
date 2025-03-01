@@ -19,12 +19,16 @@ subjectID$ = "999"
 Create Strings as file list: "fileList", folder$ + "/*.wav"
 numberOfFiles = Get number of strings
 
-# Create table with two columns: F0 values and filenames
+# Create table
 Create Table with column names: "F0_Table", numberOfFiles, "f0_tab_normal f0_tab_pitched filename_tab"
 
+# Set up counter
 rowIndex = 1
 
+################################################################################
+# For Testing
 # numberOfFiles = 1
+################################################################################
 
 for i from 1 to numberOfFiles
     # Load raw file
@@ -45,38 +49,34 @@ for i from 1 to numberOfFiles
     offset = Get end point: 1, 2
     duration = offset - onset
     
-    select Sound 'soundName_raw$'
-        
-    # Extract and rename trimmed sound safely
+    # Extract actual sound
+    select Sound 'soundName_raw$'   
     Extract part: onset, offset, "rectangular", 1, "no"
     soundName_trimmed_raw$ = soundName$ + "_trimmed_raw"   
     Rename: soundName_trimmed_raw$        
 
+    # Apply zero (0) pitchshift
     select Sound 'soundName_trimmed_raw$'
-    # Pitch Shift
     runScript: "C:\Users\timdr\Downloads\Praat Vocal Toolkit\Praat Vocal Toolkit\plugin_VocalToolkit\changesemitones.praat", 0, "no"
-    
     selectObject: "Sound " + soundName_trimmed_raw$ + "-changesemitones_0"
     soundName_zeroST$ = soundName$ + "_zeroST"
     Rename: soundName_zeroST$
 
+    # Extract beginning 80ms
     selectObject: "Sound " + soundName_zeroST$
-    # Extract and rename trimmed sound safely
     Extract part: 0, 0.08, "rectangular", 1, "no"
     selectObject: "Sound " + soundName_zeroST$ + "_part"
     soundName_trimmed80_zeroST$ = soundName$ + "_zeroST_trimmed80"
     Rename: soundName_trimmed80_zeroST$
     
-
+    # Apply 10ms fade-in and 10ms fade-out
     selectObject: "Sound " + soundName_trimmed80_zeroST$
-    # Fade-in + Fade-out
     runScript: "C:\Users\timdr\Downloads\Praat Vocal Toolkit\Praat Vocal Toolkit\plugin_VocalToolkit\fade.praat",  0.01, 0.01, "no"
-
     selectObject: "Sound " + soundName_trimmed80_zeroST$ + "-fade"
     soundName_export_zeroST$ = "EXPORT_" + soundName$ + "_zeroST"
     Rename: soundName_export_zeroST$
 
-    # Select and analyze F0
+    # Get F0 of final normal (zero pitchshift) probe
     selectObject: "Sound " + soundName_export_zeroST$
     To Pitch: 0.0, 75, 600
     f0_normal = Get mean: 0, 0, "Hertz"
@@ -87,35 +87,33 @@ for i from 1 to numberOfFiles
     select Table F0_Table
     Set string value... rowIndex filename_tab 'soundName$'
 
+    # Export final normal (zero pitchshift) probe
     normalProbePath$ = "C:\\Users\\timdr\\OneDrive\\Uni_Oldenburg\\4_Semester\\Master_Thesis\\Analysis_Experiment\\psam_private\\praat\\test3"
     select Sound 'soundName_export_zeroST$'
     Save as WAV file: normalProbePath$ + "\\" + soundName$ + "_normal.wav"
 
+    # Apply minus two (-2) pitchshift
     select Sound 'soundName_trimmed_raw$'
-    # Pitch Shift
     runScript: "C:\Users\timdr\Downloads\Praat Vocal Toolkit\Praat Vocal Toolkit\plugin_VocalToolkit\changesemitones.praat", -2, "no"
-    
     selectObject: "Sound " + soundName_trimmed_raw$ + "-changesemitones_-2"
     soundName_twoST$ = soundName$ + "_twoST"
     Rename: soundName_twoST$
 
+    # Extract beginning 80ms
     selectObject: "Sound " + soundName_twoST$
-    # Extract and rename trimmed sound safely
     Extract part: 0, 0.08, "rectangular", 1, "no"
     selectObject: "Sound " + soundName_twoST$ + "_part"
     soundName_trimmed80_twoST$ = soundName$ + "_twoST_trimmed80"
     Rename: soundName_trimmed80_twoST$
     
-
+    # Apply 10ms fade-in and 10ms fade-out
     selectObject: "Sound " + soundName_trimmed80_twoST$
-    # Fade-in + Fade-out
     runScript: "C:\Users\timdr\Downloads\Praat Vocal Toolkit\Praat Vocal Toolkit\plugin_VocalToolkit\fade.praat",  0.01, 0.01, "no"
-
     selectObject: "Sound " + soundName_trimmed80_twoST$ + "-fade"
     soundName_export_twoST$ = "EXPORT_" + soundName$ + "_twoST"
     Rename: soundName_export_twoST$
 
-    # Select and analyze F0
+    # Get F0 of final pitched (minus two pitchshift) probe
     select Sound 'soundName_export_twoST$'
     To Pitch: 0.0, 75, 600
     f0_pitched = Get mean: 0, 0, "Hertz"
@@ -126,20 +124,20 @@ for i from 1 to numberOfFiles
     select Table F0_Table
     Set string value... rowIndex filename_tab 'soundName$'
 
-    
-
-    # Save pitch-shifted version
+    # Export final shifted (minus two pitchshift) probe
     pitchProbePath$ = "C:\\Users\\timdr\\OneDrive\\Uni_Oldenburg\\4_Semester\\Master_Thesis\\Analysis_Experiment\\psam_private\\praat\\test4"
     select Sound 'soundName_export_twoST$'
     Save as WAV file: pitchProbePath$ + "\\" + soundName$ + "_pitched.wav"
 
+    # Update counter
     rowIndex = rowIndex + 1
 
-    
-    
 endfor
 
+# Export table
 selectObject: "Table F0_Table"
 Save as comma-separated file: pitchProbePath$ + "\\" + "f0_table.csv"
 
 writeInfoLine: "Processing complete! Files saved!"
+
+# Processing finished
