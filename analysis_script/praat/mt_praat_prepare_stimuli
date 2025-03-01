@@ -52,27 +52,28 @@ for i from 1 to numberOfFiles
     soundName_trimmed_raw$ = soundName$ + "_trimmed_raw"   
     Rename: soundName_trimmed_raw$        
 
-    # Pitch shift 0 ST
-    selectObject: "Sound " + soundName_trimmed_raw$
-    To Manipulation: 0.01, 75, 600
-    selectObject: "Manipulation " + soundName_trimmed_raw$
-    manipulationName_zeroST$ = soundName$ + "_zeroST" 
-    Rename: manipulationName_zeroST$ 
-    Extract pitch tier
-    selectObject: "PitchTier " + manipulationName_zeroST$
-    Shift frequencies: 0, 80, 0, "semitones"
+    select Sound 'soundName_trimmed_raw$'
+    # Pitch Shift
+    runScript: "C:\Users\timdr\Downloads\Praat Vocal Toolkit\Praat Vocal Toolkit\plugin_VocalToolkit\changesemitones.praat", 0, "no"
+    
+    selectObject: "Sound " + soundName_trimmed_raw$ + "-changesemitones_0"
+    soundName_zeroST$ = soundName$ + "_zeroST"
+    Rename: soundName_zeroST$
 
-    selectObject: "Manipulation " + manipulationName_zeroST$
-    plusObject: "PitchTier " + manipulationName_zeroST$
-    Replace pitch tier
-    selectObject: "Manipulation " + manipulationName_zeroST$
-    Get resynthesis (LPC)
-
-    select Sound 'manipulationName_zeroST$'
-        
+    selectObject: "Sound " + soundName_zeroST$
     # Extract and rename trimmed sound safely
     Extract part: 0, 0.08, "rectangular", 1, "no"
-    soundName_export_zeroST$ = "export_" + soundName$ + "_zeroST"
+    selectObject: "Sound " + soundName_zeroST$ + "_part"
+    soundName_trimmed80_zeroST$ = soundName$ + "_zeroST_trimmed80"
+    Rename: soundName_trimmed80_zeroST$
+    
+
+    selectObject: "Sound " + soundName_trimmed80_zeroST$
+    # Fade-in + Fade-out
+    runScript: "C:\Users\timdr\Downloads\Praat Vocal Toolkit\Praat Vocal Toolkit\plugin_VocalToolkit\fade.praat",  0.01, 0.01, "no"
+
+    selectObject: "Sound " + soundName_trimmed80_zeroST$ + "-fade"
+    soundName_export_zeroST$ = "EXPORT_" + soundName$ + "_zeroST"
     Rename: soundName_export_zeroST$
 
     # Select and analyze F0
@@ -90,27 +91,28 @@ for i from 1 to numberOfFiles
     select Sound 'soundName_export_zeroST$'
     Save as WAV file: normalProbePath$ + "\\" + soundName$ + "_normal.wav"
 
-    # Pitch shift -2 ST
-    selectObject: "Sound " + soundName_trimmed_raw$
-    To Manipulation: 0.01, 75, 600
-    selectObject: "Manipulation " + soundName_trimmed_raw$
-    manipulationName_twoST$ = soundName$ + "_twoST" 
-    Rename: manipulationName_twoST$ 
-    Extract pitch tier
-    selectObject: "PitchTier " + manipulationName_twoST$
-    Shift frequencies: 0, 80, -2, "semitones"
+    select Sound 'soundName_trimmed_raw$'
+    # Pitch Shift
+    runScript: "C:\Users\timdr\Downloads\Praat Vocal Toolkit\Praat Vocal Toolkit\plugin_VocalToolkit\changesemitones.praat", -2, "no"
+    
+    selectObject: "Sound " + soundName_trimmed_raw$ + "-changesemitones_-2"
+    soundName_twoST$ = soundName$ + "_twoST"
+    Rename: soundName_twoST$
 
-    selectObject: "Manipulation " + manipulationName_twoST$
-    plusObject: "PitchTier " + manipulationName_twoST$
-    Replace pitch tier
-    selectObject: "Manipulation " + manipulationName_twoST$
-    Get resynthesis (LPC)
-
-    select Sound 'manipulationName_twoST$'
-        
+    selectObject: "Sound " + soundName_twoST$
     # Extract and rename trimmed sound safely
     Extract part: 0, 0.08, "rectangular", 1, "no"
-    soundName_export_twoST$ = "export_" + soundName$ + "_twoST"
+    selectObject: "Sound " + soundName_twoST$ + "_part"
+    soundName_trimmed80_twoST$ = soundName$ + "_twoST_trimmed80"
+    Rename: soundName_trimmed80_twoST$
+    
+
+    selectObject: "Sound " + soundName_trimmed80_twoST$
+    # Fade-in + Fade-out
+    runScript: "C:\Users\timdr\Downloads\Praat Vocal Toolkit\Praat Vocal Toolkit\plugin_VocalToolkit\fade.praat",  0.01, 0.01, "no"
+
+    selectObject: "Sound " + soundName_trimmed80_twoST$ + "-fade"
+    soundName_export_twoST$ = "EXPORT_" + soundName$ + "_twoST"
     Rename: soundName_export_twoST$
 
     # Select and analyze F0
@@ -124,15 +126,14 @@ for i from 1 to numberOfFiles
     select Table F0_Table
     Set string value... rowIndex filename_tab 'soundName$'
 
-    rowIndex = rowIndex + 1
-
-
     
 
     # Save pitch-shifted version
     pitchProbePath$ = "C:\\Users\\timdr\\OneDrive\\Uni_Oldenburg\\4_Semester\\Master_Thesis\\Analysis_Experiment\\psam_private\\praat\\test4"
     select Sound 'soundName_export_twoST$'
     Save as WAV file: pitchProbePath$ + "\\" + soundName$ + "_pitched.wav"
+
+    rowIndex = rowIndex + 1
 
     
     
@@ -142,25 +143,3 @@ selectObject: "Table F0_Table"
 Save as comma-separated file: pitchProbePath$ + "\\" + "f0_table.csv"
 
 writeInfoLine: "Processing complete! Files saved!"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
