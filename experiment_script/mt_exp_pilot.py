@@ -393,7 +393,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     # Start Code - component code to be run after the window creation
     # Make folder to store recordings from mic_input
     mic_inputRecFolder = os.path.dirname(filename) # CHANGED
-    print("XXXXXXXXXXXXXXXXXXXXX")
+    print("CHANGED CHANGED CHANGED CHANGED CHANGED")
     print(filename)
     if not os.path.isdir(mic_inputRecFolder):
         os.mkdir(mic_inputRecFolder)
