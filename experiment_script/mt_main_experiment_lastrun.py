@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+﻿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on März 02, 2025, at 21:17
+    on März 02, 2025, at 13:32
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -39,16 +39,14 @@ import random
 # create a device manager to handle hardware (keyboards, mice, mirophones, speakers, etc.)
 deviceManager = hardware.DeviceManager()
 # ensure that relative paths start from the same directory as this script
-_thisDir = os.path.dirname(os.path.abspath(__file__)) # CHANGED
-_thisDir = os.path.dirname(_thisDir)
-print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
-print(_thisDir)
+_thisDir = os.path.dirname(os.path.abspath(__file__))
 # store info about the experiment session
 psychopyVersion = '2024.2.4'
-expName = 'mt_stimuli_recording'  # from the Builder filename that created this script
+expName = 'mt_exp_builder'  # from the Builder filename that created this script
 # information about this experiment
 expInfo = {
     'participant': f"{randint(0, 999999):06.0f}",
+    'session': '001',
     'date|hid': data.getDateStr(),
     'expName|hid': expName,
     'psychopyVersion|hid': psychopyVersion,
@@ -120,30 +118,17 @@ def setupData(expInfo, dataDir=None):
     # data file name stem = absolute path + name; later add .psyexp, .csv, .log, etc
     if dataDir is None:
         dataDir = _thisDir
-        print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
-        print(dataDir)
-
-
-    subject_id = expInfo["participant"] # CHANGED
-    subject_id = f"sub-{subject_id.zfill(3)}"
-    print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
-    print(subject_id)
-    filename = u'data\\%s\\stimuli\\all_raw\\%s_%s_%s' % (subject_id, subject_id, "stimuli_recordings", expInfo['date']) # CHANGED
-    print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
-    print(filename)
+    filename = u'data/%s_%s_%s' % (expInfo['participant'], expName, expInfo['date'])
     # make sure filename is relative to dataDir
     if os.path.isabs(filename):
         dataDir = os.path.commonprefix([dataDir, filename])
         filename = os.path.relpath(filename, dataDir)
-
-    print("TEST TEST TEST TEST TEST TEST")
-    print(filename)
     
     # an ExperimentHandler isn't essential but helps with data saving
     thisExp = data.ExperimentHandler(
         name=expName, version='',
         extraInfo=expInfo, runtimeInfo=None,
-        originPath='C:\\Users\\timdr\\OneDrive\\Uni_Oldenburg\\4_Semester\\Master_Thesis\\Analysis_Experiment\\psam\\experiment_script\\mt_stimuli_recording.py',
+        originPath='C:\\Users\\timdr\\OneDrive\\Uni_Oldenburg\\4_Semester\\Master_Thesis\\Analysis_Experiment\\psam\\experiment_script\\mt_main_experiment_lastrun.py',
         savePickle=True, saveWideText=True,
         dataFileName=dataDir + os.sep + filename, sortColumns='alphabetical'
     )
@@ -151,6 +136,7 @@ def setupData(expInfo, dataDir=None):
     thisExp.setPriority('expName', priority.LOW)
     # return experiment handler
     return thisExp
+
 
 def setupLogging(filename):
     """
@@ -282,6 +268,12 @@ def setupDevices(expInfo, thisExp, win):
             deviceClass='keyboard',
             deviceName='instruction_keys',
         )
+    # create speaker 'probe_stim'
+    deviceManager.addDevice(
+        deviceName='probe_stim',
+        deviceClass='psychopy.hardware.speaker.SpeakerDevice',
+        index=-1
+    )
     # initialise microphone
     deviceManager.addDevice(
         deviceClass='psychopy.hardware.microphone.MicrophoneDevice',
@@ -391,12 +383,10 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         frameDur = 1.0 / 60.0  # could not measure, so guess
     
     # Start Code - component code to be run after the window creation
-    # Make folder to store recordings from mic_input
-    mic_inputRecFolder = os.path.dirname(filename) # CHANGED
-    print("XXXXXXXXXXXXXXXXXXXXX")
-    print(filename)
-    if not os.path.isdir(mic_inputRecFolder):
-        os.mkdir(mic_inputRecFolder)
+    # Make folder to store recordings from mic
+    micRecFolder = filename + '_mic_recorded'
+    if not os.path.isdir(micRecFolder):
+        os.mkdir(micRecFolder)
     
     # --- Initialize components for Routine "welcome" ---
     welcome_message = visual.TextStim(win=win, name='welcome_message',
@@ -420,7 +410,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     # --- Initialize components for Routine "ISI" ---
     fixation_cross_ISI = visual.ShapeStim(
         win=win, name='fixation_cross_ISI', vertices='cross',
-        size=(0.1, 0.1),
+        size=(0.4, 0.4),
         ori=0.0, pos=(0, 0), draggable=False, anchor='center',
         lineWidth=1.0,
         colorSpace='rgb', lineColor='white', fillColor='white',
@@ -441,13 +431,21 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         lineWidth=4.0,
         colorSpace='rgb', lineColor=[-1.0000, 0.0039, -1.0000], fillColor=[0.0000, 0.0000, 0.0000],
         opacity=1.0, depth=-1.0, interpolate=True)
+    probe_stim = sound.Sound(
+        'A', 
+        secs=-1, 
+        stereo=True, 
+        hamming=True, 
+        speaker='probe_stim',    name='probe_stim'
+    )
+    probe_stim.setVolume(1.0)
     task_msg = visual.TextStim(win=win, name='task_msg',
         text='',
         font='Arial',
         pos=(0, 0), draggable=False, height=0.04, wrapWidth=None, ori=0.0, 
         color=[-1.0000, -1.0000, -1.0000], colorSpace='rgb', opacity=None, 
         languageStyle='LTR',
-        depth=-2.0);
+        depth=-3.0);
     # Run 'Begin Experiment' code from code_trial
     # Import necessary module
     from psychopy import core
@@ -461,11 +459,11 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     cue_started = False    # To track when the cue starts shrinking
     cue_start_time = None  # To store when the cue started shrinking
     
-    # make microphone object for mic_input
-    mic_input = sound.microphone.Microphone(
+    # make microphone object for mic
+    mic = sound.microphone.Microphone(
         device='audiointerface',
-        name='mic_input',
-        recordingFolder=mic_inputRecFolder,
+        name='mic',
+        recordingFolder=micRecFolder,
         recordingExt='wav'
     )
     
@@ -762,11 +760,11 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     # set up handler to look after randomisation of conditions etc
     trials = data.TrialHandler2(
         name='trials',
-        nReps=5.0, 
+        nReps=1.0, 
         method='sequential', 
         extraInfo=expInfo, 
         originPath=-1, 
-        trialList=[None], 
+        trialList=data.importConditions('C:/Users/timdr/OneDrive/Uni_Oldenburg/4_Semester/Master_Thesis/Analysis_Experiment/psam/data/sub-013/stimuli/sub-013_conditions.xlsx'), 
         seed=None, 
     )
     thisExp.addLoop(trials)  # add the loop to the experiment
@@ -902,17 +900,19 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         # create an object to store info about Routine trial
         trial = data.Routine(
             name='trial',
-            components=[cue_stim, target_stim, task_msg, mic_input],
+            components=[cue_stim, target_stim, probe_stim, task_msg, mic],
         )
         trial.status = NOT_STARTED
         continueRoutine = True
         # update component parameters for each repeat
-        task_msg.setText('Active')
+        probe_stim.setSound(probe_file, secs=probe_duration, hamming=True)
+        probe_stim.setVolume(probe_intensity, log=False)
+        probe_stim.seek(0)
+        task_msg.setText(task)
         # Run 'Begin Routine' code from code_trial
         cue_started = False
         aa_green_onset = None  # To store when the cue turns green relative to trial onset
         aa_test_onset = None
-        
         
         # store start times for trial
         trial.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
@@ -1019,6 +1019,34 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     target_stim.status = FINISHED
                     target_stim.setAutoDraw(False)
             
+            # *probe_stim* updates
+            
+            # if probe_stim is starting this frame...
+            if probe_stim.status == NOT_STARTED and tThisFlip >= probe_onset-frameTolerance:
+                # keep track of start time/frame for later
+                probe_stim.frameNStart = frameN  # exact frame index
+                probe_stim.tStart = t  # local t and not account for scr refresh
+                probe_stim.tStartRefresh = tThisFlipGlobal  # on global time
+                # add timestamp to datafile
+                thisExp.addData('probe_stim.started', tThisFlipGlobal)
+                # update status
+                probe_stim.status = STARTED
+                probe_stim.play(when=win)  # sync with win flip
+            
+            # if probe_stim is stopping this frame...
+            if probe_stim.status == STARTED:
+                # is it time to stop? (based on global clock, using actual start)
+                if tThisFlipGlobal > probe_stim.tStartRefresh + probe_duration-frameTolerance or probe_stim.isFinished:
+                    # keep track of stop time/frame for later
+                    probe_stim.tStop = t  # not accounting for scr refresh
+                    probe_stim.tStopRefresh = tThisFlipGlobal  # on global time
+                    probe_stim.frameNStop = frameN  # exact frame index
+                    # add timestamp to datafile
+                    thisExp.timestampOnFlip(win, 'probe_stim.stopped')
+                    # update status
+                    probe_stim.status = FINISHED
+                    probe_stim.stop()
+            
             # *task_msg* updates
             
             # if task_msg is starting this frame...
@@ -1090,48 +1118,53 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             if aa_green_onset is not None and elapsed_time >= aa_green_onset + hold_time:
                 cue_stim.autoDraw = False  # Hide cue_stim
             
+            # Track test_stim onset time without modifying its behavior
+            if elapsed_time >= 3.0 and aa_test_onset is None:
+                aa_test_onset = elapsed_time  # Store exact trial-relative onset time
+            
+            # Save aa_test_onset and aa_green_onset to output file at the end of the routine
+            if aa_test_onset is not None:
+                thisExp.addData('aa_test_onset', aa_test_onset)  # Store test_stim onset
+            
             if aa_green_onset is not None:
                 thisExp.addData('aa_green_onset', aa_green_onset)  # Store cue turning green onset
             
             
-            
-            
-            
-            # if mic_input is starting this frame...
-            if mic_input.status == NOT_STARTED and t >= 2.5-frameTolerance:
+            # if mic is starting this frame...
+            if mic.status == NOT_STARTED and t >= 2.5-frameTolerance:
                 # keep track of start time/frame for later
-                mic_input.frameNStart = frameN  # exact frame index
-                mic_input.tStart = t  # local t and not account for scr refresh
-                mic_input.tStartRefresh = tThisFlipGlobal  # on global time
-                win.timeOnFlip(mic_input, 'tStartRefresh')  # time at next scr refresh
+                mic.frameNStart = frameN  # exact frame index
+                mic.tStart = t  # local t and not account for scr refresh
+                mic.tStartRefresh = tThisFlipGlobal  # on global time
+                win.timeOnFlip(mic, 'tStartRefresh')  # time at next scr refresh
                 # add timestamp to datafile
-                thisExp.addData('mic_input.started', t)
+                thisExp.addData('mic.started', t)
                 # update status
-                mic_input.status = STARTED
-                # start recording with mic_input
-                mic_input.start()
+                mic.status = STARTED
+                # start recording with mic
+                mic.start()
             
-            # if mic_input is active this frame...
-            if mic_input.status == STARTED:
+            # if mic is active this frame...
+            if mic.status == STARTED:
                 # update params
                 pass
-                # update recorded clip for mic_input
-                mic_input.poll()
+                # update recorded clip for mic
+                mic.poll()
             
-            # if mic_input is stopping this frame...
-            if mic_input.status == STARTED:
+            # if mic is stopping this frame...
+            if mic.status == STARTED:
                 # is it time to stop? (based on global clock, using actual start)
-                if tThisFlipGlobal > mic_input.tStartRefresh + 2-frameTolerance:
+                if tThisFlipGlobal > mic.tStartRefresh + 1.5-frameTolerance:
                     # keep track of stop time/frame for later
-                    mic_input.tStop = t  # not accounting for scr refresh
-                    mic_input.tStopRefresh = tThisFlipGlobal  # on global time
-                    mic_input.frameNStop = frameN  # exact frame index
+                    mic.tStop = t  # not accounting for scr refresh
+                    mic.tStopRefresh = tThisFlipGlobal  # on global time
+                    mic.frameNStop = frameN  # exact frame index
                     # add timestamp to datafile
-                    thisExp.addData('mic_input.stopped', t)
+                    thisExp.addData('mic.stopped', t)
                     # update status
-                    mic_input.status = FINISHED
-                    # stop recording with mic_input
-                    mic_input.stop()
+                    mic.status = FINISHED
+                    # stop recording with mic
+                    mic.stop()
             
             # check for quit (typically the Esc key)
             if defaultKeyboard.getKeys(keyList=["escape"]):
@@ -1145,7 +1178,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     thisExp=thisExp, 
                     win=win, 
                     timers=[routineTimer], 
-                    playbackComponents=[]
+                    playbackComponents=[probe_stim]
                 )
                 # skip the frame we paused on
                 continue
@@ -1172,19 +1205,17 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         trial.tStop = globalClock.getTime(format='float')
         trial.tStopRefresh = tThisFlipGlobal
         thisExp.addData('trial.stopped', trial.tStop)
-        # Run 'End Routine' code from code_trial
-        
-        
-        # tell mic to keep hold of current recording in mic_input.clips and transcript (if applicable) in mic_input.scripts
-        # this will also update mic_input.lastClip and mic_input.lastScript
-        mic_input.stop()
+        probe_stim.pause()  # ensure sound has stopped at end of Routine
+        # tell mic to keep hold of current recording in mic.clips and transcript (if applicable) in mic.scripts
+        # this will also update mic.lastClip and mic.lastScript
+        mic.stop()
         tag = data.utils.getDateStr()
-        mic_inputClip = mic_input.bank(
+        micClip = mic.bank(
             tag=tag, transcribe='None',
             config=None
         )
         trials.addData(
-            'mic_input.clip', mic_input.recordingFolder / mic_input.getClipFilename(tag)
+            'mic.clip', mic.recordingFolder / mic.getClipFilename(tag)
         )
         # using non-slip timing so subtract the expected duration of this Routine (unless ended on request)
         if trial.maxDurationReached:
@@ -1195,13 +1226,13 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             routineTimer.addTime(-5.000000)
         thisExp.nextEntry()
         
-    # completed 5.0 repeats of 'trials'
+    # completed 1.0 repeats of 'trials'
     
     if thisSession is not None:
         # if running in a Session with a Liaison client, send data up to now
         thisSession.sendExperimentData()
-    # save mic_input recordings
-    mic_input.saveClips()
+    # save mic recordings
+    mic.saveClips()
     
     # mark experiment as finished
     endExperiment(thisExp, win=win)
