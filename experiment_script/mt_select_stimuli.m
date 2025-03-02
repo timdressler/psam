@@ -48,25 +48,30 @@ while ~selection_done
     [normal_probe_data, FS_normal] = audioread(normal_probe_file);
     [pitch_probe_data, FS_pitch] = audioread(pitch_probe_file);
 
-    figure; 
-    subplot(121)
-    plot(normal_probe_data); 
-    title('Normal Probe');
-    subplot(122)
-    plot(pitch_probe_data); 
-    title('Pitch Probe');
-    sgtitle(['Change: ' num2str(change_attempts) ' (max. 4 allowed)'])
 
-    % Play sounds
-    for i = 1:5
-        sound(normal_probe_data, FS_normal); pause();
-        sound(pitch_probe_data, FS_pitch); pause();
-    end
+
+
 
     % User decision dialog
     change_file_yes_no = 'listen_again';
     while strcmp(change_file_yes_no, 'listen_again')
         change_file_yes_no = 'no';  % Default value
+
+        figure;
+        subplot(121)
+        plot(normal_probe_data);
+        title('Normal Probe');
+        subplot(122)
+        plot(pitch_probe_data);
+        title('Pitch Probe');
+        sgtitle(['Change: ' num2str(change_attempts) ' (max. 4 allowed)'])
+
+        % Play sounds
+        for i = 1:5
+            sound(normal_probe_data, FS_normal); pause();
+            sound(pitch_probe_data, FS_pitch); pause();
+        end
+
         d = dialog('Position', [500 300 350 150], 'Name', 'File Selection');
 
         uicontrol('Parent', d, 'Style', 'text', 'Position', [50 90 250 40], ...
@@ -93,10 +98,10 @@ while ~selection_done
             change_attempts = change_attempts + 1;
             % Apply shift pattern for changes
             current_index = median_index + shift_values(change_attempts);
-            final_probe_properties = select_file(current_index); 
-           
+            final_probe_properties = select_file(current_index);
+
         else
-            close all 
+            close all
             error('Max number of file changes reached. No further changes allowed. NO PROBE SAVED! REPEAT STIMULI RECORDING!');
             selection_done = true;  % Stop selection loop
         end
