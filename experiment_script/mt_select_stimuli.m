@@ -2,7 +2,7 @@ clear
 close all
 clc
 
-subj = 'sub-007';
+subj = 'sub-013';
 
 % Set up paths
 SCRIPTPATH = cd;
