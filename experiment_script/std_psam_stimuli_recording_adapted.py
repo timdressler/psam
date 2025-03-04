@@ -1180,7 +1180,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         mic_input.stop()
         ##tag = data.utils.getDateStr()
         subject_id = expInfo["participant"] # CHANGED
-        subject_id = f"sub-{subject_id.zfill(2)}" + data.utils.getDateStr()
+        subject_id = f"sub-{subject_id.zfill(2)}_" + data.utils.getDateStr()
         tag = subject_id #CHANGED
         print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
         print(tag)
