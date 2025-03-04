@@ -2,7 +2,7 @@ clear
 close all
 clc
 
-subj = 'sub-12';
+subj = 'sub-89';
 
 % Set up paths
 SCRIPTPATH = cd;
@@ -13,12 +13,12 @@ else
 end
 
 MAINPATH = erase(SCRIPTPATH, '\experiment_script');
-STIMULIPATH = fullfile(MAINPATH, ['data/BIDS/' subj '/stimuli']);
-STIMULIPATH_Normal = fullfile(MAINPATH, ['data/BIDS/' subj '/stimuli/all_normal']);
-STIMULIPATH_Pitch = fullfile(MAINPATH, ['data/BIDS/' subj '/stimuli/all_pitch']);
-STIMULIPATH_Raw = fullfile(MAINPATH, ['data/BIDS/' subj '/stimuli/all_raw']);
-EEGPATH = fullfile(MAINPATH, ['data/BIDS/' subj '/eeg']);
-BEHAVIORALPATH = fullfile(MAINPATH, ['data/BIDS/' subj '/beh']);
+STIMULIPATH = fullfile(MAINPATH, ['BIDS/' subj '/stimuli']);
+STIMULIPATH_Normal = fullfile(MAINPATH, ['BIDS/' subj '/stimuli/all_normal']);
+STIMULIPATH_Pitch = fullfile(MAINPATH, ['BIDS/' subj '/stimuli/all_pitch']);
+STIMULIPATH_Raw = fullfile(MAINPATH, ['BIDS/' subj '/stimuli/all_raw']);
+EEGPATH = fullfile(MAINPATH, ['BIDS/' subj '/eeg']);
+BEHAVIORALPATH = fullfile(MAINPATH, ['BIDS/' subj '/beh']);
 
 FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);

@@ -128,7 +128,7 @@ def setupData(expInfo, dataDir=None):
     subject_id = f"sub-{subject_id.zfill(2)}"
     print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
     print(subject_id)
-    filename = u'data\\BIDS\\%s\\stimuli\\all_raw\\%s_%s_%s' % (subject_id, subject_id, "stimuli_recordings", expInfo['date']) # CHANGED
+    filename = u'BIDS\\%s\\stimuli\\all_raw\\%s_%s_%s' % (subject_id, subject_id, "stimuli_recordings", expInfo['date']) # CHANGED
     print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
     print(filename)
     # make sure filename is relative to dataDir
@@ -1178,13 +1178,18 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         # tell mic to keep hold of current recording in mic_input.clips and transcript (if applicable) in mic_input.scripts
         # this will also update mic_input.lastClip and mic_input.lastScript
         mic_input.stop()
-        tag = data.utils.getDateStr()
+        ##tag = data.utils.getDateStr()
+        subject_id = expInfo["participant"] # CHANGED
+        subject_id = f"sub-{subject_id.zfill(2)}" + data.utils.getDateStr()
+        tag = subject_id #CHANGED
+        print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+        print(tag)
         mic_inputClip = mic_input.bank(
             tag=tag, transcribe='None',
             config=None
         )
         trials.addData(
-            'mic_input.clip', mic_input.recordingFolder / mic_input.getClipFilename(tag)
+            'mic_input.clip', mic_input.recordingFolder / mic_input.getClipFilename(tag) 
         )
         # using non-slip timing so subtract the expected duration of this Routine (unless ended on request)
         if trial.maxDurationReached:

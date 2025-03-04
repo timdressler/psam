@@ -2,7 +2,7 @@ clear
 close all
 clc
 
-subj = 'sub-12';
+subj = 'sub-89'
 
 % Set up paths
 SCRIPTPATH = cd;
@@ -13,7 +13,7 @@ else
 end
 
 MAINPATH = erase(SCRIPTPATH, '\experiment_script');
-STIMULIPATH = fullfile(MAINPATH, ['data/BIDS/' subj '/stimuli']);
+STIMULIPATH = fullfile(MAINPATH, ['BIDS/' subj '/stimuli']);
 STIMULIPATH_Normal = fullfile(STIMULIPATH, 'all_normal');
 STIMULIPATH_Pitch = fullfile(STIMULIPATH, 'all_pitch');
 STIMULIPATH_Raw = fullfile(STIMULIPATH, 'all_raw');
