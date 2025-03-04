@@ -2,7 +2,7 @@ clear
 close all
 clc
 
-subj = 'sub-013';
+subj = 'sub-12';
 
 % Set up paths
 SCRIPTPATH = cd;
@@ -13,19 +13,18 @@ else
 end
 
 MAINPATH = erase(SCRIPTPATH, '\experiment_script');
-STIMULIPATH = fullfile(MAINPATH, ['data/' subj '/stimuli']);
-STIMULIPATH_Normal = fullfile(MAINPATH, ['data/' subj '/stimuli/all_normal']);
-STIMULIPATH_Pitch = fullfile(MAINPATH, ['data/' subj '/stimuli/all_pitch']);
-STIMULIPATH_Raw = fullfile(MAINPATH, ['data/' subj '/stimuli/all_raw']);
-AUDIOPATH = fullfile(MAINPATH, ['data/' subj '/audio']);
-EEGPATH = fullfile(MAINPATH, ['data/' subj '/eeg']);
-BEHAVIORALPATH = fullfile(MAINPATH, ['data/' subj '/behavioral']);
+STIMULIPATH = fullfile(MAINPATH, ['data/BIDS/' subj '/stimuli']);
+STIMULIPATH_Normal = fullfile(MAINPATH, ['data/BIDS/' subj '/stimuli/all_normal']);
+STIMULIPATH_Pitch = fullfile(MAINPATH, ['data/BIDS/' subj '/stimuli/all_pitch']);
+STIMULIPATH_Raw = fullfile(MAINPATH, ['data/BIDS/' subj '/stimuli/all_raw']);
+EEGPATH = fullfile(MAINPATH, ['data/BIDS/' subj '/eeg']);
+BEHAVIORALPATH = fullfile(MAINPATH, ['data/BIDS/' subj '/beh']);
 
 FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);
 
 
-mt_check_folder_TD(MAINPATH, STIMULIPATH,STIMULIPATH_Normal,STIMULIPATH_Pitch,STIMULIPATH_Raw, AUDIOPATH, EEGPATH, BEHAVIORALPATH)
+mt_check_folder_TD(MAINPATH, STIMULIPATH,STIMULIPATH_Normal,STIMULIPATH_Pitch,STIMULIPATH_Raw, EEGPATH, BEHAVIORALPATH)
 
 early_onset = 2.8;
 late_onset = 2.9;
@@ -157,7 +156,7 @@ for iter = 1:num_iterations
     
 end
 
-conditions_table = cell2table(all_trials, "VariableNames",{'probe', 'task', 'probe_onset_cat', 'probe_type', 'probe_onset', 'probe_intensity', 'probe_file', 'probe_duration' ,'subj'});
+conditions_table = cell2table(all_trials, "VariableNames",{'probe', 'task', 'probe_onset_cat', 'probe_type', 'probe_onset', 'probe_intensity', 'stim_file', 'probe_duration' ,'subj'});
 
 writetable(conditions_table, fullfile(STIMULIPATH, [subj '_conditions.xlsx']));
 

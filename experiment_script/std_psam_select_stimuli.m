@@ -2,7 +2,7 @@ clear
 close all
 clc
 
-subj = 'sub-013';
+subj = 'sub-12';
 
 % Set up paths
 SCRIPTPATH = cd;
@@ -13,7 +13,7 @@ else
 end
 
 MAINPATH = erase(SCRIPTPATH, '\experiment_script');
-STIMULIPATH = fullfile(MAINPATH, ['data/' subj '/stimuli']);
+STIMULIPATH = fullfile(MAINPATH, ['data/BIDS/' subj '/stimuli']);
 STIMULIPATH_Normal = fullfile(STIMULIPATH, 'all_normal');
 STIMULIPATH_Pitch = fullfile(STIMULIPATH, 'all_pitch');
 STIMULIPATH_Raw = fullfile(STIMULIPATH, 'all_raw');
@@ -22,10 +22,10 @@ FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);
 
 % Load table and determine median index
-f0_table = readtable(fullfile(STIMULIPATH_Raw, 'f0_table.csv'), 'Delimiter', ',');
-a = sortrows(f0_table, 1);
-ha = height(a);
-median_index = (ha + 1) / 2;
+f0_table = readtable(fullfile(STIMULIPATH_Raw, [subj '_f0_table.csv']), 'Delimiter', ',');
+sorted_f0_table = sortrows(f0_table, 1);
+height_sorted_f0_table = height(sorted_f0_table);
+median_index = (height_sorted_f0_table + 1) / 2;
 
 % Initialize variables
 change_attempts = 0;  % Track number of changes
@@ -33,7 +33,7 @@ shift_values = [-1, 1, -2, 2];  % Change sequence pattern
 selection_done = false;  % Flag to stop selection process
 
 % Function to select file details
-select_file = @(idx) table2cell(a(idx, ["f0_tab_normal", "f0_tab_pitched", "filename_tab"]));
+select_file = @(idx) table2cell(sorted_f0_table(idx, ["f0_tab_normal", "f0_tab_pitched", "filename_tab"]));
 
 % Start with median index
 current_index = median_index;

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on März 01, 2025, at 13:19
+    on März 02, 2025, at 21:17
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -39,7 +39,10 @@ import random
 # create a device manager to handle hardware (keyboards, mice, mirophones, speakers, etc.)
 deviceManager = hardware.DeviceManager()
 # ensure that relative paths start from the same directory as this script
-_thisDir = os.path.dirname(os.path.abspath(__file__))
+_thisDir = os.path.dirname(os.path.abspath(__file__)) # CHANGED
+_thisDir = os.path.dirname(_thisDir)
+print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
+print(_thisDir)
 # store info about the experiment session
 psychopyVersion = '2024.2.4'
 expName = 'mt_stimuli_recording'  # from the Builder filename that created this script
@@ -117,11 +120,24 @@ def setupData(expInfo, dataDir=None):
     # data file name stem = absolute path + name; later add .psyexp, .csv, .log, etc
     if dataDir is None:
         dataDir = _thisDir
-    filename = u'data/%s_%s_%s' % (expInfo['participant'], expName, expInfo['date'])
+        print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
+        print(dataDir)
+
+
+    subject_id = expInfo["participant"] # CHANGED
+    subject_id = f"sub-{subject_id.zfill(2)}"
+    print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
+    print(subject_id)
+    filename = u'data\\BIDS\\%s\\stimuli\\all_raw\\%s_%s_%s' % (subject_id, subject_id, "stimuli_recordings", expInfo['date']) # CHANGED
+    print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
+    print(filename)
     # make sure filename is relative to dataDir
     if os.path.isabs(filename):
         dataDir = os.path.commonprefix([dataDir, filename])
         filename = os.path.relpath(filename, dataDir)
+
+    print("TEST TEST TEST TEST TEST TEST")
+    print(filename)
     
     # an ExperimentHandler isn't essential but helps with data saving
     thisExp = data.ExperimentHandler(
@@ -135,7 +151,6 @@ def setupData(expInfo, dataDir=None):
     thisExp.setPriority('expName', priority.LOW)
     # return experiment handler
     return thisExp
-
 
 def setupLogging(filename):
     """
@@ -377,7 +392,9 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     
     # Start Code - component code to be run after the window creation
     # Make folder to store recordings from mic_input
-    mic_inputRecFolder = filename + '_mic_input_recorded'
+    mic_inputRecFolder = os.path.dirname(filename) # CHANGED
+    print("CHANGED CHANGED CHANGED CHANGED CHANGED")
+    print(filename)
     if not os.path.isdir(mic_inputRecFolder):
         os.mkdir(mic_inputRecFolder)
     
@@ -1274,9 +1291,3 @@ if __name__ == '__main__':
     )
     saveData(thisExp=thisExp)
     quit(thisExp=thisExp, win=win)
-
-
-subject_id = f"sub-{int(expInfo['participant']):03d}"
-print(subject_id)
-
-1+1
