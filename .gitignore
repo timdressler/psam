@@ -1,3 +1,5 @@
 *.asv
 data/
 *.exe
+BIDS/
+rawdata/
