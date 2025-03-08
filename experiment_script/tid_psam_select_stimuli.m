@@ -1,8 +1,40 @@
+% tid_psam_select_stimuli.m
+%
+% Selects stimuli for main experiment.
+% Has to be executed AFTER tid_psam_create_conditions_file.m,
+%   tid_psam_stimuli_recording_adapted.py and tid_psam_prepare_stimuli.praat.
+%
+% Selection Process:
+%   Selects probe with median F0
+%   Presents selected probe 5 times   
+%   Experimenter can choose whether to listen again, change to another
+%       probe or keep the probe
+%   In case a change is requested, the probe 'next to the median probe' is 
+%       selected (first the one below the median, then the one above)
+%   If the probe is still not usable the process is repeated with the
+%       probes that 'lie 2 steps from the median one'. 
+%   After that, no probe change is possible anymore and the recoring has to
+%   b   e repeated
+%
+% Tim Dressler, 07.03.2025
+
 clear
 close all
 clc
 
-subj = 'sub-99'
+% Get subject ID
+prompt = {'Enter subject number:'};
+dlgtitle = 'Subject Number Input';
+dims = [1 35];
+
+answer = inputdlg(prompt, dlgtitle, dims);
+
+% Format subject ID
+if ~isempty(answer)
+    num = str2double(answer{1}); % Convert input to a number
+    formattedNum = sprintf('%02d', num); % Ensure two-digit format
+    subj = ['sub-' formattedNum]; % Construct final subject ID
+end
 
 % Set up paths
 SCRIPTPATH = cd;
@@ -28,9 +60,9 @@ height_sorted_f0_table = height(sorted_f0_table);
 median_index = (height_sorted_f0_table + 1) / 2;
 
 % Initialize variables
-change_attempts = 0;  % Track number of changes
-shift_values = [-1, 1, -2, 2];  % Change sequence pattern
-selection_done = false;  % Flag to stop selection process
+change_attempts = 0;  % track number of changes requested by the experimenter
+shift_values = [-1, 1, -2, 2];  % first select alternative file one below the median, then one above, ...
+selection_done = false;  % set up flag to stop selection process
 
 % Function to select file details
 select_file = @(idx) table2cell(sorted_f0_table(idx, ["f0_tab_normal", "f0_tab_pitched", "filename_tab"]));
@@ -48,11 +80,7 @@ while ~selection_done
     [normal_probe_data, FS_normal] = audioread(normal_probe_file);
     [pitch_probe_data, FS_pitch] = audioread(pitch_probe_file);
 
-
-
-
-
-    % User decision dialog
+    % Experimenter decision dialog
     change_file_yes_no = 'listen_again';
     while strcmp(change_file_yes_no, 'listen_again')
         change_file_yes_no = 'no';  % Default value
@@ -89,21 +117,20 @@ while ~selection_done
         uiwait(d);
     end
 
-    % Handle user selection
+    % Handle experimenter selection
     if strcmp(change_file_yes_no, 'no')
         selection_done = true;  % Stop selection loop
 
     elseif strcmp(change_file_yes_no, 'yes')
         if change_attempts < 4
             change_attempts = change_attempts + 1;
-            % Apply shift pattern for changes
+            % Apply shift pattern for requested changes
             current_index = median_index + shift_values(change_attempts);
             final_probe_properties = select_file(current_index);
-
         else
             close all
             error('Max number of file changes reached. No further changes allowed. NO PROBE SAVED! REPEAT STIMULI RECORDING!');
-            selection_done = true;  % Stop selection loop
+            selection_done = true;  % stop selection loop
         end
     end
 end
@@ -116,13 +143,14 @@ destinationFile_pitch = fullfile(STIMULIPATH, [subj '_pitch_probe.wav']);
 copyfile(fullfile(STIMULIPATH_Normal, [final_probe_properties{1,3} '_normal.wav']), destinationFile_normal);
 copyfile(fullfile(STIMULIPATH_Pitch, [final_probe_properties{1,3} '_pitch.wav']), destinationFile_pitch);
 
-% Export final probe properties as Excel file
+% Export final probe properties 
 exportFile = fullfile(STIMULIPATH, [subj '_probe_properties.xlsx']);
 final_probe_table = cell2table(final_probe_properties, ...
     'VariableNames', {'f0_tab_normal', 'f0_tab_pitched', 'filename_tab'});
 final_probe_table.change_attemps = change_attempts;
-
 writetable(final_probe_table, exportFile, 'FileType', 'spreadsheet');
+
+% Display successful performance
 disp(['Final probe properties saved as: ' exportFile]);
 disp('READY FOR MAIN EXPERIMENT')
 

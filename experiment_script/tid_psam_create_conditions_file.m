@@ -1,8 +1,44 @@
+% tid_psam_select_stimuli.m
+%
+% Creates BIDS-conform folder structure and conditions file.
+% The pseudorandomization ensures that task conditions are shuffled while 
+% maintaining constraints on consecutive repetitions. 
+% Note. The number of trials (n_trials) has to be dividable by 16 due to
+% the used miniblock system.
+%
+% Randomization Process
+%   Miniblock Setup: Each iteration of the loop creates a miniblock of 16 trials, with 8 "Yes" (probe) trials and 8 "No" (no probe) trials
+%   Shuffling with Constraints:
+%       A temporary copy of the task list is made
+%       The script selects a random valid trial from the remaining list, ensuring that no task type ("Yes" or "No") repeats more than max_repeats (4 times) in a row
+%       If no valid choice is available, the process resets and retries to generate a valid sequence
+%       Task Assignment: Once a valid randomized sequence is generated:
+%           Half of the "Yes" and "No" trials are assigned to "Active" and the other half to "Passive" conditions
+%           "Yes" (probe) trials are further divided into "Early" and "Late" onset probes, with equal distribution of "Normal" and "Pitch" probe types
+%       Finalizing the Block:
+%           Probe onset times, durations, and intensities are assigned
+%           The subject ID is added, and the miniblock is stored
+%           The process repeats for all required iterations to build the full experiment trial list.
+%
+% Tim Dressler, 07.03.2025
+
 clear
 close all
 clc
 
-subj = 'sub-99';
+% Get subject ID
+prompt = {'Enter subject number:'};
+dlgtitle = 'Subject Number Input';
+dims = [1 35];
+
+answer = inputdlg(prompt, dlgtitle, dims);
+
+% Format subject ID
+if ~isempty(answer)
+    num = str2double(answer{1}); % Convert input to a number
+    formattedNum = sprintf('%02d', num); % Ensure two-digit format
+    subj = ['sub-' formattedNum]; % Construct final subject ID
+end
 
 % Set up paths
 SCRIPTPATH = cd;
@@ -26,33 +62,38 @@ addpath(FUNPATH);
 
 tid_psam_check_folder_TD(MAINPATH, STIMULIPATH,STIMULIPATH_Normal,STIMULIPATH_Pitch,STIMULIPATH_Raw, EEGPATH, BEHAVIORALPATH)
 
-early_onset = 2.8;
-late_onset = 2.9;
-n_trials = 960;
+% Set up experiment paramaters
+early_onset = 2.8; % relative to trial onset
+late_onset = 2.9; % relative to trial onset
+n_trials = 960; % has to be dividable by 16
+max_repeats = 4; % how often probe (or no probe) trials can be repeated
+
+% Checks whether the number of trials is diviable by 16
 if ~mod(n_trials, 16) == 0
     error('trial number has to be divideable by 16')
 else
     disp('Trial number OK')
 end
 
-max_repeats = 4; 
+% Get needed number of miniblocks
 num_iterations = n_trials/16; 
 
+% Set up filenames for probes
 path_normal_probe = fullfile(STIMULIPATH, [subj '_normal_probe.wav']);
 path_pitch_probe = fullfile(STIMULIPATH, [subj '_pitch_probe.wav']);
 
+% Start randomization process
 all_trials = {};
 for iter = 1:num_iterations
     % Set up miniblock
     miniblock_task = {'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', ...
         'No', 'No', 'No', 'No', 'No', 'No', 'No', 'No'};
-    
     success = false;
     while ~success
         try
             % Shuffle while maintaining max repetition constraint
             miniblock_task_rando = {};
-            temp_task = miniblock_task; % Copy to avoid modifying original
+            temp_task = miniblock_task; % copy to avoid modifying original
             
             while ~isempty(temp_task)
                 valid_indices = [];
@@ -75,13 +116,14 @@ for iter = 1:num_iterations
                 temp_task(random_index) = [];
             end
             
-            success = true; % If successful, exit loop
+            success = true; % if successful, exit loop
         catch
             % If an error occurs, retry
             %%warning('Sequence generation failed. Retrying...');
         end
     end
 
+    % Get indices of probe and no proeb trials 
     miniblock_task_rando = miniblock_task_rando';
     yes_idx = find(strcmp(miniblock_task_rando, 'Yes'));
     no_idx = find(strcmp(miniblock_task_rando, 'No'));
@@ -117,7 +159,6 @@ for iter = 1:num_iterations
     miniblock_task_rando(probe_type_active_idx(4),5) = {late_onset};
     miniblock_task_rando(probe_type_active_idx(4),4) = {'Pitch'};
     miniblock_task_rando(probe_type_active_idx(4),7) = {path_pitch_probe};
-
 
     probe_type_passive_idx = yes_passive(randperm(length(yes_passive)));
     miniblock_task_rando(probe_type_passive_idx(1),3) = {'Early'};
@@ -156,7 +197,10 @@ for iter = 1:num_iterations
     
 end
 
+% Create and export file
 conditions_table = cell2table(all_trials, "VariableNames",{'probe', 'task', 'probe_onset_cat', 'probe_type', 'probe_onset', 'probe_intensity', 'stim_file', 'probe_duration' ,'subj'});
-
 writetable(conditions_table, fullfile(STIMULIPATH, [subj '_conditions.xlsx']));
 
+% Display successful performance
+disp(['Conditions file saved as: ' fullfile(STIMULIPATH, [subj '_conditions.xlsx'])]);
+disp('READY FOR STIMULI RECORDINGS')
