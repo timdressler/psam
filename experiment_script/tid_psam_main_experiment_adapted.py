@@ -1,8 +1,8 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on März 09, 2025, at 12:59
+    on März 09, 2025, at 13:06
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -40,9 +40,12 @@ import random
 deviceManager = hardware.DeviceManager()
 # ensure that relative paths start from the same directory as this script
 _thisDir = os.path.dirname(os.path.abspath(__file__))
+_thisDir = os.path.dirname(_thisDir)
+print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
+print(_thisDir)
 # store info about the experiment session
 psychopyVersion = '2024.2.4'
-expName = 'mt_exp_builder'  # from the Builder filename that created this script
+expName = 'tid_psam_main_experiment'  # from the Builder filename that created this script
 # information about this experiment
 expInfo = {
     'participant': f"{randint(0, 999999):06.0f}",
@@ -62,7 +65,7 @@ or run the experiment with `--pilot` as an argument. To change what pilot
 PILOTING = core.setPilotModeFromArgs()
 # start off with values from experiment settings
 _fullScr = True
-_winSize = [2560, 1440]
+_winSize = [1536, 960]
 # if in pilot mode, apply overrides according to preferences
 if PILOTING:
     # force windowed mode
@@ -118,7 +121,26 @@ def setupData(expInfo, dataDir=None):
     # data file name stem = absolute path + name; later add .psyexp, .csv, .log, etc
     if dataDir is None:
         dataDir = _thisDir
-    filename = u'data/%s_%s_%s' % (expInfo['participant'], expName, expInfo['date'])
+        print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
+        print(dataDir)
+
+    subject_id = expInfo["participant"] # CHANGED
+    subject_id = f"sub-{subject_id.zfill(2)}"
+    print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
+    print(subject_id)
+    filename = u'data\\BIDS\\%s\\beh\\%s_%s_%s' % (subject_id, subject_id, "tid_psam_main_experiment", expInfo['date']) # CHANGED
+    print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
+    print(filename)
+
+    filename_cond = u'data\\BIDS\\stimuli\\%s\\%s_conditions.xlsx' % (subject_id, subject_id) # CHANGED
+    print("UUUUUUUUUUUUUUUUUUUUUUUUUUUUUU")
+    print(filename_cond)
+    # make sure filename is relative to dataDir
+    if os.path.isabs(filename):
+        dataDir = os.path.commonprefix([dataDir, filename_cond])
+        filename_cond = os.path.relpath(filename_cond, dataDir)
+    print(filename_cond)
+# HELP TIM
     # make sure filename is relative to dataDir
     if os.path.isabs(filename):
         dataDir = os.path.commonprefix([dataDir, filename])
@@ -128,7 +150,7 @@ def setupData(expInfo, dataDir=None):
     thisExp = data.ExperimentHandler(
         name=expName, version='',
         extraInfo=expInfo, runtimeInfo=None,
-        originPath='C:\\Users\\timdr\\OneDrive\\Uni_Oldenburg\\4_Semester\\Master_Thesis\\Analysis_Experiment\\psam\\experiment_script\\tid_psam_main_experiment_lastrun.py',
+        originPath='C:\\Users\\timdr\\OneDrive\\Uni_Oldenburg\\4_Semester\\Master_Thesis\\Analysis_Experiment\\psam\\experiment_script\\tid_psam_main_experiment.py',
         savePickle=True, saveWideText=True,
         dataFileName=dataDir + os.sep + filename, sortColumns='alphabetical'
     )
@@ -384,7 +406,9 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     
     # Start Code - component code to be run after the window creation
     # Make folder to store recordings from mic
-    micRecFolder = filename + '_mic_recorded'
+    micRecFolder = os.path.dirname(filename) # CHANGED
+    print("CHANGED CHANGED CHANGED CHANGED CHANGED")
+    print(filename)
     if not os.path.isdir(micRecFolder):
         os.mkdir(micRecFolder)
     
@@ -410,7 +434,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     # --- Initialize components for Routine "ISI" ---
     fixation_cross_ISI = visual.ShapeStim(
         win=win, name='fixation_cross_ISI', vertices='cross',
-        size=(0.4, 0.4),
+        size=(0.1, 0.1),
         ori=0.0, pos=(0, 0), draggable=False, anchor='center',
         lineWidth=1.0,
         colorSpace='rgb', lineColor='white', fillColor='white',
@@ -756,7 +780,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     thisExp.nextEntry()
     # the Routine "instructions" was not non-slip safe, so reset the non-slip timer
     routineTimer.reset()
-    
+
     # set up handler to look after randomisation of conditions etc
     trials = data.TrialHandler2(
         name='trials',
@@ -1209,7 +1233,12 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         # tell mic to keep hold of current recording in mic.clips and transcript (if applicable) in mic.scripts
         # this will also update mic.lastClip and mic.lastScript
         mic.stop()
-        tag = data.utils.getDateStr()
+        ##tag = data.utils.getDateStr()
+        subject_id = expInfo["participant"] # CHANGED
+        subject_id = f"sub-{subject_id.zfill(2)}_" + data.utils.getDateStr()
+        tag = subject_id #CHANGED
+        print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+        print(tag)
         micClip = mic.bank(
             tag=tag, transcribe='None',
             config=None

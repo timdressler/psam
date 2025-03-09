@@ -128,7 +128,7 @@ def setupData(expInfo, dataDir=None):
     subject_id = f"sub-{subject_id.zfill(2)}"
     print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
     print(subject_id)
-    filename = u'BIDS\\%s\\stimuli\\all_raw\\%s_%s_%s' % (subject_id, subject_id, "stimuli_recordings", expInfo['date']) # CHANGED
+    filename = u'data\\BIDS\\stimuli\\%s\\all_raw\\%s_%s_%s' % (subject_id, subject_id, "stimuli_recordings", expInfo['date']) # CHANGED
     print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
     print(filename)
     # make sure filename is relative to dataDir
