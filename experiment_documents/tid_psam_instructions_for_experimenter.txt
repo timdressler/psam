@@ -1,4 +1,0 @@
-1. Run mt_create_conditions_file.m to create Folder structure and conditions file
-2. Run mt_stimuli_recoding.py to get raw stimuli
-3. Run mt_praat_prepare_stimuli.praat to get processed stimuli and F0 table
-4. Run mt_select_stimuli.m to select final stimuli
