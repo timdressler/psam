@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on März 09, 2025, at 13:06
+    on März 10, 2025, at 14:52
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -45,8 +45,7 @@ psychopyVersion = '2024.2.4'
 expName = 'tid_psam_main_experiment'  # from the Builder filename that created this script
 # information about this experiment
 expInfo = {
-    'participant': f"{randint(0, 999999):06.0f}",
-    'session': '001',
+    'participant': '',
     'date|hid': data.getDateStr(),
     'expName|hid': expName,
     'psychopyVersion|hid': psychopyVersion,
@@ -62,7 +61,7 @@ or run the experiment with `--pilot` as an argument. To change what pilot
 PILOTING = core.setPilotModeFromArgs()
 # start off with values from experiment settings
 _fullScr = True
-_winSize = [1536, 960]
+_winSize = [2560, 1440]
 # if in pilot mode, apply overrides according to preferences
 if PILOTING:
     # force windowed mode
@@ -118,7 +117,7 @@ def setupData(expInfo, dataDir=None):
     # data file name stem = absolute path + name; later add .psyexp, .csv, .log, etc
     if dataDir is None:
         dataDir = _thisDir
-    filename = u'data/%s_%s_%s' % (expInfo['participant'], expName, expInfo['date'])
+    filename = u'../data/BIDS/%s/beh/%s_%s_%s' % (f"sub-{int(expInfo['participant']):02d}", f"sub-{int(expInfo['participant']):02d}", "tid_psam_main_experiment", expInfo['date'])
     # make sure filename is relative to dataDir
     if os.path.isabs(filename):
         dataDir = os.path.commonprefix([dataDir, filename])
@@ -396,6 +395,17 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         color='white', colorSpace='rgb', opacity=None, 
         languageStyle='LTR',
         depth=0.0);
+    # Run 'Begin Experiment' code from code_setup
+    subject_id = expInfo["participant"] 
+    subject_id = f"sub-{subject_id.zfill(2)}"
+    thisExp.addData("subject_id", subject_id)
+    
+    _thisDir2 = os.path.dirname(_thisDir)
+    
+    filename_cond = u'data\\BIDS\\stimuli\\%s\\%s_conditions.xlsx' % (subject_id, subject_id) # CHANGED
+    conditionsFileName = _thisDir2 + os.sep + filename_cond
+    thisExp.addData("conditions", conditionsFileName)
+    
     
     # --- Initialize components for Routine "instructions" ---
     instructions_message = visual.TextStim(win=win, name='instructions_message',
@@ -764,7 +774,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         method='sequential', 
         extraInfo=expInfo, 
         originPath=-1, 
-        trialList=data.importConditions('C:/Users/timdr/OneDrive/Uni_Oldenburg/4_Semester/Master_Thesis/Analysis_Experiment/psam/data/BIDS/stimuli/sub-99/sub-99_conditions.xlsx'), 
+        trialList=data.importConditions(conditionsFileName), 
         seed=None, 
     )
     thisExp.addLoop(trials)  # add the loop to the experiment

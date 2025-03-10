@@ -5,10 +5,10 @@
     <Param val="ptb" valType="str" updates="None" name="Audio lib"/>
     <Param val="" valType="str" updates="None" name="Completed URL"/>
     <Param val="auto" valType="str" updates="None" name="Data file delimiter"/>
-    <Param val="u'data/%s_%s_%s' % (expInfo['participant'], expName, expInfo['date'])" valType="code" updates="None" name="Data filename"/>
+    <Param val="u'../data/BIDS/%s/beh/%s_%s_%s' % (f&quot;sub-{int(expInfo['participant']):02d}&quot;, f&quot;sub-{int(expInfo['participant']):02d}&quot;, &quot;tid_psam_main_experiment&quot;, expInfo['date'])" valType="code" updates="None" name="Data filename"/>
     <Param val="True" valType="bool" updates="None" name="Enable Escape"/>
     <Param val="Thank you for your patience." valType="str" updates="None" name="End Message"/>
-    <Param val="{'participant': 'f&quot;{randint(0, 999999):06.0f}&quot;', 'session': '001'}" valType="code" updates="None" name="Experiment info"/>
+    <Param val="{'participant': ''}" valType="code" updates="None" name="Experiment info"/>
     <Param val="True" valType="bool" updates="None" name="Force stereo"/>
     <Param val="True" valType="bool" updates="None" name="Full-screen window"/>
     <Param val="" valType="str" updates="None" name="HTML path"/>
@@ -26,7 +26,7 @@
     <Param val="False" valType="bool" updates="None" name="Show mouse"/>
     <Param val="height" valType="str" updates="None" name="Units"/>
     <Param val="" valType="str" updates="None" name="Use version"/>
-    <Param val="[1536, 960]" valType="list" updates="None" name="Window size (pixels)"/>
+    <Param val="[2560, 1440]" valType="list" updates="None" name="Window size (pixels)"/>
     <Param val="none" valType="str" updates="None" name="backgroundFit"/>
     <Param val="" valType="str" updates="None" name="backgroundImg"/>
     <Param val="avg" valType="str" updates="None" name="blendMode"/>
@@ -70,7 +70,7 @@
     <Param val="1000" valType="num" updates="None" name="plPupilRemoteTimeoutMs"/>
     <Param val="False" valType="bool" updates="None" name="plPupillometryOnly"/>
     <Param val="psychopy_iohub_surface" valType="str" updates="None" name="plSurfaceName"/>
-    <Param val="0" valType="code" updates="None" name="runMode"/>
+    <Param val="1" valType="code" updates="None" name="runMode"/>
     <Param val="False" valType="bool" updates="None" name="rush"/>
     <Param val="alphabetical" valType="str" updates="None" name="sortColumns"/>
     <Param val="" valType="str" updates="None" name="tbLicenseFile"/>
@@ -291,8 +291,8 @@
       <CodeComponent name="code_setup" plugin="None">
         <Param val="" valType="extendedCode" updates="constant" name="Before Experiment"/>
         <Param val="" valType="extendedCode" updates="constant" name="Before JS Experiment"/>
-        <Param val="subject_id = expInfo[&quot;participant&quot;] &amp;#10;subject_id = f&quot;sub-{subject_id.zfill(2)}&quot;&amp;#10;filename_cond = u'data\\BIDS\\stimuli\\%s\\%s_conditions.xlsx' % (subject_id, subject_id) # CHANGED&amp;#10;conditionsFileName = _thisDir + filename_cond&amp;#10;&amp;#10;thisExp.addData(&quot;conditions&quot;, conditionsFileName)" valType="extendedCode" updates="constant" name="Begin Experiment"/>
-        <Param val="subject_id = expInfo[&quot;participant&quot;];&amp;#10;subject_id = `sub-${subject_id.zfill(2)}`;&amp;#10;filename_cond = `data\BIDS\stimuli\${subject_id}\${subject_id}`;&amp;#10;conditionsFileName = (&quot;.&quot; + filename_cond);&amp;#10;psychoJS.experiment.addData(&quot;conditions&quot;, conditionsFileName);&amp;#10;" valType="extendedCode" updates="constant" name="Begin JS Experiment"/>
+        <Param val="subject_id = expInfo[&quot;participant&quot;] &amp;#10;subject_id = f&quot;sub-{subject_id.zfill(2)}&quot;&amp;#10;thisExp.addData(&quot;subject_id&quot;, subject_id)&amp;#10;&amp;#10;_thisDir2 = os.path.dirname(_thisDir)&amp;#10;&amp;#10;filename_cond = u'data\\BIDS\\stimuli\\%s\\%s_conditions.xlsx' % (subject_id, subject_id) # CHANGED&amp;#10;conditionsFileName = _thisDir2 + os.sep + filename_cond&amp;#10;thisExp.addData(&quot;conditions&quot;, conditionsFileName)&amp;#10;" valType="extendedCode" updates="constant" name="Begin Experiment"/>
+        <Param val="subject_id = expInfo[&quot;participant&quot;];&amp;#10;subject_id = `sub-${subject_id.zfill(2)}`;&amp;#10;psychoJS.experiment.addData(&quot;subject_id&quot;, subject_id);&amp;#10;_thisDir2 = os.path.dirname(&quot;.&quot;);&amp;#10;filename_cond = `data\BIDS\stimuli\${subject_id}\${subject_id}`;&amp;#10;conditionsFileName = ((_thisDir2 + &quot;/&quot;) + filename_cond);&amp;#10;psychoJS.experiment.addData(&quot;conditions&quot;, conditionsFileName);&amp;#10;" valType="extendedCode" updates="constant" name="Begin JS Experiment"/>
         <Param val="" valType="extendedCode" updates="constant" name="Begin JS Routine"/>
         <Param val="" valType="extendedCode" updates="constant" name="Begin Routine"/>
         <Param val="Auto-&gt;JS" valType="str" updates="None" name="Code Type"/>
