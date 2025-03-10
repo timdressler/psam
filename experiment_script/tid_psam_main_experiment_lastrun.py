@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on März 09, 2025, at 12:59
+    on März 10, 2025, at 08:58
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -42,7 +42,7 @@ deviceManager = hardware.DeviceManager()
 _thisDir = os.path.dirname(os.path.abspath(__file__))
 # store info about the experiment session
 psychopyVersion = '2024.2.4'
-expName = 'mt_exp_builder'  # from the Builder filename that created this script
+expName = 'tid_psam_main_experiment'  # from the Builder filename that created this script
 # information about this experiment
 expInfo = {
     'participant': f"{randint(0, 999999):06.0f}",
@@ -62,7 +62,7 @@ or run the experiment with `--pilot` as an argument. To change what pilot
 PILOTING = core.setPilotModeFromArgs()
 # start off with values from experiment settings
 _fullScr = True
-_winSize = [2560, 1440]
+_winSize = [1536, 960]
 # if in pilot mode, apply overrides according to preferences
 if PILOTING:
     # force windowed mode
@@ -396,6 +396,13 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         color='white', colorSpace='rgb', opacity=None, 
         languageStyle='LTR',
         depth=0.0);
+    # Run 'Begin Experiment' code from code_setup
+    subject_id = expInfo["participant"] 
+    subject_id = f"sub-{subject_id.zfill(2)}"
+    filename_cond = u'data\\BIDS\\stimuli\\%s\\%s_conditions.xlsx' % (subject_id, subject_id) # CHANGED
+    conditionsFileName = _thisDir + filename_cond
+    
+    thisExp.addData("conditions", conditionsFileName)
     
     # --- Initialize components for Routine "instructions" ---
     instructions_message = visual.TextStim(win=win, name='instructions_message',
@@ -410,7 +417,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     # --- Initialize components for Routine "ISI" ---
     fixation_cross_ISI = visual.ShapeStim(
         win=win, name='fixation_cross_ISI', vertices='cross',
-        size=(0.4, 0.4),
+        size=(0.1, 0.1),
         ori=0.0, pos=(0, 0), draggable=False, anchor='center',
         lineWidth=1.0,
         colorSpace='rgb', lineColor='white', fillColor='white',
@@ -764,7 +771,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         method='sequential', 
         extraInfo=expInfo, 
         originPath=-1, 
-        trialList=data.importConditions('C:/Users/timdr/OneDrive/Uni_Oldenburg/4_Semester/Master_Thesis/Analysis_Experiment/psam/data/BIDS/stimuli/sub-99/sub-99_conditions.xlsx'), 
+        trialList=data.importConditions(conditionsFileName), 
         seed=None, 
     )
     thisExp.addLoop(trials)  # add the loop to the experiment

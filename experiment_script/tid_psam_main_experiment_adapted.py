@@ -121,26 +121,26 @@ def setupData(expInfo, dataDir=None):
     # data file name stem = absolute path + name; later add .psyexp, .csv, .log, etc
     if dataDir is None:
         dataDir = _thisDir
-        print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
+        print("dataDir dataDir dataDir dataDir dataDir dataDir")
         print(dataDir)
 
-    subject_id = expInfo["participant"] # CHANGED
+    subject_id = expInfo["participant"] # CHANGEDTIM
     subject_id = f"sub-{subject_id.zfill(2)}"
-    print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
+    print("subject_id subject_id subject_id subject_id subject_id subject_id")
     print(subject_id)
     filename = u'data\\BIDS\\%s\\beh\\%s_%s_%s' % (subject_id, subject_id, "tid_psam_main_experiment", expInfo['date']) # CHANGED
-    print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
+    print("filename filename filename filename filename filename")
     print(filename)
 
     filename_cond = u'data\\BIDS\\stimuli\\%s\\%s_conditions.xlsx' % (subject_id, subject_id) # CHANGED
-    print("UUUUUUUUUUUUUUUUUUUUUUUUUUUUUU")
+    filename_cond = _thisDir + filename_cond
+    print("filename_cond filename_cond filename_cond filename_cond filename_cond filename_cond")
     print(filename_cond)
     # make sure filename is relative to dataDir
     if os.path.isabs(filename):
         dataDir = os.path.commonprefix([dataDir, filename_cond])
         filename_cond = os.path.relpath(filename_cond, dataDir)
     print(filename_cond)
-# HELP TIM
     # make sure filename is relative to dataDir
     if os.path.isabs(filename):
         dataDir = os.path.commonprefix([dataDir, filename])
@@ -157,7 +157,7 @@ def setupData(expInfo, dataDir=None):
     thisExp.setPriority('thisRow.t', priority.CRITICAL)
     thisExp.setPriority('expName', priority.LOW)
     # return experiment handler
-    return thisExp
+    return thisExp, filename_cond
 
 
 def setupLogging(filename):
@@ -407,8 +407,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     # Start Code - component code to be run after the window creation
     # Make folder to store recordings from mic
     micRecFolder = os.path.dirname(filename) # CHANGED
-    print("CHANGED CHANGED CHANGED CHANGED CHANGED")
-    print(filename)
+    print("micRecFolder micRecFolder micRecFolder micRecFolder micRecFolder micRecFolder")
+    print(micRecFolder)
     if not os.path.isdir(micRecFolder):
         os.mkdir(micRecFolder)
     
@@ -788,7 +788,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         method='sequential', 
         extraInfo=expInfo, 
         originPath=-1, 
-        trialList=data.importConditions('C:/Users/timdr/OneDrive/Uni_Oldenburg/4_Semester/Master_Thesis/Analysis_Experiment/psam/data/BIDS/stimuli/sub-99/sub-99_conditions.xlsx'), 
+        #trialList=data.importConditions('C:/Users/timdr/OneDrive/Uni_Oldenburg/4_Semester/Master_Thesis/Analysis_Experiment/psam/data/BIDS/stimuli/sub-99/sub-99_conditions.xlsx'), 
+        trialList=data.importConditions(filename), 
         seed=None, 
     )
     thisExp.addLoop(trials)  # add the loop to the experiment
