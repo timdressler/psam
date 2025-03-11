@@ -20,7 +20,7 @@
 %           The subject ID is added, and the miniblock is stored
 %           The process repeats for all required iterations to build the full experiment trial list.
 %
-% Tim Dressler, 07.03.2025
+% Tim Dressler, 07.03.2025 test lab3
 
 clear
 close all
