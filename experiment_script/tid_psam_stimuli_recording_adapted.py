@@ -289,7 +289,7 @@ def setupDevices(expInfo, thisExp, win):
         index=28, #CHANGED #was 12
         maxRecordingSize=240000.0,
         channels=1, 
-        sampleRateHz=48000, 
+        sampleRateHz=44100, 
     )
     # return True if completed successfully
     return True
