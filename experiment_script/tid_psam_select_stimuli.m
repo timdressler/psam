@@ -96,8 +96,11 @@ while ~selection_done
 
         % Play sounds
         for i = 1:5
-            sound(normal_probe_data, FS_normal); pause();
-            sound(pitch_probe_data, FS_pitch); pause();
+            pause(1)
+            sound(normal_probe_data, FS_normal); 
+            pause(1);
+            sound(pitch_probe_data, FS_pitch); 
+            pause(1);
         end
 
         d = dialog('Position', [500 300 350 150], 'Name', 'File Selection');
