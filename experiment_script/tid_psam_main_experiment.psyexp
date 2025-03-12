@@ -26,7 +26,7 @@
     <Param val="False" valType="bool" updates="None" name="Show mouse"/>
     <Param val="height" valType="str" updates="None" name="Units"/>
     <Param val="" valType="str" updates="None" name="Use version"/>
-    <Param val="[2560, 1440]" valType="list" updates="None" name="Window size (pixels)"/>
+    <Param val="[1920, 1080]" valType="list" updates="None" name="Window size (pixels)"/>
     <Param val="none" valType="str" updates="None" name="backgroundFit"/>
     <Param val="" valType="str" updates="None" name="backgroundImg"/>
     <Param val="avg" valType="str" updates="None" name="blendMode"/>
@@ -163,7 +163,7 @@
         <Param val="probe_stim" valType="code" updates="None" name="name"/>
         <Param val="True" valType="bool" updates="None" name="saveStartStop"/>
         <Param val="$stim_file" valType="str" updates="set every repeat" name="sound"/>
-        <Param val="-1" valType="code" updates="None" name="speakerIndex"/>
+        <Param val="23.0" valType="code" updates="None" name="speakerIndex"/>
         <Param val="" valType="code" updates="None" name="startEstim"/>
         <Param val="time (s)" valType="str" updates="None" name="startType"/>
         <Param val="$probe_onset" valType="code" updates="None" name="startVal"/>
@@ -219,14 +219,14 @@
       </CodeComponent>
       <MicrophoneComponent name="mic" plugin="None">
         <Param val="mono" valType="str" updates="None" name="channels"/>
-        <Param val="12" valType="code" updates="None" name="device"/>
+        <Param val="28" valType="code" updates="None" name="device"/>
         <Param val="audiointerface" valType="str" updates="None" name="deviceLabel"/>
         <Param val="False" valType="bool" updates="None" name="disabled"/>
         <Param val="" valType="code" updates="None" name="durationEstim"/>
         <Param val="240000" valType="num" updates="None" name="maxSize"/>
         <Param val="mic" valType="code" updates="None" name="name"/>
         <Param val="default" valType="code" updates="None" name="outputType"/>
-        <Param val="DVD Audio (48kHz)" valType="num" updates="None" name="sampleRate"/>
+        <Param val="CD Audio (44.1kHz)" valType="num" updates="None" name="sampleRate"/>
         <Param val="True" valType="bool" updates="None" name="saveStartStop"/>
         <Param val="False" valType="bool" updates="None" name="speakTimes"/>
         <Param val="" valType="code" updates="None" name="startEstim"/>
