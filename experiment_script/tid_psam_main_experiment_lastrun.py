@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on März 12, 2025, at 17:39
+    on März 14, 2025, at 10:38
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -271,7 +271,7 @@ def setupDevices(expInfo, thisExp, win):
     deviceManager.addDevice(
         deviceName='probe_stim',
         deviceClass='psychopy.hardware.speaker.SpeakerDevice',
-        index=23.0
+        index=-1
     )
     # initialise microphone
     deviceManager.addDevice(

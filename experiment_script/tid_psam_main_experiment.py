@@ -1,8 +1,8 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on März 10, 2025, at 14:52
+    on März 14, 2025, at 11:15
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -61,7 +61,7 @@ or run the experiment with `--pilot` as an argument. To change what pilot
 PILOTING = core.setPilotModeFromArgs()
 # start off with values from experiment settings
 _fullScr = True
-_winSize = [2560, 1440]
+_winSize = [1920, 1080]
 # if in pilot mode, apply overrides according to preferences
 if PILOTING:
     # force windowed mode
@@ -127,7 +127,7 @@ def setupData(expInfo, dataDir=None):
     thisExp = data.ExperimentHandler(
         name=expName, version='',
         extraInfo=expInfo, runtimeInfo=None,
-        originPath='C:\\Users\\timdr\\OneDrive\\Uni_Oldenburg\\4_Semester\\Master_Thesis\\Analysis_Experiment\\psam\\experiment_script\\tid_psam_main_experiment.py',
+        originPath='C:\\Experiments\\tid_psam\\psam\\experiment_script\\tid_psam_main_experiment.py',
         savePickle=True, saveWideText=True,
         dataFileName=dataDir + os.sep + filename, sortColumns='alphabetical'
     )
@@ -271,16 +271,16 @@ def setupDevices(expInfo, thisExp, win):
     deviceManager.addDevice(
         deviceName='probe_stim',
         deviceClass='psychopy.hardware.speaker.SpeakerDevice',
-        index=-1
+        index=23.0
     )
     # initialise microphone
     deviceManager.addDevice(
         deviceClass='psychopy.hardware.microphone.MicrophoneDevice',
         deviceName='audiointerface',
-        index=12,
+        index=28,
         maxRecordingSize=240000.0,
         channels=1, 
-        sampleRateHz=48000, 
+        sampleRateHz=44100, 
     )
     # return True if completed successfully
     return True
@@ -446,7 +446,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         secs=-1, 
         stereo=True, 
         hamming=True, 
-        speaker='probe_stim',    name='probe_stim'
+        speaker='probe_stim',    name='probe_stim', sampleRate = 44100
     )
     probe_stim.setVolume(1.0)
     task_msg = visual.TextStim(win=win, name='task_msg',
