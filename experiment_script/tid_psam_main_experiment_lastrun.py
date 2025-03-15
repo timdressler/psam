@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on März 15, 2025, at 17:13
+    on März 15, 2025, at 17:35
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -267,6 +267,21 @@ def setupDevices(expInfo, thisExp, win):
             deviceClass='keyboard',
             deviceName='instruction_keys',
         )
+    # create speaker 'probe_stim'
+    deviceManager.addDevice(
+        deviceName='probe_stim',
+        deviceClass='psychopy.hardware.speaker.SpeakerDevice',
+        index=23.0
+    )
+    # initialise microphone
+    deviceManager.addDevice(
+        deviceClass='psychopy.hardware.microphone.MicrophoneDevice',
+        deviceName='audiointerface',
+        index=28,
+        maxRecordingSize=240000.0,
+        channels=1, 
+        sampleRateHz=44100, 
+    )
     # return True if completed successfully
     return True
 
@@ -367,6 +382,10 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         frameDur = 1.0 / 60.0  # could not measure, so guess
     
     # Start Code - component code to be run after the window creation
+    # Make folder to store recordings from mic
+    micRecFolder = filename + '_mic_recorded'
+    if not os.path.isdir(micRecFolder):
+        os.mkdir(micRecFolder)
     
     # --- Initialize components for Routine "welcome" ---
     welcome_message = visual.TextStim(win=win, name='welcome_message',
@@ -422,13 +441,21 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         lineWidth=4.0,
         colorSpace='rgb', lineColor=[-1.0000, 0.0039, -1.0000], fillColor=[0.0000, 0.0000, 0.0000],
         opacity=1.0, depth=-1.0, interpolate=True)
+    probe_stim = sound.Sound(
+        'A', 
+        secs=-1, 
+        stereo=True, 
+        hamming=True, 
+        speaker='probe_stim',    name='probe_stim'
+    )
+    probe_stim.setVolume(1.0)
     task_msg = visual.TextStim(win=win, name='task_msg',
         text='',
         font='Arial',
         pos=(0, 0), draggable=False, height=0.04, wrapWidth=None, ori=0.0, 
         color=[-1.0000, -1.0000, -1.0000], colorSpace='rgb', opacity=None, 
         languageStyle='LTR',
-        depth=-2.0);
+        depth=-3.0);
     # Run 'Begin Experiment' code from code_trial
     # Import necessary module
     from psychopy import core
@@ -442,6 +469,13 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     cue_started = False    # To track when the cue starts shrinking
     cue_start_time = None  # To store when the cue started shrinking
     
+    # make microphone object for mic
+    mic = sound.microphone.Microphone(
+        device='audiointerface',
+        name='mic',
+        recordingFolder=micRecFolder,
+        recordingExt='wav'
+    )
     p_port = parallel.ParallelPort(address='0x3ff8')
     
     # create some handy timers
@@ -877,11 +911,14 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         # create an object to store info about Routine trial
         trial = data.Routine(
             name='trial',
-            components=[cue_stim, target_stim, task_msg, p_port],
+            components=[cue_stim, target_stim, probe_stim, task_msg, mic, p_port],
         )
         trial.status = NOT_STARTED
         continueRoutine = True
         # update component parameters for each repeat
+        probe_stim.setSound(stim_file, secs=probe_duration, hamming=True)
+        probe_stim.setVolume(probe_intensity, log=False)
+        probe_stim.seek(0)
         task_msg.setText(task)
         # Run 'Begin Routine' code from code_trial
         cue_started = False
@@ -993,6 +1030,34 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     target_stim.status = FINISHED
                     target_stim.setAutoDraw(False)
             
+            # *probe_stim* updates
+            
+            # if probe_stim is starting this frame...
+            if probe_stim.status == NOT_STARTED and tThisFlip >= probe_onset-frameTolerance:
+                # keep track of start time/frame for later
+                probe_stim.frameNStart = frameN  # exact frame index
+                probe_stim.tStart = t  # local t and not account for scr refresh
+                probe_stim.tStartRefresh = tThisFlipGlobal  # on global time
+                # add timestamp to datafile
+                thisExp.addData('probe_stim.started', tThisFlipGlobal)
+                # update status
+                probe_stim.status = STARTED
+                probe_stim.play(when=win)  # sync with win flip
+            
+            # if probe_stim is stopping this frame...
+            if probe_stim.status == STARTED:
+                # is it time to stop? (based on global clock, using actual start)
+                if tThisFlipGlobal > probe_stim.tStartRefresh + probe_duration-frameTolerance or probe_stim.isFinished:
+                    # keep track of stop time/frame for later
+                    probe_stim.tStop = t  # not accounting for scr refresh
+                    probe_stim.tStopRefresh = tThisFlipGlobal  # on global time
+                    probe_stim.frameNStop = frameN  # exact frame index
+                    # add timestamp to datafile
+                    thisExp.timestampOnFlip(win, 'probe_stim.stopped')
+                    # update status
+                    probe_stim.status = FINISHED
+                    probe_stim.stop()
+            
             # *task_msg* updates
             
             # if task_msg is starting this frame...
@@ -1075,6 +1140,42 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             if aa_green_onset is not None:
                 thisExp.addData('aa_green_onset', aa_green_onset)  # Store cue turning green onset
             
+            
+            # if mic is starting this frame...
+            if mic.status == NOT_STARTED and t >= 2.5-frameTolerance:
+                # keep track of start time/frame for later
+                mic.frameNStart = frameN  # exact frame index
+                mic.tStart = t  # local t and not account for scr refresh
+                mic.tStartRefresh = tThisFlipGlobal  # on global time
+                win.timeOnFlip(mic, 'tStartRefresh')  # time at next scr refresh
+                # add timestamp to datafile
+                thisExp.addData('mic.started', t)
+                # update status
+                mic.status = STARTED
+                # start recording with mic
+                mic.start()
+            
+            # if mic is active this frame...
+            if mic.status == STARTED:
+                # update params
+                pass
+                # update recorded clip for mic
+                mic.poll()
+            
+            # if mic is stopping this frame...
+            if mic.status == STARTED:
+                # is it time to stop? (based on global clock, using actual start)
+                if tThisFlipGlobal > mic.tStartRefresh + 1.5-frameTolerance:
+                    # keep track of stop time/frame for later
+                    mic.tStop = t  # not accounting for scr refresh
+                    mic.tStopRefresh = tThisFlipGlobal  # on global time
+                    mic.frameNStop = frameN  # exact frame index
+                    # add timestamp to datafile
+                    thisExp.addData('mic.stopped', t)
+                    # update status
+                    mic.status = FINISHED
+                    # stop recording with mic
+                    mic.stop()
             # *p_port* updates
             
             # if p_port is starting this frame...
@@ -1117,7 +1218,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     thisExp=thisExp, 
                     win=win, 
                     timers=[routineTimer], 
-                    playbackComponents=[]
+                    playbackComponents=[probe_stim]
                 )
                 # skip the frame we paused on
                 continue
@@ -1144,6 +1245,18 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         trial.tStop = globalClock.getTime(format='float')
         trial.tStopRefresh = tThisFlipGlobal
         thisExp.addData('trial.stopped', trial.tStop)
+        probe_stim.pause()  # ensure sound has stopped at end of Routine
+        # tell mic to keep hold of current recording in mic.clips and transcript (if applicable) in mic.scripts
+        # this will also update mic.lastClip and mic.lastScript
+        mic.stop()
+        tag = data.utils.getDateStr()
+        micClip = mic.bank(
+            tag=tag, transcribe='None',
+            config=None
+        )
+        trials.addData(
+            'mic.clip', mic.recordingFolder / mic.getClipFilename(tag)
+        )
         if p_port.status == STARTED:
             win.callOnFlip(p_port.setData, int(0))
         # using non-slip timing so subtract the expected duration of this Routine (unless ended on request)
@@ -1160,6 +1273,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     if thisSession is not None:
         # if running in a Session with a Liaison client, send data up to now
         thisSession.sendExperimentData()
+    # save mic recordings
+    mic.saveClips()
     
     # mark experiment as finished
     endExperiment(thisExp, win=win)
