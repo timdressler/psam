@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on März 14, 2025, at 12:02
+    on März 15, 2025, at 17:18
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -18,7 +18,7 @@ from psychopy import plugins
 plugins.activatePlugins()
 prefs.hardware['audioLib'] = 'ptb'
 prefs.hardware['audioLatencyMode'] = '3'
-from psychopy import sound, gui, visual, core, data, event, logging, clock, colors, layout, hardware
+from psychopy import sound, gui, visual, core, data, event, logging, clock, colors, layout, hardware, parallel
 from psychopy.tools import environmenttools
 from psychopy.constants import (NOT_STARTED, STARTED, PLAYING, PAUSED,
                                 STOPPED, FINISHED, PRESSED, RELEASED, FOREVER, priority)
@@ -476,6 +476,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         recordingFolder=micRecFolder,
         recordingExt='wav'
     )
+    p_port = parallel.ParallelPort(address='0x3ff8')
     
     # create some handy timers
     
@@ -910,7 +911,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         # create an object to store info about Routine trial
         trial = data.Routine(
             name='trial',
-            components=[cue_stim, target_stim, probe_stim, task_msg, mic],
+            components=[cue_stim, target_stim, probe_stim, task_msg, mic, p_port],
         )
         trial.status = NOT_STARTED
         continueRoutine = True
@@ -1175,6 +1176,35 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     mic.status = FINISHED
                     # stop recording with mic
                     mic.stop()
+            # *p_port* updates
+            
+            # if p_port is starting this frame...
+            if p_port.status == NOT_STARTED and t >= 2-frameTolerance:
+                # keep track of start time/frame for later
+                p_port.frameNStart = frameN  # exact frame index
+                p_port.tStart = t  # local t and not account for scr refresh
+                p_port.tStartRefresh = tThisFlipGlobal  # on global time
+                win.timeOnFlip(p_port, 'tStartRefresh')  # time at next scr refresh
+                # add timestamp to datafile
+                thisExp.addData('p_port.started', t)
+                # update status
+                p_port.status = STARTED
+                p_port.status = STARTED
+                win.callOnFlip(p_port.setData, int(1))
+            
+            # if p_port is stopping this frame...
+            if p_port.status == STARTED:
+                # is it time to stop? (based on global clock, using actual start)
+                if tThisFlipGlobal > p_port.tStartRefresh + 1.0-frameTolerance:
+                    # keep track of stop time/frame for later
+                    p_port.tStop = t  # not accounting for scr refresh
+                    p_port.tStopRefresh = tThisFlipGlobal  # on global time
+                    p_port.frameNStop = frameN  # exact frame index
+                    # add timestamp to datafile
+                    thisExp.addData('p_port.stopped', t)
+                    # update status
+                    p_port.status = FINISHED
+                    win.callOnFlip(p_port.setData, int(0))
             
             # check for quit (typically the Esc key)
             if defaultKeyboard.getKeys(keyList=["escape"]):
@@ -1227,6 +1257,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         trials.addData(
             'mic.clip', mic.recordingFolder / mic.getClipFilename(tag)
         )
+        if p_port.status == STARTED:
+            win.callOnFlip(p_port.setData, int(0))
         # using non-slip timing so subtract the expected duration of this Routine (unless ended on request)
         if trial.maxDurationReached:
             routineTimer.addTime(-trial.maxDuration)

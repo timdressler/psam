@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on März 14, 2025, at 12:02
+    on März 15, 2025, at 17:13
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -18,7 +18,7 @@ from psychopy import plugins
 plugins.activatePlugins()
 prefs.hardware['audioLib'] = 'ptb'
 prefs.hardware['audioLatencyMode'] = '3'
-from psychopy import sound, gui, visual, core, data, event, logging, clock, colors, layout, hardware
+from psychopy import sound, gui, visual, core, data, event, logging, clock, colors, layout, hardware, parallel
 from psychopy.tools import environmenttools
 from psychopy.constants import (NOT_STARTED, STARTED, PLAYING, PAUSED,
                                 STOPPED, FINISHED, PRESSED, RELEASED, FOREVER, priority)
@@ -267,15 +267,6 @@ def setupDevices(expInfo, thisExp, win):
             deviceClass='keyboard',
             deviceName='instruction_keys',
         )
-    # initialise microphone
-    deviceManager.addDevice(
-        deviceClass='psychopy.hardware.microphone.MicrophoneDevice',
-        deviceName='audiointerface',
-        index=28,
-        maxRecordingSize=240000.0,
-        channels=1, 
-        sampleRateHz=44100, 
-    )
     # return True if completed successfully
     return True
 
@@ -376,10 +367,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         frameDur = 1.0 / 60.0  # could not measure, so guess
     
     # Start Code - component code to be run after the window creation
-    # Make folder to store recordings from mic
-    micRecFolder = filename + '_mic_recorded'
-    if not os.path.isdir(micRecFolder):
-        os.mkdir(micRecFolder)
     
     # --- Initialize components for Routine "welcome" ---
     welcome_message = visual.TextStim(win=win, name='welcome_message',
@@ -455,13 +442,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     cue_started = False    # To track when the cue starts shrinking
     cue_start_time = None  # To store when the cue started shrinking
     
-    # make microphone object for mic
-    mic = sound.microphone.Microphone(
-        device='audiointerface',
-        name='mic',
-        recordingFolder=micRecFolder,
-        recordingExt='wav'
-    )
+    p_port = parallel.ParallelPort(address='0x3ff8')
     
     # create some handy timers
     
@@ -896,7 +877,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         # create an object to store info about Routine trial
         trial = data.Routine(
             name='trial',
-            components=[cue_stim, target_stim, task_msg, mic],
+            components=[cue_stim, target_stim, task_msg, p_port],
         )
         trial.status = NOT_STARTED
         continueRoutine = True
@@ -1094,42 +1075,35 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             if aa_green_onset is not None:
                 thisExp.addData('aa_green_onset', aa_green_onset)  # Store cue turning green onset
             
+            # *p_port* updates
             
-            # if mic is starting this frame...
-            if mic.status == NOT_STARTED and t >= 2.5-frameTolerance:
+            # if p_port is starting this frame...
+            if p_port.status == NOT_STARTED and t >= 2-frameTolerance:
                 # keep track of start time/frame for later
-                mic.frameNStart = frameN  # exact frame index
-                mic.tStart = t  # local t and not account for scr refresh
-                mic.tStartRefresh = tThisFlipGlobal  # on global time
-                win.timeOnFlip(mic, 'tStartRefresh')  # time at next scr refresh
+                p_port.frameNStart = frameN  # exact frame index
+                p_port.tStart = t  # local t and not account for scr refresh
+                p_port.tStartRefresh = tThisFlipGlobal  # on global time
+                win.timeOnFlip(p_port, 'tStartRefresh')  # time at next scr refresh
                 # add timestamp to datafile
-                thisExp.addData('mic.started', t)
+                thisExp.addData('p_port.started', t)
                 # update status
-                mic.status = STARTED
-                # start recording with mic
-                mic.start()
+                p_port.status = STARTED
+                p_port.status = STARTED
+                win.callOnFlip(p_port.setData, int(1))
             
-            # if mic is active this frame...
-            if mic.status == STARTED:
-                # update params
-                pass
-                # update recorded clip for mic
-                mic.poll()
-            
-            # if mic is stopping this frame...
-            if mic.status == STARTED:
+            # if p_port is stopping this frame...
+            if p_port.status == STARTED:
                 # is it time to stop? (based on global clock, using actual start)
-                if tThisFlipGlobal > mic.tStartRefresh + 1.5-frameTolerance:
+                if tThisFlipGlobal > p_port.tStartRefresh + 1.0-frameTolerance:
                     # keep track of stop time/frame for later
-                    mic.tStop = t  # not accounting for scr refresh
-                    mic.tStopRefresh = tThisFlipGlobal  # on global time
-                    mic.frameNStop = frameN  # exact frame index
+                    p_port.tStop = t  # not accounting for scr refresh
+                    p_port.tStopRefresh = tThisFlipGlobal  # on global time
+                    p_port.frameNStop = frameN  # exact frame index
                     # add timestamp to datafile
-                    thisExp.addData('mic.stopped', t)
+                    thisExp.addData('p_port.stopped', t)
                     # update status
-                    mic.status = FINISHED
-                    # stop recording with mic
-                    mic.stop()
+                    p_port.status = FINISHED
+                    win.callOnFlip(p_port.setData, int(0))
             
             # check for quit (typically the Esc key)
             if defaultKeyboard.getKeys(keyList=["escape"]):
@@ -1170,17 +1144,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         trial.tStop = globalClock.getTime(format='float')
         trial.tStopRefresh = tThisFlipGlobal
         thisExp.addData('trial.stopped', trial.tStop)
-        # tell mic to keep hold of current recording in mic.clips and transcript (if applicable) in mic.scripts
-        # this will also update mic.lastClip and mic.lastScript
-        mic.stop()
-        tag = data.utils.getDateStr()
-        micClip = mic.bank(
-            tag=tag, transcribe='None',
-            config=None
-        )
-        trials.addData(
-            'mic.clip', mic.recordingFolder / mic.getClipFilename(tag)
-        )
+        if p_port.status == STARTED:
+            win.callOnFlip(p_port.setData, int(0))
         # using non-slip timing so subtract the expected duration of this Routine (unless ended on request)
         if trial.maxDurationReached:
             routineTimer.addTime(-trial.maxDuration)
@@ -1195,8 +1160,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     if thisSession is not None:
         # if running in a Session with a Liaison client, send data up to now
         thisSession.sendExperimentData()
-    # save mic recordings
-    mic.saveClips()
     
     # mark experiment as finished
     endExperiment(thisExp, win=win)
