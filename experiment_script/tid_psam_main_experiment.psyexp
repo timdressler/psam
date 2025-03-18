@@ -70,7 +70,7 @@
     <Param val="1000" valType="num" updates="None" name="plPupilRemoteTimeoutMs"/>
     <Param val="False" valType="bool" updates="None" name="plPupillometryOnly"/>
     <Param val="psychopy_iohub_surface" valType="str" updates="None" name="plSurfaceName"/>
-    <Param val="1" valType="code" updates="None" name="runMode"/>
+    <Param val="0" valType="code" updates="None" name="runMode"/>
     <Param val="False" valType="bool" updates="None" name="rush"/>
     <Param val="alphabetical" valType="str" updates="None" name="sortColumns"/>
     <Param val="" valType="str" updates="None" name="tbLicenseFile"/>
@@ -243,20 +243,20 @@
         <Param val="" valType="list" updates="None" name="transcribeWords"/>
         <Param val="False" valType="bool" updates="None" name="trimSilent"/>
       </MicrophoneComponent>
-      <ParallelOutComponent name="p_port" plugin="None">
+      <ParallelOutComponent name="probe_marker" plugin="None">
         <Param val="0x3ff8" valType="str" updates="None" name="address"/>
         <Param val="False" valType="bool" updates="None" name="disabled"/>
         <Param val="" valType="code" updates="None" name="durationEstim"/>
-        <Param val="p_port" valType="code" updates="None" name="name"/>
+        <Param val="probe_marker" valType="code" updates="None" name="name"/>
         <Param val="EIO" valType="str" updates="None" name="register"/>
         <Param val="True" valType="bool" updates="None" name="saveStartStop"/>
         <Param val="1" valType="code" updates="None" name="startData"/>
         <Param val="" valType="code" updates="None" name="startEstim"/>
         <Param val="time (s)" valType="str" updates="None" name="startType"/>
-        <Param val="2" valType="code" updates="None" name="startVal"/>
+        <Param val="$probe_onset" valType="code" updates="None" name="startVal"/>
         <Param val="0" valType="code" updates="None" name="stopData"/>
         <Param val="duration (s)" valType="str" updates="None" name="stopType"/>
-        <Param val="1.0" valType="code" updates="constant" name="stopVal"/>
+        <Param val="$probe_duration" valType="code" updates="constant" name="stopVal"/>
         <Param val="True" valType="bool" updates="constant" name="syncScreen"/>
         <Param val="False" valType="bool" updates="None" name="syncScreenRefresh"/>
       </ParallelOutComponent>
