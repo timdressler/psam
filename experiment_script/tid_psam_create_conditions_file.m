@@ -59,7 +59,7 @@ BEHAVIORALPATH = fullfile(MAINPATH, ['data/BIDS/' subj '/beh']);
 FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);
 
-
+tid_psam_check_id_TD(STIMULIPATH, EEGPATH, BEHAVIORALPATH)
 tid_psam_check_folder_TD(MAINPATH, STIMULIPATH,STIMULIPATH_Normal,STIMULIPATH_Pitch,STIMULIPATH_Raw, EEGPATH, BEHAVIORALPATH)
 
 % Set up experiment paramaters

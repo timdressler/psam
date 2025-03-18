@@ -3,7 +3,7 @@ function tid_psam_clean_up_folder_TD(folderPath)
     %
     %
     % Usage:
-    %   mt_clean_up_folder_TD('Path')
+    %   tid_psam_clean_up_folder_TD('Path')
     %
     % Input:
     %   folderPath - The path of the folder to check and clean up.
@@ -17,16 +17,16 @@ function tid_psam_clean_up_folder_TD(folderPath)
     %
     % Tim Dressler, 12.11.24
 
-    %check if the folder exists
+    % check if the folder exists
     if ~isfolder(folderPath)
         error('Specified folder does not exist');
     end
 
-    %get list of files in the folder (excluding '.' and '..')
+    % get list of files in the folder (excluding '.' and '..')
     files = dir(folderPath);
     files = files(~ismember({files.name}, {'.', '..', 'archive'}));
 
-    %if folder is not empty, proceed with archiving
+    % if folder is not empty, proceed with archiving
     if ~isempty(files)
         %define the archive folder path
         archiveFolderPath = fullfile(folderPath, 'archive');

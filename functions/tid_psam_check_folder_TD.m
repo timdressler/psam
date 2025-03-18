@@ -1,8 +1,8 @@
 function tid_psam_check_folder_TD(varargin)
-% tid_psam_check_folder_TD checks if the specified folder paths exist. If a path does not exist, the function creates it.
+% tid_psam_check_folder_TD - Checks if the specified folder paths exist. If a path does not exist, the function creates it.
 %
 % Usage:
-%   mt_check_folder_TD('Path1', 'Path2', ...)
+%   tid_psam_check_folder_TD('Path1', 'Path2', ...)
 %
 % Inputs:
 %   varargin - any number of folder paths as strings
@@ -13,7 +13,7 @@ for i = 1:numel(varargin)
     folderPath = varargin{i};
     if ~exist(folderPath)
         fprintf('The folder "%s" does not exist.\n', folderPath);
-        %ask whether to create the folder
+        % create the folder
         try
             mkdir(folderPath);
             fprintf('Folder "%s" was successfully created\n', folderPath);
