@@ -1,4 +1,4 @@
-% tid_psam_select_stimuli.m
+% tid_psam_create_conditions_file.m
 %
 % Creates BIDS-conform folder structure and conditions file.
 % The pseudorandomization ensures that task conditions are shuffled while 
@@ -53,14 +53,15 @@ STIMULIPATH = fullfile(MAINPATH, ['data/BIDS/stimuli/' subj]);
 STIMULIPATH_Normal = fullfile(STIMULIPATH,'/all_normal');
 STIMULIPATH_Pitch = fullfile(STIMULIPATH,'/all_pitch');
 STIMULIPATH_Raw = fullfile(STIMULIPATH,'/all_raw');
-EEGPATH = fullfile(MAINPATH, ['data/BIDS/' subj '/eeg']);
-BEHAVIORALPATH = fullfile(MAINPATH, ['data/BIDS/' subj '/beh']);
+SUBJPATH = fullfile(MAINPATH,['data/BIDS/' subj]);
+EEGPATH = fullfile(SUBJPATH, '/eeg');
+BEHAVIORALPATH = fullfile(SUBJPATH, '/beh');
 
 FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);
 
-tid_psam_check_id_TD(STIMULIPATH, EEGPATH, BEHAVIORALPATH)
-tid_psam_check_folder_TD(MAINPATH, STIMULIPATH,STIMULIPATH_Normal,STIMULIPATH_Pitch,STIMULIPATH_Raw, EEGPATH, BEHAVIORALPATH)
+tid_psam_check_id_TD(STIMULIPATH, SUBJPATH)
+tid_psam_check_folder_TD(MAINPATH,STIMULIPATH_Normal,STIMULIPATH_Pitch,STIMULIPATH_Raw, EEGPATH, BEHAVIORALPATH)
 
 % Set up experiment paramaters
 early_onset = 2.8; % relative to trial onset
