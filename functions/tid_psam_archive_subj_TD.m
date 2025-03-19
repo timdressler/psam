@@ -23,14 +23,14 @@ if ~isempty(subj_number)
 end
 
 % Set up general paths
-SCRIPTPATH = cd;
-if regexp(SCRIPTPATH, regexptranslate('wildcard','*psam\experiment_script')) == 1
+SCRIPTPATH = fileparts(mfilename('fullpath'));
+if regexp(SCRIPTPATH, regexptranslate('wildcard','*psam\functions')) == 1
     disp('Path OK')
 else
     error('Path not OK')
 end
 
-MAINPATH = erase(SCRIPTPATH, '\experiment_script');
+MAINPATH = erase(SCRIPTPATH, '\functions');
 
 % Set up subject paths
 STIMULIPATH = fullfile(MAINPATH, ['data/BIDS/stimuli/' subj]);
