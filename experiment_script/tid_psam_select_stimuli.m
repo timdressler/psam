@@ -65,7 +65,7 @@ shift_values = [-1, 1, -2, 2];  % first select alternative file one below the me
 selection_done = false;  % set up flag to stop selection process
 
 % Function to select file details
-select_file = @(idx) table2cell(sorted_f0_table(idx, ["f0_tab_normal", "f0_tab_pitched", "filename_tab"]));
+select_file = @(idx) table2cell(sorted_f0_table(idx, ["f0_tab_normal", "f0_tab_pitched", "db_tab_normal", "db_tab_pitched", "filename_tab"]));
 
 % Start with median index
 current_index = median_index;
@@ -73,8 +73,8 @@ final_probe_properties = select_file(current_index);
 
 while ~selection_done
     % Define source file paths
-    normal_probe_file = fullfile(STIMULIPATH_Normal, [final_probe_properties{1,3} '_normal.wav']);
-    pitch_probe_file = fullfile(STIMULIPATH_Pitch, [final_probe_properties{1,3} '_pitch.wav']);
+    normal_probe_file = fullfile(STIMULIPATH_Normal, [final_probe_properties{1,5} '_normal.wav']);
+    pitch_probe_file = fullfile(STIMULIPATH_Pitch, [final_probe_properties{1,5} '_pitch.wav']);
 
     % Load and plot
     [normal_probe_data, FS_normal] = audioread(normal_probe_file);
@@ -138,19 +138,26 @@ while ~selection_done
     end
 end
 
+% Check Loudness
+if round(final_probe_properties{1,3},4) == round(final_probe_properties{1,4},4)
+    disp('Loudness OK')
+else
+    warning('Loudness not OK')
+end
+
 % Define final destination paths
 destinationFile_normal = fullfile(STIMULIPATH, [subj '_normal_probe.wav']);
 destinationFile_pitch = fullfile(STIMULIPATH, [subj '_pitch_probe.wav']);
 
 % Copy selected files to final location
-copyfile(fullfile(STIMULIPATH_Normal, [final_probe_properties{1,3} '_normal.wav']), destinationFile_normal);
-copyfile(fullfile(STIMULIPATH_Pitch, [final_probe_properties{1,3} '_pitch.wav']), destinationFile_pitch);
+copyfile(fullfile(STIMULIPATH_Normal, [final_probe_properties{1,5} '_normal.wav']), destinationFile_normal);
+copyfile(fullfile(STIMULIPATH_Pitch, [final_probe_properties{1,5} '_pitch.wav']), destinationFile_pitch);
 
 % Export final probe properties 
 exportFile = fullfile(STIMULIPATH, [subj '_probe_properties.xlsx']);
 final_probe_table = cell2table(final_probe_properties, ...
-    'VariableNames', {'f0_tab_normal', 'f0_tab_pitched', 'filename_tab'});
-final_probe_table.change_attemps = change_attempts;
+    'VariableNames', {'f0_tab_normal', 'f0_tab_pitched', 'db_tab_normal', 'db_tab_pitched', 'filename_tab'});
+final_probe_table.change_attempts = change_attempts;
 writetable(final_probe_table, exportFile, 'FileType', 'spreadsheet');
 
 % Display successful performance
@@ -158,3 +165,4 @@ disp(['Final probe properties saved as: ' exportFile]);
 disp('READY FOR MAIN EXPERIMENT')
 
 close all
+
