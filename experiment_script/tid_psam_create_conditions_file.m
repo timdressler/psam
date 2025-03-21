@@ -194,6 +194,9 @@ for iter = 1:num_iterations
     % Assign probe_onset
     miniblock_task_rando(no_idx,5) = {0};
 
+    % Assign probe_marker for no-probe trials
+    miniblock_task_rando(no_idx,10) = {99};
+
     % Assign probe_duration
     miniblock_task_rando(no_idx,8) = {0};
     miniblock_task_rando(yes_idx,8) = {0.08};
