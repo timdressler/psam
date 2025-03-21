@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on März 21, 2025, at 15:38
+    on März 21, 2025, at 15:51
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -477,6 +477,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         recordingFolder=micRecFolder,
         recordingExt='wav'
     )
+    probe_marker = parallel.ParallelPort(address='0x3ff8')
     
     # create some handy timers
     
@@ -883,7 +884,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             # if fixation_cross_marker is stopping this frame...
             if fixation_cross_marker.status == STARTED:
                 # is it time to stop? (based on global clock, using actual start)
-                if tThisFlipGlobal > fixation_cross_marker.tStartRefresh + 1.0-frameTolerance:
+                if tThisFlipGlobal > fixation_cross_marker.tStartRefresh + 0.5-frameTolerance:
                     # keep track of stop time/frame for later
                     fixation_cross_marker.tStop = t  # not accounting for scr refresh
                     fixation_cross_marker.tStopRefresh = tThisFlipGlobal  # on global time
@@ -942,7 +943,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         # create an object to store info about Routine trial
         trial = data.Routine(
             name='trial',
-            components=[cue_stim, target_stim, probe_stim, task_msg, mic],
+            components=[cue_stim, target_stim, probe_stim, task_msg, mic, probe_marker],
         )
         trial.status = NOT_STARTED
         continueRoutine = True
@@ -1207,6 +1208,35 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     mic.status = FINISHED
                     # stop recording with mic
                     mic.stop()
+            # *probe_marker* updates
+            
+            # if probe_marker is starting this frame...
+            if probe_marker.status == NOT_STARTED and t >= probe_onset-frameTolerance:
+                # keep track of start time/frame for later
+                probe_marker.frameNStart = frameN  # exact frame index
+                probe_marker.tStart = t  # local t and not account for scr refresh
+                probe_marker.tStartRefresh = tThisFlipGlobal  # on global time
+                win.timeOnFlip(probe_marker, 'tStartRefresh')  # time at next scr refresh
+                # add timestamp to datafile
+                thisExp.addData('probe_marker.started', t)
+                # update status
+                probe_marker.status = STARTED
+                probe_marker.status = STARTED
+                win.callOnFlip(probe_marker.setData, int(66))
+            
+            # if probe_marker is stopping this frame...
+            if probe_marker.status == STARTED:
+                # is it time to stop? (based on global clock, using actual start)
+                if tThisFlipGlobal > probe_marker.tStartRefresh + probe_duration-frameTolerance:
+                    # keep track of stop time/frame for later
+                    probe_marker.tStop = t  # not accounting for scr refresh
+                    probe_marker.tStopRefresh = tThisFlipGlobal  # on global time
+                    probe_marker.frameNStop = frameN  # exact frame index
+                    # add timestamp to datafile
+                    thisExp.addData('probe_marker.stopped', t)
+                    # update status
+                    probe_marker.status = FINISHED
+                    win.callOnFlip(probe_marker.setData, int(0))
             
             # check for quit (typically the Esc key)
             if defaultKeyboard.getKeys(keyList=["escape"]):
@@ -1259,6 +1289,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         trials.addData(
             'mic.clip', mic.recordingFolder / mic.getClipFilename(tag)
         )
+        if probe_marker.status == STARTED:
+            win.callOnFlip(probe_marker.setData, int(0))
         # using non-slip timing so subtract the expected duration of this Routine (unless ended on request)
         if trial.maxDurationReached:
             routineTimer.addTime(-trial.maxDuration)

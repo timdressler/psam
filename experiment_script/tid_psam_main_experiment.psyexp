@@ -464,7 +464,7 @@
         <Param val="0.0" valType="code" updates="None" name="startVal"/>
         <Param val="0" valType="code" updates="None" name="stopData"/>
         <Param val="duration (s)" valType="str" updates="None" name="stopType"/>
-        <Param val="1.0" valType="code" updates="constant" name="stopVal"/>
+        <Param val="0.5" valType="code" updates="constant" name="stopVal"/>
         <Param val="True" valType="bool" updates="constant" name="syncScreen"/>
         <Param val="False" valType="bool" updates="None" name="syncScreenRefresh"/>
       </ParallelOutComponent>
