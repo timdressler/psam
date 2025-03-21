@@ -286,7 +286,7 @@ def setupDevices(expInfo, thisExp, win):
     deviceManager.addDevice(
         deviceClass='psychopy.hardware.microphone.MicrophoneDevice',
         deviceName='audiointerface',
-        index=28, #CHANGED #was 12
+        index=28, #CHANGED #Home = 12; LAB 3 = 28
         maxRecordingSize=240000.0,
         channels=1, 
         sampleRateHz=44100, 
