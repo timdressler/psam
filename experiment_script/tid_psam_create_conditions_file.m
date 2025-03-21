@@ -138,9 +138,13 @@ for iter = 1:num_iterations
 
     % Create task column
     miniblock_task_rando(yes_active,2) = {'Active'};
+    miniblock_task_rando(yes_active,11) = {21};
     miniblock_task_rando(no_active,2) = {'Active'};
+    miniblock_task_rando(no_active,11) = {21};
     miniblock_task_rando(yes_passive,2) = {'Passive'};
+    miniblock_task_rando(yes_passive,11) = {22};
     miniblock_task_rando(no_passive,2) = {'Passive'};
+    miniblock_task_rando(no_passive,11) = {22};
 
     % Assign probe_type, probe_onset, probe_file and probe_onset_cat
     probe_type_active_idx = yes_active(randperm(length(yes_active)));
@@ -148,36 +152,44 @@ for iter = 1:num_iterations
     miniblock_task_rando(probe_type_active_idx(1),5) = {early_onset};
     miniblock_task_rando(probe_type_active_idx(1),4) = {'Normal'};
     miniblock_task_rando(probe_type_active_idx(1),7) = {path_normal_probe};
+    miniblock_task_rando(probe_type_active_idx(1),10) = {31};
     miniblock_task_rando(probe_type_active_idx(2),3) = {'Early'};
     miniblock_task_rando(probe_type_active_idx(2),5) = {early_onset};
     miniblock_task_rando(probe_type_active_idx(2),4) = {'Pitch'};
     miniblock_task_rando(probe_type_active_idx(2),7) = {path_pitch_probe};
+    miniblock_task_rando(probe_type_active_idx(2),10) = {32};
     miniblock_task_rando(probe_type_active_idx(3),3) = {'Late'};
     miniblock_task_rando(probe_type_active_idx(3),5) = {late_onset};
     miniblock_task_rando(probe_type_active_idx(3),4) = {'Normal'};
     miniblock_task_rando(probe_type_active_idx(3),7) = {path_normal_probe};
+    miniblock_task_rando(probe_type_active_idx(3),10) = {33};
     miniblock_task_rando(probe_type_active_idx(4),3) = {'Late'};
     miniblock_task_rando(probe_type_active_idx(4),5) = {late_onset};
     miniblock_task_rando(probe_type_active_idx(4),4) = {'Pitch'};
     miniblock_task_rando(probe_type_active_idx(4),7) = {path_pitch_probe};
+    miniblock_task_rando(probe_type_active_idx(4),10) = {34};
 
     probe_type_passive_idx = yes_passive(randperm(length(yes_passive)));
     miniblock_task_rando(probe_type_passive_idx(1),3) = {'Early'};
     miniblock_task_rando(probe_type_passive_idx(1),5) = {early_onset};
     miniblock_task_rando(probe_type_passive_idx(1),4) = {'Normal'};
     miniblock_task_rando(probe_type_passive_idx(1),7) = {path_normal_probe};
+    miniblock_task_rando(probe_type_passive_idx(1),10) = {41};
     miniblock_task_rando(probe_type_passive_idx(2),3) = {'Early'};
     miniblock_task_rando(probe_type_passive_idx(2),5) = {early_onset};
     miniblock_task_rando(probe_type_passive_idx(2),4) = {'Pitch'};
     miniblock_task_rando(probe_type_passive_idx(2),7) = {path_pitch_probe};
+    miniblock_task_rando(probe_type_passive_idx(2),10) = {42};
     miniblock_task_rando(probe_type_passive_idx(3),3) = {'Late'};
     miniblock_task_rando(probe_type_passive_idx(3),5) = {late_onset};
     miniblock_task_rando(probe_type_passive_idx(3),4) = {'Normal'};
     miniblock_task_rando(probe_type_passive_idx(3),7) = {path_normal_probe};
+    miniblock_task_rando(probe_type_passive_idx(3),10) = {43};
     miniblock_task_rando(probe_type_passive_idx(4),3) = {'Late'};
     miniblock_task_rando(probe_type_passive_idx(4),5) = {late_onset};
     miniblock_task_rando(probe_type_passive_idx(4),4) = {'Pitch'};
     miniblock_task_rando(probe_type_passive_idx(4),7) = {path_pitch_probe};
+    miniblock_task_rando(probe_type_passive_idx(4),10) = {44};
 
     % Assign probe_onset
     miniblock_task_rando(no_idx,5) = {0};
@@ -199,7 +211,7 @@ for iter = 1:num_iterations
 end
 
 % Create and export file
-conditions_table = cell2table(all_trials, "VariableNames",{'probe', 'task', 'probe_onset_cat', 'probe_type', 'probe_onset', 'probe_intensity', 'stim_file', 'probe_duration' ,'subj'});
+conditions_table = cell2table(all_trials, "VariableNames",{'probe', 'task', 'probe_onset_cat', 'probe_type', 'probe_onset', 'probe_intensity', 'stim_file', 'probe_duration' ,'subj', 'probe_marker', 'task_marker'});
 writetable(conditions_table, fullfile(STIMULIPATH, [subj '_conditions.xlsx']));
 
 % Display successful performance
