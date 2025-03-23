@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on März 21, 2025, at 15:51
+    on März 23, 2025, at 13:00
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -425,7 +425,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         lineWidth=1.0,
         colorSpace='rgb', lineColor='white', fillColor='white',
         opacity=None, depth=0.0, interpolate=True)
-    fixation_cross_marker = parallel.ParallelPort(address='0x3ff8')
+    fixation_cross_port = parallel.ParallelPort(address='0x3ff8')
     
     # --- Initialize components for Routine "trial" ---
     cue_stim = visual.ShapeStim(
@@ -477,7 +477,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         recordingFolder=micRecFolder,
         recordingExt='wav'
     )
-    probe_marker = parallel.ParallelPort(address='0x3ff8')
+    probe_marker_port = parallel.ParallelPort(address='0x3ff8')
+    task_port = parallel.ParallelPort(address='0x3ff8')
     
     # create some handy timers
     
@@ -804,7 +805,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         # create an object to store info about Routine ISI
         ISI = data.Routine(
             name='ISI',
-            components=[fixation_cross_ISI, fixation_cross_marker],
+            components=[fixation_cross_ISI, fixation_cross_port],
         )
         ISI.status = NOT_STARTED
         continueRoutine = True
@@ -865,35 +866,35 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             if fixation_cross_ISI.status == STARTED:
                 # update params
                 pass
-            # *fixation_cross_marker* updates
+            # *fixation_cross_port* updates
             
-            # if fixation_cross_marker is starting this frame...
-            if fixation_cross_marker.status == NOT_STARTED and t >= 0.0-frameTolerance:
+            # if fixation_cross_port is starting this frame...
+            if fixation_cross_port.status == NOT_STARTED and t >= 0.0-frameTolerance:
                 # keep track of start time/frame for later
-                fixation_cross_marker.frameNStart = frameN  # exact frame index
-                fixation_cross_marker.tStart = t  # local t and not account for scr refresh
-                fixation_cross_marker.tStartRefresh = tThisFlipGlobal  # on global time
-                win.timeOnFlip(fixation_cross_marker, 'tStartRefresh')  # time at next scr refresh
+                fixation_cross_port.frameNStart = frameN  # exact frame index
+                fixation_cross_port.tStart = t  # local t and not account for scr refresh
+                fixation_cross_port.tStartRefresh = tThisFlipGlobal  # on global time
+                win.timeOnFlip(fixation_cross_port, 'tStartRefresh')  # time at next scr refresh
                 # add timestamp to datafile
-                thisExp.addData('fixation_cross_marker.started', t)
+                thisExp.addData('fixation_cross_port.started', t)
                 # update status
-                fixation_cross_marker.status = STARTED
-                fixation_cross_marker.status = STARTED
-                win.callOnFlip(fixation_cross_marker.setData, int(1))
+                fixation_cross_port.status = STARTED
+                fixation_cross_port.status = STARTED
+                win.callOnFlip(fixation_cross_port.setData, int(1))
             
-            # if fixation_cross_marker is stopping this frame...
-            if fixation_cross_marker.status == STARTED:
+            # if fixation_cross_port is stopping this frame...
+            if fixation_cross_port.status == STARTED:
                 # is it time to stop? (based on global clock, using actual start)
-                if tThisFlipGlobal > fixation_cross_marker.tStartRefresh + 0.5-frameTolerance:
+                if tThisFlipGlobal > fixation_cross_port.tStartRefresh + 0.5-frameTolerance:
                     # keep track of stop time/frame for later
-                    fixation_cross_marker.tStop = t  # not accounting for scr refresh
-                    fixation_cross_marker.tStopRefresh = tThisFlipGlobal  # on global time
-                    fixation_cross_marker.frameNStop = frameN  # exact frame index
+                    fixation_cross_port.tStop = t  # not accounting for scr refresh
+                    fixation_cross_port.tStopRefresh = tThisFlipGlobal  # on global time
+                    fixation_cross_port.frameNStop = frameN  # exact frame index
                     # add timestamp to datafile
-                    thisExp.addData('fixation_cross_marker.stopped', t)
+                    thisExp.addData('fixation_cross_port.stopped', t)
                     # update status
-                    fixation_cross_marker.status = FINISHED
-                    win.callOnFlip(fixation_cross_marker.setData, int(0))
+                    fixation_cross_port.status = FINISHED
+                    win.callOnFlip(fixation_cross_port.setData, int(0))
             
             # check for quit (typically the Esc key)
             if defaultKeyboard.getKeys(keyList=["escape"]):
@@ -934,8 +935,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         ISI.tStop = globalClock.getTime(format='float')
         ISI.tStopRefresh = tThisFlipGlobal
         thisExp.addData('ISI.stopped', ISI.tStop)
-        if fixation_cross_marker.status == STARTED:
-            win.callOnFlip(fixation_cross_marker.setData, int(0))
+        if fixation_cross_port.status == STARTED:
+            win.callOnFlip(fixation_cross_port.setData, int(0))
         # the Routine "ISI" was not non-slip safe, so reset the non-slip timer
         routineTimer.reset()
         
@@ -943,7 +944,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         # create an object to store info about Routine trial
         trial = data.Routine(
             name='trial',
-            components=[cue_stim, target_stim, probe_stim, task_msg, mic, probe_marker],
+            components=[cue_stim, target_stim, probe_stim, task_msg, mic, probe_marker_port, task_port],
         )
         trial.status = NOT_STARTED
         continueRoutine = True
@@ -1208,35 +1209,64 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     mic.status = FINISHED
                     # stop recording with mic
                     mic.stop()
-            # *probe_marker* updates
+            # *probe_marker_port* updates
             
-            # if probe_marker is starting this frame...
-            if probe_marker.status == NOT_STARTED and t >= probe_onset-frameTolerance:
+            # if probe_marker_port is starting this frame...
+            if probe_marker_port.status == NOT_STARTED and t >= probe_onset-frameTolerance:
                 # keep track of start time/frame for later
-                probe_marker.frameNStart = frameN  # exact frame index
-                probe_marker.tStart = t  # local t and not account for scr refresh
-                probe_marker.tStartRefresh = tThisFlipGlobal  # on global time
-                win.timeOnFlip(probe_marker, 'tStartRefresh')  # time at next scr refresh
+                probe_marker_port.frameNStart = frameN  # exact frame index
+                probe_marker_port.tStart = t  # local t and not account for scr refresh
+                probe_marker_port.tStartRefresh = tThisFlipGlobal  # on global time
+                win.timeOnFlip(probe_marker_port, 'tStartRefresh')  # time at next scr refresh
                 # add timestamp to datafile
-                thisExp.addData('probe_marker.started', t)
+                thisExp.addData('probe_marker_port.started', t)
                 # update status
-                probe_marker.status = STARTED
-                probe_marker.status = STARTED
-                win.callOnFlip(probe_marker.setData, int(66))
+                probe_marker_port.status = STARTED
+                probe_marker_port.status = STARTED
+                win.callOnFlip(probe_marker_port.setData, int(probe_marker))
             
-            # if probe_marker is stopping this frame...
-            if probe_marker.status == STARTED:
+            # if probe_marker_port is stopping this frame...
+            if probe_marker_port.status == STARTED:
                 # is it time to stop? (based on global clock, using actual start)
-                if tThisFlipGlobal > probe_marker.tStartRefresh + probe_duration-frameTolerance:
+                if tThisFlipGlobal > probe_marker_port.tStartRefresh + probe_duration-frameTolerance:
                     # keep track of stop time/frame for later
-                    probe_marker.tStop = t  # not accounting for scr refresh
-                    probe_marker.tStopRefresh = tThisFlipGlobal  # on global time
-                    probe_marker.frameNStop = frameN  # exact frame index
+                    probe_marker_port.tStop = t  # not accounting for scr refresh
+                    probe_marker_port.tStopRefresh = tThisFlipGlobal  # on global time
+                    probe_marker_port.frameNStop = frameN  # exact frame index
                     # add timestamp to datafile
-                    thisExp.addData('probe_marker.stopped', t)
+                    thisExp.addData('probe_marker_port.stopped', t)
                     # update status
-                    probe_marker.status = FINISHED
-                    win.callOnFlip(probe_marker.setData, int(0))
+                    probe_marker_port.status = FINISHED
+                    win.callOnFlip(probe_marker_port.setData, int(0))
+            # *task_port* updates
+            
+            # if task_port is starting this frame...
+            if task_port.status == NOT_STARTED and t >= 0.0-frameTolerance:
+                # keep track of start time/frame for later
+                task_port.frameNStart = frameN  # exact frame index
+                task_port.tStart = t  # local t and not account for scr refresh
+                task_port.tStartRefresh = tThisFlipGlobal  # on global time
+                win.timeOnFlip(task_port, 'tStartRefresh')  # time at next scr refresh
+                # add timestamp to datafile
+                thisExp.addData('task_port.started', t)
+                # update status
+                task_port.status = STARTED
+                task_port.status = STARTED
+                win.callOnFlip(task_port.setData, int(task_marker))
+            
+            # if task_port is stopping this frame...
+            if task_port.status == STARTED:
+                # is it time to stop? (based on global clock, using actual start)
+                if tThisFlipGlobal > task_port.tStartRefresh + 1.0-frameTolerance:
+                    # keep track of stop time/frame for later
+                    task_port.tStop = t  # not accounting for scr refresh
+                    task_port.tStopRefresh = tThisFlipGlobal  # on global time
+                    task_port.frameNStop = frameN  # exact frame index
+                    # add timestamp to datafile
+                    thisExp.addData('task_port.stopped', t)
+                    # update status
+                    task_port.status = FINISHED
+                    win.callOnFlip(task_port.setData, int(0))
             
             # check for quit (typically the Esc key)
             if defaultKeyboard.getKeys(keyList=["escape"]):
@@ -1289,8 +1319,10 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         trials.addData(
             'mic.clip', mic.recordingFolder / mic.getClipFilename(tag)
         )
-        if probe_marker.status == STARTED:
-            win.callOnFlip(probe_marker.setData, int(0))
+        if probe_marker_port.status == STARTED:
+            win.callOnFlip(probe_marker_port.setData, int(0))
+        if task_port.status == STARTED:
+            win.callOnFlip(task_port.setData, int(0))
         # using non-slip timing so subtract the expected duration of this Routine (unless ended on request)
         if trial.maxDurationReached:
             routineTimer.addTime(-trial.maxDuration)
