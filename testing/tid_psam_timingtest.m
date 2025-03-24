@@ -12,7 +12,7 @@ clc
 eeglab;
 
 % Load data
-EEG = pop_loadbv('C:\Users\timdr\OneDrive\Uni_Oldenburg\4_Semester\Master_Thesis\Analysis_Experiment\psam\testing\timingtest\timingtest_240325\sub-99\eeg\', 'timingtest_24032025.vhdr', [], []);
+EEG = pop_loadbv('C:\Users\timdr\OneDrive\Uni_Oldenburg\4_Semester\Master_Thesis\Analysis_Experiment\psam\testing\timingtest\timingtest_240325_4_512_syncoff2\sub-99\eeg\', 'timingtest_24032025_4_512_syncoff2.vhdr', [], []);
 EEG = eeg_checkset( EEG );
 
 % Epoch and BL-Correction
