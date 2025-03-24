@@ -16,8 +16,8 @@ EEG = pop_loadbv('C:\Users\timdr\OneDrive\Uni_Oldenburg\4_Semester\Master_Thesis
 EEG = eeg_checkset( EEG );
 
 % Epoch and BL-Correction
-EEG2 = pop_epoch( EEG, {'S 31', 'S 32','S 33','S 34','S 41','S 42','S 43','S 44'},[0  0.2], 'epochinfo', 'yes');
-EEG2 = pop_rmbase( EEG2, [ ]);
+EEG2 = pop_epoch( EEG, {'S 31', 'S 32','S 33','S 34','S 41','S 42','S 43','S 44'},[-0.2  0.2], 'epochinfo', 'yes');
+EEG2 = pop_rmbase( EEG2, [-200 0] ,[]);
 
 % Plot: Sound 
 fig=figure;
