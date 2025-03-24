@@ -1,10 +1,23 @@
-% Assuming EEG is your EEGLAB data structure
-% Sampling Rate (SR) = 1000 Hz
-SR = 1000;
+% tid_psam_markertest.m
+%
+% Gets marker latencies.
+%
+% Tim Dressler, 07.03.2025
+
+clear 
+close all
+clc
+
+% Start eeglab
+eeglab;
+
+% Load data
+EEG = pop_loadbv('C:\Users\timdr\OneDrive\Uni_Oldenburg\4_Semester\Master_Thesis\Analysis_Experiment\psam\testing\timingtest\timingtest_240325\sub-99\eeg\', 'timingtest_24032025.vhdr', [], []);
+EEG = eeg_checkset( EEG );
 
 % Extract event latencies and types
-event_types = {EEG.event.type}; % Convert to cell array directly
-event_latencies = [EEG.event.latency]; % Extract latencies
+event_types = {EEG.event.type}; 
+event_latencies = [EEG.event.latency]; 
 
 % Define expected event markers
 expected_events = {'S 21', 'S 22', 'S 31', 'S 32', 'S 33', 'S 34', 'S 41', 'S 42', 'S 43', 'S 44'};
@@ -16,6 +29,7 @@ if ~isempty(missing_events)
     warning('The following expected events are missing from the data: %s', strjoin(missing_events, ', '));
 end
 
+% Set up variables
 time_diffs_31_32 = [];
 time_diffs_33_34 = [];
 time_diffs_41_42 = [];
@@ -25,18 +39,18 @@ time_diffs_43_44 = [];
 for i = 1:length(event_types)-1
     if strcmp(event_types{i}, 'S 21')
         if any(strcmp(event_types{i+1}, {'S 31', 'S 32'}))
-            delay = (event_latencies(i+1) - event_latencies(i)) / SR;
+            delay = (event_latencies(i+1) - event_latencies(i)) / EEG.srate;
             time_diffs_31_32 = [time_diffs_31_32, delay];
         elseif any(strcmp(event_types{i+1}, {'S 33', 'S 34'}))
-            delay = (event_latencies(i+1) - event_latencies(i)) / SR;
+            delay = (event_latencies(i+1) - event_latencies(i)) / EEG.srate;
             time_diffs_33_34 = [time_diffs_33_34, delay];
         end
     elseif strcmp(event_types{i}, 'S 22')
         if any(strcmp(event_types{i+1}, {'S 41', 'S 42'}))
-            delay = (event_latencies(i+1) - event_latencies(i)) / SR;
+            delay = (event_latencies(i+1) - event_latencies(i)) / EEG.srate;
             time_diffs_41_42 = [time_diffs_41_42, delay];
         elseif any(strcmp(event_types{i+1}, {'S 43', 'S 44'}))
-            delay = (event_latencies(i+1) - event_latencies(i)) / SR;
+            delay = (event_latencies(i+1) - event_latencies(i)) / EEG.srate;
             time_diffs_43_44 = [time_diffs_43_44, delay];
         end
     end
