@@ -1,8 +1,8 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on März 24, 2025, at 17:47
+    on März 24, 2025, at 20:01
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -17,7 +17,7 @@ from psychopy import prefs
 from psychopy import plugins
 plugins.activatePlugins()
 prefs.hardware['audioLib'] = 'ptb'
-prefs.hardware['audioLatencyMode'] = '3'
+prefs.hardware['audioLatencyMode'] = '4'
 from psychopy import sound, gui, visual, core, data, event, logging, clock, colors, layout, hardware, parallel
 from psychopy.tools import environmenttools
 from psychopy.constants import (NOT_STARTED, STARTED, PLAYING, PAUSED,
@@ -35,7 +35,6 @@ from psychopy.hardware import keyboard
 
 # Run 'Before Experiment' code from code_trial
 import random
-import psychtoolbox as ptb
 # --- Setup global variables (available in all functions) ---
 # create a device manager to handle hardware (keyboards, mice, mirophones, speakers, etc.)
 deviceManager = hardware.DeviceManager()
@@ -128,7 +127,7 @@ def setupData(expInfo, dataDir=None):
     thisExp = data.ExperimentHandler(
         name=expName, version='',
         extraInfo=expInfo, runtimeInfo=None,
-        originPath='C:\\Users\\timdr\\OneDrive\\Uni_Oldenburg\\4_Semester\\Master_Thesis\\Analysis_Experiment\\psam\\experiment_script\\tid_psam_main_experiment.py',
+        originPath='C:\\Experiments\\tid_psam\\psam\\experiment_script\\tid_psam_main_experiment.py',
         savePickle=True, saveWideText=True,
         dataFileName=dataDir + os.sep + filename, sortColumns='alphabetical'
     )
@@ -272,13 +271,13 @@ def setupDevices(expInfo, thisExp, win):
     deviceManager.addDevice(
         deviceName='probe_stim',
         deviceClass='psychopy.hardware.speaker.SpeakerDevice',
-        index=10.0
+        index=23.0
     )
     # initialise microphone
     deviceManager.addDevice(
         deviceClass='psychopy.hardware.microphone.MicrophoneDevice',
         deviceName='audiointerface',
-        index=12,
+        index=28,
         maxRecordingSize=240000.0,
         channels=1, 
         sampleRateHz=44100, 
@@ -426,6 +425,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         lineWidth=1.0,
         colorSpace='rgb', lineColor='white', fillColor='white',
         opacity=None, depth=0.0, interpolate=True)
+    fixation_cross_port = parallel.ParallelPort(address='0x3ff8')
     
     # --- Initialize components for Routine "trial" ---
     cue_stim = visual.ShapeStim(
@@ -445,9 +445,9 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     probe_stim = sound.Sound(
         'A', 
         secs=-1, 
-        stereo=True, 
+        stereo=False, 
         hamming=True, 
-        speaker='probe_stim',    name='probe_stim'
+        speaker='probe_stim',    name='probe_stim', sampleRate = 44100, blockSize = 512
     )
     probe_stim.setVolume(1.0)
     task_msg = visual.TextStim(win=win, name='task_msg',
@@ -477,6 +477,9 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         recordingFolder=micRecFolder,
         recordingExt='wav'
     )
+    probe_marker_port = parallel.ParallelPort(address='0x3ff8')
+    task_port = parallel.ParallelPort(address='0x3ff8')
+    go_port = parallel.ParallelPort(address='0x3ff8')
     
     # create some handy timers
     
@@ -803,7 +806,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         # create an object to store info about Routine ISI
         ISI = data.Routine(
             name='ISI',
-            components=[fixation_cross_ISI],
+            components=[fixation_cross_ISI, fixation_cross_port],
         )
         ISI.status = NOT_STARTED
         continueRoutine = True
@@ -864,6 +867,35 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             if fixation_cross_ISI.status == STARTED:
                 # update params
                 pass
+            # *fixation_cross_port* updates
+            
+            # if fixation_cross_port is starting this frame...
+            if fixation_cross_port.status == NOT_STARTED and t >= 0.0-frameTolerance:
+                # keep track of start time/frame for later
+                fixation_cross_port.frameNStart = frameN  # exact frame index
+                fixation_cross_port.tStart = t  # local t and not account for scr refresh
+                fixation_cross_port.tStartRefresh = tThisFlipGlobal  # on global time
+                win.timeOnFlip(fixation_cross_port, 'tStartRefresh')  # time at next scr refresh
+                # add timestamp to datafile
+                thisExp.addData('fixation_cross_port.started', t)
+                # update status
+                fixation_cross_port.status = STARTED
+                fixation_cross_port.status = STARTED
+                win.callOnFlip(fixation_cross_port.setData, int(1))
+            
+            # if fixation_cross_port is stopping this frame...
+            if fixation_cross_port.status == STARTED:
+                # is it time to stop? (based on global clock, using actual start)
+                if tThisFlipGlobal > fixation_cross_port.tStartRefresh + 0.5-frameTolerance:
+                    # keep track of stop time/frame for later
+                    fixation_cross_port.tStop = t  # not accounting for scr refresh
+                    fixation_cross_port.tStopRefresh = tThisFlipGlobal  # on global time
+                    fixation_cross_port.frameNStop = frameN  # exact frame index
+                    # add timestamp to datafile
+                    thisExp.addData('fixation_cross_port.stopped', t)
+                    # update status
+                    fixation_cross_port.status = FINISHED
+                    win.callOnFlip(fixation_cross_port.setData, int(0))
             
             # check for quit (typically the Esc key)
             if defaultKeyboard.getKeys(keyList=["escape"]):
@@ -904,6 +936,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         ISI.tStop = globalClock.getTime(format='float')
         ISI.tStopRefresh = tThisFlipGlobal
         thisExp.addData('ISI.stopped', ISI.tStop)
+        if fixation_cross_port.status == STARTED:
+            win.callOnFlip(fixation_cross_port.setData, int(0))
         # the Routine "ISI" was not non-slip safe, so reset the non-slip timer
         routineTimer.reset()
         
@@ -911,7 +945,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         # create an object to store info about Routine trial
         trial = data.Routine(
             name='trial',
-            components=[cue_stim, target_stim, probe_stim, task_msg, mic],
+            components=[cue_stim, target_stim, probe_stim, task_msg, mic, probe_marker_port, task_port, go_port],
         )
         trial.status = NOT_STARTED
         continueRoutine = True
@@ -921,20 +955,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         probe_stim.seek(0)
         task_msg.setText(task)
         # Run 'Begin Routine' code from code_trial
-        # Get stimulus properties from conditions file
-        sound_onset = probe_onset  # Time when sound should start (relative to trial onset)
-        sound_volume = probe_intensity  # Volume level (0-1)
-        
-        # Set volume dynamically
-        probe_stim.setVolume(sound_volume)
-        
-        # Get current time using PTB
-        now = ptb.GetSecs()
-        play_time = now + sound_onset  # Schedule the sound at this exact time
-        
-        # Schedule precise playback
-        probe_stim.play(when=play_time)
-        
         cue_started = False
         aa_green_onset = None  # To store when the cue turns green relative to trial onset
         aa_test_onset = None
@@ -1190,6 +1210,93 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     mic.status = FINISHED
                     # stop recording with mic
                     mic.stop()
+            # *probe_marker_port* updates
+            
+            # if probe_marker_port is starting this frame...
+            if probe_marker_port.status == NOT_STARTED and t >= probe_onset-frameTolerance:
+                # keep track of start time/frame for later
+                probe_marker_port.frameNStart = frameN  # exact frame index
+                probe_marker_port.tStart = t  # local t and not account for scr refresh
+                probe_marker_port.tStartRefresh = tThisFlipGlobal  # on global time
+                win.timeOnFlip(probe_marker_port, 'tStartRefresh')  # time at next scr refresh
+                # add timestamp to datafile
+                thisExp.addData('probe_marker_port.started', t)
+                # update status
+                probe_marker_port.status = STARTED
+                probe_marker_port.status = STARTED
+                probe_marker_port.setData(int(probe_marker))
+            
+            # if probe_marker_port is stopping this frame...
+            if probe_marker_port.status == STARTED:
+                # is it time to stop? (based on global clock, using actual start)
+                if tThisFlipGlobal > probe_marker_port.tStartRefresh + probe_duration-frameTolerance:
+                    # keep track of stop time/frame for later
+                    probe_marker_port.tStop = t  # not accounting for scr refresh
+                    probe_marker_port.tStopRefresh = tThisFlipGlobal  # on global time
+                    probe_marker_port.frameNStop = frameN  # exact frame index
+                    # add timestamp to datafile
+                    thisExp.addData('probe_marker_port.stopped', t)
+                    # update status
+                    probe_marker_port.status = FINISHED
+                    probe_marker_port.setData(int(0))
+            # *task_port* updates
+            
+            # if task_port is starting this frame...
+            if task_port.status == NOT_STARTED and t >= 0.0-frameTolerance:
+                # keep track of start time/frame for later
+                task_port.frameNStart = frameN  # exact frame index
+                task_port.tStart = t  # local t and not account for scr refresh
+                task_port.tStartRefresh = tThisFlipGlobal  # on global time
+                win.timeOnFlip(task_port, 'tStartRefresh')  # time at next scr refresh
+                # add timestamp to datafile
+                thisExp.addData('task_port.started', t)
+                # update status
+                task_port.status = STARTED
+                task_port.status = STARTED
+                win.callOnFlip(task_port.setData, int(task_marker))
+            
+            # if task_port is stopping this frame...
+            if task_port.status == STARTED:
+                # is it time to stop? (based on global clock, using actual start)
+                if tThisFlipGlobal > task_port.tStartRefresh + 1.0-frameTolerance:
+                    # keep track of stop time/frame for later
+                    task_port.tStop = t  # not accounting for scr refresh
+                    task_port.tStopRefresh = tThisFlipGlobal  # on global time
+                    task_port.frameNStop = frameN  # exact frame index
+                    # add timestamp to datafile
+                    thisExp.addData('task_port.stopped', t)
+                    # update status
+                    task_port.status = FINISHED
+                    win.callOnFlip(task_port.setData, int(0))
+            # *go_port* updates
+            
+            # if go_port is starting this frame...
+            if go_port.status == NOT_STARTED and t >= 3-frameTolerance:
+                # keep track of start time/frame for later
+                go_port.frameNStart = frameN  # exact frame index
+                go_port.tStart = t  # local t and not account for scr refresh
+                go_port.tStartRefresh = tThisFlipGlobal  # on global time
+                win.timeOnFlip(go_port, 'tStartRefresh')  # time at next scr refresh
+                # add timestamp to datafile
+                thisExp.addData('go_port.started', t)
+                # update status
+                go_port.status = STARTED
+                go_port.status = STARTED
+                win.callOnFlip(go_port.setData, int(5))
+            
+            # if go_port is stopping this frame...
+            if go_port.status == STARTED:
+                # is it time to stop? (based on global clock, using actual start)
+                if tThisFlipGlobal > go_port.tStartRefresh + 1.0-frameTolerance:
+                    # keep track of stop time/frame for later
+                    go_port.tStop = t  # not accounting for scr refresh
+                    go_port.tStopRefresh = tThisFlipGlobal  # on global time
+                    go_port.frameNStop = frameN  # exact frame index
+                    # add timestamp to datafile
+                    thisExp.addData('go_port.stopped', t)
+                    # update status
+                    go_port.status = FINISHED
+                    win.callOnFlip(go_port.setData, int(0))
             
             # check for quit (typically the Esc key)
             if defaultKeyboard.getKeys(keyList=["escape"]):
@@ -1242,6 +1349,12 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         trials.addData(
             'mic.clip', mic.recordingFolder / mic.getClipFilename(tag)
         )
+        if probe_marker_port.status == STARTED:
+            probe_marker_port.setData(int(0))
+        if task_port.status == STARTED:
+            win.callOnFlip(task_port.setData, int(0))
+        if go_port.status == STARTED:
+            win.callOnFlip(go_port.setData, int(0))
         # using non-slip timing so subtract the expected duration of this Routine (unless ended on request)
         if trial.maxDurationReached:
             routineTimer.addTime(-trial.maxDuration)
