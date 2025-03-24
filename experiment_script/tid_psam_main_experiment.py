@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on März 23, 2025, at 13:00
+    on März 24, 2025, at 12:11
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -479,6 +479,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     )
     probe_marker_port = parallel.ParallelPort(address='0x3ff8')
     task_port = parallel.ParallelPort(address='0x3ff8')
+    go_port = parallel.ParallelPort(address='0x3ff8')
     
     # create some handy timers
     
@@ -944,7 +945,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         # create an object to store info about Routine trial
         trial = data.Routine(
             name='trial',
-            components=[cue_stim, target_stim, probe_stim, task_msg, mic, probe_marker_port, task_port],
+            components=[cue_stim, target_stim, probe_stim, task_msg, mic, probe_marker_port, task_port, go_port],
         )
         trial.status = NOT_STARTED
         continueRoutine = True
@@ -1267,6 +1268,35 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     # update status
                     task_port.status = FINISHED
                     win.callOnFlip(task_port.setData, int(0))
+            # *go_port* updates
+            
+            # if go_port is starting this frame...
+            if go_port.status == NOT_STARTED and t >= 3-frameTolerance:
+                # keep track of start time/frame for later
+                go_port.frameNStart = frameN  # exact frame index
+                go_port.tStart = t  # local t and not account for scr refresh
+                go_port.tStartRefresh = tThisFlipGlobal  # on global time
+                win.timeOnFlip(go_port, 'tStartRefresh')  # time at next scr refresh
+                # add timestamp to datafile
+                thisExp.addData('go_port.started', t)
+                # update status
+                go_port.status = STARTED
+                go_port.status = STARTED
+                win.callOnFlip(go_port.setData, int(5))
+            
+            # if go_port is stopping this frame...
+            if go_port.status == STARTED:
+                # is it time to stop? (based on global clock, using actual start)
+                if tThisFlipGlobal > go_port.tStartRefresh + 1.0-frameTolerance:
+                    # keep track of stop time/frame for later
+                    go_port.tStop = t  # not accounting for scr refresh
+                    go_port.tStopRefresh = tThisFlipGlobal  # on global time
+                    go_port.frameNStop = frameN  # exact frame index
+                    # add timestamp to datafile
+                    thisExp.addData('go_port.stopped', t)
+                    # update status
+                    go_port.status = FINISHED
+                    win.callOnFlip(go_port.setData, int(0))
             
             # check for quit (typically the Esc key)
             if defaultKeyboard.getKeys(keyList=["escape"]):
@@ -1323,6 +1353,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             win.callOnFlip(probe_marker_port.setData, int(0))
         if task_port.status == STARTED:
             win.callOnFlip(task_port.setData, int(0))
+        if go_port.status == STARTED:
+            win.callOnFlip(go_port.setData, int(0))
         # using non-slip timing so subtract the expected duration of this Routine (unless ended on request)
         if trial.maxDurationReached:
             routineTimer.addTime(-trial.maxDuration)
