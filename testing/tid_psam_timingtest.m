@@ -17,6 +17,7 @@ EEG = eeg_checkset( EEG );
 
 % Epoch and BL-Correction
 EEG2 = pop_epoch( EEG, {'S 31', 'S 32','S 33','S 34','S 41','S 42','S 43','S 44'},[-0.2  0.2], 'epochinfo', 'yes');
+%%EEG2 = pop_epoch( EEG, {  'S  1'  }, [-0.2         0.2], 'epochinfo', 'yes');
 EEG2 = pop_rmbase( EEG2, [-200 0] ,[]);
 
 % Plot: Sound 
