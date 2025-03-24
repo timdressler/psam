@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" ?>
 <PsychoPy2experiment encoding="utf-8" version="2024.2.4">
   <Settings>
-    <Param val="3" valType="str" updates="None" name="Audio latency priority"/>
+    <Param val="4" valType="str" updates="None" name="Audio latency priority"/>
     <Param val="ptb" valType="str" updates="None" name="Audio lib"/>
     <Param val="" valType="str" updates="None" name="Completed URL"/>
     <Param val="auto" valType="str" updates="None" name="Data file delimiter"/>
@@ -9,7 +9,7 @@
     <Param val="True" valType="bool" updates="None" name="Enable Escape"/>
     <Param val="Thank you for your patience." valType="str" updates="None" name="End Message"/>
     <Param val="{'participant': ''}" valType="code" updates="None" name="Experiment info"/>
-    <Param val="True" valType="bool" updates="None" name="Force stereo"/>
+    <Param val="False" valType="bool" updates="None" name="Force stereo"/>
     <Param val="True" valType="bool" updates="None" name="Full-screen window"/>
     <Param val="" valType="str" updates="None" name="HTML path"/>
     <Param val="" valType="str" updates="None" name="Incomplete URL"/>
@@ -170,7 +170,7 @@
         <Param val="duration (s)" valType="str" updates="None" name="stopType"/>
         <Param val="$probe_duration" valType="code" updates="constant" name="stopVal"/>
         <Param val="True" valType="bool" updates="constant" name="stopWithRoutine"/>
-        <Param val="True" valType="bool" updates="constant" name="syncScreenRefresh"/>
+        <Param val="False" valType="bool" updates="constant" name="syncScreenRefresh"/>
         <Param val="probe_intensity" valType="num" updates="set every repeat" name="volume"/>
       </SoundComponent>
       <TextComponent name="task_msg" plugin="None">
@@ -257,7 +257,7 @@
         <Param val="0" valType="code" updates="None" name="stopData"/>
         <Param val="duration (s)" valType="str" updates="None" name="stopType"/>
         <Param val="$probe_duration" valType="code" updates="constant" name="stopVal"/>
-        <Param val="True" valType="bool" updates="constant" name="syncScreen"/>
+        <Param val="False" valType="bool" updates="constant" name="syncScreen"/>
         <Param val="False" valType="bool" updates="None" name="syncScreenRefresh"/>
       </ParallelOutComponent>
       <ParallelOutComponent name="task_port" plugin="None">
