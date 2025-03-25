@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+﻿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on März 24, 2025, at 20:01
+    on März 25, 2025, at 15:49
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -127,7 +127,7 @@ def setupData(expInfo, dataDir=None):
     thisExp = data.ExperimentHandler(
         name=expName, version='',
         extraInfo=expInfo, runtimeInfo=None,
-        originPath='C:\\Experiments\\tid_psam\\psam\\experiment_script\\tid_psam_main_experiment.py',
+        originPath='C:\\Users\\timdr\\OneDrive\\Uni_Oldenburg\\4_Semester\\Master_Thesis\\Analysis_Experiment\\psam\\experiment_script\\tid_psam_main_experiment.py',
         savePickle=True, saveWideText=True,
         dataFileName=dataDir + os.sep + filename, sortColumns='alphabetical'
     )
@@ -447,7 +447,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         secs=-1, 
         stereo=False, 
         hamming=True, 
-        speaker='probe_stim',    name='probe_stim', sampleRate = 44100, blockSize = 512
+        speaker='probe_stim',    name='probe_stim'
     )
     probe_stim.setVolume(1.0)
     task_msg = visual.TextStim(win=win, name='task_msg',

@@ -127,10 +127,10 @@
       <CodeComponent name="code" plugin="None">
         <Param val="" valType="extendedCode" updates="constant" name="Before Experiment"/>
         <Param val="" valType="extendedCode" updates="constant" name="Before JS Experiment"/>
-        <Param val="from psychopy import prefs, sound, hardware&amp;#10;import psychtoolbox as ptb&amp;#10;&amp;#10;# Ensure PTB is the audio backend&amp;#10;prefs.hardware['audioLib'] = ['ptb']&amp;#10;&amp;#10;port_t = parallel.ParallelPort(address='0x3ff8')&amp;#10;&amp;#10;# Load sound and assign to speaker&amp;#10;testsound = sound.Sound(&quot;C:/Experiments/tid_psam/psam/data/BIDS/stimuli/sub-99/sub-99_normal_probe.wav&quot;, speaker=&quot;sound_1&quot;, sampleRate = 44100)&amp;#10;testsound.setVolume(1)" valType="extendedCode" updates="constant" name="Begin Experiment"/>
-        <Param val="import {hardware, prefs, sound} from 'psychopy';&amp;#10;import * as ptb from 'psychtoolbox';&amp;#10;prefs.hardware[&quot;audioLib&quot;] = [&quot;ptb&quot;];&amp;#10;port_t = new parallel.ParallelPort({&quot;address&quot;: &quot;0x3ff8&quot;});&amp;#10;testsound = new sound.Sound(&quot;C:/Experiments/tid_psam/psam/data/BIDS/stimuli/sub-99/sub-99_normal_probe.wav&quot;, {&quot;speaker&quot;: &quot;sound_1&quot;, &quot;sampleRate&quot;: 44100});&amp;#10;testsound.setVolume(1);&amp;#10;" valType="extendedCode" updates="constant" name="Begin JS Experiment"/>
-        <Param val="start_time = new ptb.GetSecs();&amp;#10;play_time = (start_time + onset_t);&amp;#10;testsound.setVolume(intensity_t, {&quot;log&quot;: false});&amp;#10;testsound.play({&quot;when&quot;: playtime});&amp;#10;" valType="extendedCode" updates="constant" name="Begin JS Routine"/>
-        <Param val="# Get precise timing&amp;#10;start_time = ptb.GetSecs()&amp;#10;play_time = start_time + onset_t&amp;#10;&amp;#10;testsound.setVolume(intensity_t, log=False)&amp;#10;&amp;#10;&amp;#10;&amp;#10;&amp;#10;&amp;#10;# Schedule sound to start exactly 1 second after routine starts&amp;#10;testsound.play(when=playtime)&amp;#10;" valType="extendedCode" updates="constant" name="Begin Routine"/>
+        <Param val="from psychopy import prefs, sound, hardware&amp;#10;import psychtoolbox as ptb&amp;#10;&amp;#10;# Load sound and assign to speaker&amp;#10;testsound = sound.Sound(&quot;stereo_sine_wave.wav&quot;, sampleRate = 44100)&amp;#10;testsound.setVolume(1)" valType="extendedCode" updates="constant" name="Begin Experiment"/>
+        <Param val="import {hardware, prefs, sound} from 'psychopy';&amp;#10;import * as ptb from 'psychtoolbox';&amp;#10;testsound = new sound.Sound(&quot;stereo_sine_wave.wav&quot;, {&quot;sampleRate&quot;: 44100});&amp;#10;testsound.setVolume(1);&amp;#10;" valType="extendedCode" updates="constant" name="Begin JS Experiment"/>
+        <Param val="start_time = new ptb.GetSecs();&amp;#10;play_time = (start_time + onset_t);&amp;#10;testsound.setVolume(intensity_t, {&quot;log&quot;: false});&amp;#10;testsound.play({&quot;when&quot;: play_time});&amp;#10;" valType="extendedCode" updates="constant" name="Begin JS Routine"/>
+        <Param val="# Get precise timing&amp;#10;start_time = ptb.GetSecs()&amp;#10;play_time = start_time + onset_t&amp;#10;&amp;#10;testsound.setVolume(intensity_t, log=False)&amp;#10;&amp;#10;&amp;#10;&amp;#10;&amp;#10;&amp;#10;# Schedule sound to start exactly 1 second after routine starts&amp;#10;testsound.play(when=play_time)&amp;#10;" valType="extendedCode" updates="constant" name="Begin Routine"/>
         <Param val="Auto-&gt;JS" valType="str" updates="None" name="Code Type"/>
         <Param val="" valType="extendedCode" updates="constant" name="Each Frame"/>
         <Param val="" valType="extendedCode" updates="constant" name="Each JS Frame"/>
@@ -143,13 +143,13 @@
       </CodeComponent>
       <SoundComponent name="sound_1" plugin="None">
         <Param val="" valType="str" updates="None" name="deviceLabel"/>
-        <Param val="False" valType="bool" updates="None" name="disabled"/>
+        <Param val="True" valType="bool" updates="None" name="disabled"/>
         <Param val="" valType="code" updates="None" name="durationEstim"/>
         <Param val="True" valType="bool" updates="constant" name="hamming"/>
         <Param val="sound_1" valType="code" updates="None" name="name"/>
         <Param val="True" valType="bool" updates="None" name="saveStartStop"/>
-        <Param val="C:/Experiments/tid_psam/psam/data/BIDS/stimuli/sub-99/sub-99_normal_probe.wav" valType="str" updates="set every repeat" name="sound"/>
-        <Param val="23.0" valType="code" updates="None" name="speakerIndex"/>
+        <Param val="stereo_sine_wave.wav" valType="str" updates="set every repeat" name="sound"/>
+        <Param val="10.0" valType="code" updates="None" name="speakerIndex"/>
         <Param val="" valType="code" updates="None" name="startEstim"/>
         <Param val="time (s)" valType="str" updates="None" name="startType"/>
         <Param val="0.0" valType="code" updates="None" name="startVal"/>
@@ -188,7 +188,7 @@
       </TextComponent>
       <ParallelOutComponent name="p_port_start" plugin="None">
         <Param val="0x3ff8" valType="str" updates="None" name="address"/>
-        <Param val="False" valType="bool" updates="None" name="disabled"/>
+        <Param val="True" valType="bool" updates="None" name="disabled"/>
         <Param val="" valType="code" updates="None" name="durationEstim"/>
         <Param val="p_port_start" valType="code" updates="None" name="name"/>
         <Param val="EIO" valType="str" updates="None" name="register"/>
@@ -253,7 +253,7 @@
   <Flow>
     <LoopInitiator loopType="TrialHandler" name="trials">
       <Param name="Selected rows" updates="None" val="" valType="str"/>
-      <Param name="conditions" updates="None" val="[{'onset_t': 1, 'intensity_t': 1}, {'onset_t': 2, 'intensity_t': 0}, {'onset_t': 1, 'intensity_t': 1}, {'onset_t': 2, 'intensity_t': 1}, {'onset_t': 2, 'intensity_t': 0}, {'onset_t': 1, 'intensity_t': 0}, {'onset_t': 2, 'intensity_t': 1}]" valType="str"/>
+      <Param name="conditions" updates="None" val="[{'onset_t': 1, 'intensity_t': 1}, {'onset_t': 2, 'intensity_t': 1}, {'onset_t': 1, 'intensity_t': 1}, {'onset_t': 2, 'intensity_t': 1}, {'onset_t': 1, 'intensity_t': 1}, {'onset_t': 2, 'intensity_t': 1}, {'onset_t': 1, 'intensity_t': 1}, {'onset_t': 2, 'intensity_t': 1}, {'onset_t': 1, 'intensity_t': 1}]" valType="str"/>
       <Param name="conditionsFile" updates="None" val="conditions.xlsx" valType="file"/>
       <Param name="endPoints" updates="None" val="[0, 1]" valType="num"/>
       <Param name="isTrials" updates="None" val="True" valType="bool"/>

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on März 25, 2025, at 10:29
+    on März 25, 2025, at 15:35
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -18,7 +18,7 @@ from psychopy import plugins
 plugins.activatePlugins()
 prefs.hardware['audioLib'] = 'ptb'
 prefs.hardware['audioLatencyMode'] = '3'
-from psychopy import sound, gui, visual, core, data, event, logging, clock, colors, layout, hardware
+from psychopy import sound, gui, visual, core, data, event, logging, clock, colors, layout, hardware, parallel
 from psychopy.tools import environmenttools
 from psychopy.constants import (NOT_STARTED, STARTED, PLAYING, PAUSED,
                                 STOPPED, FINISHED, PRESSED, RELEASED, FOREVER, priority)
@@ -60,7 +60,7 @@ or run the experiment with `--pilot` as an argument. To change what pilot
 PILOTING = core.setPilotModeFromArgs()
 # start off with values from experiment settings
 _fullScr = True
-_winSize = [2560, 1440]
+_winSize = [1920, 1080]
 # if in pilot mode, apply overrides according to preferences
 if PILOTING:
     # force windowed mode
@@ -126,7 +126,7 @@ def setupData(expInfo, dataDir=None):
     thisExp = data.ExperimentHandler(
         name=expName, version='',
         extraInfo=expInfo, runtimeInfo=None,
-        originPath='C:\\Experiments\\tid_psam\\psam\\testing\\tid_psam_audiotest_lastrun.py',
+        originPath='C:\\Users\\timdr\\OneDrive\\Uni_Oldenburg\\4_Semester\\Master_Thesis\\Analysis_Experiment\\psam\\testing\\tid_psam_audiotest_lastrun.py',
         savePickle=True, saveWideText=True,
         dataFileName=dataDir + os.sep + filename, sortColumns='time'
     )
@@ -260,12 +260,6 @@ def setupDevices(expInfo, thisExp, win):
         deviceManager.addDevice(
             deviceClass='keyboard', deviceName='defaultKeyboard', backend='iohub'
         )
-    # create speaker 'sound_1'
-    deviceManager.addDevice(
-        deviceName='sound_1',
-        deviceClass='psychopy.hardware.speaker.SpeakerDevice',
-        index=23.0
-    )
     # return True if completed successfully
     return True
 
@@ -384,14 +378,13 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         color='white', colorSpace='rgb', opacity=None, 
         languageStyle='LTR',
         depth=0.0);
-    sound_1 = sound.Sound(
-        'A', 
-        secs=1, 
-        stereo=True, 
-        hamming=True, 
-        speaker='sound_1',    name='sound_1'
-    )
-    sound_1.setVolume(1.0)
+    # Run 'Begin Experiment' code from code
+    from psychopy import prefs, sound, hardware
+    import psychtoolbox as ptb
+    
+    # Load sound and assign to speaker
+    testsound = sound.Sound("stereo_sine_wave.wav", sampleRate = 44100)
+    testsound.setVolume(1)
     text_3 = visual.TextStim(win=win, name='text_3',
         text='late',
         font='Arial',
@@ -586,14 +579,25 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         # create an object to store info about Routine trial
         trial = data.Routine(
             name='trial',
-            components=[text_2, sound_1, text_3],
+            components=[text_2, text_3],
         )
         trial.status = NOT_STARTED
         continueRoutine = True
         # update component parameters for each repeat
-        sound_1.setSound('A', secs=1, hamming=True)
-        sound_1.setVolume(0.5, log=False)
-        sound_1.seek(0)
+        # Run 'Begin Routine' code from code
+        # Get precise timing
+        start_time = ptb.GetSecs()
+        play_time = start_time + onset_t
+        
+        testsound.setVolume(intensity_t, log=False)
+        
+        
+        
+        
+        
+        # Schedule sound to start exactly 1 second after routine starts
+        testsound.play(when=play_time)
+        
         # store start times for trial
         trial.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
         trial.tStart = globalClock.getTime(format='float')
@@ -665,34 +669,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     text_2.status = FINISHED
                     text_2.setAutoDraw(False)
             
-            # *sound_1* updates
-            
-            # if sound_1 is starting this frame...
-            if sound_1.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
-                # keep track of start time/frame for later
-                sound_1.frameNStart = frameN  # exact frame index
-                sound_1.tStart = t  # local t and not account for scr refresh
-                sound_1.tStartRefresh = tThisFlipGlobal  # on global time
-                # add timestamp to datafile
-                thisExp.addData('sound_1.started', tThisFlipGlobal)
-                # update status
-                sound_1.status = STARTED
-                sound_1.play(when=win)  # sync with win flip
-            
-            # if sound_1 is stopping this frame...
-            if sound_1.status == STARTED:
-                # is it time to stop? (based on global clock, using actual start)
-                if tThisFlipGlobal > sound_1.tStartRefresh + 1-frameTolerance or sound_1.isFinished:
-                    # keep track of stop time/frame for later
-                    sound_1.tStop = t  # not accounting for scr refresh
-                    sound_1.tStopRefresh = tThisFlipGlobal  # on global time
-                    sound_1.frameNStop = frameN  # exact frame index
-                    # add timestamp to datafile
-                    thisExp.timestampOnFlip(win, 'sound_1.stopped')
-                    # update status
-                    sound_1.status = FINISHED
-                    sound_1.stop()
-            
             # *text_3* updates
             
             # if text_3 is starting this frame...
@@ -739,7 +715,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     thisExp=thisExp, 
                     win=win, 
                     timers=[routineTimer], 
-                    playbackComponents=[sound_1]
+                    playbackComponents=[]
                 )
                 # skip the frame we paused on
                 continue
@@ -766,7 +742,9 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         trial.tStop = globalClock.getTime(format='float')
         trial.tStopRefresh = tThisFlipGlobal
         thisExp.addData('trial.stopped', trial.tStop)
-        sound_1.pause()  # ensure sound has stopped at end of Routine
+        # Run 'End Routine' code from code
+        testsound.stop()  # Ensure sound stops at the end of the routine
+        
         # using non-slip timing so subtract the expected duration of this Routine (unless ended on request)
         if trial.maxDurationReached:
             routineTimer.addTime(-trial.maxDuration)
