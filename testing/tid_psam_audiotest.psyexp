@@ -148,7 +148,7 @@
         <Param val="True" valType="bool" updates="constant" name="hamming"/>
         <Param val="sound_1" valType="code" updates="None" name="name"/>
         <Param val="True" valType="bool" updates="None" name="saveStartStop"/>
-        <Param val="stereo_sine_wave.wav" valType="str" updates="set every repeat" name="sound"/>
+        <Param val="test_rect_44100fs_80ms_2ch.wav" valType="str" updates="set every repeat" name="sound"/>
         <Param val="10.0" valType="code" updates="None" name="speakerIndex"/>
         <Param val="" valType="code" updates="None" name="startEstim"/>
         <Param val="time (s)" valType="str" updates="None" name="startType"/>
