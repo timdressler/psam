@@ -26,7 +26,7 @@
     <Param val="False" valType="bool" updates="None" name="Show mouse"/>
     <Param val="height" valType="str" updates="None" name="Units"/>
     <Param val="" valType="str" updates="None" name="Use version"/>
-    <Param val="(1024, 768)" valType="list" updates="None" name="Window size (pixels)"/>
+    <Param val="[1536, 960]" valType="list" updates="None" name="Window size (pixels)"/>
     <Param val="none" valType="str" updates="None" name="backgroundFit"/>
     <Param val="" valType="str" updates="None" name="backgroundImg"/>
     <Param val="avg" valType="str" updates="None" name="blendMode"/>
@@ -46,7 +46,7 @@
     <Param val="False" valType="bool" updates="None" name="elSimMode"/>
     <Param val="RIGHT_EYE" valType="str" updates="None" name="elTrackEyes"/>
     <Param val="PUPIL_CR_TRACKING" valType="str" updates="None" name="elTrackingMode"/>
-    <Param val="tid_psam_audiotest1" valType="str" updates="None" name="expName"/>
+    <Param val="tid_psam_audiotest7" valType="str" updates="None" name="expName"/>
     <Param val="on Sync" valType="str" updates="None" name="exportHTML"/>
     <Param val="None" valType="str" updates="None" name="eyetracker"/>
     <Param val="" valType="code" updates="None" name="frameRate"/>
@@ -94,58 +94,29 @@
         <Param val="True" valType="bool" updates="None" name="saveStartStop"/>
         <Param val="" valType="code" updates="constant" name="skipIf"/>
         <Param val="duration (s)" valType="str" updates="None" name="stopType"/>
-        <Param val="2" valType="code" updates="constant" name="stopVal"/>
+        <Param val="" valType="code" updates="constant" name="stopVal"/>
         <Param val="False" valType="bool" updates="None" name="useWindowParams"/>
       </RoutineSettingsComponent>
-      <ParallelOutComponent name="p_port" plugin="None">
-        <Param val="0x3ff8" valType="str" updates="None" name="address"/>
-        <Param val="False" valType="bool" updates="None" name="disabled"/>
-        <Param val="" valType="code" updates="None" name="durationEstim"/>
-        <Param val="p_port" valType="code" updates="None" name="name"/>
-        <Param val="EIO" valType="str" updates="None" name="register"/>
-        <Param val="True" valType="bool" updates="None" name="saveStartStop"/>
-        <Param val="1" valType="code" updates="None" name="startData"/>
-        <Param val="" valType="code" updates="None" name="startEstim"/>
-        <Param val="time (s)" valType="str" updates="None" name="startType"/>
-        <Param val="0" valType="code" updates="None" name="startVal"/>
-        <Param val="0" valType="code" updates="None" name="stopData"/>
-        <Param val="duration (s)" valType="str" updates="None" name="stopType"/>
-        <Param val="0.05" valType="code" updates="constant" name="stopVal"/>
-        <Param val="True" valType="bool" updates="constant" name="syncScreen"/>
-        <Param val="False" valType="bool" updates="None" name="syncScreenRefresh"/>
-      </ParallelOutComponent>
       <CodeComponent name="code" plugin="None">
-        <Param val="import psychtoolbox as ptb" valType="extendedCode" updates="constant" name="Before Experiment"/>
-        <Param val="import * as ptb from 'psychtoolbox';&amp;#10;" valType="extendedCode" updates="constant" name="Before JS Experiment"/>
-        <Param val="sound_2 = sound.Sound(&quot;test_rect_44100fs_80ms_2ch.wav&quot;, sampleRate = 44100)&amp;#10;&amp;#10;while sound_2.status is not STARTED:&amp;#10;    pass&amp;#10;    &amp;#10;p_port.setData(9)" valType="extendedCode" updates="constant" name="Begin Experiment"/>
-        <Param val="sound_2 = new sound.Sound(&quot;test_rect_44100fs_80ms_2ch.wav&quot;, {&quot;sampleRate&quot;: 44100});&amp;#10;while ((sound_2.status !== PsychoJS.Status.STARTED)) {&amp;#10;}&amp;#10;p_port.setData(9);&amp;#10;" valType="extendedCode" updates="constant" name="Begin JS Experiment"/>
-        <Param val="curt = (new ptb.GetSecs() + 0.5);&amp;#10;sound_2.play({&quot;when&quot;: curt});&amp;#10;p_port.setData(4);&amp;#10;" valType="extendedCode" updates="constant" name="Begin JS Routine"/>
-        <Param val="curt = ptb.GetSecs()+0.5&amp;#10;&amp;#10;sound_2.play(when=curt)&amp;#10;&amp;#10;p_port.setData(4)" valType="extendedCode" updates="constant" name="Begin Routine"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Before Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Before JS Experiment"/>
+        <Param val="from psychopy import sound&amp;#10;&amp;#10;# Create a sound object (440 Hz tone, 0.5 seconds duration)&amp;#10;beep = sound.Sound(440, secs=0.5)&amp;#10;" valType="extendedCode" updates="constant" name="Begin Experiment"/>
+        <Param val="import {sound} from 'psychopy';&amp;#10;beep = new sound.Sound(440, {&quot;secs&quot;: 0.5});&amp;#10;" valType="extendedCode" updates="constant" name="Begin JS Experiment"/>
+        <Param val="beep.play();&amp;#10;" valType="extendedCode" updates="constant" name="Begin JS Routine"/>
+        <Param val="# Play the sound at the start of the routine&amp;#10;beep.play()&amp;#10;" valType="extendedCode" updates="constant" name="Begin Routine"/>
         <Param val="Auto-&gt;JS" valType="str" updates="None" name="Code Type"/>
-        <Param val="if sound_2.status == STARTED:&amp;#10;    p_port.setData(5)&amp;#10;    &amp;#10;" valType="extendedCode" updates="constant" name="Each Frame"/>
-        <Param val="if ((sound_2.status === PsychoJS.Status.STARTED)) {&amp;#10;    p_port.setData(5);&amp;#10;}&amp;#10;" valType="extendedCode" updates="constant" name="Each JS Frame"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Each Frame"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Each JS Frame"/>
         <Param val="" valType="extendedCode" updates="constant" name="End Experiment"/>
         <Param val="" valType="extendedCode" updates="constant" name="End JS Experiment"/>
-        <Param val="sound_2.stop();&amp;#10;" valType="extendedCode" updates="constant" name="End JS Routine"/>
-        <Param val="sound_2.stop()&amp;#10;" valType="extendedCode" updates="constant" name="End Routine"/>
+        <Param val="beep.stop();&amp;#10;" valType="extendedCode" updates="constant" name="End JS Routine"/>
+        <Param val="# Stop the sound to ensure it doesn't continue playing&amp;#10;beep.stop()&amp;#10;" valType="extendedCode" updates="constant" name="End Routine"/>
         <Param val="False" valType="bool" updates="None" name="disabled"/>
         <Param val="code" valType="code" updates="None" name="name"/>
       </CodeComponent>
     </Routine>
   </Routines>
   <Flow>
-    <LoopInitiator loopType="TrialHandler" name="trials">
-      <Param name="Selected rows" updates="None" val="" valType="str"/>
-      <Param name="conditions" updates="None" val="None" valType="str"/>
-      <Param name="conditionsFile" updates="None" val="" valType="file"/>
-      <Param name="endPoints" updates="None" val="[0, 1]" valType="num"/>
-      <Param name="isTrials" updates="None" val="True" valType="bool"/>
-      <Param name="loopType" updates="None" val="random" valType="str"/>
-      <Param name="nReps" updates="None" val="20" valType="num"/>
-      <Param name="name" updates="None" val="trials" valType="code"/>
-      <Param name="random seed" updates="None" val="" valType="code"/>
-    </LoopInitiator>
     <Routine name="trial"/>
-    <LoopTerminator name="trials"/>
   </Flow>
 </PsychoPy2experiment>
