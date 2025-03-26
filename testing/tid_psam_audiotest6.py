@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on März 26, 2025, at 14:26
+    on März 26, 2025, at 21:55
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -304,9 +304,6 @@ def pauseExperiment(thisExp, win=None, timers=[], playbackComponents=[]):
         )
     # run a while loop while we wait to unpause
     while thisExp.status == PAUSED:
-        # check for quit (typically the Esc key)
-        if defaultKeyboard.getKeys(keyList=['escape']):
-            endExperiment(thisExp, win=win)
         # sleep 1ms so other threads can execute
         clock.time.sleep(0.001)
     # if stop was requested while paused, quit
@@ -474,7 +471,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         if isinstance(trials, data.TrialHandler2) and thisTrial.thisN != trials.thisTrial.thisN:
             continueRoutine = False
         trial.forceEnded = routineForceEnded = not continueRoutine
-        while continueRoutine:
+        while continueRoutine and routineTimer.getTime() < 3.0:
             # get current time
             t = routineTimer.getTime()
             tThisFlip = win.getFutureFlipTime(clock=routineTimer)
@@ -484,7 +481,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             # *p_port* updates
             
             # if p_port is starting this frame...
-            if p_port.status == NOT_STARTED and 0.5:
+            if p_port.status == NOT_STARTED and t >= 0.5-frameTolerance:
                 # keep track of start time/frame for later
                 p_port.frameNStart = frameN  # exact frame index
                 p_port.tStart = t  # local t and not account for scr refresh
@@ -510,24 +507,20 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     # update status
                     p_port.status = FINISHED
                     win.callOnFlip(p_port.setData, int(0))
-            # is it time to end the Routine? (based on local clock)
-            if tThisFlip > trial.maxDuration-frameTolerance:
-                trial.maxDurationReached = True
-                continueRoutine = False
             
             # *sound_1* updates
             
             # if sound_1 is starting this frame...
-            if sound_1.status == NOT_STARTED and p_port.status = STARTED:
+            if sound_1.status == NOT_STARTED and tThisFlip >= 0.5-frameTolerance:
                 # keep track of start time/frame for later
                 sound_1.frameNStart = frameN  # exact frame index
                 sound_1.tStart = t  # local t and not account for scr refresh
                 sound_1.tStartRefresh = tThisFlipGlobal  # on global time
                 # add timestamp to datafile
-                thisExp.addData('sound_1.started', t)
+                thisExp.addData('sound_1.started', tThisFlipGlobal)
                 # update status
                 sound_1.status = STARTED
-                sound_1.play()  # start the sound (it finishes automatically)
+                sound_1.play(when=win)  # sync with win flip
             
             # if sound_1 is stopping this frame...
             if sound_1.status == STARTED:
@@ -538,14 +531,14 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     sound_1.tStopRefresh = tThisFlipGlobal  # on global time
                     sound_1.frameNStop = frameN  # exact frame index
                     # add timestamp to datafile
-                    thisExp.addData('sound_1.stopped', t)
+                    thisExp.timestampOnFlip(win, 'sound_1.stopped')
                     # update status
                     sound_1.status = FINISHED
                     sound_1.stop()
-            
-            # check for quit (typically the Esc key)
-            if defaultKeyboard.getKeys(keyList=["escape"]):
-                thisExp.status = FINISHED
+            # is it time to end the Routine? (based on local clock)
+            if tThisFlip > trial.maxDuration-frameTolerance:
+                trial.maxDurationReached = True
+                continueRoutine = False
             if thisExp.status == FINISHED or endExpNow:
                 endExperiment(thisExp, win=win)
                 return
@@ -580,13 +573,18 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 thisComponent.setAutoDraw(False)
         if p_port.status == STARTED:
             win.callOnFlip(p_port.setData, int(0))
+        sound_1.pause()  # ensure sound has stopped at end of Routine
         # store stop times for trial
         trial.tStop = globalClock.getTime(format='float')
         trial.tStopRefresh = tThisFlipGlobal
         thisExp.addData('trial.stopped', trial.tStop)
-        sound_1.pause()  # ensure sound has stopped at end of Routine
-        # the Routine "trial" was not non-slip safe, so reset the non-slip timer
-        routineTimer.reset()
+        # using non-slip timing so subtract the expected duration of this Routine (unless ended on request)
+        if trial.maxDurationReached:
+            routineTimer.addTime(-trial.maxDuration)
+        elif trial.forceEnded:
+            routineTimer.reset()
+        else:
+            routineTimer.addTime(-3.000000)
         thisExp.nextEntry()
         
     # completed 30.0 repeats of 'trials'

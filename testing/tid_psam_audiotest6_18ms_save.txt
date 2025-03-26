@@ -1,8 +1,8 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on März 26, 2025, at 21:53
+    on März 26, 2025, at 21:42
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -126,7 +126,7 @@ def setupData(expInfo, dataDir=None):
     thisExp = data.ExperimentHandler(
         name=expName, version='',
         extraInfo=expInfo, runtimeInfo=None,
-        originPath='C:\\Experiments\\tid_psam\\psam\\testing\\tid_psam_audiotest6_lastrun.py',
+        originPath='C:\\Experiments\\tid_psam\\psam\\testing\\tid_psam_audiotest6.py',
         savePickle=True, saveWideText=True,
         dataFileName=dataDir + os.sep + filename, sortColumns='time'
     )
@@ -478,14 +478,10 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             tThisFlipGlobal = win.getFutureFlipTime(clock=None)
             frameN = frameN + 1  # number of completed frames (so 0 is the first frame)
             # update/draw components on each frame
-            # is it time to end the Routine? (based on local clock)
-            if tThisFlip > trial.maxDuration-frameTolerance:
-                trial.maxDurationReached = True
-                continueRoutine = False
             # *p_port* updates
             
             # if p_port is starting this frame...
-            if p_port.status == NOT_STARTED and t >= 0.5-frameTolerance:
+            if p_port.status == NOT_STARTED and tThisFlip >= 0.5:
                 # keep track of start time/frame for later
                 p_port.frameNStart = frameN  # exact frame index
                 p_port.tStart = t  # local t and not account for scr refresh
@@ -515,7 +511,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             # *sound_1* updates
             
             # if sound_1 is starting this frame...
-            if sound_1.status == NOT_STARTED and tThisFlip >= 0.5-frameTolerance:
+            if sound_1.status == NOT_STARTED and tThisFlip >= 0.5:
                 # keep track of start time/frame for later
                 sound_1.frameNStart = frameN  # exact frame index
                 sound_1.tStart = t  # local t and not account for scr refresh
@@ -539,6 +535,10 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     # update status
                     sound_1.status = FINISHED
                     sound_1.stop()
+            # is it time to end the Routine? (based on local clock)
+            if tThisFlip > trial.maxDuration-frameTolerance:
+                trial.maxDurationReached = True
+                continueRoutine = False
             if thisExp.status == FINISHED or endExpNow:
                 endExperiment(thisExp, win=win)
                 return
@@ -571,13 +571,13 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         for thisComponent in trial.components:
             if hasattr(thisComponent, "setAutoDraw"):
                 thisComponent.setAutoDraw(False)
+        if p_port.status == STARTED:
+            win.callOnFlip(p_port.setData, int(0))
+        sound_1.pause()  # ensure sound has stopped at end of Routine
         # store stop times for trial
         trial.tStop = globalClock.getTime(format='float')
         trial.tStopRefresh = tThisFlipGlobal
         thisExp.addData('trial.stopped', trial.tStop)
-        if p_port.status == STARTED:
-            win.callOnFlip(p_port.setData, int(0))
-        sound_1.pause()  # ensure sound has stopped at end of Routine
         # using non-slip timing so subtract the expected duration of this Routine (unless ended on request)
         if trial.maxDurationReached:
             routineTimer.addTime(-trial.maxDuration)
