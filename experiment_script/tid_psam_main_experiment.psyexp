@@ -159,7 +159,7 @@
         <Param val="" valType="str" updates="None" name="deviceLabel"/>
         <Param val="False" valType="bool" updates="None" name="disabled"/>
         <Param val="" valType="code" updates="None" name="durationEstim"/>
-        <Param val="True" valType="bool" updates="constant" name="hamming"/>
+        <Param val="False" valType="bool" updates="constant" name="hamming"/>
         <Param val="probe_stim" valType="code" updates="None" name="name"/>
         <Param val="True" valType="bool" updates="None" name="saveStartStop"/>
         <Param val="$stim_file" valType="str" updates="set every repeat" name="sound"/>

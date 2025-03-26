@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on März 25, 2025, at 20:43
+    on März 26, 2025, at 13:23
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -368,6 +368,11 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     # Run 'Begin Experiment' code from code
     sound_2 = sound.Sound("test_rect_44100fs_80ms_2ch.wav", sampleRate = 44100)
     
+    while sound_2.status is not STARTED:
+        pass
+        
+    p_port.setData(9)
+    
     # create some handy timers
     
     # global clock to track the time since experiment started
@@ -507,6 +512,11 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     # update status
                     p_port.status = FINISHED
                     win.callOnFlip(p_port.setData, int(0))
+            # Run 'Each Frame' code from code
+            if sound_2.status == STARTED:
+                p_port.setData(5)
+                
+            
             
             # check for quit (typically the Esc key)
             if defaultKeyboard.getKeys(keyList=["escape"]):

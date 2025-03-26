@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+﻿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on März 15, 2025, at 16:59
+    on März 26, 2025, at 14:26
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -17,7 +17,7 @@ from psychopy import prefs
 from psychopy import plugins
 plugins.activatePlugins()
 prefs.hardware['audioLib'] = 'ptb'
-prefs.hardware['audioLatencyMode'] = '3'
+prefs.hardware['audioLatencyMode'] = '4'
 from psychopy import sound, gui, visual, core, data, event, logging, clock, colors, layout, hardware, parallel
 from psychopy.tools import environmenttools
 from psychopy.constants import (NOT_STARTED, STARTED, PLAYING, PAUSED,
@@ -40,7 +40,7 @@ deviceManager = hardware.DeviceManager()
 _thisDir = os.path.dirname(os.path.abspath(__file__))
 # store info about the experiment session
 psychopyVersion = '2024.2.4'
-expName = 'tid_psam_testing'  # from the Builder filename that created this script
+expName = 'tid_psam_audiotest6'  # from the Builder filename that created this script
 # information about this experiment
 expInfo = {
     'participant': f"{randint(0, 999999):06.0f}",
@@ -126,7 +126,7 @@ def setupData(expInfo, dataDir=None):
     thisExp = data.ExperimentHandler(
         name=expName, version='',
         extraInfo=expInfo, runtimeInfo=None,
-        originPath='C:\\Experiments\\tid_psam\\psam\\testing\\tid_psam_testing.py',
+        originPath='C:\\Experiments\\tid_psam\\psam\\testing\\tid_psam_audiotest6.py',
         savePickle=True, saveWideText=True,
         dataFileName=dataDir + os.sep + filename, sortColumns='time'
     )
@@ -368,22 +368,15 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     # Start Code - component code to be run after the window creation
     
     # --- Initialize components for Routine "trial" ---
+    p_port = parallel.ParallelPort(address='0x3ff8')
     sound_1 = sound.Sound(
         'A', 
         secs=1.0, 
         stereo=True, 
         hamming=True, 
-        speaker='sound_1',    name='sound_1', sampleRate = 44100
+        speaker='sound_1',    name='sound_1'
     )
     sound_1.setVolume(1.0)
-    text = visual.TextStim(win=win, name='text',
-        text='Any text\n\nincluding line breaks',
-        font='Arial',
-        pos=(0, 0), draggable=False, height=0.05, wrapWidth=None, ori=0.0, 
-        color='white', colorSpace='rgb', opacity=None, 
-        languageStyle='LTR',
-        depth=-1.0);
-    p_port = parallel.ParallelPort(address='0x3ff8')
     
     # create some handy timers
     
@@ -416,7 +409,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     # set up handler to look after randomisation of conditions etc
     trials = data.TrialHandler2(
         name='trials',
-        nReps=5.0, 
+        nReps=30.0, 
         method='random', 
         extraInfo=expInfo, 
         originPath=-1, 
@@ -448,12 +441,12 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         # create an object to store info about Routine trial
         trial = data.Routine(
             name='trial',
-            components=[sound_1, text, p_port],
+            components=[p_port, sound_1],
         )
         trial.status = NOT_STARTED
         continueRoutine = True
         # update component parameters for each repeat
-        sound_1.setSound('stereo_sine_wave.wav', secs=1.0, hamming=True)
+        sound_1.setSound('test_rect_48000fs_80ms_2ch.wav', secs=1.0, hamming=True)
         sound_1.setVolume(1.0, log=False)
         sound_1.seek(0)
         # store start times for trial
@@ -461,7 +454,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         trial.tStart = globalClock.getTime(format='float')
         trial.status = STARTED
         thisExp.addData('trial.started', trial.tStart)
-        trial.maxDuration = 10
+        trial.maxDuration = 3
         # keep track of which components have finished
         trialComponents = trial.components
         for thisComponent in trial.components:
@@ -481,83 +474,17 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         if isinstance(trials, data.TrialHandler2) and thisTrial.thisN != trials.thisTrial.thisN:
             continueRoutine = False
         trial.forceEnded = routineForceEnded = not continueRoutine
-        while continueRoutine and routineTimer.getTime() < 10.0:
+        while continueRoutine:
             # get current time
             t = routineTimer.getTime()
             tThisFlip = win.getFutureFlipTime(clock=routineTimer)
             tThisFlipGlobal = win.getFutureFlipTime(clock=None)
             frameN = frameN + 1  # number of completed frames (so 0 is the first frame)
             # update/draw components on each frame
-            # is it time to end the Routine? (based on local clock)
-            if tThisFlip > trial.maxDuration-frameTolerance:
-                trial.maxDurationReached = True
-                continueRoutine = False
-            
-            # *sound_1* updates
-            
-            # if sound_1 is starting this frame...
-            if sound_1.status == NOT_STARTED and tThisFlip >= 2-frameTolerance:
-                # keep track of start time/frame for later
-                sound_1.frameNStart = frameN  # exact frame index
-                sound_1.tStart = t  # local t and not account for scr refresh
-                sound_1.tStartRefresh = tThisFlipGlobal  # on global time
-                # add timestamp to datafile
-                thisExp.addData('sound_1.started', tThisFlipGlobal)
-                # update status
-                sound_1.status = STARTED
-                sound_1.play(when=win)  # sync with win flip
-            
-            # if sound_1 is stopping this frame...
-            if sound_1.status == STARTED:
-                # is it time to stop? (based on global clock, using actual start)
-                if tThisFlipGlobal > sound_1.tStartRefresh + 1.0-frameTolerance or sound_1.isFinished:
-                    # keep track of stop time/frame for later
-                    sound_1.tStop = t  # not accounting for scr refresh
-                    sound_1.tStopRefresh = tThisFlipGlobal  # on global time
-                    sound_1.frameNStop = frameN  # exact frame index
-                    # add timestamp to datafile
-                    thisExp.timestampOnFlip(win, 'sound_1.stopped')
-                    # update status
-                    sound_1.status = FINISHED
-                    sound_1.stop()
-            
-            # *text* updates
-            
-            # if text is starting this frame...
-            if text.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
-                # keep track of start time/frame for later
-                text.frameNStart = frameN  # exact frame index
-                text.tStart = t  # local t and not account for scr refresh
-                text.tStartRefresh = tThisFlipGlobal  # on global time
-                win.timeOnFlip(text, 'tStartRefresh')  # time at next scr refresh
-                # add timestamp to datafile
-                thisExp.timestampOnFlip(win, 'text.started')
-                # update status
-                text.status = STARTED
-                text.setAutoDraw(True)
-            
-            # if text is active this frame...
-            if text.status == STARTED:
-                # update params
-                pass
-            
-            # if text is stopping this frame...
-            if text.status == STARTED:
-                # is it time to stop? (based on global clock, using actual start)
-                if tThisFlipGlobal > text.tStartRefresh + 1.0-frameTolerance:
-                    # keep track of stop time/frame for later
-                    text.tStop = t  # not accounting for scr refresh
-                    text.tStopRefresh = tThisFlipGlobal  # on global time
-                    text.frameNStop = frameN  # exact frame index
-                    # add timestamp to datafile
-                    thisExp.timestampOnFlip(win, 'text.stopped')
-                    # update status
-                    text.status = FINISHED
-                    text.setAutoDraw(False)
             # *p_port* updates
             
             # if p_port is starting this frame...
-            if p_port.status == NOT_STARTED and t >= 1-frameTolerance:
+            if p_port.status == NOT_STARTED and 0.5:
                 # keep track of start time/frame for later
                 p_port.frameNStart = frameN  # exact frame index
                 p_port.tStart = t  # local t and not account for scr refresh
@@ -572,7 +499,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             
             # if p_port is stopping this frame...
             if p_port.status == STARTED:
-                if frameN >= 1:
+                # is it time to stop? (based on global clock, using actual start)
+                if tThisFlipGlobal > p_port.tStartRefresh + 0.1-frameTolerance:
                     # keep track of stop time/frame for later
                     p_port.tStop = t  # not accounting for scr refresh
                     p_port.tStopRefresh = tThisFlipGlobal  # on global time
@@ -582,6 +510,38 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     # update status
                     p_port.status = FINISHED
                     win.callOnFlip(p_port.setData, int(0))
+            # is it time to end the Routine? (based on local clock)
+            if tThisFlip > trial.maxDuration-frameTolerance:
+                trial.maxDurationReached = True
+                continueRoutine = False
+            
+            # *sound_1* updates
+            
+            # if sound_1 is starting this frame...
+            if sound_1.status == NOT_STARTED and p_port.status = STARTED:
+                # keep track of start time/frame for later
+                sound_1.frameNStart = frameN  # exact frame index
+                sound_1.tStart = t  # local t and not account for scr refresh
+                sound_1.tStartRefresh = tThisFlipGlobal  # on global time
+                # add timestamp to datafile
+                thisExp.addData('sound_1.started', t)
+                # update status
+                sound_1.status = STARTED
+                sound_1.play()  # start the sound (it finishes automatically)
+            
+            # if sound_1 is stopping this frame...
+            if sound_1.status == STARTED:
+                # is it time to stop? (based on global clock, using actual start)
+                if tThisFlipGlobal > sound_1.tStartRefresh + 1.0-frameTolerance or sound_1.isFinished:
+                    # keep track of stop time/frame for later
+                    sound_1.tStop = t  # not accounting for scr refresh
+                    sound_1.tStopRefresh = tThisFlipGlobal  # on global time
+                    sound_1.frameNStop = frameN  # exact frame index
+                    # add timestamp to datafile
+                    thisExp.addData('sound_1.stopped', t)
+                    # update status
+                    sound_1.status = FINISHED
+                    sound_1.stop()
             
             # check for quit (typically the Esc key)
             if defaultKeyboard.getKeys(keyList=["escape"]):
@@ -618,23 +578,18 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         for thisComponent in trial.components:
             if hasattr(thisComponent, "setAutoDraw"):
                 thisComponent.setAutoDraw(False)
+        if p_port.status == STARTED:
+            win.callOnFlip(p_port.setData, int(0))
         # store stop times for trial
         trial.tStop = globalClock.getTime(format='float')
         trial.tStopRefresh = tThisFlipGlobal
         thisExp.addData('trial.stopped', trial.tStop)
         sound_1.pause()  # ensure sound has stopped at end of Routine
-        if p_port.status == STARTED:
-            win.callOnFlip(p_port.setData, int(0))
-        # using non-slip timing so subtract the expected duration of this Routine (unless ended on request)
-        if trial.maxDurationReached:
-            routineTimer.addTime(-trial.maxDuration)
-        elif trial.forceEnded:
-            routineTimer.reset()
-        else:
-            routineTimer.addTime(-10.000000)
+        # the Routine "trial" was not non-slip safe, so reset the non-slip timer
+        routineTimer.reset()
         thisExp.nextEntry()
         
-    # completed 5.0 repeats of 'trials'
+    # completed 30.0 repeats of 'trials'
     
     if thisSession is not None:
         # if running in a Session with a Liaison client, send data up to now

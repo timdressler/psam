@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on März 25, 2025, at 15:49
+    on März 26, 2025, at 15:53
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -127,7 +127,7 @@ def setupData(expInfo, dataDir=None):
     thisExp = data.ExperimentHandler(
         name=expName, version='',
         extraInfo=expInfo, runtimeInfo=None,
-        originPath='C:\\Users\\timdr\\OneDrive\\Uni_Oldenburg\\4_Semester\\Master_Thesis\\Analysis_Experiment\\psam\\experiment_script\\tid_psam_main_experiment.py',
+        originPath='C:\\Experiments\\tid_psam\\psam\\experiment_script\\tid_psam_main_experiment.py',
         savePickle=True, saveWideText=True,
         dataFileName=dataDir + os.sep + filename, sortColumns='alphabetical'
     )
@@ -446,7 +446,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         'A', 
         secs=-1, 
         stereo=False, 
-        hamming=True, 
+        hamming=False, 
         speaker='probe_stim',    name='probe_stim'
     )
     probe_stim.setVolume(1.0)
@@ -950,7 +950,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         trial.status = NOT_STARTED
         continueRoutine = True
         # update component parameters for each repeat
-        probe_stim.setSound(stim_file, secs=probe_duration, hamming=True)
+        probe_stim.setSound(stim_file, secs=probe_duration, hamming=False)
         probe_stim.setVolume(probe_intensity, log=False)
         probe_stim.seek(0)
         task_msg.setText(task)
