@@ -6,13 +6,13 @@
 %
 % Selection Process:
 %   Selects probe with median F0
-%   Presents selected probe 5 times   
+%   Presents selected probe 5 times
 %   Experimenter can choose whether to listen again, change to another
 %       probe or keep the probe
-%   In case a change is requested, the probe 'next to the median probe' is 
+%   In case a change is requested, the probe 'next to the median probe' is
 %       selected (first the one below the median, then the one above)
 %   If the probe is still not usable the process is repeated with the
-%       probes that 'lie 2 steps from the median one'. 
+%       probes that 'lie 2 steps from the median one'.
 %   After that, no probe change is possible anymore and the recoring has to
 %   b   e repeated
 %
@@ -80,6 +80,14 @@ while ~selection_done
     [normal_probe_data, FS_normal] = audioread(normal_probe_file);
     [pitch_probe_data, FS_pitch] = audioread(pitch_probe_file);
 
+    % Extract the right channel (assuming 2-channel stereo)
+    if size(normal_probe_data, 2) == 2
+        normal_probe_data = normal_probe_data(:,2);
+    end
+    if size(pitch_probe_data, 2) == 2
+        pitch_probe_data = pitch_probe_data(:,2);
+    end
+
     % Experimenter decision dialog
     change_file_yes_no = 'listen_again';
     while strcmp(change_file_yes_no, 'listen_again')
@@ -97,9 +105,9 @@ while ~selection_done
         % Play sounds
         for i = 1:5
             pause(1)
-            sound(normal_probe_data, FS_normal); 
+            sound(normal_probe_data, FS_normal);
             pause(1);
-            sound(pitch_probe_data, FS_pitch); 
+            sound(pitch_probe_data, FS_pitch);
             pause(1);
         end
 
@@ -153,7 +161,7 @@ destinationFile_pitch = fullfile(STIMULIPATH, [subj '_pitch_probe.wav']);
 copyfile(fullfile(STIMULIPATH_Normal, [final_probe_properties{1,5} '_normal.wav']), destinationFile_normal);
 copyfile(fullfile(STIMULIPATH_Pitch, [final_probe_properties{1,5} '_pitch.wav']), destinationFile_pitch);
 
-% Export final probe properties 
+% Export final probe properties
 exportFile = fullfile(STIMULIPATH, [subj '_probe_properties.xlsx']);
 final_probe_table = cell2table(final_probe_properties, ...
     'VariableNames', {'f0_tab_normal', 'f0_tab_pitched', 'db_tab_normal', 'db_tab_pitched', 'filename_tab'});
