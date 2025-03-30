@@ -45,22 +45,22 @@ clear subj_idx
 for subj_idx = 1:length(dircont_subj)
 
     % Get subject ID
-    subj_ID = dircont_subj(subj_idx).name;
+    subj = dircont_subj(subj_idx).name;
 
     % Update progress bar
-    waitbar(subj_idx/length(dircont_subj),wb, [subj_ID ' tid_psam_set_markers.m'])
+    waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_set_markers.m'])
 
     % Sanity Check: Number of EEG files == 1
-    if length(dir(fullfile(INPATH, [subj_ID '\eeg\*.vhdr']))) == 1
+    if length(dir(fullfile(INPATH, [subj '\eeg\*.vhdr']))) == 1
 
     else
-        marked_subj{end+1,1} = subj_ID;
+        marked_subj{end+1,1} = subj;
         marked_subj{end,2} = 'num_of_eeg_files';
     end
 
     % Get filename & path
-    subj_file = [subj_ID '.vhdr'];
-    subj_path = fullfile(INPATH, [subj_ID '\eeg\']);
+    subj_file = [subj '.vhdr'];
+    subj_path = fullfile(INPATH, [subj '\eeg\']);
 
     % Start EEGLAB
     eeglab;
@@ -87,7 +87,7 @@ for subj_idx = 1:length(dircont_subj)
     if length(peak_latencies) == 480
 
     else
-        marked_subj{end+1,1} = subj_ID;
+        marked_subj{end+1,1} = subj;
         marked_subj{end,2} = 'num_of_detected_peaks';
     end
 
@@ -129,7 +129,7 @@ for subj_idx = 1:length(dircont_subj)
     if new_marker_count == 480
 
     else
-        marked_subj{end+1,1} = subj_ID;
+        marked_subj{end+1,1} = subj;
         marked_subj{end,2} = 'num_of_new_markers';
     end
 
@@ -137,13 +137,13 @@ for subj_idx = 1:length(dircont_subj)
     EEG = eeg_checkset(EEG);
 
     % Save updated dataset
-    pop_saveset(EEG, 'filename', [subj_ID '_cleaned.set'], 'filepath', OUTPATH);
+    pop_saveset(EEG, 'filename', [subj '_cleaned.set'], 'filepath', OUTPATH);
 
     % Update Protocol
     subj_time = toc;
-    protocol{subj_idx,1} = subj_ID;
+    protocol{subj_idx,1} = subj;
     protocol{subj_idx,2} = subj_time;
-    if any(strcmp(marked_subj, subj_ID), 'all')
+    if any(strcmp(marked_subj, subj), 'all')
         protocol{subj_idx,3} = 'MARKED';
     else
         protocol{subj_idx,3} = 'OK';
@@ -151,7 +151,7 @@ for subj_idx = 1:length(dircont_subj)
 
 end
 
-%% End of processing
+% End of processing
 
 protocol = cell2table(protocol, 'VariableNames',{'subj','time', 'status'})
 writetable(protocol,fullfile(OUTPATH, 'tid_psam_cleaned_protocol.xlsx'))

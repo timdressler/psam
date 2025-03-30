@@ -14,7 +14,7 @@
 %   If the probe is still not usable the process is repeated with the
 %       probes that 'lie 2 steps from the median one'.
 %   After that, no probe change is possible anymore and the recoring has to
-%   b   e repeated
+%   be repeated.
 %
 % Tim Dressler, 07.03.2025
 
@@ -168,9 +168,9 @@ final_probe_table = cell2table(final_probe_properties, ...
 final_probe_table.change_attempts = change_attempts;
 writetable(final_probe_table, exportFile, 'FileType', 'spreadsheet');
 
-% Display successful performance
+% End of processing
 disp(['Final probe properties saved as: ' exportFile]);
-disp('READY FOR MAIN EXPERIMENT')
+disp('READY FOR LOUDNESS SET UP')
 
 close all
 

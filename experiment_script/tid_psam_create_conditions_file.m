@@ -1,6 +1,9 @@
 % tid_psam_create_conditions_file.m
 %
-% Creates BIDS-conform folder structure and conditions file.
+% Creates BIDS-inspired folder structure and conditions file.
+% Has to be executed BEFORE tid_psam_create_conditions_file.m,
+%   tid_psam_stimuli_recording_adapted.py and tid_psam_prepare_stimuli.praat.
+%
 % The pseudorandomization ensures that task conditions are shuffled while 
 % maintaining constraints on consecutive repetitions. 
 % Note. The number of trials (n_trials) has to be dividable by 16 due to
@@ -217,6 +220,6 @@ end
 conditions_table = cell2table(all_trials, "VariableNames",{'probe', 'task', 'probe_onset_cat', 'probe_type', 'probe_onset', 'probe_intensity', 'stim_file', 'probe_duration' ,'subj', 'probe_marker', 'task_marker'});
 writetable(conditions_table, fullfile(STIMULIPATH, [subj '_conditions.xlsx']));
 
-% Display successful performance
+% End of processing
 disp(['Conditions file saved as: ' fullfile(STIMULIPATH, [subj '_conditions.xlsx'])]);
 disp('READY FOR STIMULI RECORDINGS')
