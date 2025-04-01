@@ -1,8 +1,8 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on März 26, 2025, at 21:06
+    on März 31, 2025, at 10:27
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -430,7 +430,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         secs=-1, 
         stereo=True, 
         hamming=False, 
-        speaker='probe_stim',    name='probe_stim'
+        speaker='probe_stim',    name='probe_stim', sampleRate = 44100
     )
     probe_stim.setVolume(1.0)
     probe_marker_port = parallel.ParallelPort(address='0x3ff8')
