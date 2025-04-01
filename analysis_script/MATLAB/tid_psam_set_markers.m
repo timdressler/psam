@@ -99,6 +99,8 @@ for subj_idx = 1%%:length(dircont_subj)
     % Find closest markers and add new markers
     marker_window = 200; % ±200ms search window
     new_marker_count = 0; % Counter for new markers
+    wrong_marker_count = 0; % Counter for wrong markers
+    new_marker_latency = []; % Stores latencies of added markers
 
     for peak_time = peak_latencies'
         % Find closest event within ±200 ms
@@ -109,7 +111,7 @@ for subj_idx = 1%%:length(dircont_subj)
 
             if startsWith(old_marker, 'S ')
                 old_marker_num = str2double(strtrim(extractAfter(old_marker, 2))); % Extract marker number
-                if ~isnan(old_marker_num)
+                if ~isnan(old_marker_num) && any(old_marker_num == [31:34 41:44])
                     new_marker_num = 900 + old_marker_num; % Generate new marker name
                     new_marker_name = ['S ' num2str(new_marker_num)];
 
@@ -121,6 +123,11 @@ for subj_idx = 1%%:length(dircont_subj)
                     EEG.event(end).code = 'Stimulus';
 
                     new_marker_count = new_marker_count + 1; % Increment counter
+
+                    new_marker_latency = [new_marker_latency; peak_time];
+                else 
+                    warning('Invalid Marker')
+                    wrong_marker_count = wrong_marker_count + 1;
                 end
             end
         end
@@ -132,6 +139,12 @@ for subj_idx = 1%%:length(dircont_subj)
     else
         marked_subj{end+1,1} = subj;
         marked_subj{end,2} = 'num_of_new_markers';
+    end
+
+    % Sanity Check: No wrong markers
+    if wrong_marker_count ~= 0
+        marked_subj{end+1,1} = subj;
+        marked_subj{end,2} = 'wrong_marker';
     end
 
     % Update EEG structure
