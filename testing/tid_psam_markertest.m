@@ -38,18 +38,18 @@ time_diffs_43_44 = [];
 % Loop through events and find pairs
 for i = 1:length(event_types)-1
     if strcmp(event_types{i}, 'S 21')
-        if any(strcmp(event_types{i+1}, {'S 31', 'S 32'}))
+        if any(strcmp(event_types{i+1}, {'S 931', 'S 932'})) || any(strcmp(event_types{i+2}, {'S 931', 'S 932'}))
             delay = (event_latencies(i+1) - event_latencies(i)) / EEG.srate;
             time_diffs_31_32 = [time_diffs_31_32, delay];
-        elseif any(strcmp(event_types{i+1}, {'S 33', 'S 34'}))
+        elseif any(strcmp(event_types{i+1}, {'S 933', 'S 934'})) || any(strcmp(event_types{i+2}, {'S 933', 'S 934'}))
             delay = (event_latencies(i+1) - event_latencies(i)) / EEG.srate;
             time_diffs_33_34 = [time_diffs_33_34, delay];
         end
     elseif strcmp(event_types{i}, 'S 22')
-        if any(strcmp(event_types{i+1}, {'S 41', 'S 42'}))
+        if any(strcmp(event_types{i+1}, {'S 941', 'S 942'})) || any(strcmp(event_types{i+2}, {'S 941', 'S 942'}))
             delay = (event_latencies(i+1) - event_latencies(i)) / EEG.srate;
             time_diffs_41_42 = [time_diffs_41_42, delay];
-        elseif any(strcmp(event_types{i+1}, {'S 43', 'S 44'}))
+        elseif any(strcmp(event_types{i+1}, {'S 943', 'S 944'})) || any(strcmp(event_types{i+2}, {'S 943', 'S 944'}))
             delay = (event_latencies(i+1) - event_latencies(i)) / EEG.srate;
             time_diffs_43_44 = [time_diffs_43_44, delay];
         end

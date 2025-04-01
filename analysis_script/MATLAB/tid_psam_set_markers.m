@@ -43,7 +43,7 @@ protocol = {};
 wb = waitbar(0,'starting tid_psam_set_markers.m');
 
 clear subj_idx
-for subj_idx = 1:length(dircont_subj)
+for subj_idx = 1%%:length(dircont_subj)
 
     % Get subject ID
     subj = dircont_subj(subj_idx).name;
@@ -75,7 +75,7 @@ for subj_idx = 1:length(dircont_subj)
     last_peak_time = -inf; % Track last detected peak time
 
     for i = 1:length(EEG.times)
-        if abs(EEG.data(1, i)) > THRESHOLD % Check if value exceeds THRESHOLD
+        if abs(EEG.data(MARKER_CHAN, i)) > THRESHOLD % Check if value exceeds THRESHOLD
             peak_time = EEG.times(i);
             if peak_time - last_peak_time > MIN_INTERVAL % Avoid duplicate detections
                 peak_latencies = [peak_latencies; peak_time]; % Store valid peaks
@@ -116,7 +116,7 @@ for subj_idx = 1:length(dircont_subj)
                     % Add new event directly to EEG.event
                     EEG.event(end+1).latency = peak_time / 1000 * EEG.srate; % Convert ms to samples
                     EEG.event(end).type = new_marker_name;
-                    EEG.event(end).duration = 0.001;
+                    EEG.event(end).duration = 1;
                     EEG.event(end).channel = 0;
                     EEG.event(end).code = 'Stimulus';
 
@@ -151,6 +151,11 @@ for subj_idx = 1:length(dircont_subj)
     end
 
 end
+
+% Sort events
+[~, sortIdx] = sort([EEG.event.latency]); 
+EEG.event = EEG.event(sortIdx);
+EEG = eeg_checkset(EEG);
 
 % End of processing
 

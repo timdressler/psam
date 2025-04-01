@@ -8,6 +8,9 @@ clear
 close all
 clc
 
+% Variables to edit
+MARKER_CHAN = 31;
+
 % Start eeglab
 eeglab;
 
@@ -27,7 +30,7 @@ set(fig,'defaultTextFontSize',14);
 set(fig,'defaultAxesFontSize',14);
 subplot(1,2,1)
 for k=1:size(EEG2.data,3)
-plot(EEG2.times,(EEG2.data(1,:,k)))
+plot(EEG2.times,(EEG2.data(MARKER_CHAN,:,k)))
 hold on
 end
 xlabel('time (ms)')
@@ -35,7 +38,7 @@ title('Audio marker')
 
 % Find sound onsets
 for k=1:size(EEG2.data,3)
-   a=find(abs(squeeze(EEG2.data(1,1:end,k))')>1000);  
+   a=find(abs(squeeze(EEG2.data(MARKER_CHAN,1:end,k))')>1000);  
    sound_onsets(k)=EEG2.times(a(1));
    
 end
