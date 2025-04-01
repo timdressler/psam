@@ -30,6 +30,7 @@ tid_psam_check_folder_TD(MAINPATH,INPATH,OUTPATH)
 % Variables to edit
 THRESHOLD = 1000;  % Peak detection THRESHOLD
 MIN_INTERVAL = 100; % Minimum time (ms) between detected peaks to avoid duplicates
+MARKER_CHAN = 31;
 
 % Get directory content
 dircont_subj = dir(fullfile(INPATH, 'sub*'));
