@@ -6,7 +6,7 @@
     <Param val="" valType="str" updates="None" name="Completed URL"/>
     <Param val="auto" valType="str" updates="None" name="Data file delimiter"/>
     <Param val="u'../data/BIDS/%s/beh/%s_%s_%s' % (f&quot;sub-{int(expInfo['participant']):02d}&quot;, f&quot;sub-{int(expInfo['participant']):02d}&quot;, &quot;tid_psam_main_experiment&quot;, expInfo['date'])" valType="code" updates="None" name="Data filename"/>
-    <Param val="False" valType="bool" updates="None" name="Enable Escape"/>
+    <Param val="True" valType="bool" updates="None" name="Enable Escape"/>
     <Param val="Thank you for your patience." valType="str" updates="None" name="End Message"/>
     <Param val="{'participant': ''}" valType="code" updates="None" name="Experiment info"/>
     <Param val="True" valType="bool" updates="None" name="Force stereo"/>
