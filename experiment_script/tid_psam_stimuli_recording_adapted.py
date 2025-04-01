@@ -762,7 +762,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     # set up handler to look after randomisation of conditions etc
     trials = data.TrialHandler2(
         name='trials',
-        nReps=5.0, 
+        nReps=21.0, 
         method='sequential', 
         extraInfo=expInfo, 
         originPath=-1, 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on April 01, 2025, at 12:18
+    on April 01, 2025, at 17:54
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -320,6 +320,9 @@ def pauseExperiment(thisExp, win=None, timers=[], playbackComponents=[]):
         )
     # run a while loop while we wait to unpause
     while thisExp.status == PAUSED:
+        # check for quit (typically the Esc key)
+        if defaultKeyboard.getKeys(keyList=['escape']):
+            endExperiment(thisExp, win=win)
         # sleep 1ms so other threads can execute
         clock.time.sleep(0.001)
     # if stop was requested while paused, quit
@@ -578,6 +581,10 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 # update status
                 welcome_message.status = FINISHED
                 welcome_message.setAutoDraw(False)
+        
+        # check for quit (typically the Esc key)
+        if defaultKeyboard.getKeys(keyList=["escape"]):
+            thisExp.status = FINISHED
         if thisExp.status == FINISHED or endExpNow:
             endExperiment(thisExp, win=win)
             return
@@ -705,7 +712,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             win.callOnFlip(instruction_keys.clock.reset)  # t=0 on next screen flip
             win.callOnFlip(instruction_keys.clearEvents, eventType='keyboard')  # clear events on next screen flip
         if instruction_keys.status == STARTED and not waitOnFlip:
-            theseKeys = instruction_keys.getKeys(keyList=['space'], ignoreKeys=None, waitRelease=False)
+            theseKeys = instruction_keys.getKeys(keyList=['space'], ignoreKeys=["escape"], waitRelease=False)
             _instruction_keys_allKeys.extend(theseKeys)
             if len(_instruction_keys_allKeys):
                 instruction_keys.keys = _instruction_keys_allKeys[-1].name  # just the last key pressed
@@ -713,6 +720,10 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 instruction_keys.duration = _instruction_keys_allKeys[-1].duration
                 # a response ends the routine
                 continueRoutine = False
+        
+        # check for quit (typically the Esc key)
+        if defaultKeyboard.getKeys(keyList=["escape"]):
+            thisExp.status = FINISHED
         if thisExp.status == FINISHED or endExpNow:
             endExperiment(thisExp, win=win)
             return
@@ -885,6 +896,10 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     # update status
                     fixation_cross_port.status = FINISHED
                     win.callOnFlip(fixation_cross_port.setData, int(0))
+            
+            # check for quit (typically the Esc key)
+            if defaultKeyboard.getKeys(keyList=["escape"]):
+                thisExp.status = FINISHED
             if thisExp.status == FINISHED or endExpNow:
                 endExperiment(thisExp, win=win)
                 return
@@ -1282,6 +1297,10 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     mic.status = FINISHED
                     # stop recording with mic
                     mic.stop()
+            
+            # check for quit (typically the Esc key)
+            if defaultKeyboard.getKeys(keyList=["escape"]):
+                thisExp.status = FINISHED
             if thisExp.status == FINISHED or endExpNow:
                 endExperiment(thisExp, win=win)
                 return
