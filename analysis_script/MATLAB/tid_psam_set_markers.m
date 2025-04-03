@@ -2,6 +2,17 @@
 %
 % Detects sound onsets and modifies EEG.event structure accordingly.
 %
+% Conditions
+% S 931 - Active - Early Probe - Unaltered
+% S 932 - Active - Early Probe - Altered
+% S 933 - Active - Late Probe - Unaltered
+% S 934 - Active - Late Probe - Altered
+%
+% S 941 - Passive - Early Probe - Unaltered
+% S 942 - Passive - Early Probe - Altered
+% S 943 - Passive - Late Probe - Unaltered
+% S 944 - Passive - Late Probe - Altered
+%
 % Tim Dressler, 27.03.2025
 
 clear
@@ -20,7 +31,7 @@ end
 
 MAINPATH = erase(SCRIPTPATH, '\analysis_script\MATLAB');
 INPATH = fullfile(MAINPATH,'data/BIDS/');
-OUTPATH = fullfile(MAINPATH,'data\processed_data\cleaned\');
+OUTPATH = fullfile(MAINPATH,'data\processed_data\markers_included\');
 
 FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);
@@ -43,7 +54,7 @@ protocol = {};
 wb = waitbar(0,'starting tid_psam_set_markers.m');
 
 clear subj_idx
-for subj_idx = 1%%:length(dircont_subj)
+for subj_idx = 1:length(dircont_subj)
 
     % Get subject ID
     subj = dircont_subj(subj_idx).name;
@@ -60,7 +71,7 @@ for subj_idx = 1%%:length(dircont_subj)
     end
 
     % Get filename & path
-    subj_file = [subj '.vhdr'];
+    subj_file = ['tid_psam_' subj '.vhdr'];
     subj_path = fullfile(INPATH, [subj '\eeg\']);
 
     % Start EEGLAB
@@ -125,7 +136,7 @@ for subj_idx = 1%%:length(dircont_subj)
                     new_marker_count = new_marker_count + 1; % Increment counter
 
                     new_marker_latency = [new_marker_latency; peak_time];
-                else 
+                else
                     warning('Invalid Marker')
                     wrong_marker_count = wrong_marker_count + 1;
                 end
@@ -150,8 +161,13 @@ for subj_idx = 1%%:length(dircont_subj)
     % Update EEG structure
     EEG = eeg_checkset(EEG);
 
+    % Sort events
+    [~, sortIdx] = sort([EEG.event.latency]);
+    EEG.event = EEG.event(sortIdx);
+    EEG = eeg_checkset(EEG);
+
     % Save updated dataset
-    pop_saveset(EEG, 'filename', [subj '_cleaned.set'], 'filepath', OUTPATH);
+    pop_saveset(EEG, 'filename', [subj '_markers_inlcuded.set'], 'filepath', OUTPATH);
 
     % Update Protocol
     subj_time = toc;
@@ -165,19 +181,14 @@ for subj_idx = 1%%:length(dircont_subj)
 
 end
 
-% Sort events
-[~, sortIdx] = sort([EEG.event.latency]); 
-EEG.event = EEG.event(sortIdx);
-EEG = eeg_checkset(EEG);
-
 % End of processing
 
 protocol = cell2table(protocol, 'VariableNames',{'subj','time', 'status'})
-writetable(protocol,fullfile(OUTPATH, 'tid_psam_cleaned_protocol.xlsx'))
+writetable(protocol,fullfile(OUTPATH, 'tid_psam_markers_included_protocol.xlsx'))
 
 if ~isempty(marked_subj)
     marked_subj = cell2table(marked_subj, 'VariableNames',{'subj','issue'})
-    writetable(marked_subj,fullfile(OUTPATH, 'tid_psam_marked_subj.xlsx'))
+    writetable(marked_subj,fullfile(OUTPATH, 'tid_psam_markers_included_marked_subj.xlsx'))
 end
 
 close(wb)
