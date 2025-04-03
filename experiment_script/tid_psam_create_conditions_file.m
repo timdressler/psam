@@ -4,8 +4,8 @@
 % Has to be executed BEFORE tid_psam_create_conditions_file.m,
 %   tid_psam_stimuli_recording_adapted.py and tid_psam_prepare_stimuli.praat.
 %
-% The pseudorandomization ensures that task conditions are shuffled while 
-% maintaining constraints on consecutive repetitions. 
+% The pseudorandomization ensures that task conditions are shuffled while
+% maintaining constraints on consecutive repetitions.
 % Note. The number of trials (n_trials) has to be dividable by 16 due to
 % the used miniblock system.
 %
@@ -80,7 +80,7 @@ else
 end
 
 % Get needed number of miniblocks
-num_iterations = n_trials/16; 
+num_iterations = n_trials/16;
 
 % Set up filenames for probes
 path_normal_probe = fullfile(STIMULIPATH, [subj '_normal_probe.wav']);
@@ -98,28 +98,28 @@ for iter = 1:num_iterations
             % Shuffle while maintaining max repetition constraint
             miniblock_task_rando = {};
             temp_task = miniblock_task; % copy to avoid modifying original
-            
+
             while ~isempty(temp_task)
                 valid_indices = [];
-                
+
                 % Find indices that won't break max_repeats constraint
                 for i = 1:length(temp_task)
                     if length(miniblock_task_rando) < max_repeats || ~all(strcmp(miniblock_task_rando(end-(max_repeats-1):end), temp_task{i}))
-                        valid_indices(end+1) = i; 
+                        valid_indices(end+1) = i;
                     end
                 end
-                
+
                 % If no valid indices are found, trigger an error
                 if isempty(valid_indices)
                     error('Could not generate sequence with the given constraints. Retrying...');
                 end
-                
+
                 % Randomly pick from valid indices
                 random_index = valid_indices(randi(length(valid_indices)));
                 miniblock_task_rando{end+1} = temp_task{random_index};
                 temp_task(random_index) = [];
             end
-            
+
             success = true; % if successful, exit loop
         catch
             % If an error occurs, retry
@@ -127,7 +127,7 @@ for iter = 1:num_iterations
         end
     end
 
-    % Get indices of probe and no proeb trials 
+    % Get indices of probe and no proeb trials
     miniblock_task_rando = miniblock_task_rando';
     yes_idx = find(strcmp(miniblock_task_rando, 'Yes'));
     no_idx = find(strcmp(miniblock_task_rando, 'No'));
@@ -213,13 +213,49 @@ for iter = 1:num_iterations
 
     % Store current block in overall array
     all_trials = vertcat(all_trials, miniblock_task_rando);
-    
+
 end
 
 % Create and export file
 conditions_table = cell2table(all_trials, "VariableNames",{'probe', 'task', 'probe_onset_cat', 'probe_type', 'probe_onset', 'probe_intensity', 'stim_file', 'probe_duration' ,'subj', 'probe_marker', 'task_marker'});
+
+% Split table into 4 tables
+if mod(height(conditions_table),4) == 0
+    block_size = height(conditions_table)/4;
+else
+    warning('Table-Splitting not possible! Cannot divide by 4!')
+end
+
+if mod(block_size,16) == 0
+    conditions_table_1 = conditions_table(1:block_size, :);
+    conditions_table_2 = conditions_table(block_size+1:2*block_size, :);
+    conditions_table_3 = conditions_table(2*block_size+1:3*block_size, :);
+    conditions_table_4 = conditions_table(3*block_size+1:end, :);
+else
+    warning('Table-Splitting not possible! Minimal Blocksize!')
+end
+
+% Add filenames & meta-table
+conditions_table_1_filename = fullfile(STIMULIPATH, [subj '_conditions_1.xlsx']);
+conditions_table_2_filename = fullfile(STIMULIPATH, [subj '_conditions_2.xlsx']);
+conditions_table_3_filename = fullfile(STIMULIPATH, [subj '_conditions_3.xlsx']);
+conditions_table_4_filename = fullfile(STIMULIPATH, [subj '_conditions_4.xlsx']);
+
+conditions_table_filenames = {conditions_table_1_filename; conditions_table_2_filename; ...
+    conditions_table_3_filename; conditions_table_4_filename};
+
+condition_table_meta = cell2table(conditions_table_filenames, "VariableNames",{'conditions_file'});
+
+
+% Export tables
 writetable(conditions_table, fullfile(STIMULIPATH, [subj '_conditions.xlsx']));
+writetable(conditions_table_1, conditions_table_1_filename);
+writetable(conditions_table_2, conditions_table_2_filename);
+writetable(conditions_table_3, conditions_table_3_filename);
+writetable(conditions_table_4, conditions_table_4_filename);
+writetable(condition_table_meta, fullfile(STIMULIPATH, [subj '_conditions_meta.xlsx']));
+
 
 % End of processing
-disp(['Conditions file saved as: ' fullfile(STIMULIPATH, [subj '_conditions.xlsx'])]);
+disp('Conditions file saved!');
 disp('READY FOR STIMULI RECORDINGS')
