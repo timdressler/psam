@@ -100,7 +100,6 @@ wb = waitbar(0,'starting tid_psam_erp_preprocessing.m');
 
 clear subj_idx
 for subj_idx= 1:length(dircont_subj)
-    % Start preprocessing
 
     % Get current ID
     subj = dircont_subj(subj_idx).name;
