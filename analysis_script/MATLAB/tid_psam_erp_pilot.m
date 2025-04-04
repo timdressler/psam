@@ -385,7 +385,7 @@ title('Passive (collapsed, corrected)')
 
 sgtitle('Active and Passive Condition ERPs (collapsed, corrected)')
 
-exportgraphics(gcf,fullfile(OUTPATH, 'erp_collapsed_pilot.png'),'Resolution',1000)
+exportgraphics(gcf,fullfile(OUTPATH, 'erp_collapsed_corrected_pilot.png'),'Resolution',1000)
 
 % Plot 4: ERPs for each condition (corrected)
 figure;
@@ -421,7 +421,7 @@ legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, '
 
 sgtitle('Active and Passive Condition ERPs (corrected)')
 
-exportgraphics(gcf,fullfile(OUTPATH, 'erp_pilot.png'),'Resolution',1000)
+exportgraphics(gcf,fullfile(OUTPATH, 'erp_corrected_pilot.png'),'Resolution',1000)
 
 % End of processing
 
