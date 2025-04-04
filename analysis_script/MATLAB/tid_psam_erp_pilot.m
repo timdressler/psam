@@ -20,7 +20,7 @@
 % Applies band-pass filter
 % Epochs data
 % Performs baseline correction
-% Reject bad epochs using threshold and probability
+% Reject bad epochs using threshold and probability (commented out, due to severe artifacts, leaving no epochs unaffected)
 %
 % Analysis includes the following steps
 %
@@ -67,7 +67,8 @@ THRESH = 75;
 SD_PROB = 3;
 RESAM_ICA = 250;
 EVENTS = {'act_early_unalt', 'act_early_alt', 'act_late_unalt', 'act_late_alt', ...
-    'pas_early_unalt', 'pas_early_alt', 'pas_late_unalt', 'pas_late_alt'};
+    'pas_early_unalt', 'pas_early_alt', 'pas_late_unalt', 'pas_late_alt', 'con_act_early', 'con_act_late', ...
+    'con_pas_early', 'con_pas_late'};
 
 CHANI = 1;
 ERP_FROM = 75;
@@ -158,45 +159,45 @@ for subj_idx= 1:length(dircont_subj)
     EEG.setname = [subj '_act_all'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
     % Get ERP
-    erp_active_all = mean(EEG.data(CHANI,:,:),3);
+    erp_act_all = mean(EEG.data(CHANI,:,:),3);
     % Setup ERP analysis
     [~,win_start] = min(abs(EEG.times-ERP_FROM));
     [~,win_end] = min(abs(EEG.times-ERP_TILL));
     [~,t_zero] = min(abs(EEG.times));
     % Get ERP amplitude
-    maxERPamp = min(erp_active_all(CHANI,win_start:win_end));
+    maxERPamp = min(erp_act_all(CHANI,win_start:win_end));
     % Get ERP latency
-    maxERPsam = find(erp_active_all(CHANI,:) == maxERPamp);
+    maxERPsam = find(erp_act_all(CHANI,:) == maxERPamp);
     maxERPlat = EEG.times(maxERPsam);
     % Store ERP
-    all_ERP_active_all(:,:, subj_idx) = erp_active_all;
+    all_ERP_act_all(:,:, subj_idx) = erp_act_all;
 
     clear maxERPamp maxERPsam maxERPlat
 
     % Get all 'Passive' condition
     EEG = pop_selectevent( ALLEEG(1), 'latency','-2<=2','type',{'pas_early_alt','pas_early_unalt','pas_late_alt','pas_late_unalt'},'deleteevents','off','deleteepochs','on','invertepochs','off');
-     EEG.setname = [subj '_pas_all'];
+    EEG.setname = [subj '_pas_all'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
     % Get ERP
-    erp_passive_all = mean(EEG.data(CHANI,:,:),3);
+    erp_pas_all = mean(EEG.data(CHANI,:,:),3);
     % Setup ERP analysis
     [~,win_start] = min(abs(EEG.times-ERP_FROM));
     [~,win_end] = min(abs(EEG.times-ERP_TILL));
     [~,t_zero] = min(abs(EEG.times));
     % Get ERP amplitude
-    maxERPamp = min(erp_passive_all(CHANI,win_start:win_end));
+    maxERPamp = min(erp_pas_all(CHANI,win_start:win_end));
     % Get ERP latency
-    maxERPsam = find(erp_passive_all(CHANI,:) == maxERPamp);
+    maxERPsam = find(erp_pas_all(CHANI,:) == maxERPamp);
     maxERPlat = EEG.times(maxERPsam);
     % Store ERP
-    all_ERP_passive_all(:,:, subj_idx) = erp_passive_all;
+    all_ERP_pas_all(:,:, subj_idx) = erp_pas_all;
 
     clear maxERPamp maxERPsam maxERPlat
 
     % Get all conditions individually
     for cond = 1:length(EVENTS) % Loop over conditions
         EEG = pop_selectevent(ALLEEG(1), 'latency', '-2<=2', 'type', EVENTS{cond}, ...
-            'deleteevents', 'off', 'deleteepochs', 'on', 'invertepochs', 'off'); 
+            'deleteevents', 'off', 'deleteepochs', 'on', 'invertepochs', 'off');
         EEG.setname = [subj '_' EVENTS{cond}];
         [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
         % Get ERP
@@ -218,6 +219,88 @@ for subj_idx= 1:length(dircont_subj)
         all_ERP_cond.(EVENTS{cond})(:, :, subj_idx) = erp;
     end
 
+    % Get control ERPs
+    % 'Active - Early' condition
+    EEG = pop_selectevent( ALLEEG(1), 'latency','-2<=2','type',{'con_act_early'},'deleteevents','off','deleteepochs','on','invertepochs','off');
+    EEG.setname = [subj '_con_act_early'];
+    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+    % Get ERP
+    erp_con_act_early = mean(EEG.data(CHANI,:,:),3);
+    % Store ERP
+    all_ERP_con_act_early(:,:, subj_idx) = erp_con_act_early;
+
+    % 'Active - Late' condition
+    EEG = pop_selectevent( ALLEEG(1), 'latency','-2<=2','type',{'con_act_late'},'deleteevents','off','deleteepochs','on','invertepochs','off');
+    EEG.setname = [subj '_con_act_late'];
+    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+    % Get ERP
+    erp_con_act_late = mean(EEG.data(CHANI,:,:),3);
+    % Store ERP
+    all_ERP_con_act_late(:,:, subj_idx) = erp_con_act_late;
+
+    % 'Passive - Early' condition
+    EEG = pop_selectevent( ALLEEG(1), 'latency','-2<=2','type',{'con_pas_early'},'deleteevents','off','deleteepochs','on','invertepochs','off');
+    EEG.setname = [subj '_con_pas_early'];
+    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+    % Get ERP
+    erp_con_pas_early = mean(EEG.data(CHANI,:,:),3);
+    % Store ERP
+    all_ERP_con_pas_early(:,:, subj_idx) = erp_con_pas_early;
+
+    % 'Passive - Late' condition
+    EEG = pop_selectevent( ALLEEG(1), 'latency','-2<=2','type',{'con_pas_late'},'deleteevents','off','deleteepochs','on','invertepochs','off');
+    EEG.setname = [subj '_con_pas_late'];
+    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+    % Get ERP
+    erp_con_pas_late = mean(EEG.data(CHANI,:,:),3);
+    % Store ERP
+    all_ERP_con_pas_late(:,:, subj_idx) = erp_con_pas_late;
+
+    % Collapsed 'Early' and 'Late' conditions
+    erp_con_act_all = mean([erp_con_act_early; erp_con_act_late],1);
+    erp_con_pas_all = mean([erp_con_pas_early; erp_con_pas_late],1);
+
+    % Get corrected ERPs
+    % Get all 'Active' condition
+    erp_act_all_corrected = erp_act_all - erp_con_act_all;
+    all_ERP_act_all_corrected(:,:, subj_idx) = erp_act_all_corrected;
+
+    % Get all 'Passive' condition
+    erp_pas_all_corrected = erp_pas_all - erp_con_pas_all;
+    all_ERP_pas_all_corrected(:,:, subj_idx) = erp_pas_all_corrected;
+
+    % Get all conditions individually
+    % 'Active - Early - Unaltered' condition
+    erp_act_early_unalt_corrected = all_ERP_cond.act_early_unalt(:,:,:) - erp_con_act_early;
+    all_ERP_act_early_unalt_corrected(:,:, subj_idx) = erp_act_early_unalt_corrected;
+
+    % 'Active - Late - Unaltered' condition
+    erp_act_late_unalt_corrected = all_ERP_cond.act_late_unalt(:,:,:) - erp_con_act_late;
+    all_ERP_act_late_unalt_corrected(:,:, subj_idx) = erp_act_late_unalt_corrected;
+
+    % 'Active - Early - Altered' condition
+    erp_act_early_alt_corrected = all_ERP_cond.act_early_alt(:,:,:) - erp_con_act_early;
+    all_ERP_act_early_alt_corrected(:,:, subj_idx) = erp_act_early_alt_corrected;
+
+    % 'Active - Late - Altered' condition
+    erp_act_late_alt_corrected = all_ERP_cond.act_late_alt(:,:,:) - erp_con_act_late;
+    all_ERP_act_late_alt_corrected(:,:, subj_idx) = erp_act_late_alt_corrected;
+
+    % 'Passive - Early - Unaltered' condition
+    erp_pas_early_unalt_corrected = all_ERP_cond.pas_early_unalt(:,:,:) - erp_con_pas_early;
+    all_ERP_pas_early_unalt_corrected(:,:, subj_idx) = erp_pas_early_unalt_corrected;
+
+    % 'Passive - Late - Unaltered' condition
+    erp_pas_late_unalt_corrected = all_ERP_cond.pas_late_unalt(:,:,:) - erp_con_pas_late;
+    all_ERP_pas_late_unalt_corrected(:,:, subj_idx) = erp_pas_late_unalt_corrected;
+
+    % 'Passive - Early - Altered' condition
+    erp_pas_early_alt_corrected = all_ERP_cond.pas_early_alt(:,:,:) - erp_con_pas_early;
+    all_ERP_pas_early_alt_corrected(:,:, subj_idx) = erp_pas_early_alt_corrected;
+
+    % 'Passive - Late - Altered' condition
+    erp_pas_late_alt_corrected = all_ERP_cond.pas_late_alt(:,:,:) - erp_con_pas_late;
+    all_ERP_pas_late_alt_corrected(:,:, subj_idx) = erp_pas_late_alt_corrected;
 
     % Update Protocol
     subj_time = toc;
@@ -231,14 +314,14 @@ end
 % Plot 1: ERPs collapsed over 'Active' and 'Passive' Condition
 figure;
 subplot(1,2,1)
-plot(EEG.times, mean(all_ERP_active_all(CHANI,:,:),3))
+plot(EEG.times, mean(all_ERP_act_all(CHANI,:,:),3))
 xlim([-200 500])
 ylabel('Amplitude [μV]')
 xlabel('Time [ms]')
 title('Active (collapsed)')
 
 subplot(1,2,2)
-plot(EEG.times, mean(all_ERP_passive_all(CHANI,:,:),3))
+plot(EEG.times, mean(all_ERP_pas_all(CHANI,:,:),3))
 xlim([-200 500])
 ylabel('Amplitude [μV]')
 xlabel('Time [ms]')
@@ -250,7 +333,7 @@ exportgraphics(gcf,fullfile(OUTPATH, 'erp_collapsed_pilot.png'),'Resolution',100
 
 % Plot 2: ERPs for each condition
 figure;
-colors = lines(4); 
+colors = lines(4);
 
 subplot(1,2,1)
 hold on;
@@ -280,7 +363,63 @@ xlabel('Time [ms]')
 title('Passive Conditions')
 legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, 'Location', 'best')
 
-sgtitle('Active and Passive Condition ERPs') 
+sgtitle('Active and Passive Condition ERPs')
+
+exportgraphics(gcf,fullfile(OUTPATH, 'erp_pilot.png'),'Resolution',1000)
+
+% Plot 3: ERPs collapsed over 'Active' and 'Passive' Condition (corrected)
+figure;
+subplot(1,2,1)
+plot(EEG.times, mean(all_ERP_act_all_corrected(CHANI,:,:),3))
+xlim([-200 500])
+ylabel('Amplitude [μV]')
+xlabel('Time [ms]')
+title('Active (collapsed, corrected)')
+
+subplot(1,2,2)
+plot(EEG.times, mean(all_ERP_pas_all_corrected(CHANI,:,:),3))
+xlim([-200 500])
+ylabel('Amplitude [μV]')
+xlabel('Time [ms]')
+title('Passive (collapsed, corrected)')
+
+sgtitle('Active and Passive Condition ERPs (collapsed, corrected)')
+
+exportgraphics(gcf,fullfile(OUTPATH, 'erp_collapsed_pilot.png'),'Resolution',1000)
+
+% Plot 4: ERPs for each condition (corrected)
+figure;
+colors = lines(4);
+
+subplot(1,2,1)
+hold on;
+plot(EEG.times, mean(all_ERP_act_early_unalt_corrected(CHANI,:,:),3), 'Color', colors(1,:));
+plot(EEG.times, mean(all_ERP_act_early_alt_corrected(CHANI,:,:),3), 'Color', colors(2,:));
+plot(EEG.times, mean(all_ERP_act_late_unalt_corrected(CHANI,:,:),3), 'Color', colors(3,:));
+plot(EEG.times, mean(all_ERP_act_late_alt_corrected(CHANI,:,:),3), 'Color', colors(4,:));
+hold off;
+
+xlim([-200 500])
+ylabel('Amplitude [μV]')
+xlabel('Time [ms]')
+title('Active Conditions (corrected)')
+legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, 'Location', 'best')
+
+subplot(1,2,2)
+hold on;
+plot(EEG.times, mean(all_ERP_pas_early_unalt_corrected(CHANI,:,:),3), 'Color', colors(1,:));
+plot(EEG.times, mean(all_ERP_pas_early_alt_corrected(CHANI,:,:),3), 'Color', colors(2,:));
+plot(EEG.times, mean(all_ERP_pas_late_unalt_corrected(CHANI,:,:),3), 'Color', colors(3,:));
+plot(EEG.times, mean(all_ERP_pas_late_alt_corrected(CHANI,:,:),3), 'Color', colors(4,:));
+hold off;
+
+xlim([-200 500])
+ylabel('Amplitude [μV]')
+xlabel('Time [ms]')
+title('Passive Conditions (corrected)')
+legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, 'Location', 'best')
+
+sgtitle('Active and Passive Condition ERPs (corrected)')
 
 exportgraphics(gcf,fullfile(OUTPATH, 'erp_pilot.png'),'Resolution',1000)
 
