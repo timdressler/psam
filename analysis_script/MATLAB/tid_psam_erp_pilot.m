@@ -61,7 +61,7 @@ tid_psam_clean_up_folder_TD(OUTPATH)
 EPO_FROM = -0.25;
 EPO_TILL = 0.750;
 LCF = 1;
-HCF = 60;
+HCF = 25;
 BL_FROM = -250;
 THRESH = 75;
 SD_PROB = 3;
@@ -80,7 +80,6 @@ dircont_subj = dir(fullfile(INPATH, 'sub-*'));
 %initialize sanity check variables
 marked_subj = {};
 protocol = {};
-all_epo_lats_OK_ALL = [];
 
 % Setup progress bar
 wb = waitbar(0,'starting tid_psam_erp_pilot.m');
@@ -94,7 +93,7 @@ for subj_idx= 1:length(dircont_subj)
     subj = regexp(subj, 'sub-\d+', 'match', 'once');
 
     % Update progress bar
-    waitbar(subj_idx/length(dircont_subj),wb, [subj ' pp_erp_pre_proc.m'])
+    waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_erp_preprocessing.m'])
 
     tic;
     % Start eeglab
