@@ -89,7 +89,7 @@ EVENTS = {'act_early_unalt', 'act_early_alt', 'act_late_unalt', 'act_late_alt', 
     'con_pas_early', 'con_pas_late'};
 
 % Get directory content
-dircont_subj = dir(fullfile(INPATH, 'sub-*'));
+dircont_subj = dir(fullfile(INPATH, 'sub-*.set'));
 
 %initialize sanity check variables
 marked_subj = {};
