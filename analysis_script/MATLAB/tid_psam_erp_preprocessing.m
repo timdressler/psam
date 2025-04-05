@@ -161,6 +161,8 @@ for subj_idx= 1:length(dircont_subj)
     % ICA
     % Reload and merge raw data
     EEG = pop_loadset('filename',[subj '_markers_inlcuded.set'],'filepath',INPATH);
+    % Remove Marker-Channel
+    EEG = pop_select( EEG, 'rmchannel',{'M'});
     % Bandpass-Filter
     EEG = pop_eegfiltnew(EEG, 'locutoff',LCF_ICA,'hicutoff',HCF_ICA,'plotfreqz',0);
     % Resample
