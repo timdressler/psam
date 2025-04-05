@@ -213,7 +213,7 @@ writetable(protocol,fullfile(OUTPATH, 'erp_pilot_protocol.xlsx'))
 
 close(wb)
 
-
+check_done = 'tid_psam_erp_preprocessing_DONE'
 
 
 
