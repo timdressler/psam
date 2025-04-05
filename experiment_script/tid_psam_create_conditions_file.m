@@ -69,7 +69,7 @@ tid_psam_check_folder_TD(MAINPATH,STIMULIPATH_Normal,STIMULIPATH_Pitch,STIMULIPA
 % Set up experiment paramaters
 early_onset = 2.8; % relative to trial onset
 late_onset = 2.9; % relative to trial onset
-n_trials = 960; % has to be dividable by 16
+n_trials = 64; % has to be dividable by 16
 max_repeats = 4; % how often probe (or no probe) trials can be repeated
 active_recording_duration = 1; % how long the audio recording is
 passive_recording_duration = 0.1; % how long the audio recording is
@@ -249,10 +249,10 @@ conditions_table_2_filename = fullfile(STIMULIPATH, [subj '_conditions_2.xlsx'])
 conditions_table_3_filename = fullfile(STIMULIPATH, [subj '_conditions_3.xlsx']);
 conditions_table_4_filename = fullfile(STIMULIPATH, [subj '_conditions_4.xlsx']);
 
-conditions_table_filenames = {conditions_table_1_filename; conditions_table_2_filename; ...
-    conditions_table_3_filename; conditions_table_4_filename};
+conditions_table_filenames = {conditions_table_1_filename, 0; conditions_table_2_filename, 0; ...
+    conditions_table_3_filename, 0; conditions_table_4_filename, 1};
 
-condition_table_meta = cell2table(conditions_table_filenames, "VariableNames",{'conditions_file'});
+condition_table_meta = cell2table(conditions_table_filenames, "VariableNames",{'conditions_file','skip_pause'});
 
 
 % Export tables
