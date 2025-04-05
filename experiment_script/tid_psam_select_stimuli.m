@@ -5,16 +5,20 @@
 %   tid_psam_stimuli_recording_adapted.py and tid_psam_prepare_stimuli.praat.
 %
 % Selection Process:
-%   Selects probe with median F0
-%   Presents selected probe 5 times
-%   Experimenter can choose whether to listen again, change to another
-%       probe or keep the probe
-%   In case a change is requested, the probe 'next to the median probe' is
-%       selected (first the one below the median, then the one above)
-%   If the probe is still not usable the process is repeated with the
-%       probes that 'lie 2 steps from the median one'.
-%   After that, no probe change is possible anymore and the recoring has to
-%   be repeated.
+    % Reads in f0 table 
+    % Removes all rows (and therefore files) where the pitch couldn't be
+    %   deterimed and where the pitch of the unaltered probe is smaller
+    %   than the one from the altered probe.
+    % Selects probe with median F0
+    % Presents selected probe 5 times
+    % Experimenter can choose whether to listen again, change to another
+    %   probe or keep the probe
+    % In case a change is requested, the probe 'next to the median probe' is
+    %   selected (first the one below the median, then the one above)
+    % If the probe is still not usable the process is repeated with the
+    %   probes that 'lie 2 steps from the median one'.
+    % After that, no probe change is possible anymore and the recoring has to
+    % be repeated.
 %
 % Tim Dressler, 07.03.2025
 
@@ -53,8 +57,13 @@ STIMULIPATH_Raw = fullfile(STIMULIPATH,'/all_raw');
 FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);
 
-% Load table and determine median index
+% Load table 
 f0_table = readtable(fullfile(STIMULIPATH_Raw, [subj '_f0_table.csv']), 'Delimiter', ',');
+% Remove rows that contain NaNs
+f0_table(any(ismissing(f0_table), 2), :) = [];
+% emove rows where f0_normal is smaller than f0_pitch
+f0_table(f0_table{:,1} < f0_table{:,2}, :) = [];
+% Determine median index
 sorted_f0_table = sortrows(f0_table, 1);
 height_sorted_f0_table = height(sorted_f0_table);
 median_index = (height_sorted_f0_table + 1) / 2;
