@@ -71,6 +71,8 @@ early_onset = 2.8; % relative to trial onset
 late_onset = 2.9; % relative to trial onset
 n_trials = 960; % has to be dividable by 16
 max_repeats = 4; % how often probe (or no probe) trials can be repeated
+active_recording_duration = 1; % how long the audio recording is
+passive_recording_duration = 0.1; % how long the audio recording is
 
 % Checks whether the number of trials is diviable by 16
 if ~mod(n_trials, 16) == 0
@@ -149,6 +151,12 @@ for iter = 1:num_iterations
     miniblock_task_rando(no_passive,2) = {'Passive'};
     miniblock_task_rando(no_passive,11) = {22};
 
+    % Assign recording duration
+    miniblock_task_rando(yes_active,12) = {active_recording_duration};
+    miniblock_task_rando(no_active,12) = {active_recording_duration};
+    miniblock_task_rando(yes_passive,12) = {passive_recording_duration};
+    miniblock_task_rando(no_passive,12) = {passive_recording_duration};
+
     % Assign probe_type, probe_onset, probe_file and probe_onset_cat
     probe_type_active_idx = yes_active(randperm(length(yes_active)));
     miniblock_task_rando(probe_type_active_idx(1),3) = {'Early'};
@@ -217,7 +225,7 @@ for iter = 1:num_iterations
 end
 
 % Create and export file
-conditions_table = cell2table(all_trials, "VariableNames",{'probe', 'task', 'probe_onset_cat', 'probe_type', 'probe_onset', 'probe_intensity', 'stim_file', 'probe_duration' ,'subj', 'probe_marker', 'task_marker'});
+conditions_table = cell2table(all_trials, "VariableNames",{'probe', 'task', 'probe_onset_cat', 'probe_type', 'probe_onset', 'probe_intensity', 'stim_file', 'probe_duration' ,'subj', 'probe_marker', 'task_marker', 'rec_duration'});
 
 % Split table into 4 tables
 if mod(height(conditions_table),4) == 0
