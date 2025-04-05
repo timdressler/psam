@@ -176,6 +176,8 @@ for subj_idx= 1:length(dircont_subj)
     EEG = ALLEEG(1);
     CURRENTSET = 1;
     EEG = pop_editset(EEG,'run', [], 'icaweights','ALLEEG(2).icaweights', 'icasphere','ALLEEG(2).icasphere');
+    EEG.setname = [subj '_after_PREP_ICA'];
+    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
     % Label ICA components with IC Label Plugin (Pion-Tonachini et al., 2019)
     EEG = pop_iclabel(EEG, 'default');
     EEG = pop_icflag(EEG, [0 0.2;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1]);
