@@ -151,6 +151,9 @@ for subj_idx= 1:length(dircont_subj)
     params.ignoreBoundaryEvents = true;  % Ignore boundary events
     params.reportMode = 'skipReport';  % Suppress report
     params.keepFiltered = true; % Remove trend
+    params.referenceChannels = 1:28;
+    params.evaluationChannels = 1:28;
+    params.rereferencedChannels = 1:EEG.nbchan;
     % Run
     EEG = pop_prepPipeline(EEG, params);
     % Store dataset
