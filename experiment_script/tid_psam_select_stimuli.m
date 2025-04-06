@@ -66,7 +66,7 @@ f0_table(f0_table{:,1} < f0_table{:,2}, :) = [];
 % Determine median index
 sorted_f0_table = sortrows(f0_table, 1);
 height_sorted_f0_table = height(sorted_f0_table);
-median_index = (height_sorted_f0_table + 1) / 2;
+median_index = round((height_sorted_f0_table + 1) / 2);
 
 % Initialize variables
 change_attempts = 0;  % track number of changes requested by the experimenter
