@@ -31,7 +31,7 @@ tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)
 tid_psam_clean_up_folder_TD(OUTPATH)
 
 % Variables to edit
-
+n_trials = 960;
 
 % Get directory content
 dircont_subj = dir(fullfile(INPATH, 'sub-*'));
@@ -64,30 +64,42 @@ for subj_idx= 1:length(dircont_subj)
         marked_subj{end,2} = 'number_of_log_files';
     end
 
+    % Remove all rows from log file which don not resembel experimental trials (e.g. Instruction trials)
+    subj_log_cleaned = subj_log(~isnan(subj_log.("mic.started")), :);
+    % Sanity Check: Equal db for unaltered and altered probes
+    if height(subj_log_cleaned) == n_trials
+    else
+        marked_subj{end+1,1} = subj;
+        marked_subj{end,2} = 'log_dimensions'; 
+    end
+    % Extract filename from full path for each vocal recording in order to match it with the table produced in Praat
+    subj_log_cleaned.filename_tab = cellfun(@(x) strrep(regexp(x, 'recording_mic_.*(?=\.wav)', 'match', 'once'), '.', '_'), subj_log_cleaned.("mic.clip"), 'UniformOutput', false);
+
     % Get probe properties file & Sanity Check: Correct dimensions
     subj_prope_properties = readtable(fullfile(INPATH, ['stimuli\' subj '\' subj '_probe_properties.xlsx']),'VariableNamingRule', 'preserve');
-
     if height(subj_prope_properties) == 1 && width(subj_prope_properties) == 7
     else
         marked_subj{end+1,1} = subj;
         marked_subj{end,2} = 'probe_properties_dimensions';
     end
-
     % Sanity Check: Equal db for unaltered and altered probes
-    if ~subj_prope_properties.db_tab_normal == subj_prope_properties.db_tab_pitched
+    if round(subj_prope_properties.db_tab_normal) == round(subj_prope_properties.db_tab_pitched)
+    else
         marked_subj{end+1,1} = subj;
         marked_subj{end,2} = 'probe_properties_db';
     end
 
     % Get F0 & RT Table & Sanity Check: Correct dimensions
-    subj_fo_rt = readtable(fullfile(INPATH_PRAAT, [subj '_f0_rt_table.csv']),'VariableNamingRule', 'preserve', Delimiter=',');
+    subj_f0_rt = readtable(fullfile(INPATH_PRAAT, [subj '_f0_rt_table.csv']),'VariableNamingRule', 'preserve', Delimiter=',');
 
-    if height(subj_prope_properties) == 3 && width(subj_prope_properties) == 960
+    if height(subj_f0_rt) == n_trials && width(subj_f0_rt) == 14
     else
         marked_subj{end+1,1} = subj;
         marked_subj{end,2} = 'f0_rt_dimensions';
     end
 
+    % Concatinate log file and F0 & RT Table
+    subj_full = join(subj_f0_rt, subj_log_cleaned, 'Keys', 'filename_tab');
 
 
 
