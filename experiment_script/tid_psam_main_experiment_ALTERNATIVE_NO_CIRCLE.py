@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on April 06, 2025, at 14:51
+    on April 06, 2025, at 15:08
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -42,7 +42,7 @@ deviceManager = hardware.DeviceManager()
 _thisDir = os.path.dirname(os.path.abspath(__file__))
 # store info about the experiment session
 psychopyVersion = '2024.2.4'
-expName = 'tid_psam_main_experiment'  # from the Builder filename that created this script
+expName = 'tid_psam_main_experiment_ALTERNATIVE_NO_CIRCLE'  # from the Builder filename that created this script
 # information about this experiment
 expInfo = {
     'participant': '',
@@ -127,7 +127,7 @@ def setupData(expInfo, dataDir=None):
     thisExp = data.ExperimentHandler(
         name=expName, version='',
         extraInfo=expInfo, runtimeInfo=None,
-        originPath='C:\\Experiments\\tid_psam\\psam\\experiment_script\\tid_psam_main_experiment.py',
+        originPath='C:\\Experiments\\tid_psam\\psam\\experiment_script\\tid_psam_main_experiment_ALTERNATIVE_NO_CIRCLE.py',
         savePickle=True, saveWideText=True,
         dataFileName=dataDir + os.sep + filename, sortColumns='alphabetical'
     )
@@ -445,20 +445,20 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     probe_marker_port = parallel.ParallelPort(address='0x3ff8')
     go_port = parallel.ParallelPort(address='0x3ff8')
     task_port = parallel.ParallelPort(address='0x3ff8')
-    cue_stim = visual.ShapeStim(
-        win=win, name='cue_stim',
-        size=(0.7, 0.7), vertices='circle',
-        ori=0.0, pos=(0, 0), draggable=False, anchor='center',
-        lineWidth=4.0,
-        colorSpace='rgb', lineColor=[-1.0000, -1.0000, -1.0000], fillColor=[-1.0000, -1.0000, -1.0000],
-        opacity=None, depth=-4.0, interpolate=True)
-    target_stim = visual.ShapeStim(
-        win=win, name='target_stim',
+    wait_stim = visual.ShapeStim(
+        win=win, name='wait_stim',
         size=(0.2, 0.2), vertices='circle',
         ori=0.0, pos=(0, 0), draggable=False, anchor='center',
-        lineWidth=4.0,
-        colorSpace='rgb', lineColor=[-1.0000, 0.0039, -1.0000], fillColor=[0.0000, 0.0000, 0.0000],
-        opacity=1.0, depth=-5.0, interpolate=True)
+        lineWidth=1.0,
+        colorSpace='rgb', lineColor=[-1.0000, -1.0000, -1.0000], fillColor=[0.0000, 0.0000, 0.0000],
+        opacity=None, depth=-4.0, interpolate=True)
+    go_stim = visual.ShapeStim(
+        win=win, name='go_stim',
+        size=(0.2, 0.2), vertices='circle',
+        ori=0.0, pos=(0, 0), draggable=False, anchor='center',
+        lineWidth=1.0,
+        colorSpace='rgb', lineColor=[-1.0000, -1.0000, -1.0000], fillColor=[-1.0000, 0.0039, -1.0000],
+        opacity=None, depth=-5.0, interpolate=True)
     task_msg = visual.TextStim(win=win, name='task_msg',
         text='',
         font='Arial',
@@ -470,14 +470,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     # Import necessary module
     from psychopy import core
     
-    # Initialize parameters for the cue
-    initial_radius = 0.7  # Starting size of the cue
-    final_radius = 0.2    # Final size of the cue
-    duration = 2.0        # Time in seconds to shrink
-    hold_time = 1.5       # Time in seconds to hold after reaching final size
     
-    cue_started = False    # To track when the cue starts shrinking
-    cue_start_time = None  # To store when the cue started shrinking
     
     # make microphone object for mic
     mic = sound.microphone.Microphone(
@@ -1001,7 +994,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             # create an object to store info about Routine trial
             trial = data.Routine(
                 name='trial',
-                components=[probe_stim, probe_marker_port, go_port, task_port, cue_stim, target_stim, task_msg, mic],
+                components=[probe_stim, probe_marker_port, go_port, task_port, wait_stim, go_stim, task_msg, mic],
             )
             trial.status = NOT_STARTED
             continueRoutine = True
@@ -1011,9 +1004,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             probe_stim.seek(0)
             task_msg.setText(task)
             # Run 'Begin Routine' code from code_trial
-            cue_started = False
-            aa_green_onset = None  # To store when the cue turns green relative to trial onset
-            aa_test_onset = None
+            
             
             # store start times for trial
             trial.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
@@ -1167,73 +1158,73 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                         task_port.status = FINISHED
                         win.callOnFlip(task_port.setData, int(0))
                 
-                # *cue_stim* updates
+                # *wait_stim* updates
                 
-                # if cue_stim is starting this frame...
-                if cue_stim.status == NOT_STARTED and tThisFlip >= 0-frameTolerance:
+                # if wait_stim is starting this frame...
+                if wait_stim.status == NOT_STARTED and tThisFlip >= 0-frameTolerance:
                     # keep track of start time/frame for later
-                    cue_stim.frameNStart = frameN  # exact frame index
-                    cue_stim.tStart = t  # local t and not account for scr refresh
-                    cue_stim.tStartRefresh = tThisFlipGlobal  # on global time
-                    win.timeOnFlip(cue_stim, 'tStartRefresh')  # time at next scr refresh
+                    wait_stim.frameNStart = frameN  # exact frame index
+                    wait_stim.tStart = t  # local t and not account for scr refresh
+                    wait_stim.tStartRefresh = tThisFlipGlobal  # on global time
+                    win.timeOnFlip(wait_stim, 'tStartRefresh')  # time at next scr refresh
                     # add timestamp to datafile
-                    thisExp.timestampOnFlip(win, 'cue_stim.started')
+                    thisExp.timestampOnFlip(win, 'wait_stim.started')
                     # update status
-                    cue_stim.status = STARTED
-                    cue_stim.setAutoDraw(True)
+                    wait_stim.status = STARTED
+                    wait_stim.setAutoDraw(True)
                 
-                # if cue_stim is active this frame...
-                if cue_stim.status == STARTED:
+                # if wait_stim is active this frame...
+                if wait_stim.status == STARTED:
                     # update params
                     pass
                 
-                # if cue_stim is stopping this frame...
-                if cue_stim.status == STARTED:
+                # if wait_stim is stopping this frame...
+                if wait_stim.status == STARTED:
                     # is it time to stop? (based on global clock, using actual start)
-                    if tThisFlipGlobal > cue_stim.tStartRefresh + 4.5-frameTolerance:
+                    if tThisFlipGlobal > wait_stim.tStartRefresh + 3-frameTolerance:
                         # keep track of stop time/frame for later
-                        cue_stim.tStop = t  # not accounting for scr refresh
-                        cue_stim.tStopRefresh = tThisFlipGlobal  # on global time
-                        cue_stim.frameNStop = frameN  # exact frame index
+                        wait_stim.tStop = t  # not accounting for scr refresh
+                        wait_stim.tStopRefresh = tThisFlipGlobal  # on global time
+                        wait_stim.frameNStop = frameN  # exact frame index
                         # add timestamp to datafile
-                        thisExp.timestampOnFlip(win, 'cue_stim.stopped')
+                        thisExp.timestampOnFlip(win, 'wait_stim.stopped')
                         # update status
-                        cue_stim.status = FINISHED
-                        cue_stim.setAutoDraw(False)
+                        wait_stim.status = FINISHED
+                        wait_stim.setAutoDraw(False)
                 
-                # *target_stim* updates
+                # *go_stim* updates
                 
-                # if target_stim is starting this frame...
-                if target_stim.status == NOT_STARTED and tThisFlip >= 0-frameTolerance:
+                # if go_stim is starting this frame...
+                if go_stim.status == NOT_STARTED and tThisFlip >= 3-frameTolerance:
                     # keep track of start time/frame for later
-                    target_stim.frameNStart = frameN  # exact frame index
-                    target_stim.tStart = t  # local t and not account for scr refresh
-                    target_stim.tStartRefresh = tThisFlipGlobal  # on global time
-                    win.timeOnFlip(target_stim, 'tStartRefresh')  # time at next scr refresh
+                    go_stim.frameNStart = frameN  # exact frame index
+                    go_stim.tStart = t  # local t and not account for scr refresh
+                    go_stim.tStartRefresh = tThisFlipGlobal  # on global time
+                    win.timeOnFlip(go_stim, 'tStartRefresh')  # time at next scr refresh
                     # add timestamp to datafile
-                    thisExp.timestampOnFlip(win, 'target_stim.started')
+                    thisExp.timestampOnFlip(win, 'go_stim.started')
                     # update status
-                    target_stim.status = STARTED
-                    target_stim.setAutoDraw(True)
+                    go_stim.status = STARTED
+                    go_stim.setAutoDraw(True)
                 
-                # if target_stim is active this frame...
-                if target_stim.status == STARTED:
+                # if go_stim is active this frame...
+                if go_stim.status == STARTED:
                     # update params
                     pass
                 
-                # if target_stim is stopping this frame...
-                if target_stim.status == STARTED:
+                # if go_stim is stopping this frame...
+                if go_stim.status == STARTED:
                     # is it time to stop? (based on global clock, using actual start)
-                    if tThisFlipGlobal > target_stim.tStartRefresh + 3-frameTolerance:
+                    if tThisFlipGlobal > go_stim.tStartRefresh + 1.5-frameTolerance:
                         # keep track of stop time/frame for later
-                        target_stim.tStop = t  # not accounting for scr refresh
-                        target_stim.tStopRefresh = tThisFlipGlobal  # on global time
-                        target_stim.frameNStop = frameN  # exact frame index
+                        go_stim.tStop = t  # not accounting for scr refresh
+                        go_stim.tStopRefresh = tThisFlipGlobal  # on global time
+                        go_stim.frameNStop = frameN  # exact frame index
                         # add timestamp to datafile
-                        thisExp.timestampOnFlip(win, 'target_stim.stopped')
+                        thisExp.timestampOnFlip(win, 'go_stim.stopped')
                         # update status
-                        target_stim.status = FINISHED
-                        target_stim.setAutoDraw(False)
+                        go_stim.status = FINISHED
+                        go_stim.setAutoDraw(False)
                 
                 # *task_msg* updates
                 
@@ -1268,55 +1259,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                         # update status
                         task_msg.status = FINISHED
                         task_msg.setAutoDraw(False)
-                # Run 'Each Frame' code from code_trial
-                # Get elapsed time relative to trial onset
-                elapsed_time = t  # 't' is automatically provided by PsychoPy
-                
-                # Ensure cue_stim is always visible from the start
-                cue_stim.autoDraw = True  
-                
-                # Ensure cue_stim stays black and at full size before 1s
-                if elapsed_time < 1.0:
-                    cue_stim.fillColor = [0, 0, 0]  # Keep it black
-                    cue_stim.size = (0.7, 0.7)  # Ensure initial size
-                
-                # Start shrinking cue_stim after 1s
-                elif elapsed_time >= 1.0:
-                    if not cue_started:
-                        cue_start_time = elapsed_time  # Record start time of shrinking
-                        cue_started = True
-                
-                    # Calculate how much time has passed since shrinking started
-                    time_passed = elapsed_time - cue_start_time
-                
-                    # Compute new size
-                    new_radius = initial_radius - (time_passed / duration) * (initial_radius - final_radius)
-                    new_radius = max(new_radius, final_radius)  # Ensure it doesn’t go below final size
-                
-                    # Update cue_stim properties
-                    cue_stim.size = (new_radius, new_radius)
-                
-                    # Change color when cue reaches final size and record aa_green_onset
-                    if new_radius <= final_radius:
-                        cue_stim.fillColor = [-1.0000, 0.0039, -1.0000]  # Change to green
-                        if aa_green_onset is None:  # Record green onset time once
-                            aa_green_onset = elapsed_time  
-                
-                # Remove cue_stim after the hold time
-                if aa_green_onset is not None and elapsed_time >= aa_green_onset + hold_time:
-                    cue_stim.autoDraw = False  # Hide cue_stim
-                
-                # Track test_stim onset time without modifying its behavior
-                if elapsed_time >= 3.0 and aa_test_onset is None:
-                    aa_test_onset = elapsed_time  # Store exact trial-relative onset time
-                
-                # Save aa_test_onset and aa_green_onset to output file at the end of the routine
-                if aa_test_onset is not None:
-                    thisExp.addData('aa_test_onset', aa_test_onset)  # Store test_stim onset
-                
-                if aa_green_onset is not None:
-                    thisExp.addData('aa_green_onset', aa_green_onset)  # Store cue turning green onset
-                
                 
                 # if mic is starting this frame...
                 if mic.status == NOT_STARTED and t >= 2.95-frameTolerance:
