@@ -1,2 +1,22 @@
-Im folgenden Experiment werden Ihnen 2 überlappende Kreise präsentiert. Nach kurzer Zeit beginnt der äußere Kreis an, zu schrumpfen. Wenn der äußere Kreis die Größe des inneren erreicht hat, wird der Kreis grün ausgefüllt. Im inneren Kreis steht eine Instruktion geschrieben.\n\nIm Falle der Instruktion „Aktiv“ ist es wieder Ihre Aufgabe eine kurze Silbe („da“) zu produzieren, sobald der Kreis grün wurde. Nutzen Sie bitte die Zeit, in der der Kreis schrumpf, zur Vorbereitung auf das Sprechen. Sprechen sie so schnell wie möglich, nachdem der Kreis grün wurde, jedoch aber nicht davor.\n\nIm Falle der Instruktion „Passiv“ ist es Ihre Aufgabe den Verlauf des Kreises zu verfolgen. Sie bleiben aber passiv, das heißt Sie produzieren keine Silbe und bereiten sich auch nicht darauf vor eine Silbe zu produzieren.\n\nDie Art der Instruktion ändert sich zufällig. Bitte beachten Sie die Instruktion genau und bleiben Sie so konzentriert wie möglich.\n\nWeiterhin werden in manchen Durchläufen Audioaufnahmen präsentiert, kurz bevor der Kreis grün wird. Konzentrieren Sie sich jedoch weiterhin auf den Verlauf des Kreises und die (im Falle der Instruktion „Aktiv“) Vorbereitung zu sprechen. Die Audioaufnahmen haben keine Relevanz für Ihre Aufgabe und sollen daher nicht weiter beachtet werden.\n\nBitte bewegen Sie sich so wenig wie möglich. Versuchen Sie die Lautstärke and Charakteristik (z.B. Tonhöhe) Ihres Lautes konstant zu halten.\n\nSollten Fragen bestehen, geben Sie bitte jetzt der Versuchsleitung Bescheid, einer spätere Unterbrechung wird nicht möglich sein. Die Aufgabe dauert ca. 80 Minuten.   
- 
+Zu Beginn sehen Sie auf dem Monitor ein „+“. Danach erscheint ein Kreis mit einer Instruktion, die Sie in diesem Teil ignorieren können.\n\n
+
+Nach einiger Zeit wechselt die Farbe des Kreises zu Grün. Sobald das passiert, sprechen Sie bitte die Silbe „ga“ – kurz, deutlich und in normaler Lautstärke.\n\n
+
+Nutzen Sie die Zeit bis zum grün-werdend des Kreises zur Vorbereitung, jdeoch ohne Bewegungen von Kopf, Zunge oder Gesichtsmuskeln. Achten Sie darauf, Lautstärke und Tonhöhe möglichst konstant zu halten.
+
+
+%%
+
+Achten Sie bitte erneut darauf sich so wenig wie möglich zu bewegen. Vor Ihnen befindet sich weiterhin ein Monitor. Der Ablauf bleibt dem vorherigen sehr ähnlich. Auf dem Monitor wird zunächst ein „+“ dargestellt. Anschließend wird Ihnen ein Kreis präsentiert, in dem sich eine Instruktion befindet. Nach einiger Zeit wechselt die Füllfarbe des Kreises zu Grün. Bitte beachten Sie in diesem Teil des Experiments die Instruktion genau. 
+
+Im Falle der Instruktion „/ga/“ ist es wie zuvor Ihre Aufgabe eine kurze Silbe („ga“) zu produzieren, sobald der Kreis grün wurde. Nutzen Sie bitte die Zeit zwischen Erscheinen des Kreises und dem grün-werden dessen zur Vorbereitung auf das Sprechen. Achten Sie darauf erst zu sprechen, wenn der Kreis grün wird. Bitte entspannen Sie ihre Gesichtsmuskeln und bitte vermeiden Sie Bewegungen (z.B. das Bewegen der Zunge) in der Vorbereitungsphase (also bevor der Kreis grün wird). Versuchen Sie die Lautstärke and Charakteristik (z.B. Tonhöhe) Ihres Lautes konstant zu halten.
+
+Im Falle der Instruktion „/xx/“ ist es Ihre Aufgabe darauf zu achten, wann der Kreis grün wird. Sie bleiben aber passiv, das heißt Sie produzieren keine Silbe und bereiten sich auch nicht darauf vor eine Silbe zu produzieren. 
+
+Die Art der Instruktion ändert sich zufällig. Bitte beachten Sie die Instruktion genau und bleiben Sie so konzentriert wie möglich.
+
+Weiterhin werden in manchen Durchläufen Audioaufnahmen präsentiert, kurz bevor der Kreis grün wird. Konzentrieren Sie sich jedoch weiterhin auf den grün-werden des Kreises und ignorieren Sie die Aufnahmen so gut wie möglich.
+
+In regelmäßigen Abständen finden kurze Pausen statt. Bitte bleiben Sie während der Pause ruhig sitzen, sprechen Sie nicht und beachten Sie die Hinweise auf dem Monitor.
+
+Bei Fragen geben Sie bitte jetzt der Versuchsleitung Bescheid. 
