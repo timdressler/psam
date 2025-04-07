@@ -50,8 +50,8 @@ tid_psam_clean_up_folder_TD(OUTPATH)
 THRESHOLD = 1000;  % Peak detection THRESHOLD
 MIN_INTERVAL = 100; % Minimum time (ms) between detected peaks to avoid duplicates
 MARKER_CHAN = 31;
-EARLY_ONSET = 2.8;
-LATE_ONSET = 2.9;
+EARLY_ONSET = 2.6;
+LATE_ONSET = 2.8;
 
 % Get directory content
 dircont_subj = dir(fullfile(INPATH, 'sub*'));
