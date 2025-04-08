@@ -400,7 +400,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     
     # --- Initialize components for Routine "welcome" ---
     welcome_message = visual.TextStim(win=win, name='welcome_message',
-        text='Welcome to this experiment',
+        text='Willkommen!',
         font='Arial',
         pos=(0, 0), draggable=False, height=0.05, wrapWidth=None, ori=0.0, 
         color='white', colorSpace='rgb', opacity=None, 
@@ -409,7 +409,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     
     # --- Initialize components for Routine "instructions" ---
     instructions_message = visual.TextStim(win=win, name='instructions_message',
-        text='In this experiment you have two different tasks.\n\nIf the instruction says "Passive" you only have to fixate the moving circle in the middle of the sceen, without doing or saying anything.\n\nIf the instruction says "Active" you are required to produce a short sound (/da/) AFTER the moving cricle reached the size of the inner circle AND the  circle turned green.\n\nIn some trials a sound will be played BEFORE the circle turned green. In this case, still wait until the circle turns green and vocalize /da/ then (in case of Active trials). Try your best to ignore the sound by solely focusing on the circles.',
+        text='Zu Beginn sehen Sie auf dem Monitor ein „+“. Danach erscheint ein Kreis mit einer Instruktion, die Sie in diesem Teil ignorieren können.\n\nNach einiger Zeit wechselt die Farbe des Kreises zu Grün. Sobald das passiert, sprechen Sie bitte die Silbe „ga“ – kurz, deutlich und in normaler Lautstärke.\n\nNutzen Sie die Zeit bis zum grün-werdend des Kreises zur Vorbereitung, jdeoch ohne Bewegungen von Kopf, Zunge oder Gesichtsmuskeln. Achten Sie darauf, Lautstärke und Tonhöhe möglichst konstant zu halten.',
         font='Arial',
         pos=(0, 0), draggable=False, height=0.03, wrapWidth=None, ori=0.0, 
         color='white', colorSpace='rgb', opacity=None, 
