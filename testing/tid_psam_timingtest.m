@@ -15,7 +15,7 @@ MARKER_CHAN = 31;
 eeglab;
 
 % Load data
-EEG = pop_loadbv('C:\Users\timdr\OneDrive\Uni_Oldenburg\4_Semester\Master_Thesis\Analysis_Experiment\psam\testing\timingtest\timingtest_240325\sub-99\eeg\', 'timingtest_24032025.vhdr', [], []);
+%%EEG = pop_loadbv('C:\Users\timdr\OneDrive\Uni_Oldenburg\4_Semester\Master_Thesis\Analysis_Experiment\psam\testing\timingtest\timingtest_240325\sub-99\eeg\', 'timingtest_24032025.vhdr', [], []);
 EEG = eeg_checkset( EEG );
 
 % Epoch and BL-Correction
