@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on April 06, 2025, at 15:08
+    on April 08, 2025, at 08:36
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -395,7 +395,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     
     # --- Initialize components for Routine "welcome" ---
     welcome_message = visual.TextStim(win=win, name='welcome_message',
-        text='Welcome to this experiment',
+        text='Wilkommen!',
         font='Arial',
         pos=(0, 0), draggable=False, height=0.05, wrapWidth=None, ori=0.0, 
         color='white', colorSpace='rgb', opacity=None, 
@@ -415,9 +415,9 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     
     # --- Initialize components for Routine "instructions" ---
     instructions_message = visual.TextStim(win=win, name='instructions_message',
-        text='In this experiment you have two different tasks.\n\nIf the instruction says "Passive" you only have to fixate the moving circle in the middle of the sceen, without doing or saying anything.\n\nIf the instruction says "Active" you are required to produce a short sound (/da/) AFTER the moving cricle reached the size of the inner circle AND the  circle turned green.\n\nIn some trials a sound will be played BEFORE the circle turned green. In this case, still wait until the circle turns green and vocalize /da/ then (in case of Active trials). Try your best to ignore the sound by solely focusing on the circles.',
+        text='Achten Sie bitte erneut darauf sich so wenig wie möglich zu bewegen. Vor Ihnen befindet sich weiterhin ein Monitor. Der Ablauf bleibt dem vorherigen sehr ähnlich. Auf dem Monitor wird zunächst ein „+“ dargestellt. Anschließend wird Ihnen ein Kreis präsentiert, in dem sich eine Instruktion befindet. Nach einiger Zeit wechselt die Füllfarbe des Kreises zu Grün. Bitte beachten Sie in diesem Teil des Experiments die Instruktion genau. \n\nIm Falle der Instruktion „/ga/“ ist es wie zuvor Ihre Aufgabe eine kurze Silbe („ga“) zu produzieren, sobald der Kreis grün wurde. Nutzen Sie bitte die Zeit zwischen Erscheinen des Kreises und dem grün-werden dessen zur Vorbereitung auf das Sprechen. Achten Sie darauf erst zu sprechen, wenn der Kreis grün wird. Bitte entspannen Sie ihre Gesichtsmuskeln und bitte vermeiden Sie Bewegungen (z.B. das Bewegen der Zunge) in der Vorbereitungsphase (also bevor der Kreis grün wird). Versuchen Sie die Lautstärke and Charakteristik (z.B. Tonhöhe) Ihres Lautes konstant zu halten.\n\nIm Falle der Instruktion „/xx/“ ist es Ihre Aufgabe darauf zu achten, wann der Kreis grün wird. Sie bleiben aber passiv, das heißt Sie produzieren keine Silbe und bereiten sich auch nicht darauf vor eine Silbe zu produzieren. \n\nDie Art der Instruktion ändert sich zufällig. Bitte beachten Sie die Instruktion genau und bleiben Sie so konzentriert wie möglich.\n\nWeiterhin werden in manchen Durchläufen Audioaufnahmen präsentiert, kurz bevor der Kreis grün wird. Konzentrieren Sie sich jedoch weiterhin auf den grün-werden des Kreises und ignorieren Sie die Aufnahmen so gut wie möglich.\n\nIn regelmäßigen Abständen finden kurze Pausen statt. Bitte bleiben Sie während der Pause ruhig sitzen, sprechen Sie nicht und beachten Sie die Hinweise auf dem Monitor.\n\nBei Fragen geben Sie bitte jetzt der Versuchsleitung Bescheid. ',
         font='Arial',
-        pos=(0, 0), draggable=False, height=0.03, wrapWidth=None, ori=0.0, 
+        pos=(0, 0), draggable=False, height=0.02, wrapWidth=None, ori=0.0, 
         color='white', colorSpace='rgb', opacity=None, 
         languageStyle='LTR',
         depth=0.0);
@@ -919,14 +919,14 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 # *fixation_cross_port* updates
                 
                 # if fixation_cross_port is starting this frame...
-                if fixation_cross_port.status == NOT_STARTED and t >= 0.0-frameTolerance:
+                if fixation_cross_port.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
                     # keep track of start time/frame for later
                     fixation_cross_port.frameNStart = frameN  # exact frame index
                     fixation_cross_port.tStart = t  # local t and not account for scr refresh
                     fixation_cross_port.tStartRefresh = tThisFlipGlobal  # on global time
                     win.timeOnFlip(fixation_cross_port, 'tStartRefresh')  # time at next scr refresh
                     # add timestamp to datafile
-                    thisExp.addData('fixation_cross_port.started', t)
+                    thisExp.timestampOnFlip(win, 'fixation_cross_port.started')
                     # update status
                     fixation_cross_port.status = STARTED
                     fixation_cross_port.status = STARTED
@@ -941,7 +941,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                         fixation_cross_port.tStopRefresh = tThisFlipGlobal  # on global time
                         fixation_cross_port.frameNStop = frameN  # exact frame index
                         # add timestamp to datafile
-                        thisExp.addData('fixation_cross_port.stopped', t)
+                        thisExp.timestampOnFlip(win, 'fixation_cross_port.stopped')
                         # update status
                         fixation_cross_port.status = FINISHED
                         win.callOnFlip(fixation_cross_port.setData, int(0))
@@ -1102,14 +1102,14 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 # *go_port* updates
                 
                 # if go_port is starting this frame...
-                if go_port.status == NOT_STARTED and t >= 3-frameTolerance:
+                if go_port.status == NOT_STARTED and tThisFlip >= 3-frameTolerance:
                     # keep track of start time/frame for later
                     go_port.frameNStart = frameN  # exact frame index
                     go_port.tStart = t  # local t and not account for scr refresh
                     go_port.tStartRefresh = tThisFlipGlobal  # on global time
                     win.timeOnFlip(go_port, 'tStartRefresh')  # time at next scr refresh
                     # add timestamp to datafile
-                    thisExp.addData('go_port.started', t)
+                    thisExp.timestampOnFlip(win, 'go_port.started')
                     # update status
                     go_port.status = STARTED
                     go_port.status = STARTED
@@ -1124,21 +1124,21 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                         go_port.tStopRefresh = tThisFlipGlobal  # on global time
                         go_port.frameNStop = frameN  # exact frame index
                         # add timestamp to datafile
-                        thisExp.addData('go_port.stopped', t)
+                        thisExp.timestampOnFlip(win, 'go_port.stopped')
                         # update status
                         go_port.status = FINISHED
                         win.callOnFlip(go_port.setData, int(0))
                 # *task_port* updates
                 
                 # if task_port is starting this frame...
-                if task_port.status == NOT_STARTED and t >= 0.0-frameTolerance:
+                if task_port.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
                     # keep track of start time/frame for later
                     task_port.frameNStart = frameN  # exact frame index
                     task_port.tStart = t  # local t and not account for scr refresh
                     task_port.tStartRefresh = tThisFlipGlobal  # on global time
                     win.timeOnFlip(task_port, 'tStartRefresh')  # time at next scr refresh
                     # add timestamp to datafile
-                    thisExp.addData('task_port.started', t)
+                    thisExp.timestampOnFlip(win, 'task_port.started')
                     # update status
                     task_port.status = STARTED
                     task_port.status = STARTED
@@ -1153,7 +1153,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                         task_port.tStopRefresh = tThisFlipGlobal  # on global time
                         task_port.frameNStop = frameN  # exact frame index
                         # add timestamp to datafile
-                        thisExp.addData('task_port.stopped', t)
+                        thisExp.timestampOnFlip(win, 'task_port.stopped')
                         # update status
                         task_port.status = FINISHED
                         win.callOnFlip(task_port.setData, int(0))
