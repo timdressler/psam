@@ -142,9 +142,9 @@ for iter = 1:num_iterations
     no_passive = setdiff(no_idx, no_active);
 
     % Create task column
-    miniblock_task_rando(yes_active,2) = {'/ah/'};
+    miniblock_task_rando(yes_active,2) = {'/ga/'};
     miniblock_task_rando(yes_active,11) = {21};
-    miniblock_task_rando(no_active,2) = {'/ah/'};
+    miniblock_task_rando(no_active,2) = {'/ga/'};
     miniblock_task_rando(no_active,11) = {21};
     miniblock_task_rando(yes_passive,2) = {'/xx/'};
     miniblock_task_rando(yes_passive,11) = {22};
