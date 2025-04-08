@@ -907,7 +907,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         trial.status = NOT_STARTED
         continueRoutine = True
         # update component parameters for each repeat
-        task_msg.setText('Aktiv')
+        task_msg.setText('/ga/')
         # Run 'Begin Routine' code from code_trial
         cue_started = False
         aa_green_onset = None  # To store when the cue turns green relative to trial onset
