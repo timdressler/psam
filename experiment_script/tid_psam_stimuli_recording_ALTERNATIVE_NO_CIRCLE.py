@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on April 09, 2025, at 17:18
+    on April 09, 2025, at 17:20
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -42,7 +42,7 @@ deviceManager = hardware.DeviceManager()
 _thisDir = os.path.dirname(os.path.abspath(__file__))
 # store info about the experiment session
 psychopyVersion = '2024.2.4'
-expName = 'tid_psam_main_experiment_ALTERNATIVE_NO_CIRCLE'  # from the Builder filename that created this script
+expName = 'tid_psam_stimuli_recording_ALTERNATIVE_NO_CIRCLE'  # from the Builder filename that created this script
 # information about this experiment
 expInfo = {
     'participant': '',
@@ -127,7 +127,7 @@ def setupData(expInfo, dataDir=None):
     thisExp = data.ExperimentHandler(
         name=expName, version='',
         extraInfo=expInfo, runtimeInfo=None,
-        originPath='C:\\Experiments\\tid_psam\\psam\\experiment_script\\tid_psam_main_experiment_ALTERNATIVE_NO_CIRCLE.py',
+        originPath='C:\\Experiments\\tid_psam\\psam\\experiment_script\\tid_psam_stimuli_recording_ALTERNATIVE_NO_CIRCLE.py',
         savePickle=True, saveWideText=True,
         dataFileName=dataDir + os.sep + filename, sortColumns='alphabetical'
     )

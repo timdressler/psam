@@ -1,8 +1,8 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on April 09, 2025, at 17:18
+    on April 09, 2025, at 17:20
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -39,10 +39,13 @@ import random
 # create a device manager to handle hardware (keyboards, mice, mirophones, speakers, etc.)
 deviceManager = hardware.DeviceManager()
 # ensure that relative paths start from the same directory as this script
-_thisDir = os.path.dirname(os.path.abspath(__file__))
+_thisDir = os.path.dirname(os.path.abspath(__file__)) # CHANGED
+_thisDir = os.path.dirname(_thisDir)
+print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
+print(_thisDir)
 # store info about the experiment session
 psychopyVersion = '2024.2.4'
-expName = 'tid_psam_main_experiment_ALTERNATIVE_NO_CIRCLE'  # from the Builder filename that created this script
+expName = 'tid_psam_stimuli_recording_ALTERNATIVE_NO_CIRCLE'  # from the Builder filename that created this script
 # information about this experiment
 expInfo = {
     'participant': '',
@@ -117,7 +120,16 @@ def setupData(expInfo, dataDir=None):
     # data file name stem = absolute path + name; later add .psyexp, .csv, .log, etc
     if dataDir is None:
         dataDir = _thisDir
-    filename = u'../data/BIDS/%s/beh/%s_%s_%s' % (f"sub-{int(expInfo['participant']):02d}", f"sub-{int(expInfo['participant']):02d}", "tid_psam_main_experiment", expInfo['date'])
+        print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
+        print(dataDir)
+
+    subject_id = expInfo["participant"] # CHANGED
+    subject_id = f"sub-{subject_id.zfill(2)}"
+    print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
+    print(subject_id)
+    filename = u'data\\BIDS\\stimuli\\%s\\all_raw\\%s_%s_%s' % (subject_id, subject_id, "stimuli_recordings", expInfo['date']) # CHANGED
+    print("CHANGED CHANGED CHANGED CHANGED CHANGED CHANGED")
+    print(filename)
     # make sure filename is relative to dataDir
     if os.path.isabs(filename):
         dataDir = os.path.commonprefix([dataDir, filename])
@@ -127,7 +139,7 @@ def setupData(expInfo, dataDir=None):
     thisExp = data.ExperimentHandler(
         name=expName, version='',
         extraInfo=expInfo, runtimeInfo=None,
-        originPath='C:\\Experiments\\tid_psam\\psam\\experiment_script\\tid_psam_main_experiment_ALTERNATIVE_NO_CIRCLE.py',
+        originPath='C:\\Experiments\\tid_psam\\psam\\experiment_script\\tid_psam_stimuli_recording_ALTERNATIVE_NO_CIRCLE.py',
         savePickle=True, saveWideText=True,
         dataFileName=dataDir + os.sep + filename, sortColumns='alphabetical'
     )
@@ -271,7 +283,7 @@ def setupDevices(expInfo, thisExp, win):
     deviceManager.addDevice(
         deviceClass='psychopy.hardware.microphone.MicrophoneDevice',
         deviceName='audiointerface',
-        index=28,
+        index=28, #CHANGED #Home = 12; LAB 3 = 28
         maxRecordingSize=240000.0,
         channels=1, 
         sampleRateHz=44100, 
@@ -377,7 +389,9 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     
     # Start Code - component code to be run after the window creation
     # Make folder to store recordings from mic
-    micRecFolder = filename + '_mic_recorded'
+    micRecFolder = os.path.dirname(filename) # CHANGED
+    print("CHANGED CHANGED CHANGED CHANGED CHANGED")
+    print(filename)
     if not os.path.isdir(micRecFolder):
         os.mkdir(micRecFolder)
     
@@ -1148,7 +1162,12 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         # tell mic to keep hold of current recording in mic.clips and transcript (if applicable) in mic.scripts
         # this will also update mic.lastClip and mic.lastScript
         mic.stop()
-        tag = data.utils.getDateStr()
+        ##tag = data.utils.getDateStr()
+        subject_id = expInfo["participant"] # CHANGED
+        subject_id = f"sub-{subject_id.zfill(2)}_" + data.utils.getDateStr()
+        tag = subject_id #CHANGED
+        print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+        print(tag)
         micClip = mic.bank(
             tag=tag, transcribe='None',
             config=None
