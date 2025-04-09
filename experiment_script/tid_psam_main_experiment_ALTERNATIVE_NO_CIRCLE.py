@@ -1,8 +1,8 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on April 09, 2025, at 17:18
+    on April 09, 2025, at 17:41
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -267,6 +267,12 @@ def setupDevices(expInfo, thisExp, win):
             deviceClass='keyboard',
             deviceName='instruction_keys',
         )
+    # create speaker 'probe_stim'
+    deviceManager.addDevice(
+        deviceName='probe_stim',
+        deviceClass='psychopy.hardware.speaker.SpeakerDevice',
+        index=23.0
+    )
     # initialise microphone
     deviceManager.addDevice(
         deviceClass='psychopy.hardware.microphone.MicrophoneDevice',
@@ -276,6 +282,12 @@ def setupDevices(expInfo, thisExp, win):
         channels=1, 
         sampleRateHz=44100, 
     )
+    if deviceManager.getDevice('pause_keys') is None:
+        # initialise pause_keys
+        pause_keys = deviceManager.addDevice(
+            deviceClass='keyboard',
+            deviceName='pause_keys',
+        )
     # return True if completed successfully
     return True
 
@@ -390,14 +402,22 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         languageStyle='LTR',
         depth=0.0);
     # Run 'Begin Experiment' code from code_setup
+    subject_id = expInfo["participant"] 
+    subject_id = f"sub-{subject_id.zfill(2)}"
+    thisExp.addData("subject_id", subject_id)
     
+    _thisDir2 = os.path.dirname(_thisDir)
+    
+    filename_cond = u'data\\BIDS\\stimuli\\%s\\%s_conditions_meta.xlsx' % (subject_id, subject_id) # CHANGED
+    conditionsFileName = _thisDir2 + os.sep + filename_cond
+    thisExp.addData("conditions", conditionsFileName)
     
     
     # --- Initialize components for Routine "instructions" ---
     instructions_message = visual.TextStim(win=win, name='instructions_message',
         text='Die Versuchsleitung wird Ihnen nun noch einmal die Aufgabe erläutern. \n\nBitte zögern Sie nicht bei Unklarheiten Fragen zu stellen.',
         font='Arial',
-        pos=(0, 0), draggable=False, height=0.02, wrapWidth=None, ori=0.0, 
+        pos=(0, 0), draggable=False, height=0.05, wrapWidth=None, ori=0.0, 
         color='white', colorSpace='rgb', opacity=None, 
         languageStyle='LTR',
         depth=0.0);
@@ -414,27 +434,38 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     fixation_cross_port = parallel.ParallelPort(address='0x3ff8')
     
     # --- Initialize components for Routine "trial" ---
+    probe_stim = sound.Sound(
+        'A', 
+        secs=-1, 
+        stereo=True, 
+        hamming=False, 
+        speaker='probe_stim',    name='probe_stim', sampleRate = 44100
+    )
+    probe_stim.setVolume(1.0)
+    probe_marker_port = parallel.ParallelPort(address='0x3ff8')
+    go_port = parallel.ParallelPort(address='0x3ff8')
+    task_port = parallel.ParallelPort(address='0x3ff8')
     wait_stim = visual.ShapeStim(
         win=win, name='wait_stim',
         size=(0.2, 0.2), vertices='circle',
         ori=0.0, pos=(0, 0), draggable=False, anchor='center',
         lineWidth=1.0,
         colorSpace='rgb', lineColor=[-1.0000, -1.0000, -1.0000], fillColor=[0.0000, 0.0000, 0.0000],
-        opacity=None, depth=0.0, interpolate=True)
+        opacity=None, depth=-4.0, interpolate=True)
     go_stim = visual.ShapeStim(
         win=win, name='go_stim',
         size=(0.2, 0.2), vertices='circle',
         ori=0.0, pos=(0, 0), draggable=False, anchor='center',
         lineWidth=1.0,
         colorSpace='rgb', lineColor=[-1.0000, -1.0000, -1.0000], fillColor=[-1.0000, 0.0039, -1.0000],
-        opacity=None, depth=-1.0, interpolate=True)
+        opacity=None, depth=-5.0, interpolate=True)
     task_msg = visual.TextStim(win=win, name='task_msg',
         text='',
         font='Arial',
         pos=(0, 0), draggable=False, height=0.04, wrapWidth=None, ori=0.0, 
         color=[-1.0000, -1.0000, -1.0000], colorSpace='rgb', opacity=None, 
         languageStyle='LTR',
-        depth=-2.0);
+        depth=-6.0);
     # Run 'Begin Experiment' code from code_trial
     # Import necessary module
     from psychopy import core
@@ -448,6 +479,16 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         recordingFolder=micRecFolder,
         recordingExt='wav'
     )
+    
+    # --- Initialize components for Routine "pause" ---
+    pause_keys = keyboard.Keyboard(deviceName='pause_keys')
+    pause_text = visual.TextStim(win=win, name='pause_text',
+        text='Kurze Pause.\n\nSie können nun kurz pausieren. \n\nBitte sprechen und bewegen Sie sich NICHT!\n\nDie Versuchsleitung wid zu Ihnen sprechen und Ihnen weitere Informationen mitteilen.',
+        font='Arial',
+        pos=(0, 0), draggable=False, height=0.05, wrapWidth=None, ori=0.0, 
+        color='white', colorSpace='rgb', opacity=None, 
+        languageStyle='LTR',
+        depth=-1.0);
     
     # --- Initialize components for Routine "end" ---
     end_text = visual.TextStim(win=win, name='end_text',
@@ -749,54 +790,609 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     routineTimer.reset()
     
     # set up handler to look after randomisation of conditions etc
-    trials = data.TrialHandler2(
-        name='trials',
-        nReps=21.0, 
+    blocks = data.TrialHandler2(
+        name='blocks',
+        nReps=1.0, 
         method='sequential', 
         extraInfo=expInfo, 
         originPath=-1, 
-        trialList=[None], 
+        trialList=data.importConditions(conditionsFileName), 
         seed=None, 
     )
-    thisExp.addLoop(trials)  # add the loop to the experiment
-    thisTrial = trials.trialList[0]  # so we can initialise stimuli with some values
-    # abbreviate parameter names if possible (e.g. rgb = thisTrial.rgb)
-    if thisTrial != None:
-        for paramName in thisTrial:
-            globals()[paramName] = thisTrial[paramName]
+    thisExp.addLoop(blocks)  # add the loop to the experiment
+    thisBlock = blocks.trialList[0]  # so we can initialise stimuli with some values
+    # abbreviate parameter names if possible (e.g. rgb = thisBlock.rgb)
+    if thisBlock != None:
+        for paramName in thisBlock:
+            globals()[paramName] = thisBlock[paramName]
     if thisSession is not None:
         # if running in a Session with a Liaison client, send data up to now
         thisSession.sendExperimentData()
     
-    for thisTrial in trials:
-        currentLoop = trials
+    for thisBlock in blocks:
+        currentLoop = blocks
         thisExp.timestampOnFlip(win, 'thisRow.t', format=globalClock.format)
         if thisSession is not None:
             # if running in a Session with a Liaison client, send data up to now
             thisSession.sendExperimentData()
+        # abbreviate parameter names if possible (e.g. rgb = thisBlock.rgb)
+        if thisBlock != None:
+            for paramName in thisBlock:
+                globals()[paramName] = thisBlock[paramName]
+        
+        # set up handler to look after randomisation of conditions etc
+        trials = data.TrialHandler2(
+            name='trials',
+            nReps=1.0, 
+            method='sequential', 
+            extraInfo=expInfo, 
+            originPath=-1, 
+            trialList=data.importConditions(conditions_file), 
+            seed=None, 
+        )
+        thisExp.addLoop(trials)  # add the loop to the experiment
+        thisTrial = trials.trialList[0]  # so we can initialise stimuli with some values
         # abbreviate parameter names if possible (e.g. rgb = thisTrial.rgb)
         if thisTrial != None:
             for paramName in thisTrial:
                 globals()[paramName] = thisTrial[paramName]
+        if thisSession is not None:
+            # if running in a Session with a Liaison client, send data up to now
+            thisSession.sendExperimentData()
         
-        # --- Prepare to start Routine "ISI" ---
-        # create an object to store info about Routine ISI
-        ISI = data.Routine(
-            name='ISI',
-            components=[fixation_cross_ISI, fixation_cross_port],
+        for thisTrial in trials:
+            currentLoop = trials
+            thisExp.timestampOnFlip(win, 'thisRow.t', format=globalClock.format)
+            if thisSession is not None:
+                # if running in a Session with a Liaison client, send data up to now
+                thisSession.sendExperimentData()
+            # abbreviate parameter names if possible (e.g. rgb = thisTrial.rgb)
+            if thisTrial != None:
+                for paramName in thisTrial:
+                    globals()[paramName] = thisTrial[paramName]
+            
+            # --- Prepare to start Routine "ISI" ---
+            # create an object to store info about Routine ISI
+            ISI = data.Routine(
+                name='ISI',
+                components=[fixation_cross_ISI, fixation_cross_port],
+            )
+            ISI.status = NOT_STARTED
+            continueRoutine = True
+            # update component parameters for each repeat
+            # store start times for ISI
+            ISI.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
+            ISI.tStart = globalClock.getTime(format='float')
+            ISI.status = STARTED
+            thisExp.addData('ISI.started', ISI.tStart)
+            ISI.maxDuration = random.randint(500, 1500)/1000
+            # keep track of which components have finished
+            ISIComponents = ISI.components
+            for thisComponent in ISI.components:
+                thisComponent.tStart = None
+                thisComponent.tStop = None
+                thisComponent.tStartRefresh = None
+                thisComponent.tStopRefresh = None
+                if hasattr(thisComponent, 'status'):
+                    thisComponent.status = NOT_STARTED
+            # reset timers
+            t = 0
+            _timeToFirstFrame = win.getFutureFlipTime(clock="now")
+            frameN = -1
+            
+            # --- Run Routine "ISI" ---
+            # if trial has changed, end Routine now
+            if isinstance(trials, data.TrialHandler2) and thisTrial.thisN != trials.thisTrial.thisN:
+                continueRoutine = False
+            ISI.forceEnded = routineForceEnded = not continueRoutine
+            while continueRoutine:
+                # get current time
+                t = routineTimer.getTime()
+                tThisFlip = win.getFutureFlipTime(clock=routineTimer)
+                tThisFlipGlobal = win.getFutureFlipTime(clock=None)
+                frameN = frameN + 1  # number of completed frames (so 0 is the first frame)
+                # update/draw components on each frame
+                # is it time to end the Routine? (based on local clock)
+                if tThisFlip > ISI.maxDuration-frameTolerance:
+                    ISI.maxDurationReached = True
+                    continueRoutine = False
+                
+                # *fixation_cross_ISI* updates
+                
+                # if fixation_cross_ISI is starting this frame...
+                if fixation_cross_ISI.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
+                    # keep track of start time/frame for later
+                    fixation_cross_ISI.frameNStart = frameN  # exact frame index
+                    fixation_cross_ISI.tStart = t  # local t and not account for scr refresh
+                    fixation_cross_ISI.tStartRefresh = tThisFlipGlobal  # on global time
+                    win.timeOnFlip(fixation_cross_ISI, 'tStartRefresh')  # time at next scr refresh
+                    # add timestamp to datafile
+                    thisExp.timestampOnFlip(win, 'fixation_cross_ISI.started')
+                    # update status
+                    fixation_cross_ISI.status = STARTED
+                    fixation_cross_ISI.setAutoDraw(True)
+                
+                # if fixation_cross_ISI is active this frame...
+                if fixation_cross_ISI.status == STARTED:
+                    # update params
+                    pass
+                # *fixation_cross_port* updates
+                
+                # if fixation_cross_port is starting this frame...
+                if fixation_cross_port.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
+                    # keep track of start time/frame for later
+                    fixation_cross_port.frameNStart = frameN  # exact frame index
+                    fixation_cross_port.tStart = t  # local t and not account for scr refresh
+                    fixation_cross_port.tStartRefresh = tThisFlipGlobal  # on global time
+                    win.timeOnFlip(fixation_cross_port, 'tStartRefresh')  # time at next scr refresh
+                    # add timestamp to datafile
+                    thisExp.timestampOnFlip(win, 'fixation_cross_port.started')
+                    # update status
+                    fixation_cross_port.status = STARTED
+                    fixation_cross_port.status = STARTED
+                    win.callOnFlip(fixation_cross_port.setData, int(1))
+                
+                # if fixation_cross_port is stopping this frame...
+                if fixation_cross_port.status == STARTED:
+                    # is it time to stop? (based on global clock, using actual start)
+                    if tThisFlipGlobal > fixation_cross_port.tStartRefresh + 0.5-frameTolerance:
+                        # keep track of stop time/frame for later
+                        fixation_cross_port.tStop = t  # not accounting for scr refresh
+                        fixation_cross_port.tStopRefresh = tThisFlipGlobal  # on global time
+                        fixation_cross_port.frameNStop = frameN  # exact frame index
+                        # add timestamp to datafile
+                        thisExp.timestampOnFlip(win, 'fixation_cross_port.stopped')
+                        # update status
+                        fixation_cross_port.status = FINISHED
+                        win.callOnFlip(fixation_cross_port.setData, int(0))
+                
+                # check for quit (typically the Esc key)
+                if defaultKeyboard.getKeys(keyList=["escape"]):
+                    thisExp.status = FINISHED
+                if thisExp.status == FINISHED or endExpNow:
+                    endExperiment(thisExp, win=win)
+                    return
+                # pause experiment here if requested
+                if thisExp.status == PAUSED:
+                    pauseExperiment(
+                        thisExp=thisExp, 
+                        win=win, 
+                        timers=[routineTimer], 
+                        playbackComponents=[]
+                    )
+                    # skip the frame we paused on
+                    continue
+                
+                # check if all components have finished
+                if not continueRoutine:  # a component has requested a forced-end of Routine
+                    ISI.forceEnded = routineForceEnded = True
+                    break
+                continueRoutine = False  # will revert to True if at least one component still running
+                for thisComponent in ISI.components:
+                    if hasattr(thisComponent, "status") and thisComponent.status != FINISHED:
+                        continueRoutine = True
+                        break  # at least one component has not yet finished
+                
+                # refresh the screen
+                if continueRoutine:  # don't flip if this routine is over or we'll get a blank screen
+                    win.flip()
+            
+            # --- Ending Routine "ISI" ---
+            for thisComponent in ISI.components:
+                if hasattr(thisComponent, "setAutoDraw"):
+                    thisComponent.setAutoDraw(False)
+            # store stop times for ISI
+            ISI.tStop = globalClock.getTime(format='float')
+            ISI.tStopRefresh = tThisFlipGlobal
+            thisExp.addData('ISI.stopped', ISI.tStop)
+            if fixation_cross_port.status == STARTED:
+                win.callOnFlip(fixation_cross_port.setData, int(0))
+            # the Routine "ISI" was not non-slip safe, so reset the non-slip timer
+            routineTimer.reset()
+            
+            # --- Prepare to start Routine "trial" ---
+            # create an object to store info about Routine trial
+            trial = data.Routine(
+                name='trial',
+                components=[probe_stim, probe_marker_port, go_port, task_port, wait_stim, go_stim, task_msg, mic],
+            )
+            trial.status = NOT_STARTED
+            continueRoutine = True
+            # update component parameters for each repeat
+            probe_stim.setSound(stim_file, secs=probe_duration, hamming=False)
+            probe_stim.setVolume(probe_intensity, log=False)
+            probe_stim.seek(0)
+            task_msg.setText(task)
+            # Run 'Begin Routine' code from code_trial
+            
+            
+            # store start times for trial
+            trial.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
+            trial.tStart = globalClock.getTime(format='float')
+            trial.status = STARTED
+            thisExp.addData('trial.started', trial.tStart)
+            trial.maxDuration = 5
+            # keep track of which components have finished
+            trialComponents = trial.components
+            for thisComponent in trial.components:
+                thisComponent.tStart = None
+                thisComponent.tStop = None
+                thisComponent.tStartRefresh = None
+                thisComponent.tStopRefresh = None
+                if hasattr(thisComponent, 'status'):
+                    thisComponent.status = NOT_STARTED
+            # reset timers
+            t = 0
+            _timeToFirstFrame = win.getFutureFlipTime(clock="now")
+            frameN = -1
+            
+            # --- Run Routine "trial" ---
+            # if trial has changed, end Routine now
+            if isinstance(trials, data.TrialHandler2) and thisTrial.thisN != trials.thisTrial.thisN:
+                continueRoutine = False
+            trial.forceEnded = routineForceEnded = not continueRoutine
+            while continueRoutine and routineTimer.getTime() < 5.0:
+                # get current time
+                t = routineTimer.getTime()
+                tThisFlip = win.getFutureFlipTime(clock=routineTimer)
+                tThisFlipGlobal = win.getFutureFlipTime(clock=None)
+                frameN = frameN + 1  # number of completed frames (so 0 is the first frame)
+                # update/draw components on each frame
+                # is it time to end the Routine? (based on local clock)
+                if tThisFlip > trial.maxDuration-frameTolerance:
+                    trial.maxDurationReached = True
+                    continueRoutine = False
+                
+                # *probe_stim* updates
+                
+                # if probe_stim is starting this frame...
+                if probe_stim.status == NOT_STARTED and tThisFlip >= probe_onset-frameTolerance:
+                    # keep track of start time/frame for later
+                    probe_stim.frameNStart = frameN  # exact frame index
+                    probe_stim.tStart = t  # local t and not account for scr refresh
+                    probe_stim.tStartRefresh = tThisFlipGlobal  # on global time
+                    # add timestamp to datafile
+                    thisExp.addData('probe_stim.started', tThisFlipGlobal)
+                    # update status
+                    probe_stim.status = STARTED
+                    probe_stim.play(when=win)  # sync with win flip
+                
+                # if probe_stim is stopping this frame...
+                if probe_stim.status == STARTED:
+                    # is it time to stop? (based on global clock, using actual start)
+                    if tThisFlipGlobal > probe_stim.tStartRefresh + probe_duration-frameTolerance or probe_stim.isFinished:
+                        # keep track of stop time/frame for later
+                        probe_stim.tStop = t  # not accounting for scr refresh
+                        probe_stim.tStopRefresh = tThisFlipGlobal  # on global time
+                        probe_stim.frameNStop = frameN  # exact frame index
+                        # add timestamp to datafile
+                        thisExp.timestampOnFlip(win, 'probe_stim.stopped')
+                        # update status
+                        probe_stim.status = FINISHED
+                        probe_stim.stop()
+                # *probe_marker_port* updates
+                
+                # if probe_marker_port is starting this frame...
+                if probe_marker_port.status == NOT_STARTED and t >= probe_onset-frameTolerance:
+                    # keep track of start time/frame for later
+                    probe_marker_port.frameNStart = frameN  # exact frame index
+                    probe_marker_port.tStart = t  # local t and not account for scr refresh
+                    probe_marker_port.tStartRefresh = tThisFlipGlobal  # on global time
+                    win.timeOnFlip(probe_marker_port, 'tStartRefresh')  # time at next scr refresh
+                    # add timestamp to datafile
+                    thisExp.addData('probe_marker_port.started', t)
+                    # update status
+                    probe_marker_port.status = STARTED
+                    probe_marker_port.status = STARTED
+                    win.callOnFlip(probe_marker_port.setData, int(probe_marker))
+                
+                # if probe_marker_port is stopping this frame...
+                if probe_marker_port.status == STARTED:
+                    # is it time to stop? (based on global clock, using actual start)
+                    if tThisFlipGlobal > probe_marker_port.tStartRefresh + probe_duration-frameTolerance:
+                        # keep track of stop time/frame for later
+                        probe_marker_port.tStop = t  # not accounting for scr refresh
+                        probe_marker_port.tStopRefresh = tThisFlipGlobal  # on global time
+                        probe_marker_port.frameNStop = frameN  # exact frame index
+                        # add timestamp to datafile
+                        thisExp.addData('probe_marker_port.stopped', t)
+                        # update status
+                        probe_marker_port.status = FINISHED
+                        win.callOnFlip(probe_marker_port.setData, int(0))
+                # *go_port* updates
+                
+                # if go_port is starting this frame...
+                if go_port.status == NOT_STARTED and tThisFlip >= 3-frameTolerance:
+                    # keep track of start time/frame for later
+                    go_port.frameNStart = frameN  # exact frame index
+                    go_port.tStart = t  # local t and not account for scr refresh
+                    go_port.tStartRefresh = tThisFlipGlobal  # on global time
+                    win.timeOnFlip(go_port, 'tStartRefresh')  # time at next scr refresh
+                    # add timestamp to datafile
+                    thisExp.timestampOnFlip(win, 'go_port.started')
+                    # update status
+                    go_port.status = STARTED
+                    go_port.status = STARTED
+                    win.callOnFlip(go_port.setData, int(5))
+                
+                # if go_port is stopping this frame...
+                if go_port.status == STARTED:
+                    # is it time to stop? (based on global clock, using actual start)
+                    if tThisFlipGlobal > go_port.tStartRefresh + 1.0-frameTolerance:
+                        # keep track of stop time/frame for later
+                        go_port.tStop = t  # not accounting for scr refresh
+                        go_port.tStopRefresh = tThisFlipGlobal  # on global time
+                        go_port.frameNStop = frameN  # exact frame index
+                        # add timestamp to datafile
+                        thisExp.timestampOnFlip(win, 'go_port.stopped')
+                        # update status
+                        go_port.status = FINISHED
+                        win.callOnFlip(go_port.setData, int(0))
+                # *task_port* updates
+                
+                # if task_port is starting this frame...
+                if task_port.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
+                    # keep track of start time/frame for later
+                    task_port.frameNStart = frameN  # exact frame index
+                    task_port.tStart = t  # local t and not account for scr refresh
+                    task_port.tStartRefresh = tThisFlipGlobal  # on global time
+                    win.timeOnFlip(task_port, 'tStartRefresh')  # time at next scr refresh
+                    # add timestamp to datafile
+                    thisExp.timestampOnFlip(win, 'task_port.started')
+                    # update status
+                    task_port.status = STARTED
+                    task_port.status = STARTED
+                    win.callOnFlip(task_port.setData, int(task_marker))
+                
+                # if task_port is stopping this frame...
+                if task_port.status == STARTED:
+                    # is it time to stop? (based on global clock, using actual start)
+                    if tThisFlipGlobal > task_port.tStartRefresh + 1.0-frameTolerance:
+                        # keep track of stop time/frame for later
+                        task_port.tStop = t  # not accounting for scr refresh
+                        task_port.tStopRefresh = tThisFlipGlobal  # on global time
+                        task_port.frameNStop = frameN  # exact frame index
+                        # add timestamp to datafile
+                        thisExp.timestampOnFlip(win, 'task_port.stopped')
+                        # update status
+                        task_port.status = FINISHED
+                        win.callOnFlip(task_port.setData, int(0))
+                
+                # *wait_stim* updates
+                
+                # if wait_stim is starting this frame...
+                if wait_stim.status == NOT_STARTED and tThisFlip >= 0-frameTolerance:
+                    # keep track of start time/frame for later
+                    wait_stim.frameNStart = frameN  # exact frame index
+                    wait_stim.tStart = t  # local t and not account for scr refresh
+                    wait_stim.tStartRefresh = tThisFlipGlobal  # on global time
+                    win.timeOnFlip(wait_stim, 'tStartRefresh')  # time at next scr refresh
+                    # add timestamp to datafile
+                    thisExp.timestampOnFlip(win, 'wait_stim.started')
+                    # update status
+                    wait_stim.status = STARTED
+                    wait_stim.setAutoDraw(True)
+                
+                # if wait_stim is active this frame...
+                if wait_stim.status == STARTED:
+                    # update params
+                    pass
+                
+                # if wait_stim is stopping this frame...
+                if wait_stim.status == STARTED:
+                    # is it time to stop? (based on global clock, using actual start)
+                    if tThisFlipGlobal > wait_stim.tStartRefresh + 3-frameTolerance:
+                        # keep track of stop time/frame for later
+                        wait_stim.tStop = t  # not accounting for scr refresh
+                        wait_stim.tStopRefresh = tThisFlipGlobal  # on global time
+                        wait_stim.frameNStop = frameN  # exact frame index
+                        # add timestamp to datafile
+                        thisExp.timestampOnFlip(win, 'wait_stim.stopped')
+                        # update status
+                        wait_stim.status = FINISHED
+                        wait_stim.setAutoDraw(False)
+                
+                # *go_stim* updates
+                
+                # if go_stim is starting this frame...
+                if go_stim.status == NOT_STARTED and tThisFlip >= 3-frameTolerance:
+                    # keep track of start time/frame for later
+                    go_stim.frameNStart = frameN  # exact frame index
+                    go_stim.tStart = t  # local t and not account for scr refresh
+                    go_stim.tStartRefresh = tThisFlipGlobal  # on global time
+                    win.timeOnFlip(go_stim, 'tStartRefresh')  # time at next scr refresh
+                    # add timestamp to datafile
+                    thisExp.timestampOnFlip(win, 'go_stim.started')
+                    # update status
+                    go_stim.status = STARTED
+                    go_stim.setAutoDraw(True)
+                
+                # if go_stim is active this frame...
+                if go_stim.status == STARTED:
+                    # update params
+                    pass
+                
+                # if go_stim is stopping this frame...
+                if go_stim.status == STARTED:
+                    # is it time to stop? (based on global clock, using actual start)
+                    if tThisFlipGlobal > go_stim.tStartRefresh + 1.5-frameTolerance:
+                        # keep track of stop time/frame for later
+                        go_stim.tStop = t  # not accounting for scr refresh
+                        go_stim.tStopRefresh = tThisFlipGlobal  # on global time
+                        go_stim.frameNStop = frameN  # exact frame index
+                        # add timestamp to datafile
+                        thisExp.timestampOnFlip(win, 'go_stim.stopped')
+                        # update status
+                        go_stim.status = FINISHED
+                        go_stim.setAutoDraw(False)
+                
+                # *task_msg* updates
+                
+                # if task_msg is starting this frame...
+                if task_msg.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
+                    # keep track of start time/frame for later
+                    task_msg.frameNStart = frameN  # exact frame index
+                    task_msg.tStart = t  # local t and not account for scr refresh
+                    task_msg.tStartRefresh = tThisFlipGlobal  # on global time
+                    win.timeOnFlip(task_msg, 'tStartRefresh')  # time at next scr refresh
+                    # add timestamp to datafile
+                    thisExp.timestampOnFlip(win, 'task_msg.started')
+                    # update status
+                    task_msg.status = STARTED
+                    task_msg.setAutoDraw(True)
+                
+                # if task_msg is active this frame...
+                if task_msg.status == STARTED:
+                    # update params
+                    pass
+                
+                # if task_msg is stopping this frame...
+                if task_msg.status == STARTED:
+                    # is it time to stop? (based on global clock, using actual start)
+                    if tThisFlipGlobal > task_msg.tStartRefresh + 4.5-frameTolerance:
+                        # keep track of stop time/frame for later
+                        task_msg.tStop = t  # not accounting for scr refresh
+                        task_msg.tStopRefresh = tThisFlipGlobal  # on global time
+                        task_msg.frameNStop = frameN  # exact frame index
+                        # add timestamp to datafile
+                        thisExp.timestampOnFlip(win, 'task_msg.stopped')
+                        # update status
+                        task_msg.status = FINISHED
+                        task_msg.setAutoDraw(False)
+                
+                # if mic is starting this frame...
+                if mic.status == NOT_STARTED and t >= 2.95-frameTolerance:
+                    # keep track of start time/frame for later
+                    mic.frameNStart = frameN  # exact frame index
+                    mic.tStart = t  # local t and not account for scr refresh
+                    mic.tStartRefresh = tThisFlipGlobal  # on global time
+                    win.timeOnFlip(mic, 'tStartRefresh')  # time at next scr refresh
+                    # add timestamp to datafile
+                    thisExp.addData('mic.started', t)
+                    # update status
+                    mic.status = STARTED
+                    # start recording with mic
+                    mic.start()
+                
+                # if mic is active this frame...
+                if mic.status == STARTED:
+                    # update params
+                    pass
+                    # update recorded clip for mic
+                    mic.poll()
+                
+                # if mic is stopping this frame...
+                if mic.status == STARTED:
+                    # is it time to stop? (based on global clock, using actual start)
+                    if tThisFlipGlobal > mic.tStartRefresh + rec_duration-frameTolerance:
+                        # keep track of stop time/frame for later
+                        mic.tStop = t  # not accounting for scr refresh
+                        mic.tStopRefresh = tThisFlipGlobal  # on global time
+                        mic.frameNStop = frameN  # exact frame index
+                        # add timestamp to datafile
+                        thisExp.addData('mic.stopped', t)
+                        # update status
+                        mic.status = FINISHED
+                        # stop recording with mic
+                        mic.stop()
+                
+                # check for quit (typically the Esc key)
+                if defaultKeyboard.getKeys(keyList=["escape"]):
+                    thisExp.status = FINISHED
+                if thisExp.status == FINISHED or endExpNow:
+                    endExperiment(thisExp, win=win)
+                    return
+                # pause experiment here if requested
+                if thisExp.status == PAUSED:
+                    pauseExperiment(
+                        thisExp=thisExp, 
+                        win=win, 
+                        timers=[routineTimer], 
+                        playbackComponents=[probe_stim]
+                    )
+                    # skip the frame we paused on
+                    continue
+                
+                # check if all components have finished
+                if not continueRoutine:  # a component has requested a forced-end of Routine
+                    trial.forceEnded = routineForceEnded = True
+                    break
+                continueRoutine = False  # will revert to True if at least one component still running
+                for thisComponent in trial.components:
+                    if hasattr(thisComponent, "status") and thisComponent.status != FINISHED:
+                        continueRoutine = True
+                        break  # at least one component has not yet finished
+                
+                # refresh the screen
+                if continueRoutine:  # don't flip if this routine is over or we'll get a blank screen
+                    win.flip()
+            
+            # --- Ending Routine "trial" ---
+            for thisComponent in trial.components:
+                if hasattr(thisComponent, "setAutoDraw"):
+                    thisComponent.setAutoDraw(False)
+            # store stop times for trial
+            trial.tStop = globalClock.getTime(format='float')
+            trial.tStopRefresh = tThisFlipGlobal
+            thisExp.addData('trial.stopped', trial.tStop)
+            probe_stim.pause()  # ensure sound has stopped at end of Routine
+            if probe_marker_port.status == STARTED:
+                win.callOnFlip(probe_marker_port.setData, int(0))
+            if go_port.status == STARTED:
+                win.callOnFlip(go_port.setData, int(0))
+            if task_port.status == STARTED:
+                win.callOnFlip(task_port.setData, int(0))
+            # tell mic to keep hold of current recording in mic.clips and transcript (if applicable) in mic.scripts
+            # this will also update mic.lastClip and mic.lastScript
+            mic.stop()
+            tag = data.utils.getDateStr()
+            micClip = mic.bank(
+                tag=tag, transcribe='None',
+                config=None
+            )
+            trials.addData(
+                'mic.clip', mic.recordingFolder / mic.getClipFilename(tag)
+            )
+            # using non-slip timing so subtract the expected duration of this Routine (unless ended on request)
+            if trial.maxDurationReached:
+                routineTimer.addTime(-trial.maxDuration)
+            elif trial.forceEnded:
+                routineTimer.reset()
+            else:
+                routineTimer.addTime(-5.000000)
+            thisExp.nextEntry()
+            
+        # completed 1.0 repeats of 'trials'
+        
+        if thisSession is not None:
+            # if running in a Session with a Liaison client, send data up to now
+            thisSession.sendExperimentData()
+        
+        # --- Prepare to start Routine "pause" ---
+        # create an object to store info about Routine pause
+        pause = data.Routine(
+            name='pause',
+            components=[pause_keys, pause_text],
         )
-        ISI.status = NOT_STARTED
+        pause.status = NOT_STARTED
         continueRoutine = True
         # update component parameters for each repeat
-        # store start times for ISI
-        ISI.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
-        ISI.tStart = globalClock.getTime(format='float')
-        ISI.status = STARTED
-        thisExp.addData('ISI.started', ISI.tStart)
-        ISI.maxDuration = random.randint(500, 1500)/1000
+        # create starting attributes for pause_keys
+        pause_keys.keys = []
+        pause_keys.rt = []
+        _pause_keys_allKeys = []
+        # store start times for pause
+        pause.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
+        pause.tStart = globalClock.getTime(format='float')
+        pause.status = STARTED
+        thisExp.addData('pause.started', pause.tStart)
+        pause.maxDuration = None
+        # skip Routine pause if its 'Skip if' condition is True
+        pause.skipped = continueRoutine and not (skip_pause == 1 )
+        continueRoutine = pause.skipped
         # keep track of which components have finished
-        ISIComponents = ISI.components
-        for thisComponent in ISI.components:
+        pauseComponents = pause.components
+        for thisComponent in pause.components:
             thisComponent.tStart = None
             thisComponent.tStop = None
             thisComponent.tStartRefresh = None
@@ -808,11 +1404,11 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         _timeToFirstFrame = win.getFutureFlipTime(clock="now")
         frameN = -1
         
-        # --- Run Routine "ISI" ---
+        # --- Run Routine "pause" ---
         # if trial has changed, end Routine now
-        if isinstance(trials, data.TrialHandler2) and thisTrial.thisN != trials.thisTrial.thisN:
+        if isinstance(blocks, data.TrialHandler2) and thisBlock.thisN != blocks.thisTrial.thisN:
             continueRoutine = False
-        ISI.forceEnded = routineForceEnded = not continueRoutine
+        pause.forceEnded = routineForceEnded = not continueRoutine
         while continueRoutine:
             # get current time
             t = routineTimer.getTime()
@@ -820,59 +1416,54 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             tThisFlipGlobal = win.getFutureFlipTime(clock=None)
             frameN = frameN + 1  # number of completed frames (so 0 is the first frame)
             # update/draw components on each frame
-            # is it time to end the Routine? (based on local clock)
-            if tThisFlip > ISI.maxDuration-frameTolerance:
-                ISI.maxDurationReached = True
-                continueRoutine = False
             
-            # *fixation_cross_ISI* updates
+            # *pause_keys* updates
+            waitOnFlip = False
             
-            # if fixation_cross_ISI is starting this frame...
-            if fixation_cross_ISI.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
+            # if pause_keys is starting this frame...
+            if pause_keys.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
                 # keep track of start time/frame for later
-                fixation_cross_ISI.frameNStart = frameN  # exact frame index
-                fixation_cross_ISI.tStart = t  # local t and not account for scr refresh
-                fixation_cross_ISI.tStartRefresh = tThisFlipGlobal  # on global time
-                win.timeOnFlip(fixation_cross_ISI, 'tStartRefresh')  # time at next scr refresh
+                pause_keys.frameNStart = frameN  # exact frame index
+                pause_keys.tStart = t  # local t and not account for scr refresh
+                pause_keys.tStartRefresh = tThisFlipGlobal  # on global time
+                win.timeOnFlip(pause_keys, 'tStartRefresh')  # time at next scr refresh
                 # add timestamp to datafile
-                thisExp.timestampOnFlip(win, 'fixation_cross_ISI.started')
+                thisExp.timestampOnFlip(win, 'pause_keys.started')
                 # update status
-                fixation_cross_ISI.status = STARTED
-                fixation_cross_ISI.setAutoDraw(True)
+                pause_keys.status = STARTED
+                # keyboard checking is just starting
+                waitOnFlip = True
+                win.callOnFlip(pause_keys.clock.reset)  # t=0 on next screen flip
+                win.callOnFlip(pause_keys.clearEvents, eventType='keyboard')  # clear events on next screen flip
+            if pause_keys.status == STARTED and not waitOnFlip:
+                theseKeys = pause_keys.getKeys(keyList=['space'], ignoreKeys=["escape"], waitRelease=False)
+                _pause_keys_allKeys.extend(theseKeys)
+                if len(_pause_keys_allKeys):
+                    pause_keys.keys = _pause_keys_allKeys[-1].name  # just the last key pressed
+                    pause_keys.rt = _pause_keys_allKeys[-1].rt
+                    pause_keys.duration = _pause_keys_allKeys[-1].duration
+                    # a response ends the routine
+                    continueRoutine = False
             
-            # if fixation_cross_ISI is active this frame...
-            if fixation_cross_ISI.status == STARTED:
+            # *pause_text* updates
+            
+            # if pause_text is starting this frame...
+            if pause_text.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
+                # keep track of start time/frame for later
+                pause_text.frameNStart = frameN  # exact frame index
+                pause_text.tStart = t  # local t and not account for scr refresh
+                pause_text.tStartRefresh = tThisFlipGlobal  # on global time
+                win.timeOnFlip(pause_text, 'tStartRefresh')  # time at next scr refresh
+                # add timestamp to datafile
+                thisExp.timestampOnFlip(win, 'pause_text.started')
+                # update status
+                pause_text.status = STARTED
+                pause_text.setAutoDraw(True)
+            
+            # if pause_text is active this frame...
+            if pause_text.status == STARTED:
                 # update params
                 pass
-            # *fixation_cross_port* updates
-            
-            # if fixation_cross_port is starting this frame...
-            if fixation_cross_port.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
-                # keep track of start time/frame for later
-                fixation_cross_port.frameNStart = frameN  # exact frame index
-                fixation_cross_port.tStart = t  # local t and not account for scr refresh
-                fixation_cross_port.tStartRefresh = tThisFlipGlobal  # on global time
-                win.timeOnFlip(fixation_cross_port, 'tStartRefresh')  # time at next scr refresh
-                # add timestamp to datafile
-                thisExp.timestampOnFlip(win, 'fixation_cross_port.started')
-                # update status
-                fixation_cross_port.status = STARTED
-                fixation_cross_port.status = STARTED
-                win.callOnFlip(fixation_cross_port.setData, int(1))
-            
-            # if fixation_cross_port is stopping this frame...
-            if fixation_cross_port.status == STARTED:
-                # is it time to stop? (based on global clock, using actual start)
-                if tThisFlipGlobal > fixation_cross_port.tStartRefresh + 0.5-frameTolerance:
-                    # keep track of stop time/frame for later
-                    fixation_cross_port.tStop = t  # not accounting for scr refresh
-                    fixation_cross_port.tStopRefresh = tThisFlipGlobal  # on global time
-                    fixation_cross_port.frameNStop = frameN  # exact frame index
-                    # add timestamp to datafile
-                    thisExp.timestampOnFlip(win, 'fixation_cross_port.stopped')
-                    # update status
-                    fixation_cross_port.status = FINISHED
-                    win.callOnFlip(fixation_cross_port.setData, int(0))
             
             # check for quit (typically the Esc key)
             if defaultKeyboard.getKeys(keyList=["escape"]):
@@ -893,10 +1484,10 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             
             # check if all components have finished
             if not continueRoutine:  # a component has requested a forced-end of Routine
-                ISI.forceEnded = routineForceEnded = True
+                pause.forceEnded = routineForceEnded = True
                 break
             continueRoutine = False  # will revert to True if at least one component still running
-            for thisComponent in ISI.components:
+            for thisComponent in pause.components:
                 if hasattr(thisComponent, "status") and thisComponent.status != FINISHED:
                     continueRoutine = True
                     break  # at least one component has not yet finished
@@ -905,267 +1496,26 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             if continueRoutine:  # don't flip if this routine is over or we'll get a blank screen
                 win.flip()
         
-        # --- Ending Routine "ISI" ---
-        for thisComponent in ISI.components:
+        # --- Ending Routine "pause" ---
+        for thisComponent in pause.components:
             if hasattr(thisComponent, "setAutoDraw"):
                 thisComponent.setAutoDraw(False)
-        # store stop times for ISI
-        ISI.tStop = globalClock.getTime(format='float')
-        ISI.tStopRefresh = tThisFlipGlobal
-        thisExp.addData('ISI.stopped', ISI.tStop)
-        if fixation_cross_port.status == STARTED:
-            win.callOnFlip(fixation_cross_port.setData, int(0))
-        # the Routine "ISI" was not non-slip safe, so reset the non-slip timer
+        # store stop times for pause
+        pause.tStop = globalClock.getTime(format='float')
+        pause.tStopRefresh = tThisFlipGlobal
+        thisExp.addData('pause.stopped', pause.tStop)
+        # check responses
+        if pause_keys.keys in ['', [], None]:  # No response was made
+            pause_keys.keys = None
+        blocks.addData('pause_keys.keys',pause_keys.keys)
+        if pause_keys.keys != None:  # we had a response
+            blocks.addData('pause_keys.rt', pause_keys.rt)
+            blocks.addData('pause_keys.duration', pause_keys.duration)
+        # the Routine "pause" was not non-slip safe, so reset the non-slip timer
         routineTimer.reset()
-        
-        # --- Prepare to start Routine "trial" ---
-        # create an object to store info about Routine trial
-        trial = data.Routine(
-            name='trial',
-            components=[wait_stim, go_stim, task_msg, mic],
-        )
-        trial.status = NOT_STARTED
-        continueRoutine = True
-        # update component parameters for each repeat
-        task_msg.setText('/ga/')
-        # Run 'Begin Routine' code from code_trial
-        
-        
-        # store start times for trial
-        trial.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
-        trial.tStart = globalClock.getTime(format='float')
-        trial.status = STARTED
-        thisExp.addData('trial.started', trial.tStart)
-        trial.maxDuration = 5
-        # keep track of which components have finished
-        trialComponents = trial.components
-        for thisComponent in trial.components:
-            thisComponent.tStart = None
-            thisComponent.tStop = None
-            thisComponent.tStartRefresh = None
-            thisComponent.tStopRefresh = None
-            if hasattr(thisComponent, 'status'):
-                thisComponent.status = NOT_STARTED
-        # reset timers
-        t = 0
-        _timeToFirstFrame = win.getFutureFlipTime(clock="now")
-        frameN = -1
-        
-        # --- Run Routine "trial" ---
-        # if trial has changed, end Routine now
-        if isinstance(trials, data.TrialHandler2) and thisTrial.thisN != trials.thisTrial.thisN:
-            continueRoutine = False
-        trial.forceEnded = routineForceEnded = not continueRoutine
-        while continueRoutine and routineTimer.getTime() < 5.0:
-            # get current time
-            t = routineTimer.getTime()
-            tThisFlip = win.getFutureFlipTime(clock=routineTimer)
-            tThisFlipGlobal = win.getFutureFlipTime(clock=None)
-            frameN = frameN + 1  # number of completed frames (so 0 is the first frame)
-            # update/draw components on each frame
-            # is it time to end the Routine? (based on local clock)
-            if tThisFlip > trial.maxDuration-frameTolerance:
-                trial.maxDurationReached = True
-                continueRoutine = False
-            
-            # *wait_stim* updates
-            
-            # if wait_stim is starting this frame...
-            if wait_stim.status == NOT_STARTED and tThisFlip >= 0-frameTolerance:
-                # keep track of start time/frame for later
-                wait_stim.frameNStart = frameN  # exact frame index
-                wait_stim.tStart = t  # local t and not account for scr refresh
-                wait_stim.tStartRefresh = tThisFlipGlobal  # on global time
-                win.timeOnFlip(wait_stim, 'tStartRefresh')  # time at next scr refresh
-                # add timestamp to datafile
-                thisExp.timestampOnFlip(win, 'wait_stim.started')
-                # update status
-                wait_stim.status = STARTED
-                wait_stim.setAutoDraw(True)
-            
-            # if wait_stim is active this frame...
-            if wait_stim.status == STARTED:
-                # update params
-                pass
-            
-            # if wait_stim is stopping this frame...
-            if wait_stim.status == STARTED:
-                # is it time to stop? (based on global clock, using actual start)
-                if tThisFlipGlobal > wait_stim.tStartRefresh + 3-frameTolerance:
-                    # keep track of stop time/frame for later
-                    wait_stim.tStop = t  # not accounting for scr refresh
-                    wait_stim.tStopRefresh = tThisFlipGlobal  # on global time
-                    wait_stim.frameNStop = frameN  # exact frame index
-                    # add timestamp to datafile
-                    thisExp.timestampOnFlip(win, 'wait_stim.stopped')
-                    # update status
-                    wait_stim.status = FINISHED
-                    wait_stim.setAutoDraw(False)
-            
-            # *go_stim* updates
-            
-            # if go_stim is starting this frame...
-            if go_stim.status == NOT_STARTED and tThisFlip >= 3-frameTolerance:
-                # keep track of start time/frame for later
-                go_stim.frameNStart = frameN  # exact frame index
-                go_stim.tStart = t  # local t and not account for scr refresh
-                go_stim.tStartRefresh = tThisFlipGlobal  # on global time
-                win.timeOnFlip(go_stim, 'tStartRefresh')  # time at next scr refresh
-                # add timestamp to datafile
-                thisExp.timestampOnFlip(win, 'go_stim.started')
-                # update status
-                go_stim.status = STARTED
-                go_stim.setAutoDraw(True)
-            
-            # if go_stim is active this frame...
-            if go_stim.status == STARTED:
-                # update params
-                pass
-            
-            # if go_stim is stopping this frame...
-            if go_stim.status == STARTED:
-                # is it time to stop? (based on global clock, using actual start)
-                if tThisFlipGlobal > go_stim.tStartRefresh + 1.5-frameTolerance:
-                    # keep track of stop time/frame for later
-                    go_stim.tStop = t  # not accounting for scr refresh
-                    go_stim.tStopRefresh = tThisFlipGlobal  # on global time
-                    go_stim.frameNStop = frameN  # exact frame index
-                    # add timestamp to datafile
-                    thisExp.timestampOnFlip(win, 'go_stim.stopped')
-                    # update status
-                    go_stim.status = FINISHED
-                    go_stim.setAutoDraw(False)
-            
-            # *task_msg* updates
-            
-            # if task_msg is starting this frame...
-            if task_msg.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
-                # keep track of start time/frame for later
-                task_msg.frameNStart = frameN  # exact frame index
-                task_msg.tStart = t  # local t and not account for scr refresh
-                task_msg.tStartRefresh = tThisFlipGlobal  # on global time
-                win.timeOnFlip(task_msg, 'tStartRefresh')  # time at next scr refresh
-                # add timestamp to datafile
-                thisExp.timestampOnFlip(win, 'task_msg.started')
-                # update status
-                task_msg.status = STARTED
-                task_msg.setAutoDraw(True)
-            
-            # if task_msg is active this frame...
-            if task_msg.status == STARTED:
-                # update params
-                pass
-            
-            # if task_msg is stopping this frame...
-            if task_msg.status == STARTED:
-                # is it time to stop? (based on global clock, using actual start)
-                if tThisFlipGlobal > task_msg.tStartRefresh + 4.5-frameTolerance:
-                    # keep track of stop time/frame for later
-                    task_msg.tStop = t  # not accounting for scr refresh
-                    task_msg.tStopRefresh = tThisFlipGlobal  # on global time
-                    task_msg.frameNStop = frameN  # exact frame index
-                    # add timestamp to datafile
-                    thisExp.timestampOnFlip(win, 'task_msg.stopped')
-                    # update status
-                    task_msg.status = FINISHED
-                    task_msg.setAutoDraw(False)
-            
-            # if mic is starting this frame...
-            if mic.status == NOT_STARTED and t >= 2.5-frameTolerance:
-                # keep track of start time/frame for later
-                mic.frameNStart = frameN  # exact frame index
-                mic.tStart = t  # local t and not account for scr refresh
-                mic.tStartRefresh = tThisFlipGlobal  # on global time
-                win.timeOnFlip(mic, 'tStartRefresh')  # time at next scr refresh
-                # add timestamp to datafile
-                thisExp.addData('mic.started', t)
-                # update status
-                mic.status = STARTED
-                # start recording with mic
-                mic.start()
-            
-            # if mic is active this frame...
-            if mic.status == STARTED:
-                # update params
-                pass
-                # update recorded clip for mic
-                mic.poll()
-            
-            # if mic is stopping this frame...
-            if mic.status == STARTED:
-                # is it time to stop? (based on global clock, using actual start)
-                if tThisFlipGlobal > mic.tStartRefresh + 2-frameTolerance:
-                    # keep track of stop time/frame for later
-                    mic.tStop = t  # not accounting for scr refresh
-                    mic.tStopRefresh = tThisFlipGlobal  # on global time
-                    mic.frameNStop = frameN  # exact frame index
-                    # add timestamp to datafile
-                    thisExp.addData('mic.stopped', t)
-                    # update status
-                    mic.status = FINISHED
-                    # stop recording with mic
-                    mic.stop()
-            
-            # check for quit (typically the Esc key)
-            if defaultKeyboard.getKeys(keyList=["escape"]):
-                thisExp.status = FINISHED
-            if thisExp.status == FINISHED or endExpNow:
-                endExperiment(thisExp, win=win)
-                return
-            # pause experiment here if requested
-            if thisExp.status == PAUSED:
-                pauseExperiment(
-                    thisExp=thisExp, 
-                    win=win, 
-                    timers=[routineTimer], 
-                    playbackComponents=[]
-                )
-                # skip the frame we paused on
-                continue
-            
-            # check if all components have finished
-            if not continueRoutine:  # a component has requested a forced-end of Routine
-                trial.forceEnded = routineForceEnded = True
-                break
-            continueRoutine = False  # will revert to True if at least one component still running
-            for thisComponent in trial.components:
-                if hasattr(thisComponent, "status") and thisComponent.status != FINISHED:
-                    continueRoutine = True
-                    break  # at least one component has not yet finished
-            
-            # refresh the screen
-            if continueRoutine:  # don't flip if this routine is over or we'll get a blank screen
-                win.flip()
-        
-        # --- Ending Routine "trial" ---
-        for thisComponent in trial.components:
-            if hasattr(thisComponent, "setAutoDraw"):
-                thisComponent.setAutoDraw(False)
-        # store stop times for trial
-        trial.tStop = globalClock.getTime(format='float')
-        trial.tStopRefresh = tThisFlipGlobal
-        thisExp.addData('trial.stopped', trial.tStop)
-        # tell mic to keep hold of current recording in mic.clips and transcript (if applicable) in mic.scripts
-        # this will also update mic.lastClip and mic.lastScript
-        mic.stop()
-        tag = data.utils.getDateStr()
-        micClip = mic.bank(
-            tag=tag, transcribe='None',
-            config=None
-        )
-        trials.addData(
-            'mic.clip', mic.recordingFolder / mic.getClipFilename(tag)
-        )
-        # using non-slip timing so subtract the expected duration of this Routine (unless ended on request)
-        if trial.maxDurationReached:
-            routineTimer.addTime(-trial.maxDuration)
-        elif trial.forceEnded:
-            routineTimer.reset()
-        else:
-            routineTimer.addTime(-5.000000)
         thisExp.nextEntry()
         
-    # completed 21.0 repeats of 'trials'
+    # completed 1.0 repeats of 'blocks'
     
     if thisSession is not None:
         # if running in a Session with a Liaison client, send data up to now
