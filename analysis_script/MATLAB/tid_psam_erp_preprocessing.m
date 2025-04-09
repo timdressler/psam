@@ -155,7 +155,7 @@ for subj_idx= 1:length(dircont_subj)
     params.evaluationChannels = 1:28;
     params.rereferencedChannels = 1:EEG.nbchan;
     % Run
-    EEG = pop_prepPipeline(EEG, params);
+    %%EEG = pop_prepPipeline(EEG, params);
     % Store dataset
     EEG.setname = [subj '_after_PREP'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
@@ -171,7 +171,7 @@ for subj_idx= 1:length(dircont_subj)
     % Resample
     EEG = pop_resample( EEG, RESAM_ICA);
     % Run ICA
-    EEG = pop_runica(EEG, 'icatype', 'runica', 'extended',1,'interrupt','on');
+    %%EEG = pop_runica(EEG, 'icatype', 'runica', 'extended',1,'interrupt','on');
     EEG.setname = [subj '_ICA_weights'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
@@ -182,9 +182,9 @@ for subj_idx= 1:length(dircont_subj)
     EEG.setname = [subj '_after_PREP_ICA'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
     % Label ICA components with IC Label Plugin (Pion-Tonachini et al., 2019)
-    EEG = pop_iclabel(EEG, 'default');
-    EEG = pop_icflag(EEG, [0 0.2;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1]);
-    EEG = pop_subcomp( EEG, [], 0);
+    %%EEG = pop_iclabel(EEG, 'default');
+    %%EEG = pop_icflag(EEG, [0 0.2;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1]);
+    %%EEG = pop_subcomp( EEG, [], 0);
     % Bandpass-Filter
     EEG = pop_eegfiltnew(EEG, 'locutoff',LCF_2,'hicutoff',HCF_2,'plotfreqz',0);
 
@@ -200,12 +200,21 @@ for subj_idx= 1:length(dircont_subj)
     EEG = pop_jointprob(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
     EEG = pop_rejkurt(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
     EEG = eeg_rejsuperpose( EEG, 1, 1, 1, 1, 1, 1, 1, 1);
-    EEG = pop_rejepoch( EEG, EEG.reject.rejglobal ,0);
 
     % Save dataset
     EEG.setname = [subj '_preprocessed'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
-    EEG = pop_saveset(EEG, 'filename',[SUBJ '_erp_preprocessed.set'],'filepath', OUTPATH);
+    EEG = pop_saveset(EEG, 'filename',[subj '_erp_preprocessed.set'],'filepath', OUTPATH);
+
+    % Update Protocol
+    subj_time = toc;
+    protocol{subj_idx,1} = subj;
+    protocol{subj_idx,2} = subj_time;
+    if any(strcmp(marked_subj, subj), 'all')
+        protocol{subj_idx,3} = 'MARKED';
+    else
+        protocol{subj_idx,3} = 'OK';
+    end
 
 end
 
@@ -214,7 +223,7 @@ end
 % End of processing
 
 protocol = cell2table(protocol, 'VariableNames',{'subj','time', 'status'})
-writetable(protocol,fullfile(OUTPATH, 'erp_pilot_protocol.xlsx'))
+writetable(protocol,fullfile(OUTPATH, 'erp_preprocessing_protocol.xlsx'))
 
 close(wb)
 

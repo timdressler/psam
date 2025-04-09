@@ -1,7 +1,21 @@
 % tid_psam_beh_preprocessing_2.m
 %
-% Performs preprocessing of vocal data.
-% Has to be executed AFTER tid_psam_vocal_preprocessing_1.praat.
+% Performs preprocessing of behavioural vocal data.
+%
+% Preprocessing includes the following steps
+%
+% Loads log file and removes not needed columns
+% Loads vocal data (preprocessed in Praat, see tid_psam_beh_preproecessing_1.praat)
+% Merges data
+%
+% Marks trials for exclusion based on the following criteria
+    % If a trial's F0 differs more than 3 SDs from the mean F0
+    % If a 'Passive' trial includes a reponses
+    % If a 'Active' trial includes no response
+%
+% Stores dataset
+%
+% Note. Trials are only marked for exclusion but not excluded yet!
 %
 % Tim Dressler, 04.04.2025
 
@@ -45,7 +59,7 @@ protocol = {};
 % Setup progress bar
 %%wb = waitbar(0,'starting tid_psam_beh_preprocessing_2.m');
 
-clear subj_idx n_exluded_trials
+clear subj_idx 
 for subj_idx= 1:length(dircont_subj)
 
     % Get current ID
@@ -60,21 +74,21 @@ for subj_idx= 1:length(dircont_subj)
     % Get log file & Sanity Check: One log file per subject
     subj_log_filename = dir(fullfile(INPATH, [subj '\beh\*.csv']));
     if numel(subj_log_filename) == 1
-        subj_log = readtable(fullfile(subj_log_filename.folder, subj_log_filename.name),'VariableNamingRule', 'preserve');
+        subj_log = readtable(fullfile(subj_log_filename.folder, subj_log_filename.name));
     else
         marked_subj{end+1,1} = subj;
         marked_subj{end,2} = 'number_of_log_files';
     end
 
     % Remove all rows from log file which don not resembel experimental trials (e.g. Instruction trials)
-    subj_log_cleaned = subj_log(~isnan(subj_log.("mic.started")), :);
+    subj_log_cleaned = subj_log(~isnan(subj_log.("mic_started")), :);
     % Only included needed columns
-    subj_log_cleaned = subj_log_cleaned(:, {'ISI.started', 'ISI.stopped', 'aa_green_onset', 'conditions_file', ...
-        'cue_stim.started', 'cue_stim.stopped', 'date', 'expName', 'go_port.started', 'mic.clip', ...
-        'mic.started', 'mic.stopped', 'probe', 'probe_duration', 'probe_intensity', 'probe_marker', ...
-        'probe_marker_port.started', 'probe_onset', 'probe_onset_cat', 'probe_stim.started', 'probe_type', ...
+    subj_log_cleaned = subj_log_cleaned(:, {'ISI_started', 'ISI_stopped', 'go_stim_started', 'conditions_file', ...
+        'date', 'expName', 'go_port_started', 'mic_clip', ...
+        'mic_started', 'mic_stopped', 'probe', 'probe_duration', 'probe_intensity', 'probe_marker', ...
+        'probe_marker_port_started', 'probe_onset', 'probe_onset_cat', 'probe_type', ...
         'psychopyVersion', 'rec_duration', 'stim_file', 'subj', 'task', 'task_marker', ...
-        'target_stim.started', 'trial.started'});
+         'trial_started'});
 
     % Sanity Check: Equal db for unaltered and altered probes
     if height(subj_log_cleaned) == n_trials
@@ -83,10 +97,10 @@ for subj_idx= 1:length(dircont_subj)
         marked_subj{end,2} = 'log_dimensions';
     end
     % Extract filename from full path for each vocal recording in order to match it with the table produced in Praat
-    subj_log_cleaned.filename_tab = cellfun(@(x) strrep(regexp(x, 'recording_mic_.*(?=\.wav)', 'match', 'once'), '.', '_'), subj_log_cleaned.("mic.clip"), 'UniformOutput', false);
+    subj_log_cleaned.filename_tab = cellfun(@(x) strrep(regexp(x, 'recording_mic_.*(?=\.wav)', 'match', 'once'), '.', '_'), subj_log_cleaned.("mic_clip"), 'UniformOutput', false);
 
     % Get probe properties file & Sanity Check: Correct dimensions
-    subj_probe_properties = readtable(fullfile(INPATH, ['stimuli\' subj '\' subj '_probe_properties.xlsx']),'VariableNamingRule', 'preserve');
+    subj_probe_properties = readtable(fullfile(INPATH, ['stimuli\' subj '\' subj '_probe_properties.xlsx']));
     if height(subj_probe_properties) == 1 && width(subj_probe_properties) == 7
     else
         marked_subj{end+1,1} = subj;
@@ -100,7 +114,7 @@ for subj_idx= 1:length(dircont_subj)
     end
 
     % Get F0 & RT Table & Sanity Check: Correct dimensions
-    subj_f0_rt = readtable(fullfile(INPATH_PRAAT, [subj '_f0_rt_table.csv']),'VariableNamingRule', 'preserve', Delimiter=',');
+    subj_f0_rt = readtable(fullfile(INPATH_PRAAT, [subj '_f0_rt_table.csv']), Delimiter=',');
     subj_f0_rt = standardizeMissing(subj_f0_rt,9999);
 
     if height(subj_f0_rt) == n_trials && width(subj_f0_rt) == 14
@@ -134,15 +148,11 @@ for subj_idx= 1:length(dircont_subj)
     excluded_trials_responses = ~subj_full.correct_vocal_response;
 
     % Combine excluded trials
-    excluded_trials_all = excluded_trials_outliers | excluded_trials_responses;
-    % Exclude trials 
-    subj_full = subj_full(~excluded_trials_all, :);
-    % Store number of exluded trials
-    n_exluded_trials_all = sum(excluded_trials_all);
+    excluded_trials_beh = excluded_trials_outliers | excluded_trials_responses;
 
     % Only included needed columns
-    subj_full_cleaned = subj_full(:, {'mic.clip', ...
-        'mic.started', 'mic.stopped', 'probe', ...
+    subj_full_cleaned = subj_full(:, {'mic_clip', ...
+        'mic_started', 'mic_stopped', 'probe', ...
         'probe_onset', 'probe_onset_cat', 'probe_type', ...
         'subj', 'task', 'task_marker', 'f0_tab', 'rt_tab', 'condition_tab', ...
         'min_intensity_tab', 'max_intensity_tab', 'vocal_response_tab', ...
@@ -152,7 +162,7 @@ for subj_idx= 1:length(dircont_subj)
 
     writetable(subj_full_cleaned,fullfile(OUTPATH, [subj '_beh_preprocessed.xlsx']))
 
-    save(fullfile(OUTPATH, [subj '_excluded_trials_beh_preprocessing.m']),"excluded_trials_all")
+    save(fullfile(OUTPATH, [subj '_excluded_trials_beh_preprocessing.mat']),"excluded_trials_beh")
 
     % Update Protocol
     subj_time = toc;

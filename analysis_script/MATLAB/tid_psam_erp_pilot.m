@@ -58,11 +58,11 @@ tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)
 tid_psam_clean_up_folder_TD(OUTPATH)
 
 % Variables to edit
-EPO_FROM = -0.25;
-EPO_TILL = 0.750;
+EPO_FROM = -0.2;
+EPO_TILL = 0.400;
 LCF = 1;
 HCF = 25;
-BL_FROM = -250;
+BL_FROM = -200;
 THRESH = 75;
 SD_PROB = 3;
 RESAM_ICA = 250;
@@ -138,13 +138,13 @@ for subj_idx= 1:length(dircont_subj)
     EEG = pop_rmbase( EEG, [BL_FROM 0] ,[]);
 
     % Threshold removal
-    % % EEG = pop_eegthresh(EEG,1,[1:EEG.nbchan] ,-THRESH,THRESH,EPO_FROM,EPO_TILL,0,0);
+    EEG = pop_eegthresh(EEG,1,[1:EEG.nbchan] ,-THRESH,THRESH,EPO_FROM,EPO_TILL,0,0);
 
     % Probability-based removal
-    % % EEG = pop_jointprob(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
-    % % EEG = pop_rejkurt(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
-    % % EEG = eeg_rejsuperpose( EEG, 1, 1, 1, 1, 1, 1, 1, 1);
-    % % EEG = pop_rejepoch( EEG, EEG.reject.rejglobal ,0);
+    EEG = pop_jointprob(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
+    EEG = pop_rejkurt(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
+    EEG = eeg_rejsuperpose( EEG, 1, 1, 1, 1, 1, 1, 1, 1);
+    EEG = pop_rejepoch( EEG, EEG.reject.rejglobal ,0);
 
     EEG.setname = [subj '_preprocessed'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
@@ -190,6 +190,28 @@ for subj_idx= 1:length(dircont_subj)
     maxERPlat = EEG.times(maxERPsam);
     % Store ERP
     all_ERP_pas_all(:,:, subj_idx) = erp_pas_all;
+
+    clear maxERPamp maxERPsam maxERPlat
+
+        % Get all 'Active' condition (Control)
+    EEG = pop_selectevent( ALLEEG(1), 'latency','-2<=2','type',{'con_act_early', 'con_act_late'},'deleteevents','off','deleteepochs','on','invertepochs','off');
+    EEG.setname = [subj '_con_act_all'];
+    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+    % Get ERP
+    erp_con_act_all = mean(EEG.data(CHANI,:,:),3);
+    % Store ERP
+    all_ERP_con_act_all(:,:, subj_idx) = erp_con_act_all;
+
+    clear maxERPamp maxERPsam maxERPlat
+
+    % Get all 'Passive' condition (Control)
+    EEG = pop_selectevent( ALLEEG(1), 'latency','-2<=2','type',{'con_pas_early', 'con_pas_late'},'deleteevents','off','deleteepochs','on','invertepochs','off');
+    EEG.setname = [subj '_con_pas_all'];
+    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+    % Get ERP
+    erp_con_pas_all = mean(EEG.data(CHANI,:,:),3);
+    % Store ERP
+    all_ERP_con_pas_all(:,:, subj_idx) = erp_con_pas_all;
 
     clear maxERPamp maxERPsam maxERPlat
 
@@ -421,6 +443,26 @@ legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, '
 sgtitle('Active and Passive Condition ERPs (corrected)')
 
 exportgraphics(gcf,fullfile(OUTPATH, 'erp_corrected_pilot.png'),'Resolution',1000)
+
+% Plot 1: ERPs collapsed over 'Active' and 'Passive' Condition (Control)
+figure;
+subplot(1,2,1)
+plot(EEG.times, mean(all_ERP_con_act_all(CHANI,:,:),3))
+xlim([-200 500])
+ylabel('Amplitude [μV]')
+xlabel('Time [ms]')
+title('Active (collapsed)')
+
+subplot(1,2,2)
+plot(EEG.times, mean(all_ERP_con_pas_all(CHANI,:,:),3))
+xlim([-200 500])
+ylabel('Amplitude [μV]')
+xlabel('Time [ms]')
+title('Passive (collapsed)')
+
+sgtitle('Active and Passive Condition ERPs (collapsed, control)')
+
+exportgraphics(gcf,fullfile(OUTPATH, 'erp_collapsed_control_pilot.png'),'Resolution',1000)
 
 % End of processing
 
