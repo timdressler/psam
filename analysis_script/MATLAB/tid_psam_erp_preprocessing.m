@@ -200,7 +200,6 @@ for subj_idx= 1:length(dircont_subj)
     EEG = pop_jointprob(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
     EEG = pop_rejkurt(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
     EEG = eeg_rejsuperpose( EEG, 1, 1, 1, 1, 1, 1, 1, 1);
-    %%EEG = pop_rejepoch( EEG, EEG.reject.rejglobal ,0);
 
     % Save dataset
     EEG.setname = [subj '_preprocessed'];
