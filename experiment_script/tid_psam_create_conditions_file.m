@@ -69,7 +69,7 @@ tid_psam_check_folder_TD(MAINPATH,STIMULIPATH_Normal,STIMULIPATH_Pitch,STIMULIPA
 % Set up experiment paramaters
 early_onset = 2.6; % relative to trial onset
 late_onset = 2.8; % relative to trial onset
-n_trials = 64; % has to be dividable by 16
+n_trials = 960; % has to be dividable by 16
 max_repeats = 4; % how often probe (or no probe) trials can be repeated
 active_recording_duration = 1.5; % how long the audio recording is
 passive_recording_duration = 1; % how long the audio recording is
