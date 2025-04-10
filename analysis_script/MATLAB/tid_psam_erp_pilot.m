@@ -75,7 +75,7 @@ ERP_FROM = 75;
 ERP_TILL = 125;
 
 % Get directory content
-dircont_subj = dir(fullfile(INPATH, 'sub-*'));
+dircont_subj = dir(fullfile(INPATH, 'sub-95*'));
 
 %initialize sanity check variables
 marked_subj = {};
@@ -444,7 +444,7 @@ sgtitle('Active and Passive Condition ERPs (corrected)')
 
 exportgraphics(gcf,fullfile(OUTPATH, 'erp_corrected_pilot.png'),'Resolution',1000)
 
-% Plot 1: ERPs collapsed over 'Active' and 'Passive' Condition (Control)
+% Plot 5: ERPs collapsed over 'Active' and 'Passive' Condition (Control)
 figure;
 subplot(1,2,1)
 plot(EEG.times, mean(all_ERP_con_act_all(CHANI,:,:),3))
@@ -464,16 +464,48 @@ sgtitle('Active and Passive Condition ERPs (collapsed, control)')
 
 exportgraphics(gcf,fullfile(OUTPATH, 'erp_collapsed_control_pilot.png'),'Resolution',1000)
 
+% Plot 6: ERPs for each condition (corrected)
+figure;
+colors = lines(4);
+
+subplot(1,2,1)
+hold on;
+plot(EEG.times, mean(all_ERP_act_early_unalt_corrected(CHANI,:,:),3), 'Color', colors(1,:));
+plot(EEG.times, mean(all_ERP_act_early_alt_corrected(CHANI,:,:),3), 'Color', colors(2,:));
+plot(EEG.times, mean(all_ERP_pas_early_unalt_corrected(CHANI,:,:),3), 'Color', colors(3,:));
+plot(EEG.times, mean(all_ERP_pas_early_alt_corrected(CHANI,:,:),3), 'Color', colors(4,:));
+hold off;
+
+xlim([-200 500])
+ylabel('Amplitude [μV]')
+xlabel('Time [ms]')
+title('Early (corrected)')
+legend({'Active Early Unaltered', 'Active Early Altered', ' Passive Early Unaltered', 'Passive Early Altered'}, 'Location', 'best')
+
+subplot(1,2,2)
+hold on;
+plot(EEG.times, mean(all_ERP_act_late_unalt_corrected(CHANI,:,:),3), 'Color', colors(1,:));
+plot(EEG.times, mean(all_ERP_act_late_alt_corrected(CHANI,:,:),3), 'Color', colors(2,:));
+plot(EEG.times, mean(all_ERP_pas_late_unalt_corrected(CHANI,:,:),3), 'Color', colors(3,:));
+plot(EEG.times, mean(all_ERP_pas_late_alt_corrected(CHANI,:,:),3), 'Color', colors(4,:));
+hold off;
+
+xlim([-200 500])
+ylabel('Amplitude [μV]')
+xlabel('Time [ms]')
+title('Late (corrected)')
+legend({'Active Late Unaltered', 'Active Late Altered', ' Passive Late Unaltered', 'Passive Late Altered'}, 'Location', 'best')
+
+sgtitle('Early and Late Condition ERPs (corrected)')
+
+exportgraphics(gcf,fullfile(OUTPATH, 'erp_corrected_2_pilot.png'),'Resolution',1000)
+
 % End of processing
 
 protocol = cell2table(protocol, 'VariableNames',{'subj','time', 'status'})
 writetable(protocol,fullfile(OUTPATH, 'erp_pilot_protocol.xlsx'))
 
 close(wb)
-
-
-
-
 
 
 
