@@ -49,7 +49,7 @@ end
 
 MAINPATH = erase(SCRIPTPATH, '\analysis_script\MATLAB');
 INPATH = fullfile(MAINPATH, 'data\processed_data\markers_included\');
-OUTPATH = fullfile(MAINPATH, 'data\processed_data\erp_pilot');
+OUTPATH = fullfile(MAINPATH, 'data\analysis_data\erp_pilot');
 
 FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);
