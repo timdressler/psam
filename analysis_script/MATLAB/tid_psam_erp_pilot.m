@@ -368,7 +368,7 @@ xlim([-200 500])
 ylabel('Amplitude [μV]')
 xlabel('Time [ms]')
 title('Active Conditions')
-legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, 'Location', 'best')
+legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, 'Location', 'northeast')
 
 subplot(1,2,2)
 hold on;
@@ -382,7 +382,7 @@ xlim([-200 500])
 ylabel('Amplitude [μV]')
 xlabel('Time [ms]')
 title('Passive Conditions')
-legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, 'Location', 'best')
+legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, 'Location', 'northeast')
 
 sgtitle('Active and Passive Condition ERPs')
 
@@ -424,7 +424,7 @@ xlim([-200 500])
 ylabel('Amplitude [μV]')
 xlabel('Time [ms]')
 title('Active Conditions (corrected)')
-legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, 'Location', 'best')
+legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, 'Location', 'northeast')
 
 subplot(1,2,2)
 hold on;
@@ -438,7 +438,7 @@ xlim([-200 500])
 ylabel('Amplitude [μV]')
 xlabel('Time [ms]')
 title('Passive Conditions (corrected)')
-legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, 'Location', 'best')
+legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, 'Location', 'northeast')
 
 sgtitle('Active and Passive Condition ERPs (corrected)')
 
@@ -480,7 +480,7 @@ xlim([-200 500])
 ylabel('Amplitude [μV]')
 xlabel('Time [ms]')
 title('Early (corrected)')
-legend({'Active Early Unaltered', 'Active Early Altered', ' Passive Early Unaltered', 'Passive Early Altered'}, 'Location', 'best')
+legend({'Active Early Unaltered', 'Active Early Altered', ' Passive Early Unaltered', 'Passive Early Altered'}, 'Location', 'northeast')
 
 subplot(1,2,2)
 hold on;
@@ -494,7 +494,7 @@ xlim([-200 500])
 ylabel('Amplitude [μV]')
 xlabel('Time [ms]')
 title('Late (corrected)')
-legend({'Active Late Unaltered', 'Active Late Altered', ' Passive Late Unaltered', 'Passive Late Altered'}, 'Location', 'best')
+legend({'Active Late Unaltered', 'Active Late Altered', ' Passive Late Unaltered', 'Passive Late Altered'}, 'Location', 'northeast')
 
 sgtitle('Early and Late Condition ERPs (corrected)')
 
