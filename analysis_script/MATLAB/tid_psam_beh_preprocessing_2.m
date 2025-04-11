@@ -57,7 +57,7 @@ marked_subj = {};
 protocol = {};
 
 % Setup progress bar
-%%wb = waitbar(0,'starting tid_psam_beh_preprocessing_2.m');
+wb = waitbar(0,'starting tid_psam_beh_preprocessing_2.m');
 
 clear subj_idx 
 for subj_idx= 1:length(dircont_subj)
@@ -67,7 +67,7 @@ for subj_idx= 1:length(dircont_subj)
     subj = regexp(subj, 'sub-\d+', 'match', 'once');
 
     % Update progress bar
-    %%waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_beh_preprocessing_2.m'])
+    waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_beh_preprocessing_2.m'])
 
     tic;
 
