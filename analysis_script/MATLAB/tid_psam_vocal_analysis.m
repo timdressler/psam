@@ -77,7 +77,7 @@ for subj_idx= 1:length(dircont_subj)
     ylabel('Density');
     title(['Z-transformed F0 Density of Vocal Responses and F0 Values for Probes for ' subj]);
 
-    legend('F0 Distribution Vocal Responses', 'F0 Altered Probe', 'F0 Unaltered Probe', 'Location', 'northwest', 'Interpreter', 'none');
+    legend('F0 Distribution Vocal Responses', 'F0 Unaltered Probe', 'F0 Altered Probe', 'Location', 'northwest', 'Interpreter', 'none');
     hold off;
 
     exportgraphics(gcf,fullfile(OUTPATH, ['tid_psam_z_f0_distribution_' subj '.png']),'Resolution',1000)
