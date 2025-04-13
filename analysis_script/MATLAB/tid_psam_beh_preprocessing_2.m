@@ -9,9 +9,9 @@
 % Merges data
 %
 % Marks trials for exclusion based on the following criteria
-    % If a trial's F0 differs more than 3 SDs from the mean F0
-    % If a 'Passive' trial includes a reponses
-    % If a 'Active' trial includes no response
+% If a trial's F0 differs more than 3 SDs from the mean F0
+% If a 'Passive' trial includes a reponses
+% If a 'Active' trial includes no response
 %
 % Stores dataset
 %
@@ -59,7 +59,7 @@ protocol = {};
 % Setup progress bar
 wb = waitbar(0,'starting tid_psam_beh_preprocessing_2.m');
 
-clear subj_idx 
+clear subj_idx
 for subj_idx= 1:length(dircont_subj)
 
     % Get current ID
@@ -71,14 +71,16 @@ for subj_idx= 1:length(dircont_subj)
 
     tic;
 
-    % Get log file & Sanity Check: One log file per subject
+    % Sanity Check: One log file per subject
     subj_log_filename = dir(fullfile(INPATH, [subj '\beh\*.csv']));
     if numel(subj_log_filename) == 1
-        subj_log = readtable(fullfile(subj_log_filename.folder, subj_log_filename.name));
     else
         marked_subj{end+1,1} = subj;
         marked_subj{end,2} = 'number_of_log_files';
     end
+
+    % Get log file
+    subj_log = readtable(fullfile(subj_log_filename.folder, subj_log_filename.name));
 
     % Remove all rows from log file which don not resembel experimental trials (e.g. Instruction trials)
     subj_log_cleaned = subj_log(~isnan(subj_log.("mic_started")), :);
@@ -88,7 +90,41 @@ for subj_idx= 1:length(dircont_subj)
         'mic_started', 'mic_stopped', 'probe', 'probe_duration', 'probe_intensity', 'probe_marker', ...
         'probe_marker_port_started', 'probe_onset', 'probe_onset_cat', 'probe_type', ...
         'psychopyVersion', 'rec_duration', 'stim_file', 'subj', 'task', 'task_marker', ...
-         'trial_started'});
+        'trial_started'});
+
+    % Rename columns
+    renamed_column = {
+        'ISI_started'                 'ISI_started';
+        'ISI_stopped'                 'ISI_stopped';
+        'go_stim_started'             'go_stim_started';
+        'conditions_file'             'conditions_file';
+        'date'                        'date';
+        'expName'                     'experiment_name';
+        'go_port_started'             'go_port_started';
+        'mic_clip'                    'recording_path';
+        'mic_started'                 'mic_started';
+        'mic_stopped'                 'mic_stopped';
+        'probe'                       'probe';
+        'probe_duration'              'probe_duration';
+        'probe_intensity'             'probe_intensity';
+        'probe_marker'                'probe_marker';
+        'probe_marker_port_started'   'probe_marker_port_started';
+        'probe_onset'                 'probe_onset';
+        'probe_onset_cat'             'probe_onset_cat';
+        'probe_type'                  'probe_type';
+        'psychopyVersion'             'psychopyVersion';
+        'rec_duration'                'recording_duration';
+        'stim_file'                   'probe_file';
+        'subj'                        'subj';
+        'task'                        'task_instruction';
+        'task_marker'                 'task_marker';
+        'trial_started'               'trial_started';
+        };
+
+    old_columns = renamed_column(:, 1);
+    new_columns = renamed_column(:, 2);
+
+    subj_log_cleaned = renamevars(subj_log_cleaned, old_columns, new_columns);
 
     % Sanity Check: Equal db for unaltered and altered probes
     if height(subj_log_cleaned) == n_trials
@@ -97,26 +133,68 @@ for subj_idx= 1:length(dircont_subj)
         marked_subj{end,2} = 'log_dimensions';
     end
     % Extract filename from full path for each vocal recording in order to match it with the table produced in Praat
-    subj_log_cleaned.filename_tab = cellfun(@(x) strrep(regexp(x, 'recording_mic_.*(?=\.wav)', 'match', 'once'), '.', '_'), subj_log_cleaned.("mic_clip"), 'UniformOutput', false);
+    subj_log_cleaned.recording_file = cellfun(@(x) strrep(regexp(x, 'recording_mic_.*(?=\.wav)', 'match', 'once'), '.', '_'), subj_log_cleaned.("recording_path"), 'UniformOutput', false);
 
-    % Get probe properties file & Sanity Check: Correct dimensions
+    % Get probe properties file
     subj_probe_properties = readtable(fullfile(INPATH, ['stimuli\' subj '\' subj '_probe_properties.xlsx']));
+
+    % Rename columns
+    renamed_column = {
+        'f0_tab_normal'         'probe_unaltered_f0';
+        'f0_tab_pitched'        'probe_altered_f0';
+        'db_tab_normal'         'probe_unaltered_db';
+        'db_tab_pitched'        'probe_altered_db';
+        'filename_tab'          'probe_file';
+        'change_attempts'        'probe_change_attempts';
+        'loudness'              'probe_loudness_attenuation';
+        };
+
+    old_columns = renamed_column(:, 1);
+    new_columns = renamed_column(:, 2);
+
+    subj_probe_properties = renamevars(subj_probe_properties, old_columns, new_columns);
+
+    % Sanity Check: Correct dimensions
     if height(subj_probe_properties) == 1 && width(subj_probe_properties) == 7
     else
         marked_subj{end+1,1} = subj;
         marked_subj{end,2} = 'probe_properties_dimensions';
     end
     % Sanity Check: Equal db for unaltered and altered probes
-    if round(subj_probe_properties.db_tab_normal) == round(subj_probe_properties.db_tab_pitched)
+    if round(subj_probe_properties.probe_unaltered_db) == round(subj_probe_properties.probe_altered_db)
     else
         marked_subj{end+1,1} = subj;
         marked_subj{end,2} = 'probe_properties_db';
     end
 
-    % Get F0 & RT Table & Sanity Check: Correct dimensions
+    % Get F0 & RT Table
     subj_f0_rt = readtable(fullfile(INPATH_PRAAT, [subj '_f0_rt_table.csv']), Delimiter=',');
     subj_f0_rt = standardizeMissing(subj_f0_rt,9999);
 
+    % Rename columns
+    renamed_column = {
+        'subj_tab'                      'subj';
+        'f0_tab'                        'recording_f0';
+        'rt_tab'                        'recording_rt';
+        'duration_file_tab'             'recoding_duration';
+        'condition_tab'                 'task';
+        'min_intensity_tab'             'recording_min_intensity';
+        'max_intensity_tab'             'recording_max_intensity';
+        'ratio_intensity_tab'           'recording_ratio_intensity';
+        'vocal_response_tab'            'vocal_response';
+        'n_intervals_tab'               'recording_n_intervals';
+        'duration_vocal_tab'            'recording_duration_vocal';
+        'onset_vocal_tab'               'recording_onset_vocal';
+        'offset_vocal_tab'              'recording_offset_vocal';
+        'filename_tab'                  'recording_file';
+        };
+
+    old_columns = renamed_column(:, 1);
+    new_columns = renamed_column(:, 2);
+
+    subj_f0_rt = renamevars(subj_f0_rt, old_columns, new_columns);
+
+    % Sanity Check: Correct dimensions
     if height(subj_f0_rt) == n_trials && width(subj_f0_rt) == 14
     else
         marked_subj{end+1,1} = subj;
@@ -124,25 +202,25 @@ for subj_idx= 1:length(dircont_subj)
     end
 
     % Concatinate log file, probe properties file and F0 & RT Table
-    subj_full = join(subj_f0_rt, subj_log_cleaned, 'Keys', 'filename_tab');
+    subj_full = join(subj_f0_rt, subj_log_cleaned, 'Keys', {'subj', 'recording_file'});
     % Exclude 'filename_tab' column and repeat the remaining columns for each row of subj_full
-    subj_full = [subj_full, repmat(subj_probe_properties(:, setdiff(1:width(subj_probe_properties), find(strcmp(subj_probe_properties.Properties.VariableNames, 'filename_tab')))), height(subj_full), 1)];
+    subj_full = [subj_full, repmat(subj_probe_properties(:, setdiff(1:width(subj_probe_properties), find(strcmp(subj_probe_properties.Properties.VariableNames, 'probe_file')))), height(subj_full), 1)];
 
     % Exlcude trials with outlier F0
     % Get threshold
-    mean_f0 = mean(subj_full.f0_tab, 'omitnan');
-    std_f0 = std(subj_full.f0_tab, 'omitnan');
+    mean_f0 = mean(subj_full.recording_f0, 'omitnan');
+    std_f0 = std(subj_full.recording_f0, 'omitnan');
     threshold_upper = mean_f0 + 3 * std_f0;
     threshold_lower = mean_f0 - 3 * std_f0;
     % Add a column indicating F0 outliers
-    subj_full.f0_outlier = (subj_full.f0_tab > threshold_upper) | (subj_full.f0_tab < threshold_lower);
+    subj_full.recording_f0_outlier = (subj_full.recording_f0 > threshold_upper) | (subj_full.recording_f0 < threshold_lower);
     % Excluded trials based on F0 outliers
-    excluded_trials_outliers = (subj_full.f0_tab > threshold_upper) | (subj_full.f0_tab < threshold_lower);
+    excluded_trials_outliers = (subj_full.recording_f0 > threshold_upper) | (subj_full.recording_f0 < threshold_lower);
 
     % Exlude trial with incorrect responses (e.g. vocalizing in 'Passive' trials)
     % Add a column indicating (in)correct responses based on classification in Praat (see vocal_analysis.praat)
-    pas_correct = strcmp(subj_full.condition_tab, 'pas') & subj_full.vocal_response_tab == 0;
-    act_correct = strcmp(subj_full.condition_tab, 'act') & subj_full.vocal_response_tab == 1;
+    pas_correct = strcmp(subj_full.task, 'pas') & subj_full.vocal_response == 0;
+    act_correct = strcmp(subj_full.task, 'act') & subj_full.vocal_response == 1;
     subj_full.correct_vocal_response(pas_correct | act_correct) = 1;
     % Excluded trials based on (in)correct vocal responses
     excluded_trials_responses = ~subj_full.correct_vocal_response;
@@ -151,14 +229,14 @@ for subj_idx= 1:length(dircont_subj)
     excluded_trials_beh = excluded_trials_outliers | excluded_trials_responses;
 
     % Only included needed columns
-    subj_full_cleaned = subj_full(:, {'mic_clip', ...
+    subj_full_cleaned = subj_full(:, {'recording_path', ...
         'mic_started', 'mic_stopped', 'probe', ...
         'probe_onset', 'probe_onset_cat', 'probe_type', ...
-        'subj', 'task', 'task_marker', 'f0_tab', 'rt_tab', 'condition_tab', ...
-        'min_intensity_tab', 'max_intensity_tab', 'vocal_response_tab', ...
-        'duration_vocal_tab','onset_vocal_tab', 'filename_tab', 'f0_tab_normal', ...
-        'f0_tab_pitched', 'loudness', 'change_attempts', 'correct_vocal_response', ...
-        'f0_outlier'});
+        'subj', 'task_instruction', 'task_marker', 'recording_f0', 'recording_rt', ...
+        'recording_min_intensity', 'recording_max_intensity', 'vocal_response', ...
+        'recording_duration_vocal', 'recording_onset_vocal', 'recording_file', ...
+        'probe_unaltered_f0', 'probe_altered_f0', 'probe_loudness_attenuation', ...
+        'probe_change_attempts', 'correct_vocal_response', 'recording_f0_outlier'});
 
     writetable(subj_full_cleaned,fullfile(OUTPATH, [subj '_beh_preprocessed.xlsx']))
 

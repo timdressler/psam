@@ -54,7 +54,7 @@ for subj_idx= 1:length(dircont_subj)
     % Load data
     beh_clean = readtable(fullfile(INPATH,[subj '_beh_preprocessed_clean.xlsx']));
 
-    % F0 Analysis
+    %% F0 Analysis
 
     % Z-Transformation F0 data 
     % Z-transform F0's of responses and probes based on the mean and SD of the responses)
@@ -89,7 +89,7 @@ for subj_idx= 1:length(dircont_subj)
 
 
 
-    % Reaction-Time Analysis
+    %% Reaction-Time Analysis
 
 
     % Update Protocol
