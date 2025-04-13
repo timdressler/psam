@@ -83,9 +83,9 @@ for subj_idx= 1:length(dircont_subj)
     subj_log = readtable(fullfile(subj_log_filename.folder, subj_log_filename.name));
 
     % Remove all rows from log file which don not resembel experimental trials (e.g. Instruction trials)
-    subj_log_cleaned = subj_log(~isnan(subj_log.("mic_started")), :);
+    subj_log_clean = subj_log(~isnan(subj_log.("mic_started")), :);
     % Only included needed columns
-    subj_log_cleaned = subj_log_cleaned(:, {'ISI_started', 'ISI_stopped', 'go_stim_started', 'conditions_file', ...
+    subj_log_clean = subj_log_clean(:, {'ISI_started', 'ISI_stopped', 'go_stim_started', 'conditions_file', ...
         'date', 'expName', 'go_port_started', 'mic_clip', ...
         'mic_started', 'mic_stopped', 'probe', 'probe_duration', 'probe_intensity', 'probe_marker', ...
         'probe_marker_port_started', 'probe_onset', 'probe_onset_cat', 'probe_type', ...
@@ -124,16 +124,20 @@ for subj_idx= 1:length(dircont_subj)
     old_columns = renamed_column(:, 1);
     new_columns = renamed_column(:, 2);
 
-    subj_log_cleaned = renamevars(subj_log_cleaned, old_columns, new_columns);
+    subj_log_clean = renamevars(subj_log_clean, old_columns, new_columns);
 
     % Sanity Check: Equal db for unaltered and altered probes
-    if height(subj_log_cleaned) == n_trials
+    if height(subj_log_clean) == n_trials
     else
         marked_subj{end+1,1} = subj;
         marked_subj{end,2} = 'log_dimensions';
     end
+
+    % Get start latency of go stimulus relative to trial start
+    subj_log_clean.go_stim_started_trial_start = subj_log_clean.go_stim_started - subj_log_clean.trial_started;
+
     % Extract filename from full path for each vocal recording in order to match it with the table produced in Praat
-    subj_log_cleaned.recording_file = cellfun(@(x) strrep(regexp(x, 'recording_mic_.*(?=\.wav)', 'match', 'once'), '.', '_'), subj_log_cleaned.("recording_path"), 'UniformOutput', false);
+    subj_log_clean.recording_file = cellfun(@(x) strrep(regexp(x, 'recording_mic_.*(?=\.wav)', 'match', 'once'), '.', '_'), subj_log_clean.("recording_path"), 'UniformOutput', false);
 
     % Get probe properties file
     subj_probe_properties = readtable(fullfile(INPATH, ['stimuli\' subj '\' subj '_probe_properties.xlsx']));
@@ -145,7 +149,7 @@ for subj_idx= 1:length(dircont_subj)
         'db_tab_normal'         'probe_unaltered_db';
         'db_tab_pitched'        'probe_altered_db';
         'filename_tab'          'probe_file';
-        'change_attempts'        'probe_change_attempts';
+        'change_attempts'       'probe_change_attempts';
         'loudness'              'probe_loudness_attenuation';
         };
 
@@ -202,9 +206,23 @@ for subj_idx= 1:length(dircont_subj)
     end
 
     % Concatinate log file, probe properties file and F0 & RT Table
-    subj_full = join(subj_f0_rt, subj_log_cleaned, 'Keys', {'subj', 'recording_file'});
+    subj_full = join(subj_f0_rt, subj_log_clean, 'Keys', {'subj', 'recording_file'});
     % Exclude 'filename_tab' column and repeat the remaining columns for each row of subj_full
     subj_full = [subj_full, repmat(subj_probe_properties(:, setdiff(1:width(subj_probe_properties), find(strcmp(subj_probe_properties.Properties.VariableNames, 'probe_file')))), height(subj_full), 1)];
+
+    % Get reaction time relative to go stimulus onset
+    subj_full.recording_rt = subj_full.recording_onset_vocal - (subj_full.go_stim_started_trial_start- subj_full.mic_started);
+
+    % Exlcude trials with outlier RT
+    % Get threshold
+    mean_rt = mean(subj_full.recording_rt, 'omitnan');
+    std_rt = std(subj_full.recording_rt, 'omitnan');
+    threshold_upper = mean_rt + 3 * std_rt;
+    threshold_lower = mean_rt - 3 * std_rt;
+    % Add a column indicating F0 outliers
+    subj_full.recording_rt_outlier = (subj_full.recording_rt > threshold_upper) | (subj_full.recording_rt < threshold_lower);
+    % Excluded trials based on F0 outliers
+    excluded_trials_rt_outliers = (subj_full.recording_rt > threshold_upper) | (subj_full.recording_rt < threshold_lower);
 
     % Exlcude trials with outlier F0
     % Get threshold
@@ -215,7 +233,7 @@ for subj_idx= 1:length(dircont_subj)
     % Add a column indicating F0 outliers
     subj_full.recording_f0_outlier = (subj_full.recording_f0 > threshold_upper) | (subj_full.recording_f0 < threshold_lower);
     % Excluded trials based on F0 outliers
-    excluded_trials_outliers = (subj_full.recording_f0 > threshold_upper) | (subj_full.recording_f0 < threshold_lower);
+    excluded_trials_f0_outliers = (subj_full.recording_f0 > threshold_upper) | (subj_full.recording_f0 < threshold_lower);
 
     % Exlude trial with incorrect responses (e.g. vocalizing in 'Passive' trials)
     % Add a column indicating (in)correct responses based on classification in Praat (see vocal_analysis.praat)
@@ -226,19 +244,21 @@ for subj_idx= 1:length(dircont_subj)
     excluded_trials_responses = ~subj_full.correct_vocal_response;
 
     % Combine excluded trials
-    excluded_trials_beh = excluded_trials_outliers | excluded_trials_responses;
+    excluded_trials_beh = excluded_trials_rt_outliers | excluded_trials_responses;
+    excluded_trials_beh = excluded_trials_beh | excluded_trials_f0_outliers;
 
     % Only included needed columns
-    subj_full_cleaned = subj_full(:, {'recording_path', ...
+    subj_full_clean = subj_full(:, {'recording_path', ...
         'mic_started', 'mic_stopped', 'probe', ...
         'probe_onset', 'probe_onset_cat', 'probe_type', ...
         'subj', 'task_instruction', 'task_marker', 'recording_f0', 'recording_rt', ...
         'recording_min_intensity', 'recording_max_intensity', 'vocal_response', ...
         'recording_duration_vocal', 'recording_onset_vocal', 'recording_file', ...
         'probe_unaltered_f0', 'probe_altered_f0', 'probe_loudness_attenuation', ...
-        'probe_change_attempts', 'correct_vocal_response', 'recording_f0_outlier', 'task'});
+        'probe_change_attempts', 'correct_vocal_response', 'recording_f0_outlier', 'task', ...
+        'trial_started', 'go_stim_started', 'go_stim_started_trial_start'});
 
-    writetable(subj_full_cleaned,fullfile(OUTPATH, [subj '_beh_preprocessed.xlsx']))
+    writetable(subj_full_clean,fullfile(OUTPATH, [subj '_beh_preprocessed.xlsx']))
 
     save(fullfile(OUTPATH, [subj '_excluded_trials_beh_preprocessing.mat']),"excluded_trials_beh")
 

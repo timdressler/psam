@@ -38,7 +38,7 @@ marked_subj = {};
 protocol = {};
 
 % Setup progress bar
-%%wb = waitbar(0,'starting tid_psam_vocal_analysis.m');
+wb = waitbar(0,'starting tid_psam_vocal_analysis.m');
 
 clear subj_idx 
 for subj_idx= 1:length(dircont_subj)
@@ -48,7 +48,7 @@ for subj_idx= 1:length(dircont_subj)
     subj = regexp(subj, 'sub-\d+', 'match', 'once');
 
     % Update progress bar
-    %%waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_vocal_analysis.m'])
+    waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_vocal_analysis.m'])
 
     tic;
     % Load data
@@ -83,7 +83,7 @@ for subj_idx= 1:length(dircont_subj)
     exportgraphics(gcf,fullfile(OUTPATH, ['tid_psam_z_f0_distribution_' subj '.png']),'Resolution',1000)
 
     % Save z-transformed F0 values for unaltered and altered probes
-
+    
 
 
 
