@@ -263,6 +263,6 @@ if ~isempty(marked_subj)
     writetable(marked_subj,fullfile(OUTPATH, 'tid_psam_markers_included_marked_subj.xlsx'))
 end
 
-close(wb)
-
 check_done = 'tid_psam_set_markers_DONE'
+
+delete(wb)

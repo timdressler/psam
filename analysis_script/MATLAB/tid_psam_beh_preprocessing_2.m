@@ -236,7 +236,7 @@ for subj_idx= 1:length(dircont_subj)
         'recording_min_intensity', 'recording_max_intensity', 'vocal_response', ...
         'recording_duration_vocal', 'recording_onset_vocal', 'recording_file', ...
         'probe_unaltered_f0', 'probe_altered_f0', 'probe_loudness_attenuation', ...
-        'probe_change_attempts', 'correct_vocal_response', 'recording_f0_outlier'});
+        'probe_change_attempts', 'correct_vocal_response', 'recording_f0_outlier', 'task'});
 
     writetable(subj_full_cleaned,fullfile(OUTPATH, [subj '_beh_preprocessed.xlsx']))
 
@@ -264,6 +264,6 @@ if ~isempty(marked_subj)
     writetable(marked_subj,fullfile(OUTPATH, 'tid_psam_beh_preprocessing_2_marked_subj.xlsx'))
 end
 
-%%close(wb)
-
 check_done = 'tid_psam_beh_preprocessing_2_DONE'
+
+delete(wb)

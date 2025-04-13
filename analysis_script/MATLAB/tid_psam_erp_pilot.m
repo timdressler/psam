@@ -505,7 +505,7 @@ exportgraphics(gcf,fullfile(OUTPATH, 'erp_corrected_2_pilot.png'),'Resolution',1
 protocol = cell2table(protocol, 'VariableNames',{'subj','time', 'status'})
 writetable(protocol,fullfile(OUTPATH, 'erp_pilot_protocol.xlsx'))
 
-close(wb)
+delete(wb)
 
 
 

@@ -133,7 +133,7 @@ for subj_idx= 1:length(dircont_subj_erp)
     filteredRows = beh_clean(validRows, :);
     % Group by the three factors
     [G, condTab, onsetCat, probeType] = findgroups( ...
-        filteredRows.condition_tab, ...
+        filteredRows.task, ...
         filteredRows.probe_onset_cat, ...
         filteredRows.probe_type);
     % Count number of trials per group
@@ -203,6 +203,6 @@ if ~isempty(excluded_subj)
     writetable(excluded_subj,fullfile(OUTPATH, 'tid_psam_exclude_trials_excluded_subj.xlsx'))
 end
 
-%%close(wb)
-
 check_done = 'tid_psam_exclude_trials_DONE'
+
+delete(wb)

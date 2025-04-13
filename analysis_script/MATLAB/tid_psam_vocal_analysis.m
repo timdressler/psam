@@ -58,19 +58,19 @@ for subj_idx= 1:length(dircont_subj)
 
     % Z-Transformation F0 data 
     % Z-transform F0's of responses and probes based on the mean and SD of the responses)
-    f0_mean = mean(beh_clean.f0_tab, 'omitmissing');
-    f0_sd = std(beh_clean.f0_tab, 'omitmissing');
-    beh_clean.f0_tab_z = (beh_clean.f0_tab - f0_mean) ./ f0_sd; % Responses
-    beh_clean.f0_tab_normal_z = (beh_clean.f0_tab_normal - f0_mean) ./ f0_sd; % Unaltered Probe
-    beh_clean.f0_tab_altered_z = (beh_clean.f0_tab_pitched - f0_mean) ./ f0_sd; % Altered Probe
+    f0_mean = mean(beh_clean.recording_f0, 'omitmissing');
+    f0_sd = std(beh_clean.recording_f0, 'omitmissing');
+    beh_clean.recording_f0_z = (beh_clean.recording_f0 - f0_mean) ./ f0_sd; % Responses
+    beh_clean.recording_f0_normal_z = (beh_clean.probe_unaltered_f0 - f0_mean) ./ f0_sd; % Unaltered Probe
+    beh_clean.recording_f0_altered_z = (beh_clean.probe_altered_f0 - f0_mean) ./ f0_sd; % Altered Probe
 
     % Plot: Z-transformed F0 Distribution including Probe F0's
     figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
-    [f, xi] = ksdensity(beh_clean.f0_tab_z); % Density of F0 vocal responses
+    [f, xi] = ksdensity(beh_clean.recording_f0_z); % Density of F0 vocal responses
     plot(xi, f, 'LineWidth', 2, 'Color','k');
     hold on;
-    xline(beh_clean.f0_tab_normal_z(1), 'r--', 'LineWidth', 2); % F0 altered probe
-    xline(beh_clean.f0_tab_altered_z(1), 'b--', 'LineWidth', 2); % F0 unaltered probe
+    xline(beh_clean.recording_f0_normal_z(1), 'r--', 'LineWidth', 2); % F0 altered probe
+    xline(beh_clean.recording_f0_altered_z(1), 'b--', 'LineWidth', 2); % F0 unaltered probe
 
     ylims = ylim; % Get current y-axis limits
     xlabel('F0 [Z-Transformed]');
@@ -114,15 +114,16 @@ if ~isempty(marked_subj)
     writetable(marked_subj,fullfile(OUTPATH, 'tid_psam_vocal_analysis_marked_subj.xlsx'))
 end
 
-%%close(wb)
-
 check_done = 'tid_psam_vocal_analysis_DONE'
 
+delete(wb)
 
 
-% % [h_normal, p_normal, ci_normal, stats_normal] = ttest(subj_full_cleaned.f0_tab, subj_full_cleaned.f0_tab_normal(1));
+
+
+% % [h_normal, p_normal, ci_normal, stats_normal] = ttest(subj_full_cleaned.recording_f0, subj_full_cleaned.recording_f0_normal(1));
 % % cohens_d_normal = stats_normal.tstat / sqrt(stats_normal.df + 1);
-% % [h_pitched, p_pitched, ci_pitched, stats_pitched] = ttest(subj_full_cleaned.f0_tab, subj_full_cleaned.f0_tab_pitched(1));
+% % [h_pitched, p_pitched, ci_pitched, stats_pitched] = ttest(subj_full_cleaned.recording_f0, subj_full_cleaned.recording_f0_pitched(1));
 % % cohens_d_pitched = stats_pitched.tstat / sqrt(stats_pitched.df + 1);
 
 
