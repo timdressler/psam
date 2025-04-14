@@ -40,7 +40,7 @@ protocol = {};
 % Setup progress bar
 wb = waitbar(0,'starting tid_psam_vocal_analysis.m');
 
-clear subj_idx 
+clear subj_idx
 for subj_idx= 1:length(dircont_subj)
 
     % Get current ID
@@ -56,21 +56,26 @@ for subj_idx= 1:length(dircont_subj)
 
     %% F0 Analysis
 
-    % Z-Transformation F0 data 
+    % Z-Transformation F0 data
     % Z-transform F0's of responses and probes based on the mean and SD of the responses)
     f0_mean = mean(beh_clean.recording_f0, 'omitmissing');
     f0_sd = std(beh_clean.recording_f0, 'omitmissing');
+
     beh_clean.recording_f0_z = (beh_clean.recording_f0 - f0_mean) ./ f0_sd; % Responses
     beh_clean.recording_f0_normal_z = (beh_clean.probe_unaltered_f0 - f0_mean) ./ f0_sd; % Unaltered Probe
     beh_clean.recording_f0_altered_z = (beh_clean.probe_altered_f0 - f0_mean) ./ f0_sd; % Altered Probe
 
+    recording_f0_z = beh_clean.recording_f0_z(~isnan(beh_clean.recording_f0_z)); % Responses without NaNs
+
+    %% Plots
+
     % Plot: Z-transformed F0 Distribution including Probe F0's
     figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
-    [f, xi] = ksdensity(beh_clean.recording_f0_z); % Density of F0 vocal responses
-    plot(xi, f, 'LineWidth', 2, 'Color','k');
+    [f, xi] = ksdensity(recording_f0_z); % Density of F0 vocal responses
+    plot(xi, f, 'LineWidth', 2, 'Color','b');
     hold on;
-    xline(beh_clean.recording_f0_normal_z(1), 'r--', 'LineWidth', 2); % F0 altered probe
-    xline(beh_clean.recording_f0_altered_z(1), 'b--', 'LineWidth', 2); % F0 unaltered probe
+    xline(beh_clean.recording_f0_normal_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
+    xline(beh_clean.recording_f0_altered_z(1), 'r--', 'LineWidth', 2); % F0 altered probe
 
     ylims = ylim; % Get current y-axis limits
     xlabel('F0 [Z-Transformed]');
@@ -82,10 +87,86 @@ for subj_idx= 1:length(dircont_subj)
 
     exportgraphics(gcf,fullfile(OUTPATH, ['tid_psam_z_f0_distribution_' subj '.png']),'Resolution',1000)
 
-    % Save z-transformed F0 values for unaltered and altered probes
-    
+    % Plot: Z-transformed F0 Distribution including Probe F0's (binnedin one plot)
+    % Prepare data
+    n_bins = 10;
+    min_trials_per_bin = 25;
+    n_data = numel(recording_f0_z);
+    bin_edges = round(linspace(1, n_data + 1, n_bins + 1));
+    bin_counts = diff(bin_edges);
 
+    % Prepare figure
+    figure('Units', 'normalized', 'Position', [0.5, 0.5, 1.2, 1.2]);
+    colors = parula(n_bins);
+    hold on;
 
+    % Plot density for each bin
+    for bin_idx = 1:n_bins
+        bin_data = recording_f0_z(bin_edges(bin_idx):bin_edges(bin_idx+1)-1);
+        [f, xi] = ksdensity(bin_data);
+        plot(xi, f, 'LineWidth', 2, 'Color', colors(bin_idx, :));
+    end
+
+    xline(beh_clean.recording_f0_normal_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
+    xline(beh_clean.recording_f0_altered_z(1), 'r--', 'LineWidth', 2); % F0 altered probe
+
+    xlabel('F0 [Z-Transformed]');
+    ylabel('Density');
+    title(['Z-transformed F0 Distribution across Bins for ' subj]);
+    legend_entries = arrayfun(@(i) sprintf('Bin %d', i), 1:n_bins, 'UniformOutput', false);
+    legend([legend_entries, {'F0 Unaltered Probe', 'F0 Altered Probe'}], ...
+        'Location', 'northeast', 'Interpreter', 'none');
+    grid on;
+    box on;
+    hold off;
+
+    exportgraphics(gcf, fullfile(OUTPATH, ['tid_psam_z_f0_distribution_binned_' subj '.png']), 'Resolution', 1000);
+
+    % Plot: Z-transformed F0 Distribution including Probe F0's (binned in subplot)
+    % Prepare data
+    n_bins = 10;
+    min_trials_per_bin = 25;
+    n_data = numel(recording_f0_z);
+    bin_edges = round(linspace(1, n_data + 1, n_bins + 1));
+    bin_counts = diff(bin_edges);
+
+    all_xi = [];
+    for bin_idx = 1:n_bins
+        bin_data = recording_f0_z(bin_edges(bin_idx):bin_edges(bin_idx+1)-1);
+        [f, xi] = ksdensity(bin_data);
+        all_xi = [all_xi, xi];  % Collect all xi values to determine the range
+    end
+    x_limits = [min(all_xi), max(all_xi)];  % Set consistent x-axis limits
+
+    % Prepare figure
+    figure('Units', 'normalized', 'Position', [0.5, 0.5, 1.2, 1.2]);
+    colors = parula(n_bins);
+    hold on;
+
+    % Plot density for each bin
+    for bin_idx = 1:n_bins
+        bin_data = recording_f0_z(bin_edges(bin_idx):bin_edges(bin_idx+1)-1);
+        [f, xi] = ksdensity(bin_data);
+
+        subplot(n_bins, 1, bin_idx); 
+        plot(xi, f, 'LineWidth', 2, 'Color', colors(bin_idx, :));
+
+        xline(beh_clean.recording_f0_normal_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
+        xline(beh_clean.recording_f0_altered_z(1), 'r--', 'LineWidth', 2); % F0 altered probe
+
+        xlabel('F0 [Z-Transformed]');
+        ylabel('Density');
+        title(['Z-transformed F0 Distribution for Bin ' num2str(bin_idx)]);
+        grid on;
+        box on;
+        xlim(x_limits);
+    end
+
+    % Overall figure title
+    sgtitle(['Z-transformed F0 Distribution across Bins for ' subj]);
+    hold off;
+
+    exportgraphics(gcf, fullfile(OUTPATH, ['tid_psam_z_f0_distribution_binned_subplots_' subj '.png']), 'Resolution', 1000);
 
 
 
