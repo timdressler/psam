@@ -230,23 +230,24 @@ for iter = 1:num_iterations
 
 end
 
-% Create and export file
+% Create and conditions file
 conditions_table = cell2table(all_trials, "VariableNames",{'probe', 'task', 'probe_onset_cat', 'probe_type', 'probe_onset', 'probe_intensity', 'stim_file', 'probe_duration' ,'subj', 'probe_marker', 'task_marker', 'rec_duration'});
 
-% Split table into 4 tables
-if mod(height(conditions_table),4) == 0
-    block_size = height(conditions_table)/4;
-else
-    warning('Table-Splitting not possible! Cannot divide by 4!')
-end
-
-if mod(block_size,16) == 0
+% Split conditions file into 8 blocks
+if mod(height(conditions_table), 8) == 0
+    block_size = height(conditions_table) / 8;
+    
     conditions_table_1 = conditions_table(1:block_size, :);
     conditions_table_2 = conditions_table(block_size+1:2*block_size, :);
     conditions_table_3 = conditions_table(2*block_size+1:3*block_size, :);
-    conditions_table_4 = conditions_table(3*block_size+1:end, :);
+    conditions_table_4 = conditions_table(3*block_size+1:4*block_size, :);
+    conditions_table_5 = conditions_table(4*block_size+1:5*block_size, :);
+    conditions_table_6 = conditions_table(5*block_size+1:6*block_size, :);
+    conditions_table_7 = conditions_table(6*block_size+1:7*block_size, :);
+    conditions_table_8 = conditions_table(7*block_size+1:end, :);
+    
 else
-    warning('Table-Splitting not possible! Minimal Blocksize!')
+    warning('Table-Splitting not possible! Cannot divide by 8!')
 end
 
 % Add filenames & meta-table
@@ -254,9 +255,14 @@ conditions_table_1_filename = fullfile(STIMULIPATH, [subj '_conditions_1.xlsx'])
 conditions_table_2_filename = fullfile(STIMULIPATH, [subj '_conditions_2.xlsx']);
 conditions_table_3_filename = fullfile(STIMULIPATH, [subj '_conditions_3.xlsx']);
 conditions_table_4_filename = fullfile(STIMULIPATH, [subj '_conditions_4.xlsx']);
+conditions_table_5_filename = fullfile(STIMULIPATH, [subj '_conditions_5.xlsx']);
+conditions_table_6_filename = fullfile(STIMULIPATH, [subj '_conditions_6.xlsx']);
+conditions_table_7_filename = fullfile(STIMULIPATH, [subj '_conditions_7.xlsx']);
+conditions_table_8_filename = fullfile(STIMULIPATH, [subj '_conditions_8.xlsx']);
 
 conditions_table_filenames = {conditions_table_1_filename, 0; conditions_table_2_filename, 0; ...
-    conditions_table_3_filename, 0; conditions_table_4_filename, 1};
+    conditions_table_3_filename, 0; conditions_table_4_filename, 0; conditions_table_5_filename, 0; ...
+    conditions_table_6_filename, 0; conditions_table_7_filename, 0;conditions_table_8_filename, 1;};
 
 condition_table_meta = cell2table(conditions_table_filenames, "VariableNames",{'conditions_file','skip_pause'});
 
@@ -267,6 +273,10 @@ writetable(conditions_table_1, conditions_table_1_filename);
 writetable(conditions_table_2, conditions_table_2_filename);
 writetable(conditions_table_3, conditions_table_3_filename);
 writetable(conditions_table_4, conditions_table_4_filename);
+writetable(conditions_table_5, conditions_table_5_filename);
+writetable(conditions_table_6, conditions_table_6_filename);
+writetable(conditions_table_7, conditions_table_7_filename);
+writetable(conditions_table_8, conditions_table_8_filename);
 writetable(condition_table_meta, fullfile(STIMULIPATH, [subj '_conditions_meta.xlsx']));
 
 
