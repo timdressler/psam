@@ -62,10 +62,14 @@ for subj_idx= 1:length(dircont_subj)
     f0_sd = std(beh_clean.recording_f0, 'omitmissing');
 
     beh_clean.recording_f0_z = (beh_clean.recording_f0 - f0_mean) ./ f0_sd; % Responses
-    beh_clean.recording_f0_normal_z = (beh_clean.probe_unaltered_f0 - f0_mean) ./ f0_sd; % Unaltered Probe
+    beh_clean.recording_f0_unaltered_z = (beh_clean.probe_unaltered_f0 - f0_mean) ./ f0_sd; % Unaltered Probe
     beh_clean.recording_f0_altered_z = (beh_clean.probe_altered_f0 - f0_mean) ./ f0_sd; % Altered Probe
 
     recording_f0_z = beh_clean.recording_f0_z(~isnan(beh_clean.recording_f0_z)); % Responses without NaNs
+
+    recording_f0_z_no_probe = beh_clean.recording_f0_z(strcmp(beh_clean.probe_type, 'None')); % Responses during no-probe trials
+    recording_f0_z_unaltered_probe = beh_clean.recording_f0_z(strcmp(beh_clean.probe_type, 'Normal')); % Responses during no-probe trials
+    recording_f0_z_altered_probe = beh_clean.recording_f0_z(strcmp(beh_clean.probe_type, 'Pitch')); % Responses during no-probe trials
 
     %% Plots
 
@@ -74,7 +78,7 @@ for subj_idx= 1:length(dircont_subj)
     [f, xi] = ksdensity(recording_f0_z); % Density of F0 vocal responses
     plot(xi, f, 'LineWidth', 2, 'Color','b');
     hold on;
-    xline(beh_clean.recording_f0_normal_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
+    xline(beh_clean.recording_f0_unaltered_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
     xline(beh_clean.recording_f0_altered_z(1), 'r--', 'LineWidth', 2); % F0 altered probe
 
     ylims = ylim; % Get current y-axis limits
@@ -107,7 +111,7 @@ for subj_idx= 1:length(dircont_subj)
         plot(xi, f, 'LineWidth', 2, 'Color', colors(bin_idx, :));
     end
 
-    xline(beh_clean.recording_f0_normal_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
+    xline(beh_clean.recording_f0_unaltered_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
     xline(beh_clean.recording_f0_altered_z(1), 'r--', 'LineWidth', 2); % F0 altered probe
 
     xlabel('F0 [Z-Transformed]');
@@ -151,12 +155,12 @@ for subj_idx= 1:length(dircont_subj)
         subplot(n_bins, 1, bin_idx); 
         plot(xi, f, 'LineWidth', 2, 'Color', colors(bin_idx, :));
 
-        xline(beh_clean.recording_f0_normal_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
+        xline(beh_clean.recording_f0_unaltered_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
         xline(beh_clean.recording_f0_altered_z(1), 'r--', 'LineWidth', 2); % F0 altered probe
 
         xlabel('F0 [Z-Transformed]');
         ylabel('Density');
-        title(['Z-transformed F0 Distribution for Bin ' num2str(bin_idx)]);
+        title(['Z-transformed F0 Distribution for Bin ' num2str(bin_idx) ' n_trials = ' num2str(length(bin_data))]);
         grid on;
         box on;
         xlim(x_limits);
@@ -168,7 +172,27 @@ for subj_idx= 1:length(dircont_subj)
 
     exportgraphics(gcf, fullfile(OUTPATH, ['tid_psam_z_f0_distribution_binned_subplots_' subj '.png']), 'Resolution', 1000);
 
+    % Plot: Z-transformed F0 Distribution including Probe F0's (for no-probe, unaltered probe and altered probe trials)
+    figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
+    [f, xi] = ksdensity(recording_f0_z_no_probe); % Density of F0 vocal responses after no-probe trials
+    plot(xi, f, 'LineWidth', 2, 'Color',[.7 .7 .7]);
+    hold on;
+    [f, xi] = ksdensity(recording_f0_z_unaltered_probe); % Density of F0 vocal responses after unaltered probe trials
+    plot(xi, f, 'LineWidth', 2, 'Color','k');
+    [f, xi] = ksdensity(recording_f0_z_altered_probe); % Density of F0 vocal responses after altered probe trials
+    plot(xi, f, 'LineWidth', 2, 'Color','r');
+    xline(beh_clean.recording_f0_unaltered_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
+    xline(beh_clean.recording_f0_altered_z(1), 'r--', 'LineWidth', 2); % F0 altered probe
 
+    ylims = ylim; % Get current y-axis limits
+    xlabel('F0 [Z-Transformed]');
+    ylabel('Density');
+    title(['Z-transformed F0 Density of Vocal Responses after different Probe Types and F0 Values for Probes for ' subj]);
+
+    legend('No Probe','Unaltered Probe','Altered Probe', 'F0 Unaltered Probe', 'F0 Altered Probe', 'Location', 'northwest', 'Interpreter', 'none');
+    hold off;
+
+    exportgraphics(gcf,fullfile(OUTPATH, ['tid_psam_z_f0_distribution_probe_types_' subj '.png']),'Resolution',1000)
 
     %% Reaction-Time Analysis
 
@@ -202,8 +226,8 @@ delete(wb)
 
 
 
-% % [h_normal, p_normal, ci_normal, stats_normal] = ttest(subj_full_cleaned.recording_f0, subj_full_cleaned.recording_f0_normal(1));
-% % cohens_d_normal = stats_normal.tstat / sqrt(stats_normal.df + 1);
+% % [h_unaltered, p_unaltered, ci_unaltered, stats_unaltered] = ttest(subj_full_cleaned.recording_f0, subj_full_cleaned.recording_f0_unaltered(1));
+% % cohens_d_unaltered = stats_unaltered.tstat / sqrt(stats_unaltered.df + 1);
 % % [h_pitched, p_pitched, ci_pitched, stats_pitched] = ttest(subj_full_cleaned.recording_f0, subj_full_cleaned.recording_f0_pitched(1));
 % % cohens_d_pitched = stats_pitched.tstat / sqrt(stats_pitched.df + 1);
 
