@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on April 14, 2025, at 18:37
+    on April 14, 2025, at 18:42
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -415,7 +415,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     
     # --- Initialize components for Routine "instructions" ---
     instructions_message = visual.TextStim(win=win, name='instructions_message',
-        text='Die Versuchsleitung wird Ihnen nun noch einmal die Aufgabe erläutern. \n\nBitte zögern Sie nicht bei Unklarheiten Fragen zu stellen.',
+        text='Das Experiment startet in wenigen Sekunden...',
         font='Arial',
         pos=(0, 0), draggable=False, height=0.05, wrapWidth=None, ori=0.0, 
         color='white', colorSpace='rgb', opacity=None, 

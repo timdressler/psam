@@ -409,9 +409,9 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     
     # --- Initialize components for Routine "instructions" ---
     instructions_message = visual.TextStim(win=win, name='instructions_message',
-        text='Die Versuchsleitung wird Ihnen nun noch einmal die Aufgabe erläutern. \n\nBitte zögern Sie nicht bei Unklarheiten Fragen zu stellen.',
+        text='Das Experiment startet in wenigen Sekunden...',
         font='Arial',
-        pos=(0, 0), draggable=False, height=0.02, wrapWidth=None, ori=0.0, 
+        pos=(0, 0), draggable=False, height=0.05, wrapWidth=None, ori=0.0, 
         color='white', colorSpace='rgb', opacity=None, 
         languageStyle='LTR',
         depth=0.0);
