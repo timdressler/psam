@@ -68,8 +68,8 @@ for subj_idx= 1:length(dircont_subj)
     recording_f0_z = beh_clean.recording_f0_z(~isnan(beh_clean.recording_f0_z)); % Responses without NaNs
 
     recording_f0_z_no_probe = beh_clean.recording_f0_z(strcmp(beh_clean.probe_type, 'None')); % Responses during no-probe trials
-    recording_f0_z_unaltered_probe = beh_clean.recording_f0_z(strcmp(beh_clean.probe_type, 'Normal')); % Responses during no-probe trials
-    recording_f0_z_altered_probe = beh_clean.recording_f0_z(strcmp(beh_clean.probe_type, 'Pitch')); % Responses during no-probe trials
+    recording_f0_z_unaltered_probe = beh_clean.recording_f0_z(strcmp(beh_clean.probe_type, 'Normal')); % Responses during unaltered probe trials
+    recording_f0_z_altered_probe = beh_clean.recording_f0_z(strcmp(beh_clean.probe_type, 'Pitch')); % Responses during altered probe trials
 
     %% Plots
 
@@ -152,7 +152,7 @@ for subj_idx= 1:length(dircont_subj)
         bin_data = recording_f0_z(bin_edges(bin_idx):bin_edges(bin_idx+1)-1);
         [f, xi] = ksdensity(bin_data);
 
-        subplot(n_bins, 1, bin_idx); 
+        subplot(n_bins, 1, bin_idx);
         plot(xi, f, 'LineWidth', 2, 'Color', colors(bin_idx, :));
 
         xline(beh_clean.recording_f0_unaltered_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
@@ -189,12 +189,67 @@ for subj_idx= 1:length(dircont_subj)
     ylabel('Density');
     title(['Z-transformed F0 Density of Vocal Responses after different Probe Types and F0 Values for Probes for ' subj]);
 
-    legend('No Probe','Unaltered Probe','Altered Probe', 'F0 Unaltered Probe', 'F0 Altered Probe', 'Location', 'northwest', 'Interpreter', 'none');
+    legend('No Probe','Unaltered Probe','Altered Probe', 'F0 Unaltered Probearly_rte', 'F0 Altered Probe', 'Location', 'northwest', 'Interpreter', 'none');
     hold off;
 
     exportgraphics(gcf,fullfile(OUTPATH, ['tid_psam_z_f0_distribution_probe_types_' subj '.png']),'Resolution',1000)
 
     %% Reaction-Time Analysis
+
+    recording_rt_early_probe = beh_clean.recording_rt(strcmp(beh_clean.probe_onset_cat, 'Early')); % Responses during early probe trials
+    recording_rt_late_probe = beh_clean.recording_rt(strcmp(beh_clean.probe_onset_cat, 'Late')); % Responses during late probe trials
+    recording_rt_no_probe = beh_clean.recording_rt(strcmp(beh_clean.probe_onset_cat, 'Nono')); % Responses during no-probe trials
+    recording_rt_probe = beh_clean.recording_rt(strcmp(beh_clean.probe, 'Yes')); % Responses during probe trials
+
+    %% Plots
+
+    % Plot: RT Distribution for all data, all probe-trials and for late- and early probe-trials
+    figure('Units', 'normalized', 'Position', [0.5, 0.5, 1.2, 1.2]);
+
+    subplot(2,3,[1 4]);
+    bar(1:2, means, 'FaceColor', [0.5 0.5 0.8]);
+    hold on;
+    errorbar(1:2, means, stds, 'k', 'LineStyle', 'none', 'LineWidth', 1.5);
+    set(gca, 'XTick', [1 2], 'XTickLabel', {'Early', 'Late'});
+    ylabel('RT [ms]');  % Set ylabel in milliseconds
+    title('Mean RT with SD');
+    box off;
+
+    text(1, means(1) + stds(1) + 0.02, sprintf('%.2f ± %.2f', means(1), stds(1)), ...
+        'HorizontalAlignment', 'center', 'FontSize', 10);
+    text(2, means(2) + stds(2) + 0.02, sprintf('%.2f ± %.2f', means(2), stds(2)), ...
+        'HorizontalAlignment', 'center', 'FontSize', 10);
+    hold off;
+
+    % --- Distribution Plot ---
+    subplot(2,2,2);
+
+    % Histograms
+    histogram(recording_rt_early_probe, 'Normalization', 'pdf', 'FaceAlpha', 0.5, 'FaceColor', [0.2 0.4 0.8]);
+    hold on;
+    histogram(recording_rt_late_probe, 'Normalization', 'pdf', 'FaceAlpha', 0.5, 'FaceColor', [0.8 0.3 0.3]);
+
+    % Density curves
+    [f_early, xi_early] = ksdensity(recording_rt_early_probe);
+    [f_late, xi_late] = ksdensity(recording_rt_late_probe);
+    plot(xi_early, f_early, 'Color', [0 0 1], 'LineWidth', 2);
+    plot(xi_late, f_late, 'Color', [1 0 0], 'LineWidth', 2);
+
+    % Add mean lines
+    yl = ylim;
+    plot([means(1) means(1)], yl, '--', 'Color', [0 0 1], 'LineWidth', 1.5);
+    plot([means(2) means(2)], yl, '--', 'Color', [1 0 0], 'LineWidth', 1.5);
+
+    legend({'Early (hist)', 'Late (hist)', 'Early (density)', 'Late (density)', 'Mean Early', 'Mean Late'});
+    xlabel('RT [ms]');  % Set xlabel in milliseconds
+    ylabel('Probability Density');
+    title('Distribution of Recording RT');
+    box off;
+    hold off;
+
+
+    sgtitle('Single Subject Reaction Time Analysis: Early vs Late (Paired t-test)');
+
 
 
     % Update Protocol
