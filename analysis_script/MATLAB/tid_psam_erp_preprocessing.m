@@ -38,9 +38,6 @@
 %
 %
 % Literature
-% Bigdely-Shamlo N, Mullen T, Kothe C, Su K-M and Robbins KA (2015).
-% The PREP pipeline: standardized preprocessing for large-scale EEG analysis
-% Front. Neuroinform. 9:16. doi: 10.3389/fninf.2015.00016
 % Pion-Tonachini, L., Kreutz-Delgado, K., & Makeig, S. (2019).
 % ICLabel: An automated electroencephalographic independent component classifier, dataset, and website.
 % NeuroImage, 198, 181-197.
@@ -74,16 +71,13 @@ tid_psam_clean_up_folder_TD(OUTPATH)
 % Variables to edit
 EPO_FROM = -0.2;
 EPO_TILL = 0.400;
-LCF = 1;
-HCF = 60;
-LCF_2 = 1;
-HCF_2 = 25;
+LCF = 0.3;
+HCF = 30;
 LCF_ICA = 1;
-HCF_ICA = 30;
 BL_FROM = -200;
 THRESH = 75;
 SD_PROB = 3;
-RESAM_ICA = 250;
+SD_PROB_ICA = 3;
 EVENTS = {'act_early_unalt', 'act_early_alt', 'act_late_unalt', 'act_late_alt', ...
     'pas_early_unalt', 'pas_early_alt', 'pas_late_unalt', 'pas_late_alt', 'con_act_early', 'con_act_late', ...
     'con_pas_early', 'con_pas_late'};
@@ -112,11 +106,56 @@ for subj_idx= 1:length(dircont_subj)
     % Start eeglab
     [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
 
-    % Load data
+    %% ICA-specific preprocessing 
+    % Load raw data
+    EEG = pop_loadset('filename',[subj '_markers_inlcuded.set'],'filepath',INPATH);
+    
+    % Remove Marker-Channel
+    EEG = pop_select( EEG, 'rmchannel',{'M'});
+    
+    % Add channel locations
+    EEG.chanlocs = readlocs( fullfile(MAINPATH,'\config\elec_96ch_adapted.elp')); 
+    EEG = eeg_checkset( EEG );
+
+    % Store channel locations in another field
+    EEG.urchanlocs = EEG.chanlocs;
+
+    EEG.setname = [subj '_ready_for_ICA_preprocessing'];
+    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+
+    % Highpass-Filter
+    EEG = pop_eegfiltnew(EEG, 'locutoff',LCF_ICA,'plotfreqz',0);
+
+    % Remove bad channels
+    % % EEG.badchans = []; 
+    % % [chans_to_interp, chan_detected_fraction_threshold, detected_bad_channels] = bemobil_detect_bad_channels(EEG, ALLEEG, 1, [], [], 5);
+    % % EEG.badchans = chans_to_interp; 
+    % % EEG = pop_select(EEG,'nochannel', EEG.badchans); 
+
+    % Create 1s epochs & remove bad ones
+    EEG = eeg_regepochs(EEG); 
+
+    EEG = pop_jointprob(EEG,1,[1:EEG.nbchan] ,SD_PROB_ICA,0,0,0,[],0);
+    EEG = pop_rejkurt(EEG,1,[1:EEG.nbchan] ,SD_PROB_ICA,0,0,0,[],0);
+    EEG = eeg_rejsuperpose( EEG, 1, 1, 1, 1, 1, 1, 1, 1);
+
+    EEG = pop_rejepoch( EEG, EEG.reject.rejglobal ,0);
+ 
+    % Run ICA
+    %%EEG = pop_runica(EEG, 'icatype', 'runica', 'extended',1,'interrupt','on');
+    EEG.setname = [subj '_ICA_weights'];
+    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+
+    %% Preprocessing
+    % Relooad raw data
     EEG = pop_loadset('filename',[subj '_markers_inlcuded.set'],'filepath',INPATH);
 
     % Remove Marker-Channel
     EEG = pop_select( EEG, 'rmchannel',{'M'});
+
+    % Add channel locations
+    EEG.chanlocs = readlocs( fullfile(MAINPATH,'\config\elec_96ch_adapted.elp'));
+    EEG = eeg_checkset( EEG );
 
     % Rename events
     clear event
@@ -141,52 +180,28 @@ for subj_idx= 1:length(dircont_subj)
         end
     end
 
+    EEG.setname = [subj '_ready_for_preprocessing'];
+    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+
     % Bandpass-Filter
     EEG = pop_eegfiltnew(EEG, 'locutoff',LCF,'hicutoff',HCF,'plotfreqz',0);
 
-    % Run PREP pipeline (Bigdely-Shamlo et al., 2015)
-    % Settings
-    params = struct();
-    params.lineFrequencies = 50:50:EEG.srate/2-50; % Set line noise to 50Hz
-    params.ignoreBoundaryEvents = true;  % Ignore boundary events
-    params.reportMode = 'skipReport';  % Suppress report
-    params.keepFiltered = true; % Remove trend
-    params.referenceChannels = 1:28;
-    params.evaluationChannels = 1:28;
-    params.rereferencedChannels = 1:EEG.nbchan;
-    % Run
-    %%EEG = pop_prepPipeline(EEG, params);
-    % Store dataset
-    EEG.setname = [subj '_after_PREP'];
-    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+
+    % Remove bad channels
 
 
-    % ICA
-    % Reload and merge raw data
-    EEG = pop_loadset('filename',[subj '_markers_inlcuded.set'],'filepath',INPATH);
-    % Remove Marker-Channel
-    EEG = pop_select( EEG, 'rmchannel',{'M'});
-    % Bandpass-Filter
-    EEG = pop_eegfiltnew(EEG, 'locutoff',LCF_ICA,'hicutoff',HCF_ICA,'plotfreqz',0);
-    % Resample
-    EEG = pop_resample( EEG, RESAM_ICA);
-    % Run ICA
-    %%EEG = pop_runica(EEG, 'icatype', 'runica', 'extended',1,'interrupt','on');
-    EEG.setname = [subj '_ICA_weights'];
+    EEG.setname = [subj '_ready_for_ICA_weights'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+
 
     % Attach ICA weight to main data
-    EEG = ALLEEG(1);
-    CURRENTSET = 1;
-    EEG = pop_editset(EEG,'run', [], 'icaweights','ALLEEG(2).icaweights', 'icasphere','ALLEEG(2).icasphere');
-    EEG.setname = [subj '_after_PREP_ICA'];
-    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+    %%EEG = pop_editset(EEG,'run', [], 'icaweights','ALLEEG(2).icaweights', 'icasphere','ALLEEG(2).icasphere');
     % Label ICA components with IC Label Plugin (Pion-Tonachini et al., 2019)
     %%EEG = pop_iclabel(EEG, 'default');
     %%EEG = pop_icflag(EEG, [0 0.2;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1]);
     %%EEG = pop_subcomp( EEG, [], 0);
-    % Bandpass-Filter
-    EEG = pop_eegfiltnew(EEG, 'locutoff',LCF_2,'hicutoff',HCF_2,'plotfreqz',0);
+
+    % Interpolate bad channels
 
     % Epoching
     EEG = pop_epoch( EEG, EVENTS, [EPO_FROM        EPO_TILL], 'epochinfo', 'yes');
@@ -225,9 +240,9 @@ end
 protocol = cell2table(protocol, 'VariableNames',{'subj','time', 'status'})
 writetable(protocol,fullfile(OUTPATH, 'erp_preprocessing_protocol.xlsx'))
 
-close(wb)
-
 check_done = 'tid_psam_erp_preprocessing_DONE'
+
+delete(wb)
 
 
 

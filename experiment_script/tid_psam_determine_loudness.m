@@ -42,31 +42,20 @@ if ~isempty(answer)
     subj = ['sub-' formattedNum];
 end
 
-% Get filenames
+% Get filename
 normal_probe_file = fullfile(STIMULIPATH, subj, [subj  '_normal_probe.wav']);
-pitch_probe_file = fullfile(STIMULIPATH, subj, [subj  '_pitch_probe.wav']);
 
 % Load audio
 [normal_probe_data, FS] = audioread(normal_probe_file);
-[pitch_probe_data, ~] = audioread(pitch_probe_file);
 
 % Extract the right channel (assuming 2-channel stereo)
 if size(normal_probe_data, 2) == 2
     normal_probe_data = normal_probe_data(:,2);
 end
-if size(pitch_probe_data, 2) == 2
-    pitch_probe_data = pitch_probe_data(:,2);
-end
 
-% Initial playback (alternating between normal and pitch)
-random_seq = randperm(10);
+% Initial playback
 for i = 1:10
-    switch mod(random_seq(i), 2)
-        case 0
-            sound(normal_probe_data, FS);
-        otherwise
-            sound(pitch_probe_data, FS);
-    end
+    sound(normal_probe_data, FS);
     pause(1.5)
 end
 
@@ -74,14 +63,8 @@ end
 while true
     choice = questdlg('Do you want to listen again?', 'Listen again?', 'No, exit', 'Yes', 'No, exit');
     if strcmp(choice, 'Yes')
-        random_seq = randperm(10);
         for i = 1:10
-            switch mod(random_seq(i), 2)
-                case 0
-                    sound(normal_probe_data, FS);
-                otherwise
-                    sound(pitch_probe_data, FS);
-            end
+            sound(normal_probe_data, FS);
             pause(1.5)
         end
     else
@@ -97,7 +80,7 @@ end
 selected_loudness = str2double(loudness_input{1});
 
 % Add selected loudness to probe_properties.xlsx
-prope_properties_file = fullfile(STIMULIPATH,subj,[subj '_probe_properties.xlsx']);  
+prope_properties_file = fullfile(STIMULIPATH,subj,[subj '_probe_properties.xlsx']);
 prop_properties = readtable(prope_properties_file);
 prop_properties.loudness = selected_loudness;
 writetable(prop_properties, prope_properties_file);

@@ -67,7 +67,7 @@ excluded_subj = {};
 protocol = {};
 
 % Setup progress bar
-%%wb = waitbar(0,'starting tid_psam_exclude_trials.m');
+wb = waitbar(0,'starting tid_psam_exclude_trials.m');
 
 clear subj_idx
 for subj_idx= 1:length(dircont_subj_erp)
@@ -85,7 +85,7 @@ for subj_idx= 1:length(dircont_subj_erp)
     end
 
     % Update progress bar
-    %%waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_exclude_trials.m'])
+    waitbar(subj_idx/length(dircont_subj_erp),wb, [subj ' tid_psam_exclude_trials.m'])
 
     tic;
     % Start eeglab
@@ -95,7 +95,7 @@ for subj_idx= 1:length(dircont_subj_erp)
     beh = readtable(fullfile(INPATH_BEH, [subj '_beh_preprocessed.xlsx']));
     load(fullfile(INPATH_BEH, [subj '_excluded_trials_beh_preprocessing.mat'])) % Loads variable excluded_trials_beh
 
-    % Load ERP data
+    % Load EEG data
     EEG = pop_loadset('filename',[subj '_erp_preprocessed.set'],'filepath',INPATH_ERP);
 
     % Sanity Check: Same number of trials (=960)
@@ -133,7 +133,7 @@ for subj_idx= 1:length(dircont_subj_erp)
     filteredRows = beh_clean(validRows, :);
     % Group by the three factors
     [G, condTab, onsetCat, probeType] = findgroups( ...
-        filteredRows.condition_tab, ...
+        filteredRows.task, ...
         filteredRows.probe_onset_cat, ...
         filteredRows.probe_type);
     % Count number of trials per group
@@ -166,6 +166,8 @@ for subj_idx= 1:length(dircont_subj_erp)
 
     % Store datasets for non-excluded subjects
     if ~any(strcmp(excluded_subj, subj), 'all')
+        EEG = ALLEEG(1);
+        CURRENTSET = 1;
         EEG = pop_saveset(EEG, 'filename',[subj '_erp_preprocessed_clean.set'],'filepath', OUTPATH_ERP);
         writetable(beh_clean,fullfile(OUTPATH_BEH, [subj '_beh_preprocessed_clean.xlsx']))
     end
@@ -203,6 +205,6 @@ if ~isempty(excluded_subj)
     writetable(excluded_subj,fullfile(OUTPATH, 'tid_psam_exclude_trials_excluded_subj.xlsx'))
 end
 
-%%close(wb)
-
 check_done = 'tid_psam_exclude_trials_DONE'
+
+delete(wb)

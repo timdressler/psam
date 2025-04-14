@@ -48,13 +48,14 @@ else
 end
 
 MAINPATH = erase(SCRIPTPATH, '\analysis_script\MATLAB');
-INPATH = fullfile(MAINPATH, 'data\processed_data\markers_included\');
-OUTPATH = fullfile(MAINPATH, 'data\processed_data\erp_pilot');
+INPATH_RAW = fullfile(MAINPATH, 'data\processed_data\markers_included\');
+INPATH_PROC_CLEAN = fullfile(MAINPATH, 'data\processed_data\erp_preprocessed_clean\');
+OUTPATH = fullfile(MAINPATH, 'data\analysis_data\erp_pilot');
 
 FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);
 
-tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)
+tid_psam_check_folder_TD(MAINPATH, INPATH_RAW, INPATH_PROC_CLEAN,OUTPATH)
 tid_psam_clean_up_folder_TD(OUTPATH)
 
 % Variables to edit
@@ -75,7 +76,7 @@ ERP_FROM = 75;
 ERP_TILL = 125;
 
 % Get directory content
-dircont_subj = dir(fullfile(INPATH, 'sub-*'));
+dircont_subj = dir(fullfile(INPATH_RAW, 'sub-95*'));
 
 %initialize sanity check variables
 marked_subj = {};
@@ -99,59 +100,69 @@ for subj_idx= 1:length(dircont_subj)
     % Start eeglab
     [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
 
+    %% When using preprocessed data
+
     % Load data
-    EEG = pop_loadset('filename',[subj '_markers_inlcuded.set'],'filepath',INPATH);
+    EEG = pop_loadset('filename',[subj '_erp_preprocessed_clean.set'],'filepath',INPATH_PROC_CLEAN);
 
-    % Remove Marker-Channel
-    EEG = pop_select( EEG, 'rmchannel',{'M'});
-
-    % Rename events
-    clear event
-    for event = 1:length(EEG.event)
-        switch EEG.event(event).type
-            case 'S 931'
-                EEG.event(event).type = 'act_early_unalt';
-            case 'S 932'
-                EEG.event(event).type = 'act_early_alt';
-            case 'S 933'
-                EEG.event(event).type = 'act_late_unalt';
-            case 'S 934'
-                EEG.event(event).type = 'act_late_alt';
-            case 'S 941'
-                EEG.event(event).type = 'pas_early_unalt';
-            case 'S 942'
-                EEG.event(event).type = 'pas_early_alt';
-            case 'S 943'
-                EEG.event(event).type = 'pas_late_unalt';
-            case 'S 944'
-                EEG.event(event).type = 'pas_late_alt';
-        end
-    end
-
-    % Bandpass-Filter
-    EEG = pop_eegfiltnew(EEG, 'locutoff',LCF,'hicutoff',HCF,'plotfreqz',0);
-
-    % Epoching
-    EEG = pop_epoch( EEG, EVENTS, [EPO_FROM        EPO_TILL], 'epochinfo', 'yes');
-
-    % Baseline-Removal
-    EEG = pop_rmbase( EEG, [BL_FROM 0] ,[]);
-
-    % Threshold removal
-    EEG = pop_eegthresh(EEG,1,[1:EEG.nbchan] ,-THRESH,THRESH,EPO_FROM,EPO_TILL,0,0);
-
-    % Probability-based removal
-    EEG = pop_jointprob(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
-    EEG = pop_rejkurt(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
-    EEG = eeg_rejsuperpose( EEG, 1, 1, 1, 1, 1, 1, 1, 1);
-    EEG = pop_rejepoch( EEG, EEG.reject.rejglobal ,0);
-
-    EEG.setname = [subj '_preprocessed'];
+    EEG.setname = [subj '_preprocessed_clean'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+
+    %% When using rawdata
+
+    % % % Load data
+    % % EEG = pop_loadset('filename',[subj '_markers_inlcuded.set'],'filepath',INPATH_RAW);
+    % % 
+    % % % Remove Marker-Channel
+    % % EEG = pop_select( EEG, 'rmchannel',{'M'});
+    % % 
+    % % % Rename events
+    % % clear event
+    % % for event = 1:length(EEG.event)
+    % %     switch EEG.event(event).type
+    % %         case 'S 931'
+    % %             EEG.event(event).type = 'act_early_unalt';
+    % %         case 'S 932'
+    % %             EEG.event(event).type = 'act_early_alt';
+    % %         case 'S 933'
+    % %             EEG.event(event).type = 'act_late_unalt';
+    % %         case 'S 934'
+    % %             EEG.event(event).type = 'act_late_alt';
+    % %         case 'S 941'
+    % %             EEG.event(event).type = 'pas_early_unalt';
+    % %         case 'S 942'
+    % %             EEG.event(event).type = 'pas_early_alt';
+    % %         case 'S 943'
+    % %             EEG.event(event).type = 'pas_late_unalt';
+    % %         case 'S 944'
+    % %             EEG.event(event).type = 'pas_late_alt';
+    % %     end
+    % % end
+    % % 
+    % % % Bandpass-Filter
+    % % EEG = pop_eegfiltnew(EEG, 'locutoff',LCF,'hicutoff',HCF,'plotfreqz',0);
+    % % 
+    % % % Epoching
+    % % EEG = pop_epoch( EEG, EVENTS, [EPO_FROM        EPO_TILL], 'epochinfo', 'yes');
+    % % 
+    % % % Baseline-Removal
+    % % EEG = pop_rmbase( EEG, [BL_FROM 0] ,[]);
+    % % 
+    % % % Threshold removal
+    % % EEG = pop_eegthresh(EEG,1,[1:EEG.nbchan] ,-THRESH,THRESH,EPO_FROM,EPO_TILL,0,0);
+    % % 
+    % % % Probability-based removal
+    % % EEG = pop_jointprob(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
+    % % EEG = pop_rejkurt(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
+    % % EEG = eeg_rejsuperpose( EEG, 1, 1, 1, 1, 1, 1, 1, 1);
+    % % EEG = pop_rejepoch( EEG, EEG.reject.rejglobal ,0);
+    % % 
+    % % EEG.setname = [subj '_qad_preprocessed'];
+    % % [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
     % End of preprocessing
 
-    % Sart analysis
+    %% Sart analysis
 
     % Get all 'Active' condition
     EEG = pop_selectevent( ALLEEG(1), 'latency','-2<=2','type',{'act_early_alt','act_early_unalt','act_late_alt','act_late_unalt'},'deleteevents','off','deleteepochs','on','invertepochs','off');
@@ -333,7 +344,7 @@ end
 
 % Plot ERPs
 % Plot 1: ERPs collapsed over 'Active' and 'Passive' Condition
-figure;
+figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
 subplot(1,2,1)
 plot(EEG.times, mean(all_ERP_act_all(CHANI,:,:),3))
 xlim([-200 500])
@@ -353,7 +364,7 @@ sgtitle('Active and Passive Condition ERPs (collapsed)')
 exportgraphics(gcf,fullfile(OUTPATH, 'erp_collapsed_pilot.png'),'Resolution',1000)
 
 % Plot 2: ERPs for each condition
-figure;
+figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
 colors = lines(4);
 
 subplot(1,2,1)
@@ -368,7 +379,7 @@ xlim([-200 500])
 ylabel('Amplitude [μV]')
 xlabel('Time [ms]')
 title('Active Conditions')
-legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, 'Location', 'best')
+legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, 'Location', 'northeast')
 
 subplot(1,2,2)
 hold on;
@@ -382,14 +393,14 @@ xlim([-200 500])
 ylabel('Amplitude [μV]')
 xlabel('Time [ms]')
 title('Passive Conditions')
-legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, 'Location', 'best')
+legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, 'Location', 'northeast')
 
 sgtitle('Active and Passive Condition ERPs')
 
 exportgraphics(gcf,fullfile(OUTPATH, 'erp_pilot.png'),'Resolution',1000)
 
 % Plot 3: ERPs collapsed over 'Active' and 'Passive' Condition (corrected)
-figure;
+figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
 subplot(1,2,1)
 plot(EEG.times, mean(all_ERP_act_all_corrected(CHANI,:,:),3))
 xlim([-200 500])
@@ -409,7 +420,7 @@ sgtitle('Active and Passive Condition ERPs (collapsed, corrected)')
 exportgraphics(gcf,fullfile(OUTPATH, 'erp_collapsed_corrected_pilot.png'),'Resolution',1000)
 
 % Plot 4: ERPs for each condition (corrected)
-figure;
+figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
 colors = lines(4);
 
 subplot(1,2,1)
@@ -424,7 +435,7 @@ xlim([-200 500])
 ylabel('Amplitude [μV]')
 xlabel('Time [ms]')
 title('Active Conditions (corrected)')
-legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, 'Location', 'best')
+legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, 'Location', 'northeast')
 
 subplot(1,2,2)
 hold on;
@@ -438,14 +449,14 @@ xlim([-200 500])
 ylabel('Amplitude [μV]')
 xlabel('Time [ms]')
 title('Passive Conditions (corrected)')
-legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, 'Location', 'best')
+legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, 'Location', 'northeast')
 
 sgtitle('Active and Passive Condition ERPs (corrected)')
 
 exportgraphics(gcf,fullfile(OUTPATH, 'erp_corrected_pilot.png'),'Resolution',1000)
 
-% Plot 1: ERPs collapsed over 'Active' and 'Passive' Condition (Control)
-figure;
+% Plot 5: ERPs collapsed over 'Active' and 'Passive' Condition (Control)
+figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
 subplot(1,2,1)
 plot(EEG.times, mean(all_ERP_con_act_all(CHANI,:,:),3))
 xlim([-200 500])
@@ -464,16 +475,48 @@ sgtitle('Active and Passive Condition ERPs (collapsed, control)')
 
 exportgraphics(gcf,fullfile(OUTPATH, 'erp_collapsed_control_pilot.png'),'Resolution',1000)
 
+% Plot 6: ERPs for each condition (corrected)
+figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
+colors = lines(4);
+
+subplot(1,2,1)
+hold on;
+plot(EEG.times, mean(all_ERP_act_early_unalt_corrected(CHANI,:,:),3), 'Color', colors(1,:));
+plot(EEG.times, mean(all_ERP_act_early_alt_corrected(CHANI,:,:),3), 'Color', colors(2,:));
+plot(EEG.times, mean(all_ERP_pas_early_unalt_corrected(CHANI,:,:),3), 'Color', colors(3,:));
+plot(EEG.times, mean(all_ERP_pas_early_alt_corrected(CHANI,:,:),3), 'Color', colors(4,:));
+hold off;
+
+xlim([-200 500])
+ylabel('Amplitude [μV]')
+xlabel('Time [ms]')
+title('Early (corrected)')
+legend({'Active Early Unaltered', 'Active Early Altered', ' Passive Early Unaltered', 'Passive Early Altered'}, 'Location', 'northeast')
+
+subplot(1,2,2)
+hold on;
+plot(EEG.times, mean(all_ERP_act_late_unalt_corrected(CHANI,:,:),3), 'Color', colors(1,:));
+plot(EEG.times, mean(all_ERP_act_late_alt_corrected(CHANI,:,:),3), 'Color', colors(2,:));
+plot(EEG.times, mean(all_ERP_pas_late_unalt_corrected(CHANI,:,:),3), 'Color', colors(3,:));
+plot(EEG.times, mean(all_ERP_pas_late_alt_corrected(CHANI,:,:),3), 'Color', colors(4,:));
+hold off;
+
+xlim([-200 500])
+ylabel('Amplitude [μV]')
+xlabel('Time [ms]')
+title('Late (corrected)')
+legend({'Active Late Unaltered', 'Active Late Altered', ' Passive Late Unaltered', 'Passive Late Altered'}, 'Location', 'northeast')
+
+sgtitle('Early and Late Condition ERPs (corrected)')
+
+exportgraphics(gcf,fullfile(OUTPATH, 'erp_corrected_2_pilot.png'),'Resolution',1000)
+
 % End of processing
 
 protocol = cell2table(protocol, 'VariableNames',{'subj','time', 'status'})
 writetable(protocol,fullfile(OUTPATH, 'erp_pilot_protocol.xlsx'))
 
-close(wb)
-
-
-
-
+delete(wb)
 
 
 
