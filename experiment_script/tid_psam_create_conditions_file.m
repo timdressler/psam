@@ -23,6 +23,8 @@
 %           The subject ID is added, and the miniblock is stored
 %           The process repeats for all required iterations to build the full experiment trial list.
 %
+% After completing the full trial list, the list is split into 8 equal sized blocks
+%
 % Tim Dressler, 07.03.2025
 
 clear
