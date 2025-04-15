@@ -127,10 +127,10 @@ for subj_idx= 1:length(dircont_subj)
     EEG = pop_eegfiltnew(EEG, 'locutoff',LCF_ICA,'plotfreqz',0);
 
     % Remove bad channels
-    % % EEG.badchans = []; 
-    % % [chans_to_interp, chan_detected_fraction_threshold, detected_bad_channels] = bemobil_detect_bad_channels(EEG, ALLEEG, 1, [], [], 5);
-    % % EEG.badchans = chans_to_interp; 
-    % % EEG = pop_select(EEG,'nochannel', EEG.badchans); 
+    EEG.badchans = []; 
+    [chans_to_interp, chan_detected_fraction_threshold, detected_bad_channels] = bemobil_detect_bad_channels(EEG, ALLEEG, 1, [], [], 5);
+    EEG.badchans = chans_to_interp; 
+    EEG = pop_select(EEG,'nochannel', EEG.badchans); 
 
     % Create 1s epochs & remove bad ones
     EEG = eeg_regepochs(EEG); 
@@ -195,11 +195,11 @@ for subj_idx= 1:length(dircont_subj)
 
 
     % Attach ICA weight to main data
-    %%EEG = pop_editset(EEG,'run', [], 'icaweights','ALLEEG(2).icaweights', 'icasphere','ALLEEG(2).icasphere');
+    EEG = pop_editset(EEG,'run', [], 'icaweights','ALLEEG(2).icaweights', 'icasphere','ALLEEG(2).icasphere');
     % Label ICA components with IC Label Plugin (Pion-Tonachini et al., 2019)
-    %%EEG = pop_iclabel(EEG, 'default');
-    %%EEG = pop_icflag(EEG, [0 0.2;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1]);
-    %%EEG = pop_subcomp( EEG, [], 0);
+    EEG = pop_iclabel(EEG, 'default');
+    EEG = pop_icflag(EEG, [0 0.2;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1]);
+    EEG = pop_subcomp( EEG, [], 0);
 
     % Interpolate bad channels
 
