@@ -142,7 +142,7 @@ for subj_idx= 1:length(dircont_subj)
     EEG = pop_rejepoch( EEG, EEG.reject.rejglobal ,0);
  
     % Run ICA
-    %%EEG = pop_runica(EEG, 'icatype', 'runica', 'extended',1,'interrupt','on');
+    EEG = pop_runica(EEG, 'icatype', 'runica', 'extended',1,'interrupt','on');
     EEG.setname = [subj '_ICA_weights'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
