@@ -10,6 +10,7 @@
     % Excludes subjects if the number of trials in below threshold for
     %   either condition
     % Stores datasets 
+% Concatinates all individual data sets to one large one and stores it.
 %
 % Tim Dressler, 04.04.2025
 
@@ -65,6 +66,9 @@ end
 % Initialize sanity check variables
 excluded_subj = {};
 protocol = {};
+
+% Initialize empty table used to get data from all subjects
+all_subj_beh_clean = table;
 
 % Setup progress bar
 wb = waitbar(0,'starting tid_psam_exclude_trials.m');
@@ -164,12 +168,18 @@ for subj_idx= 1:length(dircont_subj_erp)
         excluded_subj{end,2} = 'number_of_trials';
     end
 
-    % Store datasets for non-excluded subjects
+    % Store and save datasets for non-excluded subjects
     if ~any(strcmp(excluded_subj, subj), 'all')
+        % EEG data
         EEG = ALLEEG(1);
         CURRENTSET = 1;
         EEG = pop_saveset(EEG, 'filename',[subj '_erp_preprocessed_clean.set'],'filepath', OUTPATH_ERP);
+
+        % Behavioural data
         writetable(beh_clean,fullfile(OUTPATH_BEH, [subj '_beh_preprocessed_clean.xlsx']))
+
+        % Get behavioral data for all subjects
+        all_subj_beh_clean = vertcat(all_subj_beh_clean, beh_clean);
     end
 
     % Update Protocol
@@ -194,6 +204,9 @@ if n_saved_erp == n_saved_beh && n_saved_erp == (n_subjects_all - n_excluded)
 else
     error('Number of saved files incorrect')
 end
+
+% Store behavioral data from all subjects
+writetable(all_subj_beh_clean,fullfile(OUTPATH_BEH, 'all_subj_beh_preprocessed_clean.xlsx'))
 
 % End of processing
 

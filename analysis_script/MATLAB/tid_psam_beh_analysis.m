@@ -256,8 +256,6 @@ for subj_idx= 1:length(dircont_subj)
 
     exportgraphics(gcf,fullfile(OUTPATH, ['tid_psam_rt_distributions_' subj '.png']),'Resolution',1000)
 
-    % Store data for further processing in R
-
     % Update Protocol
     subj_time = toc;
     protocol{subj_idx,1} = subj;
@@ -269,8 +267,6 @@ for subj_idx= 1:length(dircont_subj)
     end
 
 end
-
-% Export data for further processing in R
 
 % End of processing
 
@@ -284,7 +280,7 @@ end
 
 check_done = 'tid_psam_vocal_analysis_DONE'
 
-delete(wb)
+delete(wb); close all;
 
 
 
