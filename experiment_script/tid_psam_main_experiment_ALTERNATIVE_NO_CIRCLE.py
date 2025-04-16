@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on April 14, 2025, at 18:42
+    on April 15, 2025, at 17:19
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -426,10 +426,10 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     # --- Initialize components for Routine "ISI" ---
     fixation_cross_ISI = visual.ShapeStim(
         win=win, name='fixation_cross_ISI', vertices='cross',
-        size=(0.1, 0.1),
+        size=(0.05, 0.05),
         ori=0.0, pos=(0, 0), draggable=False, anchor='center',
         lineWidth=1.0,
-        colorSpace='rgb', lineColor='white', fillColor='white',
+        colorSpace='rgb', lineColor=[-1.0000, -1.0000, -1.0000], fillColor=[-1.0000, -1.0000, -1.0000],
         opacity=None, depth=0.0, interpolate=True)
     fixation_cross_port = parallel.ParallelPort(address='0x3ff8')
     
@@ -447,14 +447,14 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     task_port = parallel.ParallelPort(address='0x3ff8')
     wait_stim = visual.ShapeStim(
         win=win, name='wait_stim',
-        size=(0.2, 0.2), vertices='circle',
+        size=(0.1, 0.1), vertices='circle',
         ori=0.0, pos=(0, 0), draggable=False, anchor='center',
         lineWidth=1.0,
         colorSpace='rgb', lineColor=[-1.0000, -1.0000, -1.0000], fillColor=[0.0000, 0.0000, 0.0000],
         opacity=None, depth=-4.0, interpolate=True)
     go_stim = visual.ShapeStim(
         win=win, name='go_stim',
-        size=(0.2, 0.2), vertices='circle',
+        size=(0.1, 0.1), vertices='circle',
         ori=0.0, pos=(0, 0), draggable=False, anchor='center',
         lineWidth=1.0,
         colorSpace='rgb', lineColor=[-1.0000, -1.0000, -1.0000], fillColor=[-1.0000, 0.0039, -1.0000],
