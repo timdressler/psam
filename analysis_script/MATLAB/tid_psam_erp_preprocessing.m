@@ -186,13 +186,12 @@ for subj_idx= 1:length(dircont_subj)
     % Bandpass-Filter
     EEG = pop_eegfiltnew(EEG, 'locutoff',LCF,'hicutoff',HCF,'plotfreqz',0);
 
-
-    % Remove bad channels
-
+    % Remove bad channels (as identified above)
+    EEG.badchans = chans_to_interp; 
+    EEG = pop_select(EEG,'nochannel', EEG.badchans); 
 
     EEG.setname = [subj '_ready_for_ICA_weights'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
-
 
     % Attach ICA weight to main data
     EEG = pop_editset(EEG,'run', [], 'icaweights','ALLEEG(2).icaweights', 'icasphere','ALLEEG(2).icasphere');
@@ -202,6 +201,7 @@ for subj_idx= 1:length(dircont_subj)
     EEG = pop_subcomp( EEG, [], 0);
 
     % Interpolate bad channels
+
 
     % Epoching
     EEG = pop_epoch( EEG, EVENTS, [EPO_FROM        EPO_TILL], 'epochinfo', 'yes');

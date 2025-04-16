@@ -9,6 +9,7 @@
 % Merges data
 %
 % Marks trials for exclusion based on the following criteria
+% If a trial's onset time differs more than 3 SDs from the mean onset time
 % If a trial's F0 differs more than 3 SDs from the mean F0
 % If a 'Passive' trial includes a reponses
 % If a 'Active' trial includes no response
