@@ -142,7 +142,7 @@ for subj_idx= 1:length(dircont_subj)
     EEG = pop_rejepoch( EEG, EEG.reject.rejglobal ,0);
  
     % Run ICA
-    EEG = pop_runica(EEG, 'icatype', 'runica', 'extended',1,'interrupt','on');
+    % % EEG = pop_runica(EEG, 'icatype', 'runica', 'extended',1,'interrupt','on');
     EEG.setname = [subj '_ICA_weights'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
@@ -196,9 +196,9 @@ for subj_idx= 1:length(dircont_subj)
     % Attach ICA weight to main data
     EEG = pop_editset(EEG,'run', [], 'icaweights','ALLEEG(2).icaweights', 'icasphere','ALLEEG(2).icasphere');
     % Label ICA components with IC Label Plugin (Pion-Tonachini et al., 2019)
-    EEG = pop_iclabel(EEG, 'default');
-    EEG = pop_icflag(EEG, [0 0.2;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1]);
-    EEG = pop_subcomp( EEG, [], 0);
+    % EEG = pop_iclabel(EEG, 'default');
+    % EEG = pop_icflag(EEG, [0 0.2;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1]);
+    % EEG = pop_subcomp( EEG, [], 0);
 
     % Interpolate bad channels
 
