@@ -106,7 +106,7 @@ for subj_idx= 1:length(dircont_subj)
     % Start eeglab
     [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
 
-    %% ICA-specific preprocessing 
+    % ICA-specific preprocessing 
     % Load raw data
     EEG = pop_loadset('filename',[subj '_markers_inlcuded.set'],'filepath',INPATH);
     
@@ -146,8 +146,8 @@ for subj_idx= 1:length(dircont_subj)
     EEG.setname = [subj '_ICA_weights'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
-    %% Preprocessing
-    % Relooad raw data
+    % Preprocessing
+    % Reload raw data
     EEG = pop_loadset('filename',[subj '_markers_inlcuded.set'],'filepath',INPATH);
 
     % Remove Marker-Channel
@@ -239,6 +239,11 @@ end
 
 protocol = cell2table(protocol, 'VariableNames',{'subj','time', 'status'})
 writetable(protocol,fullfile(OUTPATH, 'erp_preprocessing_protocol.xlsx'))
+
+if ~isempty(marked_subj)
+    marked_subj = cell2table(marked_subj, 'VariableNames',{'subj','issue'})
+    writetable(marked_subj,fullfile(OUTPATH, 'tid_psam_erp_preprocessing_marked_subj.xlsx'))
+end
 
 check_done = 'tid_psam_erp_preprocessing_DONE'
 
