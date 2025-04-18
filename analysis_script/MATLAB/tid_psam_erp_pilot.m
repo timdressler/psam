@@ -76,7 +76,7 @@ ERP_FROM = 75;
 ERP_TILL = 125;
 
 % Get directory content
-dircont_subj = dir(fullfile(INPATH_RAW, 'sub-95*'));
+dircont_subj = dir(fullfile(INPATH_RAW, 'sub-96*'));
 
 %initialize sanity check variables
 marked_subj = {};
@@ -102,63 +102,63 @@ for subj_idx= 1:length(dircont_subj)
 
     %% When using preprocessed data
 
-    % Load data
-    EEG = pop_loadset('filename',[subj '_erp_preprocessed_clean.set'],'filepath',INPATH_PROC_CLEAN);
-
-    EEG.setname = [subj '_preprocessed_clean'];
-    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+    % % % Load data
+    % % EEG = pop_loadset('filename',[subj '_erp_preprocessed_clean.set'],'filepath',INPATH_PROC_CLEAN);
+    % % 
+    % % EEG.setname = [subj '_preprocessed_clean'];
+    % % [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
     %% When using rawdata
 
-    % % % Load data
-    % % EEG = pop_loadset('filename',[subj '_markers_inlcuded.set'],'filepath',INPATH_RAW);
-    % % 
-    % % % Remove Marker-Channel
-    % % EEG = pop_select( EEG, 'rmchannel',{'M'});
-    % % 
-    % % % Rename events
-    % % clear event
-    % % for event = 1:length(EEG.event)
-    % %     switch EEG.event(event).type
-    % %         case 'S 931'
-    % %             EEG.event(event).type = 'act_early_unalt';
-    % %         case 'S 932'
-    % %             EEG.event(event).type = 'act_early_alt';
-    % %         case 'S 933'
-    % %             EEG.event(event).type = 'act_late_unalt';
-    % %         case 'S 934'
-    % %             EEG.event(event).type = 'act_late_alt';
-    % %         case 'S 941'
-    % %             EEG.event(event).type = 'pas_early_unalt';
-    % %         case 'S 942'
-    % %             EEG.event(event).type = 'pas_early_alt';
-    % %         case 'S 943'
-    % %             EEG.event(event).type = 'pas_late_unalt';
-    % %         case 'S 944'
-    % %             EEG.event(event).type = 'pas_late_alt';
-    % %     end
-    % % end
-    % % 
-    % % % Bandpass-Filter
-    % % EEG = pop_eegfiltnew(EEG, 'locutoff',LCF,'hicutoff',HCF,'plotfreqz',0);
-    % % 
-    % % % Epoching
-    % % EEG = pop_epoch( EEG, EVENTS, [EPO_FROM        EPO_TILL], 'epochinfo', 'yes');
-    % % 
-    % % % Baseline-Removal
-    % % EEG = pop_rmbase( EEG, [BL_FROM 0] ,[]);
-    % % 
-    % % % Threshold removal
-    % % EEG = pop_eegthresh(EEG,1,[1:EEG.nbchan] ,-THRESH,THRESH,EPO_FROM,EPO_TILL,0,0);
-    % % 
-    % % % Probability-based removal
-    % % EEG = pop_jointprob(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
-    % % EEG = pop_rejkurt(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
-    % % EEG = eeg_rejsuperpose( EEG, 1, 1, 1, 1, 1, 1, 1, 1);
-    % % EEG = pop_rejepoch( EEG, EEG.reject.rejglobal ,0);
-    % % 
-    % % EEG.setname = [subj '_qad_preprocessed'];
-    % % [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+    % Load data
+    EEG = pop_loadset('filename',[subj '_markers_inlcuded.set'],'filepath',INPATH_RAW);
+
+    % Remove Marker-Channel
+    EEG = pop_select( EEG, 'rmchannel',{'M'});
+
+    % Rename events
+    clear event
+    for event = 1:length(EEG.event)
+        switch EEG.event(event).type
+            case 'S 931'
+                EEG.event(event).type = 'act_early_unalt';
+            case 'S 932'
+                EEG.event(event).type = 'act_early_alt';
+            case 'S 933'
+                EEG.event(event).type = 'act_late_unalt';
+            case 'S 934'
+                EEG.event(event).type = 'act_late_alt';
+            case 'S 941'
+                EEG.event(event).type = 'pas_early_unalt';
+            case 'S 942'
+                EEG.event(event).type = 'pas_early_alt';
+            case 'S 943'
+                EEG.event(event).type = 'pas_late_unalt';
+            case 'S 944'
+                EEG.event(event).type = 'pas_late_alt';
+        end
+    end
+
+    % Bandpass-Filter
+    EEG = pop_eegfiltnew(EEG, 'locutoff',LCF,'hicutoff',HCF,'plotfreqz',0);
+
+    % Epoching
+    EEG = pop_epoch( EEG, EVENTS, [EPO_FROM        EPO_TILL], 'epochinfo', 'yes');
+
+    % Baseline-Removal
+    EEG = pop_rmbase( EEG, [BL_FROM 0] ,[]);
+
+    % Threshold removal
+    EEG = pop_eegthresh(EEG,1,[1:EEG.nbchan] ,-THRESH,THRESH,EPO_FROM,EPO_TILL,0,0);
+
+    % Probability-based removal
+    EEG = pop_jointprob(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
+    EEG = pop_rejkurt(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
+    EEG = eeg_rejsuperpose( EEG, 1, 1, 1, 1, 1, 1, 1, 1);
+    EEG = pop_rejepoch( EEG, EEG.reject.rejglobal ,0);
+
+    EEG.setname = [subj '_qad_preprocessed'];
+    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
     % End of preprocessing
 

@@ -201,6 +201,14 @@ for subj_idx= 1:length(dircont_subj)
     % EEG = pop_subcomp( EEG, [], 0);
 
     % Interpolate bad channels
+    % interpolate bad channels after proper cleaning -----------------------------------------
+if ~isempty(SUB(sub).badchans)
+% if there are bad channels...
+for bc = 1:length(SUB(sub).badchans) % go through them
+EEG = pop_interp(EEG, EEG.urchanlocs , 'spherical'); % and interpolate them using urchanlocs
+end  
+end
+
 
 
     % Epoching
