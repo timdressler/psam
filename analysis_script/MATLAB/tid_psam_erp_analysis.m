@@ -39,7 +39,7 @@ ERP_FROM = 70;
 ERP_TILL = 130;
 
 % Get directory content
-dircont_subj = dir(fullfile(INPATH, 'sub-95*_clean.set'));
+dircont_subj = dir(fullfile(INPATH, 'sub-*_clean.set'));
 
 %initialize sanity check variables
 marked_subj = {};
@@ -185,7 +185,8 @@ end
 
 check_done = 'tid_psam_erp_preprocessing_DONE'
 
-delete(wb)
+delete(wb); %%close all;
+
 
 
 

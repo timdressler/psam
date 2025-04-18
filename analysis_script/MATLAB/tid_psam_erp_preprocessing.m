@@ -71,8 +71,8 @@ tid_psam_clean_up_folder_TD(OUTPATH)
 % Variables to edit
 EPO_FROM = -0.2;
 EPO_TILL = 0.400;
-LCF = 0.3;
-HCF = 30;
+LCF = 0.3; 
+HCF = 30; 
 LCF_ICA = 1;
 BL_FROM = -200;
 THRESH = 75;
