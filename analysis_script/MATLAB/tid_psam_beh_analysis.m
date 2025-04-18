@@ -29,6 +29,7 @@ tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)
 tid_psam_clean_up_folder_TD(OUTPATH)
 
 % Variables to edit
+N_BLOCKS = 8; % Shoud be left at 8
 
 % Get directory content
 dircont_subj = dir(fullfile(INPATH, 'sub-*clean.xlsx'));
@@ -66,7 +67,6 @@ for subj_idx= 1:length(dircont_subj)
     beh_clean.recording_f0_altered_z = (beh_clean.probe_altered_f0 - f0_mean) ./ f0_sd; % Altered Probe
 
     recording_f0_z = beh_clean.recording_f0_z(~isnan(beh_clean.recording_f0_z)); % Responses without NaNs
-
     recording_f0_z_no_probe = beh_clean.recording_f0_z(strcmp(beh_clean.probe_type, 'None')); % Responses during no-probe trials
     recording_f0_z_unaltered_probe = beh_clean.recording_f0_z(strcmp(beh_clean.probe_type, 'Normal')); % Responses during unaltered probe trials
     recording_f0_z_altered_probe = beh_clean.recording_f0_z(strcmp(beh_clean.probe_type, 'Pitch')); % Responses during altered probe trials
@@ -91,23 +91,16 @@ for subj_idx= 1:length(dircont_subj)
     exportgraphics(gcf,fullfile(OUTPATH, ['tid_psam_z_f0_distribution_' subj '.png']),'Resolution',1000)
 
     % Plot: Z-transformed F0 Distribution including Probe F0's (binnedin one plot)
-    % Prepare data
-    n_bins = 10;
-    min_trials_per_bin = 25;
-    n_data = numel(recording_f0_z);
-    bin_edges = round(linspace(1, n_data + 1, n_bins + 1));
-    bin_counts = diff(bin_edges);
-
     % Prepare figure
     figure('Units', 'normalized', 'Position', [0.5, 0.5, 1.2, 1.2]);
-    colors = parula(n_bins);
+    colors = parula(N_BLOCKS);
     hold on;
 
     % Plot density for each bin
-    for bin_idx = 1:n_bins
-        bin_data = recording_f0_z(bin_edges(bin_idx):bin_edges(bin_idx+1)-1);
-        [f, xi] = ksdensity(bin_data);
-        plot(xi, f, 'LineWidth', 2, 'Color', colors(bin_idx, :));
+    for block_idx = 1:N_BLOCKS
+        block_data = beh_clean.recording_f0_z(beh_clean.block == block_idx);
+        [f, xi] = ksdensity(block_data);
+        plot(xi, f, 'LineWidth', 2, 'Color', colors(block_idx, :));
     end
 
     xline(beh_clean.recording_f0_unaltered_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
@@ -116,50 +109,46 @@ for subj_idx= 1:length(dircont_subj)
     xlabel('F0 [Z-Transformed]');
     ylabel('Density');
     title(['Z-transformed F0 Distribution across Bins for ' subj]);
-    legend_entries = arrayfun(@(i) sprintf('Bin %d', i), 1:n_bins, 'UniformOutput', false);
+    legend_entries = arrayfun(@(i) sprintf('Block %d', i), 1:N_BLOCKS, 'UniformOutput', false);
     legend([legend_entries, {'F0 Unaltered Probe', 'F0 Altered Probe'}], ...
         'Location', 'northeast', 'Interpreter', 'none');
     grid on;
     box on;
     hold off;
 
-    exportgraphics(gcf, fullfile(OUTPATH, ['tid_psam_z_f0_distribution_binned_' subj '.png']), 'Resolution', 1000);
+    exportgraphics(gcf, fullfile(OUTPATH, ['tid_psam_z_f0_distribution_blocks_' subj '.png']), 'Resolution', 1000);
 
-    % Plot: Z-transformed F0 Distribution including Probe F0's (binned in subplot)
+    % Plot: Z-transformed F0 Distribution including Probe F0's (binned in subplots)
+
     % Prepare data
-    n_bins = 10;
-    min_trials_per_bin = 25;
-    n_data = numel(recording_f0_z);
-    bin_edges = round(linspace(1, n_data + 1, n_bins + 1));
-    bin_counts = diff(bin_edges);
-
     all_xi = [];
-    for bin_idx = 1:n_bins
-        bin_data = recording_f0_z(bin_edges(bin_idx):bin_edges(bin_idx+1)-1);
-        [f, xi] = ksdensity(bin_data);
+    for block_idx = 1:N_BLOCKS
+        block_data = beh_clean.recording_f0_z(beh_clean.block == block_idx);
+        [f, xi] = ksdensity(block_data);
         all_xi = [all_xi, xi];  % Collect all xi values to determine the range
     end
+    all_xi = [all_xi, beh_clean.recording_f0_unaltered_z(1), beh_clean.recording_f0_altered_z(1)]; % Add x value of the probes
     x_limits = [min(all_xi), max(all_xi)];  % Set consistent x-axis limits
 
     % Prepare figure
     figure('Units', 'normalized', 'Position', [0.5, 0.5, 1.2, 1.2]);
-    colors = parula(n_bins);
+    colors = parula(N_BLOCKS);
     hold on;
 
     % Plot density for each bin
-    for bin_idx = 1:n_bins
-        bin_data = recording_f0_z(bin_edges(bin_idx):bin_edges(bin_idx+1)-1);
-        [f, xi] = ksdensity(bin_data);
+    for block_idx = 1:N_BLOCKS
+        block_data = beh_clean.recording_f0_z(beh_clean.block == block_idx);
+        [f, xi] = ksdensity(block_data);
 
-        subplot(n_bins, 1, bin_idx);
-        plot(xi, f, 'LineWidth', 2, 'Color', colors(bin_idx, :));
+        subplot(N_BLOCKS, 1, block_idx);
+        plot(xi, f, 'LineWidth', 2, 'Color', colors(block_idx, :));
 
         xline(beh_clean.recording_f0_unaltered_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
         xline(beh_clean.recording_f0_altered_z(1), 'r--', 'LineWidth', 2); % F0 altered probe
 
         xlabel('F0 [Z-Transformed]');
         ylabel('Density');
-        title(['Z-transformed F0 Distribution for Bin ' num2str(bin_idx) ' n_trials = ' num2str(length(bin_data))]);
+        title(['Z-transformed F0 Distribution for Bin ' num2str(block_idx) ' n_trials = ' num2str(length(block_data))]);
         grid on;
         box on;
         xlim(x_limits);
@@ -169,7 +158,7 @@ for subj_idx= 1:length(dircont_subj)
     sgtitle(['Z-transformed F0 Distribution across Bins for ' subj]);
     hold off;
 
-    exportgraphics(gcf, fullfile(OUTPATH, ['tid_psam_z_f0_distribution_binned_subplots_' subj '.png']), 'Resolution', 1000);
+    exportgraphics(gcf, fullfile(OUTPATH, ['tid_psam_z_f0_distribution_blocks_subplots_' subj '.png']), 'Resolution', 1000);
 
     % Plot: Z-transformed F0 Distribution including Probe F0's (for no-probe, unaltered probe and altered probe trials)
     figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);

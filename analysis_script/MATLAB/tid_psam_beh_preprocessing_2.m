@@ -73,7 +73,7 @@ for subj_idx= 1:length(dircont_subj)
     tic;
 
     % Sanity Check: One log file per subject
-    subj_log_filename = dir(fullfile(INPATH, [subj '\beh\*.csv']));
+    subj_log_filename = dir(fullfile(INPATH, [subj '\beh\s*.csv']));
     if numel(subj_log_filename) == 1
     else
         marked_subj{end+1,1} = subj;
@@ -91,7 +91,7 @@ for subj_idx= 1:length(dircont_subj)
         'mic_started', 'mic_stopped', 'probe', 'probe_duration', 'probe_intensity', 'probe_marker', ...
         'probe_marker_port_started', 'probe_onset', 'probe_onset_cat', 'probe_type', ...
         'psychopyVersion', 'rec_duration', 'stim_file', 'subj', 'task', 'task_marker', ...
-        'trial_started'});
+        'trial_started', 'conditions_file'});
 
     % Rename columns
     renamed_column = {
@@ -120,12 +120,23 @@ for subj_idx= 1:length(dircont_subj)
         'task'                        'task_instruction';
         'task_marker'                 'task_marker';
         'trial_started'               'trial_started';
+        'conditions_file'             'block';  
         };
 
     old_columns = renamed_column(:, 1);
     new_columns = renamed_column(:, 2);
 
     subj_log_clean = renamevars(subj_log_clean, old_columns, new_columns);
+
+    % Extract block number
+    subj_log_clean.block = cellfun(@(x) str2double(regexp(x, '_([0-9]+)\.xlsx$', 'tokens', 'once')), subj_log_clean.block);
+
+     % Sanity Check: Plausible blocks extracted
+    if all(ismember( subj_log_clean.block, [1, 2, 3, 4, 5, 6, 7, 8]))
+    else
+        marked_subj{end+1,1} = subj;
+        marked_subj{end,2} = 'wrong_block_number';
+    end
 
     % Sanity Check: Equal db for unaltered and altered probes
     if height(subj_log_clean) == n_trials
@@ -257,7 +268,7 @@ for subj_idx= 1:length(dircont_subj)
         'recording_duration_vocal', 'recording_onset_vocal', 'recording_file', ...
         'probe_unaltered_f0', 'probe_altered_f0', 'probe_loudness_attenuation', ...
         'probe_change_attempts', 'correct_vocal_response', 'recording_f0_outlier', 'task', ...
-        'trial_started', 'go_stim_started', 'go_stim_started_trial_start'});
+        'trial_started', 'go_stim_started', 'go_stim_started_trial_start', 'block'});
 
     writetable(subj_full_clean,fullfile(OUTPATH, [subj '_beh_preprocessed.xlsx']))
 

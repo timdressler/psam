@@ -51,7 +51,8 @@ n_trials = 960;
 EVENTS = {'act_early_unalt', 'act_early_alt', 'act_late_unalt', 'act_late_alt', ...
     'pas_early_unalt', 'pas_early_alt', 'pas_late_unalt', 'pas_late_alt', 'con_act_early', 'con_act_late', ...
     'con_pas_early', 'con_pas_late'};
-N_TRIALS_THRESH = 30; % Number of minimal required trials per condition
+N_TRIALS_THRESH = 30; % Number of minimal required trials per condition (excluded)
+N_TRIALS_BLOCK_THRESH = 60; % Number of minimal required trials per block (only marked, not excluded)
 
 % Get directory content
 dircont_subj_erp = dir(fullfile(INPATH_ERP, 'sub-*.set'));
@@ -65,6 +66,7 @@ end
 
 % Initialize sanity check variables
 excluded_subj = {};
+marked_subj = {};
 protocol = {};
 
 % Initialize empty table used to get data from all subjects
@@ -162,6 +164,14 @@ for subj_idx= 1:length(dircont_subj_erp)
         error('Number of trials per conndition do not match')
     end
 
+    % Sanity Check: Enough trials per block
+    for block_num = 1:8
+    if sum([beh_clean.block] == block_num) < N_TRIALS_BLOCK_THRESH 
+        marked_subj{end+1,1} = subj;
+        marked_subj{end,2} = ['number_of_trials_block_' num2str(block_num)];
+    end
+    end
+
     % Exclude subjects if not enough trials per condition are left
     if any([n_trials_condition_beh.n_trials] < N_TRIALS_THRESH)
         excluded_subj{end+1,1} = subj;
@@ -216,6 +226,11 @@ writetable(protocol,fullfile(OUTPATH, 'tid_psam_exclude_trials_protocol.xlsx'))
 if ~isempty(excluded_subj)
     excluded_subj = cell2table(excluded_subj, 'VariableNames',{'subj','issue'})
     writetable(excluded_subj,fullfile(OUTPATH, 'tid_psam_exclude_trials_excluded_subj.xlsx'))
+end
+
+if ~isempty(marked_subj)
+    marked_subj = cell2table(marked_subj, 'VariableNames',{'subj','issue'})
+    writetable(marked_subj,fullfile(OUTPATH, 'tid_psam_exclude_trials_marked_subj.xlsx'))
 end
 
 check_done = 'tid_psam_exclude_trials_DONE'
