@@ -186,12 +186,10 @@ for subj_idx= 1:length(dircont_subj)
         sgtitle(['ERPs for ' subj ' and Condition ' EVENTS{cond}])
 
         saveas(gcf,fullfile(OUTPATH, [subj '_erp_' EVENTS{cond} '.png']))
-
-
     end
 
 
-    % Save dataset ERP data
+    % Save ERP data
 
     % Update Protocol
     subj_time = toc;
