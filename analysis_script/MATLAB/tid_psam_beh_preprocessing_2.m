@@ -83,6 +83,13 @@ for subj_idx= 1:length(dircont_subj)
     % Get log file
     subj_log = readtable(fullfile(subj_log_filename.folder, subj_log_filename.name));
 
+    % Re-code probe_type and task variable
+    subj_log.probe_type(strcmp(subj_log.probe_type, 'Normal')) = {'Unaltered'};
+    subj_log.probe_type(strcmp(subj_log.probe_type, 'Pitch')) = {'Altered'};
+
+    subj_log.task(strcmp(subj_log.task, '/ga/')) = {'Active'};
+    subj_log.task(strcmp(subj_log.task, '/xx/')) = {'Passive'};
+
     % Remove all rows from log file which don not resembel experimental trials (e.g. Instruction trials)
     subj_log_clean = subj_log(~isnan(subj_log.("mic_started")), :);
     % Only included needed columns
@@ -183,7 +190,7 @@ for subj_idx= 1:length(dircont_subj)
         marked_subj{end,2} = 'probe_properties_db';
     end
 
-    % Get F0 & RT Table
+    % Get F0 & vocal onset Table
     subj_f0_rt = readtable(fullfile(INPATH_PRAAT, [subj '_f0_rt_table.csv']), Delimiter=',');
     subj_f0_rt = standardizeMissing(subj_f0_rt,9999);
 
@@ -191,7 +198,7 @@ for subj_idx= 1:length(dircont_subj)
     renamed_column = {
         'subj_tab'                      'subj';
         'f0_tab'                        'recording_f0';
-        'rt_tab'                        'recording_rt';
+        'rt_tab'                        'recording_vot';
         'duration_file_tab'             'recoding_duration';
         'condition_tab'                 'task';
         'min_intensity_tab'             'recording_min_intensity';
@@ -217,24 +224,24 @@ for subj_idx= 1:length(dircont_subj)
         marked_subj{end,2} = 'f0_rt_dimensions';
     end
 
-    % Concatinate log file, probe properties file and F0 & RT Table
+    % Concatinate log file, probe properties file and F0 & vocal onset table
     subj_full = join(subj_f0_rt, subj_log_clean, 'Keys', {'subj', 'recording_file'});
     % Exclude 'filename_tab' column and repeat the remaining columns for each row of subj_full
     subj_full = [subj_full, repmat(subj_probe_properties(:, setdiff(1:width(subj_probe_properties), find(strcmp(subj_probe_properties.Properties.VariableNames, 'probe_file')))), height(subj_full), 1)];
 
     % Get reaction time relative to go stimulus onset
-    subj_full.recording_rt = subj_full.recording_onset_vocal - (subj_full.go_stim_started_trial_start- subj_full.mic_started);
+    subj_full.recording_vot = subj_full.recording_onset_vocal - (subj_full.go_stim_started_trial_start- subj_full.mic_started);
 
-    % Exlcude trials with outlier RT
+    % Exlcude trials with outlier vocal onset time
     % Get threshold
-    mean_rt = mean(subj_full.recording_rt, 'omitnan');
-    std_rt = std(subj_full.recording_rt, 'omitnan');
+    mean_rt = mean(subj_full.recording_vot, 'omitnan');
+    std_rt = std(subj_full.recording_vot, 'omitnan');
     threshold_upper = mean_rt + 3 * std_rt;
     threshold_lower = mean_rt - 3 * std_rt;
     % Add a column indicating F0 outliers
-    subj_full.recording_rt_outlier = (subj_full.recording_rt > threshold_upper) | (subj_full.recording_rt < threshold_lower);
+    subj_full.recording_vot_outlier = (subj_full.recording_vot > threshold_upper) | (subj_full.recording_vot < threshold_lower);
     % Excluded trials based on F0 outliers
-    excluded_trials_rt_outliers = (subj_full.recording_rt > threshold_upper) | (subj_full.recording_rt < threshold_lower);
+    excluded_trials_rt_outliers = (subj_full.recording_vot > threshold_upper) | (subj_full.recording_vot < threshold_lower);
 
     % Exlcude trials with outlier F0
     % Get threshold
@@ -263,7 +270,7 @@ for subj_idx= 1:length(dircont_subj)
     subj_full_clean = subj_full(:, {'recording_path', ...
         'mic_started', 'mic_stopped', 'probe', ...
         'probe_onset', 'probe_onset_cat', 'probe_type', ...
-        'subj', 'task_instruction', 'task_marker', 'recording_f0', 'recording_rt', ...
+        'subj', 'task_instruction', 'task_marker', 'recording_f0', 'recording_vot', ...
         'recording_min_intensity', 'recording_max_intensity', 'vocal_response', ...
         'recording_duration_vocal', 'recording_onset_vocal', 'recording_file', ...
         'probe_unaltered_f0', 'probe_altered_f0', 'probe_loudness_attenuation', ...

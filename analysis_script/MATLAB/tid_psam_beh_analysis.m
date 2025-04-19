@@ -52,24 +52,16 @@ for subj_idx= 1:length(dircont_subj)
     waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_vocal_analysis.m'])
 
     tic;
+
     % Load data
     beh_clean = readtable(fullfile(INPATH,[subj '_beh_preprocessed_clean.xlsx']));
 
     % F0 Analysis
 
-    % Z-Transformation F0 data
-    % Z-transform F0's of responses and probes based on the mean and SD of the responses)
-    f0_mean = mean(beh_clean.recording_f0, 'omitmissing');
-    f0_sd = std(beh_clean.recording_f0, 'omitmissing');
-
-    beh_clean.recording_f0_z = (beh_clean.recording_f0 - f0_mean) ./ f0_sd; % Responses
-    beh_clean.recording_f0_unaltered_z = (beh_clean.probe_unaltered_f0 - f0_mean) ./ f0_sd; % Unaltered Probe
-    beh_clean.recording_f0_altered_z = (beh_clean.probe_altered_f0 - f0_mean) ./ f0_sd; % Altered Probe
-
     recording_f0_z = beh_clean.recording_f0_z(~isnan(beh_clean.recording_f0_z)); % Responses without NaNs
     recording_f0_z_no_probe = beh_clean.recording_f0_z(strcmp(beh_clean.probe_type, 'None')); % Responses during no-probe trials
-    recording_f0_z_unaltered_probe = beh_clean.recording_f0_z(strcmp(beh_clean.probe_type, 'Normal')); % Responses during unaltered probe trials
-    recording_f0_z_altered_probe = beh_clean.recording_f0_z(strcmp(beh_clean.probe_type, 'Pitch')); % Responses during altered probe trials
+    recording_f0_z_unaltered_probe = beh_clean.recording_f0_z(strcmp(beh_clean.probe_type, 'Unaltered')); % Responses during unaltered probe trials
+    recording_f0_z_altered_probe = beh_clean.recording_f0_z(strcmp(beh_clean.probe_type, 'Altered')); % Responses during altered probe trials
 
     % Plots
 
@@ -78,8 +70,8 @@ for subj_idx= 1:length(dircont_subj)
     [f, xi] = ksdensity(recording_f0_z); % Density of F0 vocal responses
     plot(xi, f, 'LineWidth', 2, 'Color','b');
     hold on;
-    xline(beh_clean.recording_f0_unaltered_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
-    xline(beh_clean.recording_f0_altered_z(1), 'r--', 'LineWidth', 2); % F0 altered probe
+    xline(beh_clean.probe_f0_unaltered_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
+    xline(beh_clean.probe_f0_altered_z(1), 'r--', 'LineWidth', 2); % F0 altered probe
 
     xlabel('F0 [Z-Transformed]');
     ylabel('Density');
@@ -103,8 +95,8 @@ for subj_idx= 1:length(dircont_subj)
         plot(xi, f, 'LineWidth', 2, 'Color', colors(block_idx, :));
     end
 
-    xline(beh_clean.recording_f0_unaltered_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
-    xline(beh_clean.recording_f0_altered_z(1), 'r--', 'LineWidth', 2); % F0 altered probe
+    xline(beh_clean.probe_f0_unaltered_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
+    xline(beh_clean.probe_f0_altered_z(1), 'r--', 'LineWidth', 2); % F0 altered probe
 
     xlabel('F0 [Z-Transformed]');
     ylabel('Density');
@@ -127,7 +119,7 @@ for subj_idx= 1:length(dircont_subj)
         [f, xi] = ksdensity(block_data);
         all_xi = [all_xi, xi];  % Collect all xi values to determine the range
     end
-    all_xi = [all_xi, beh_clean.recording_f0_unaltered_z(1), beh_clean.recording_f0_altered_z(1)]; % Add x value of the probes
+    all_xi = [all_xi, beh_clean.probe_f0_unaltered_z(1), beh_clean.probe_f0_altered_z(1)]; % Add x value of the probes
     x_limits = [min(all_xi), max(all_xi)];  % Set consistent x-axis limits
 
     % Prepare figure
@@ -143,8 +135,8 @@ for subj_idx= 1:length(dircont_subj)
         subplot(N_BLOCKS, 1, block_idx);
         plot(xi, f, 'LineWidth', 2, 'Color', colors(block_idx, :));
 
-        xline(beh_clean.recording_f0_unaltered_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
-        xline(beh_clean.recording_f0_altered_z(1), 'r--', 'LineWidth', 2); % F0 altered probe
+        xline(beh_clean.probe_f0_unaltered_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
+        xline(beh_clean.probe_f0_altered_z(1), 'r--', 'LineWidth', 2); % F0 altered probe
 
         xlabel('F0 [Z-Transformed]');
         ylabel('Density');
@@ -169,8 +161,8 @@ for subj_idx= 1:length(dircont_subj)
     plot(xi, f, 'LineWidth', 2, 'Color','k');
     [f, xi] = ksdensity(recording_f0_z_altered_probe); % Density of F0 vocal responses after altered probe trials
     plot(xi, f, 'LineWidth', 2, 'Color','r');
-    xline(beh_clean.recording_f0_unaltered_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
-    xline(beh_clean.recording_f0_altered_z(1), 'r--', 'LineWidth', 2); % F0 altered probe
+    xline(beh_clean.probe_f0_unaltered_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
+    xline(beh_clean.probe_f0_altered_z(1), 'r--', 'LineWidth', 2); % F0 altered probe
 
     xlabel('F0 [Z-Transformed]');
     ylabel('Density');
@@ -181,58 +173,58 @@ for subj_idx= 1:length(dircont_subj)
 
     saveas(gcf,fullfile(OUTPATH, ['tid_psam_z_f0_distribution_probe_types_' subj '.png']))
 
-    % Reaction-Time Analysis
+    % Vocal Onset Time Analysis
 
-    recording_rt_early_probe = beh_clean.recording_rt(strcmp(beh_clean.probe_onset_cat, 'Early')); % Responses during early probe trials
-    recording_rt_late_probe = beh_clean.recording_rt(strcmp(beh_clean.probe_onset_cat, 'Late')); % Responses during late probe trials
-    recording_rt_no_probe = beh_clean.recording_rt(strcmp(beh_clean.probe, 'No')); % Responses during no-probe trials
-    recording_rt_probe = beh_clean.recording_rt(strcmp(beh_clean.probe, 'Yes')); % Responses during probe trials
+    recording_vot_early_probe = beh_clean.recording_vot(strcmp(beh_clean.probe_onset_cat, 'Early')); % Responses during early probe trials
+    recording_vot_late_probe = beh_clean.recording_vot(strcmp(beh_clean.probe_onset_cat, 'Late')); % Responses during late probe trials
+    recording_vot_no_probe = beh_clean.recording_vot(strcmp(beh_clean.probe, 'No')); % Responses during no-probe trials
+    recording_vot_probe = beh_clean.recording_vot(strcmp(beh_clean.probe, 'Yes')); % Responses during probe trials
 
     % Plots
 
-    % Plot: RT Distribution for all data, all probe-trials and no-probe trials and for late- and early probe-trials
+    % Plot: Vocal onset time distribution for all data, all probe-trials and no-probe trials and for late- and early probe-trials
     figure('Units', 'normalized', 'Position', [0.5, 0.5, 1.2, 1.2]);
 
-    % Subplot: RT Distribution for late- and early probe-trials
+    % Subplot: Vocal onset time distribution for late- and early probe-trials
     subplot(2,2,1);
     hold on
-    [f_early, xi_early] = ksdensity(recording_rt_early_probe);
-    [f_late, xi_late] = ksdensity(recording_rt_late_probe);
+    [f_early, xi_early] = ksdensity(recording_vot_early_probe);
+    [f_late, xi_late] = ksdensity(recording_vot_late_probe);
     plot(xi_early, f_early, 'Color', 'g', 'LineWidth', 2);
     plot(xi_late, f_late, 'Color', 'm', 'LineWidth', 2);
-    xline(mean(recording_rt_early_probe, 'omitnan'), 'g--', 'LineWidth', 2); % RT early probe
-    xline(mean(recording_rt_late_probe, 'omitnan'), 'm--', 'LineWidth', 2); % RT late probe
+    xline(mean(recording_vot_early_probe, 'omitnan'), 'g--', 'LineWidth', 2); % RT early probe
+    xline(mean(recording_vot_late_probe, 'omitnan'), 'm--', 'LineWidth', 2); % RT late probe
 
     legend({'Early', 'Late', 'Mean Early', 'Mean Late'});
     xlabel('RT [ms]');  
     ylabel('Density');
-    title('Distribution of Recording RT for early and late probe trials');
+    title('Distribution of Recording VOT for early and late probe trials');
     box off
     hold off
 
-    % Subplot: RT Distribution for no-probe and probe trials
+    % Subplot: Vocal onset time distribution for no-probe and probe trials
     subplot(2,2,2);
     hold on
-    [f_probe, xi_probe] = ksdensity(recording_rt_probe);
-    [f_no_probe, xi_no_probe] = ksdensity(recording_rt_no_probe);
+    [f_probe, xi_probe] = ksdensity(recording_vot_probe);
+    [f_no_probe, xi_no_probe] = ksdensity(recording_vot_no_probe);
     plot(xi_probe, f_probe, 'Color', 'k', 'LineWidth', 2);
     plot(xi_no_probe, f_no_probe, 'Color', [.7 .7 .7], 'LineWidth', 2);
-    xline(mean(recording_rt_probe, 'omitnan'), 'k--', 'LineWidth', 2); % RT probe trials
-    xline(mean(recording_rt_no_probe, 'omitnan'), '--', 'Color', [0.7 0.7 0.7], 'LineWidth', 2); % RT no-probe trials
+    xline(mean(recording_vot_probe, 'omitnan'), 'k--', 'LineWidth', 2); % RT probe trials
+    xline(mean(recording_vot_no_probe, 'omitnan'), '--', 'Color', [0.7 0.7 0.7], 'LineWidth', 2); % RT no-probe trials
 
     legend({'Probe', 'No-Probe', 'Mean Probe', 'Mean No-Probe'});
     xlabel('RT [ms]');  
     ylabel('Density');
-    title('Distribution of Recording RT for probe and no-probe trials');
+    title('Distribution of Recording VOT for probe and no-probe trials');
     box off
     hold off
 
-    % Subplot: RT Distribution for all trials
+    % Subplot: Vocal onset time distribution for all trials
     subplot(2,2,[3 4]);
     hold on;
-    [f_early, xi_early] = ksdensity(beh_clean.recording_rt);
+    [f_early, xi_early] = ksdensity(beh_clean.recording_vot);
     plot(xi_early, f_early, 'Color', 'k', 'LineWidth', 2);
-    xline(mean(beh_clean.recording_rt, 'omitnan'), 'k--', 'LineWidth', 2); % RT 
+    xline(mean(beh_clean.recording_vot, 'omitnan'), 'k--', 'LineWidth', 2); % RT 
 
     legend({'All Trials', 'Mean'});
     xlabel('RT [ms]'); 
@@ -241,7 +233,7 @@ for subj_idx= 1:length(dircont_subj)
     box off;
     hold off;
 
-    sgtitle(['RT Distributions for ' subj]);
+    sgtitle(['VOT Distributions for ' subj]);
 
     saveas(gcf,fullfile(OUTPATH, ['tid_psam_rt_distributions_' subj '.png']))
 
@@ -278,5 +270,8 @@ delete(wb); close all;
 % % cohens_d_unaltered = stats_unaltered.tstat / sqrt(stats_unaltered.df + 1);
 % % [h_pitched, p_pitched, ci_pitched, stats_pitched] = ttest(subj_full_cleaned.recording_f0, subj_full_cleaned.recording_f0_pitched(1));
 % % cohens_d_pitched = stats_pitched.tstat / sqrt(stats_pitched.df + 1);
+
+
+
 
 

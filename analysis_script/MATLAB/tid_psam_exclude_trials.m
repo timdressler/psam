@@ -123,6 +123,19 @@ for subj_idx= 1:length(dircont_subj_erp)
     EEG.setname = [subj '_clean'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
+    % Apply transformations
+    % Z-transform F0 values
+    f0_mean = mean(beh_clean.recording_f0, 'omitmissing');
+    f0_sd = std(beh_clean.recording_f0, 'omitmissing');
+    beh_clean.recording_f0_z = (beh_clean.recording_f0 - f0_mean) ./ f0_sd; 
+    % Z-transform probe F0 values (relative to vocal responses)
+    beh_clean.probe_f0_unaltered_z = (beh_clean.probe_unaltered_f0 - f0_mean) ./ f0_sd; % Unaltered Probe
+    beh_clean.probe_f0_altered_z = (beh_clean.probe_altered_f0 - f0_mean) ./ f0_sd; % Altered Probe
+    % Z-transform vocal onset times
+    vot_mean = mean(beh_clean.recording_vot, 'omitmissing');
+    vot_sd = std(beh_clean.recording_vot, 'omitmissing');
+    beh_clean.recording_vot_z = (beh_clean.recording_vot - vot_mean) ./ vot_sd; 
+
     % Sanity Check: Number of trials in each condition (ERP)
     for cond = 1:length(EVENTS)
         EEG = pop_selectevent( ALLEEG(1), 'latency','-2<=2','type',EVENTS(cond), ...
@@ -145,7 +158,7 @@ for subj_idx= 1:length(dircont_subj_erp)
     % Count number of trials per group
     counts = splitapply(@numel, filteredRows.probe_type, G);
     % Map probe_type to 'alt' / 'unalt'
-    probeMap = containers.Map({'Pitch', 'Normal'}, {'alt', 'unalt'});
+    probeMap = containers.Map({'Altered', 'Unaltered'}, {'alt', 'unalt'});
     probeStr = values(probeMap, probeType);
     % Build condition names using cellfun to match ERP data
     conditionNames = strcat(condTab, '_', lower(onsetCat), '_', probeStr(:));
