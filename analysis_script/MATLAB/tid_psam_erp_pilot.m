@@ -20,7 +20,7 @@
 % Applies band-pass filter
 % Epochs data
 % Performs baseline correction
-% Reject bad epochs using threshold and probability (commented out, due to severe artifacts, leaving no epochs unaffected)
+% Reject bad epochs using threshold and probability 
 %
 % Analysis includes the following steps
 %
@@ -28,8 +28,7 @@
 % Extractes ERP over all conditions
 % Extracts ERP for each condition
 % Stores ERP amplitudes and latencies
-% Plots ERP over all conditions
-% Plots ERP for each condition
+% Creates multiple plots
 %
 % Tim Dressler, 03.04.2025
 
@@ -63,7 +62,7 @@ USE_RAW_DATA = 0;
 
 EPO_FROM = -0.2;
 EPO_TILL = 0.400;
-LCF = 1;
+LCF = 0.3;
 HCF = 25;
 BL_FROM = -200;
 THRESH = 75;
@@ -78,7 +77,8 @@ ERP_FROM = 75;
 ERP_TILL = 125;
 
 % Get directory content
-dircont_subj = dir(fullfile(INPATH_RAW, 'sub-95*'));
+subj = 96;
+dircont_subj = dir(fullfile(INPATH_RAW, ['sub-' num2str(subj) '*']));
 
 %initialize sanity check variables
 marked_subj = {};
@@ -174,7 +174,7 @@ for subj_idx= 1:length(dircont_subj)
     EEG.setname = [subj '_act_all'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
     % Get ERP
-    erp_act_all = mean(EEG.data(CHANI,:,:),3);
+    erp_act_all = mean(EEG.data(:,:,:),3);
     % Setup ERP analysis
     [~,win_start] = min(abs(EEG.times-ERP_FROM));
     [~,win_end] = min(abs(EEG.times-ERP_TILL));
@@ -194,7 +194,7 @@ for subj_idx= 1:length(dircont_subj)
     EEG.setname = [subj '_pas_all'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
     % Get ERP
-    erp_pas_all = mean(EEG.data(CHANI,:,:),3);
+    erp_pas_all = mean(EEG.data(:,:,:),3);
     % Setup ERP analysis
     [~,win_start] = min(abs(EEG.times-ERP_FROM));
     [~,win_end] = min(abs(EEG.times-ERP_TILL));
@@ -366,7 +366,7 @@ title('Passive (collapsed)')
 
 sgtitle('Active and Passive Condition ERPs (collapsed)')
 
-exportgraphics(gcf,fullfile(OUTPATH, 'erp_collapsed_pilot.png'),'Resolution',1000)
+saveas(gcf,fullfile(OUTPATH, 'erp_collapsed_pilot.png'))
 
 % Plot 2: ERPs for each condition
 figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
@@ -402,7 +402,7 @@ legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, '
 
 sgtitle('Active and Passive Condition ERPs')
 
-exportgraphics(gcf,fullfile(OUTPATH, 'erp_pilot.png'),'Resolution',1000)
+saveas(gcf,fullfile(OUTPATH, 'erp_pilot.png'))
 
 % Plot 3: ERPs collapsed over 'Active' and 'Passive' Condition (corrected)
 figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
@@ -422,7 +422,7 @@ title('Passive (collapsed, corrected)')
 
 sgtitle('Active and Passive Condition ERPs (collapsed, corrected)')
 
-exportgraphics(gcf,fullfile(OUTPATH, 'erp_collapsed_corrected_pilot.png'),'Resolution',1000)
+saveas(gcf,fullfile(OUTPATH, 'erp_collapsed_corrected_pilot.png'))
 
 % Plot 4: ERPs for each condition (corrected)
 figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
@@ -458,7 +458,7 @@ legend({'Early Unaltered', 'Early Altered', 'Late Unaltered', 'Late Altered'}, '
 
 sgtitle('Active and Passive Condition ERPs (corrected)')
 
-exportgraphics(gcf,fullfile(OUTPATH, 'erp_corrected_pilot.png'),'Resolution',1000)
+saveas(gcf,fullfile(OUTPATH, 'erp_corrected_pilot.png'))
 
 % Plot 5: ERPs collapsed over 'Active' and 'Passive' Condition (Control)
 figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
@@ -478,7 +478,7 @@ title('Passive (collapsed)')
 
 sgtitle('Active and Passive Condition ERPs (collapsed, control)')
 
-exportgraphics(gcf,fullfile(OUTPATH, 'erp_collapsed_control_pilot.png'),'Resolution',1000)
+saveas(gcf,fullfile(OUTPATH, 'erp_collapsed_control_pilot.png'))
 
 % Plot 6: ERPs for each condition (corrected)
 figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
@@ -514,14 +514,38 @@ legend({'Active Late Unaltered', 'Active Late Altered', ' Passive Late Unaltered
 
 sgtitle('Early and Late Condition ERPs (corrected)')
 
-exportgraphics(gcf,fullfile(OUTPATH, 'erp_corrected_2_pilot.png'),'Resolution',1000)
+saveas(gcf,fullfile(OUTPATH, 'erp_corrected_2_pilot.png'))
+
+% % % Plot 7: Topoplots collapsed over 'Active' and 'Passive' Condition
+% % cb_lim_lower = min([mean(all_ERP_act_all(:,ERP_FROM:ERP_TILL),2), mean(all_ERP_pas_all(:,ERP_FROM:ERP_TILL),2)],[],'all');
+% % cb_lim_upper = max([mean(all_ERP_act_all(:,ERP_FROM:ERP_TILL),2), mean(all_ERP_pas_all(:,ERP_FROM:ERP_TILL),2)],[],'all');
+% % 
+% % figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
+% % subplot(1,2,1)
+% % topoplot(mean(all_ERP_act_all(:,win_start:win_end),2), EEG.chanlocs, 'emarker2', {CHANI,'o','r',5,1})
+% % title('Active (collapsed)')
+% % colormap("parula")
+% % cb = colorbar;
+% % title(cb, 'Amplitude [µV]')
+% % clim([cb_lim_lower cb_lim_upper])
+% % subplot(1,2,2)
+% % topoplot(mean(all_ERP_pas_all(:,win_start:win_end),2), EEG.chanlocs, 'emarker2', {CHANI,'o','r',5,1})
+% % title('Passive (collapsed)')
+% % colormap("parula")
+% % cb = colorbar;
+% % title(cb, 'Amplitude [µV]')
+% % clim([cb_lim_lower cb_lim_upper])
+% % 
+% % sgtitle('Active and Passive Condition Topoplots (collapsed and averaged ober 70ms-130ms)')
+% % 
+% % saveas(gcf,fullfile(OUTPATH, 'topo_collapsed_pilot.png'))
 
 % End of processing
 
 protocol = cell2table(protocol, 'VariableNames',{'subj','time', 'status'})
 writetable(protocol,fullfile(OUTPATH, 'erp_pilot_protocol.xlsx'))
 
-delete(wb)
+delete(wb); close all;
 
 
 

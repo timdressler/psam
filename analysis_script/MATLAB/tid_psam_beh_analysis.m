@@ -88,7 +88,7 @@ for subj_idx= 1:length(dircont_subj)
     legend('F0 Distribution Vocal Responses', 'F0 Unaltered Probe', 'F0 Altered Probe', 'Location', 'northwest', 'Interpreter', 'none');
     hold off;
 
-    exportgraphics(gcf,fullfile(OUTPATH, ['tid_psam_z_f0_distribution_' subj '.png']),'Resolution',1000)
+    saveas(gcf,fullfile(OUTPATH, ['tid_psam_z_f0_distribution_' subj '.png']))
 
     % Plot: Z-transformed F0 Distribution including Probe F0's (binnedin one plot)
     % Prepare figure
@@ -116,7 +116,7 @@ for subj_idx= 1:length(dircont_subj)
     box on;
     hold off;
 
-    exportgraphics(gcf, fullfile(OUTPATH, ['tid_psam_z_f0_distribution_blocks_' subj '.png']), 'Resolution', 1000);
+    saveas(gcf, fullfile(OUTPATH, ['tid_psam_z_f0_distribution_blocks_' subj '.png']));
 
     % Plot: Z-transformed F0 Distribution including Probe F0's (binned in subplots)
 
@@ -148,7 +148,7 @@ for subj_idx= 1:length(dircont_subj)
 
         xlabel('F0 [Z-Transformed]');
         ylabel('Density');
-        title(['Z-transformed F0 Distribution for Bin ' num2str(block_idx) ' n_trials = ' num2str(length(block_data))]);
+        title(['Z-transformed F0 Distribution for Block ' num2str(block_idx) ' n_trials = ' num2str(length(block_data))]);
         grid on;
         box on;
         xlim(x_limits);
@@ -158,7 +158,7 @@ for subj_idx= 1:length(dircont_subj)
     sgtitle(['Z-transformed F0 Distribution across Bins for ' subj]);
     hold off;
 
-    exportgraphics(gcf, fullfile(OUTPATH, ['tid_psam_z_f0_distribution_blocks_subplots_' subj '.png']), 'Resolution', 1000);
+    saveas(gcf, fullfile(OUTPATH, ['tid_psam_z_f0_distribution_blocks_subplots_' subj '.png']));
 
     % Plot: Z-transformed F0 Distribution including Probe F0's (for no-probe, unaltered probe and altered probe trials)
     figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
@@ -179,7 +179,7 @@ for subj_idx= 1:length(dircont_subj)
     legend('No Probe','Unaltered Probe','Altered Probe', 'F0 Unaltered Probe', 'F0 Altered Probe', 'Location', 'northwest', 'Interpreter', 'none');
     hold off;
 
-    exportgraphics(gcf,fullfile(OUTPATH, ['tid_psam_z_f0_distribution_probe_types_' subj '.png']),'Resolution',1000)
+    saveas(gcf,fullfile(OUTPATH, ['tid_psam_z_f0_distribution_probe_types_' subj '.png']))
 
     % Reaction-Time Analysis
 
@@ -243,7 +243,7 @@ for subj_idx= 1:length(dircont_subj)
 
     sgtitle(['RT Distributions for ' subj]);
 
-    exportgraphics(gcf,fullfile(OUTPATH, ['tid_psam_rt_distributions_' subj '.png']),'Resolution',1000)
+    saveas(gcf,fullfile(OUTPATH, ['tid_psam_rt_distributions_' subj '.png']))
 
     % Update Protocol
     subj_time = toc;

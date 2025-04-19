@@ -59,20 +59,21 @@ else
 end
 
 MAINPATH = erase(SCRIPTPATH, '\analysis_script\MATLAB');
-INPATH = fullfile(MAINPATH, 'data\processed_data\markers_included\');
+INPATH_RAW = fullfile(MAINPATH, 'data\processed_data\markers_included\');
+INPATH_ICA = fullfile(MAINPATH, 'data\processed_data\ica_preprocessed\');
 OUTPATH = fullfile(MAINPATH, 'data\processed_data\erp_preprocessed');
 
 FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);
 
-tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)
+tid_psam_check_folder_TD(MAINPATH, INPATH_RAW, INPATH_ICA, OUTPATH)
 tid_psam_clean_up_folder_TD(OUTPATH)
 
 % Variables to edit
 EPO_FROM = -0.2;
 EPO_TILL = 0.400;
-LCF = 0.3; 
-HCF = 30; 
+LCF = 0.3;
+HCF = 30;
 LCF_ICA = 1;
 BL_FROM = -200;
 THRESH = 75;
@@ -83,7 +84,13 @@ EVENTS = {'act_early_unalt', 'act_early_alt', 'act_late_unalt', 'act_late_alt', 
     'con_pas_early', 'con_pas_late'};
 
 % Get directory content
-dircont_subj = dir(fullfile(INPATH, 'sub-*.set'));
+dircont_subj = dir(fullfile(INPATH_RAW, 'sub-*.set'));
+
+% Sanity Check: Same number of files for raw data and ICA data
+if length(dir(fullfile(INPATH_RAW, 'sub-*.set'))) == length(dir(fullfile(INPATH_ICA, 'sub-*.set')))
+else
+    error('Number of raw data files and ICA data files does not match')
+end
 
 %initialize sanity check variables
 marked_subj = {};
@@ -106,49 +113,16 @@ for subj_idx= 1:length(dircont_subj)
     % Start eeglab
     [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
 
-    % ICA-specific preprocessing 
-    % Load raw data
-    EEG = pop_loadset('filename',[subj '_markers_inlcuded.set'],'filepath',INPATH);
-    
-    % Remove Marker-Channel
-    EEG = pop_select( EEG, 'rmchannel',{'M'});
-    
-    % Add channel locations
-    EEG.chanlocs = readlocs( fullfile(MAINPATH,'\config\elec_96ch_adapted.elp')); 
-    EEG = eeg_checkset( EEG );
-
-    % Store channel locations in another field
-    EEG.urchanlocs = EEG.chanlocs;
-
-    EEG.setname = [subj '_ready_for_ICA_preprocessing'];
-    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
-
-    % Highpass-Filter
-    EEG = pop_eegfiltnew(EEG, 'locutoff',LCF_ICA,'plotfreqz',0);
-
-    % Remove bad channels
-    % % EEG.badchans = []; 
-    % % [chans_to_interp, chan_detected_fraction_threshold, detected_bad_channels] = bemobil_detect_bad_channels(EEG, ALLEEG, 1, [], [], 5);
-    % % EEG.badchans = chans_to_interp; 
-    % % EEG = pop_select(EEG,'nochannel', EEG.badchans); 
-
-    % Create 1s epochs & remove bad ones
-    EEG = eeg_regepochs(EEG); 
-
-    EEG = pop_jointprob(EEG,1,[1:EEG.nbchan] ,SD_PROB_ICA,0,0,0,[],0);
-    EEG = pop_rejkurt(EEG,1,[1:EEG.nbchan] ,SD_PROB_ICA,0,0,0,[],0);
-    EEG = eeg_rejsuperpose( EEG, 1, 1, 1, 1, 1, 1, 1, 1);
-
-    EEG = pop_rejepoch( EEG, EEG.reject.rejglobal ,0);
- 
-    % Run ICA
-    % % EEG = pop_runica(EEG, 'icatype', 'runica', 'extended',1,'interrupt','on');
+    % Load ICA data
+    EEG = pop_loadset('filename',[subj '_ica_weights.set'],'filepath',INPATH_ICA);
     EEG.setname = [subj '_ICA_weights'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
-    % Preprocessing
-    % Reload raw data
-    EEG = pop_loadset('filename',[subj '_markers_inlcuded.set'],'filepath',INPATH);
+    % Get bad channels as identified in tid_psam_ica_preprocessing.m
+    chans_to_interp = EEG.badchans;
+
+    % Load raw data
+    EEG = pop_loadset('filename',[subj '_markers_inlcuded.set'],'filepath',INPATH_RAW);
 
     % Remove Marker-Channel
     EEG = pop_select( EEG, 'rmchannel',{'M'});
@@ -156,6 +130,9 @@ for subj_idx= 1:length(dircont_subj)
     % Add channel locations
     EEG.chanlocs = readlocs( fullfile(MAINPATH,'\config\elec_96ch_adapted.elp'));
     EEG = eeg_checkset( EEG );
+
+    % Store channel locations in another field
+    EEG.urchanlocs = EEG.chanlocs;
 
     % Rename events
     clear event
@@ -186,30 +163,24 @@ for subj_idx= 1:length(dircont_subj)
     % Bandpass-Filter
     EEG = pop_eegfiltnew(EEG, 'locutoff',LCF,'hicutoff',HCF,'plotfreqz',0);
 
-    % Remove bad channels (as identified above)
-    % % EEG.badchans = chans_to_interp; 
-    % % EEG = pop_select(EEG,'nochannel', EEG.badchans); 
+    % Remove bad channels as identified in tid_psam_ica_preprocessing.m (see above)
+    EEG.badchans = chans_to_interp;
+    EEG = pop_select(EEG,'nochannel', EEG.badchans);
 
     EEG.setname = [subj '_ready_for_ICA_weights'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
     % Attach ICA weight to main data
-    % % EEG = pop_editset(EEG,'run', [], 'icaweights','ALLEEG(2).icaweights', 'icasphere','ALLEEG(2).icasphere');
+    % % EEG = pop_editset(EEG,'run', [], 'icaweights','ALLEEG(1).icaweights', 'icasphere','ALLEEG(1).icasphere');
     % Label ICA components with IC Label Plugin (Pion-Tonachini et al., 2019)
     % EEG = pop_iclabel(EEG, 'default');
     % EEG = pop_icflag(EEG, [0 0.2;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1]);
     % EEG = pop_subcomp( EEG, [], 0);
 
-% %     % Interpolate bad channels
-% %     % interpolate bad channels after proper cleaning -----------------------------------------
-% % if ~isempty(SUB(sub).badchans)
-% % % if there are bad channels...
-% % for bc = 1:length(SUB(sub).badchans) % go through them
-% % EEG = pop_interp(EEG, EEG.urchanlocs , 'spherical'); % and interpolate them using urchanlocs
-% % end  
-% % end
-
-
+    % Interpolate bad channels
+    if ~isempty(EEG.badchans)
+        EEG = pop_interp(EEG, EEG.urchanlocs , 'spherical'); % and interpolate them using urchanlocs
+    end
 
     % Epoching
     EEG = pop_epoch( EEG, EVENTS, [EPO_FROM        EPO_TILL], 'epochinfo', 'yes');
@@ -219,6 +190,7 @@ for subj_idx= 1:length(dircont_subj)
 
     % Threshold removal
     EEG = pop_eegthresh(EEG,1,[1:EEG.nbchan] ,-THRESH,THRESH,EPO_FROM,EPO_TILL,0,0);
+    
     % Probability-based removal
     EEG = pop_jointprob(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
     EEG = pop_rejkurt(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
@@ -240,8 +212,6 @@ for subj_idx= 1:length(dircont_subj)
     end
 
 end
-
-
 
 % End of processing
 

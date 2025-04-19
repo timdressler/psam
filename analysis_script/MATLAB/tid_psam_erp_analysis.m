@@ -34,7 +34,7 @@ EVENTS = {'act_early_unalt', 'act_early_alt', 'act_late_unalt', 'act_late_alt', 
     'pas_early_unalt', 'pas_early_alt', 'pas_late_unalt', 'pas_late_alt'};
 CON_EVENTS = {'con_act_early', 'con_act_late', ...
     'con_pas_early', 'con_pas_late'};
-CHAN = 1;
+CHANI = 1;
 ERP_FROM = 70;
 ERP_TILL = 130;
 
@@ -94,9 +94,9 @@ for subj_idx= 1:length(dircont_subj)
 
         % ERP analysis (uncorrected)
         % Get N100 amplitude (uncorrected)
-        erp_amp = min(erp(CHAN,win_start:win_end));
+        erp_amp = min(erp(CHANI,win_start:win_end));
         % Get N100 latency (uncorrected)
-        erp_sam = find(erp(CHAN,:) == erp_amp);
+        erp_sam = find(erp(CHANI,:) == erp_amp);
         erp_lat = EEG.times(erp_sam);
         % Store ERP
         all_erp{counter,1} = erp;
@@ -111,9 +111,9 @@ for subj_idx= 1:length(dircont_subj)
 
         % ERP analysis (corrected)
         % Get N100 amplitude (corrected)
-        cor_erp_amp = min(cor_erp(CHAN,win_start:win_end));
+        cor_erp_amp = min(cor_erp(CHANI,win_start:win_end));
         % Get N100 latency (corrected)
-        cor_erp_sam = find(cor_erp(CHAN,:) == cor_erp_amp);
+        cor_erp_sam = find(cor_erp(CHANI,:) == cor_erp_amp);
         cor_erp_lat = EEG.times(cor_erp_sam);
         % Store ERP
         all_cor_erp{cor_counter,1} = cor_erp;
@@ -131,7 +131,7 @@ for subj_idx= 1:length(dircont_subj)
         ylim_min = min([erp; con_erp; cor_erp],[], 'all');
         figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
         subplot(131)
-        plot(EEG.times, erp(CHAN,:))
+        plot(EEG.times, erp(CHANI,:))
         hold on
         scatter(erp_lat, erp_amp)
         hold off
@@ -140,13 +140,13 @@ for subj_idx= 1:length(dircont_subj)
         ylim([ylim_min ylim_max])
         title('Uncorrected')
         subplot(132)
-        plot(EEG.times, con_erp(CHAN,:))
+        plot(EEG.times, con_erp(CHANI,:))
         ylabel('Amplitude [μV]')
         xlabel('Time [ms]')
         ylim([ylim_min ylim_max])
         title('Control')
         subplot(133)
-        plot(EEG.times, cor_erp(CHAN,:))
+        plot(EEG.times, cor_erp(CHANI,:))
         hold on
         scatter(cor_erp_lat, cor_erp_amp)
         hold off
@@ -155,6 +155,38 @@ for subj_idx= 1:length(dircont_subj)
         ylim([ylim_min ylim_max])
         title('Corrected')
         sgtitle(['ERPs for ' subj ' and Condition ' EVENTS{cond}])
+
+        saveas(gcf,fullfile(OUTPATH, [subj '_erp_' EVENTS{cond} '.png']))
+
+        % Plot: Topography, control topography and corrected topography
+        cb_lim_lower = min([mean(erp(:,win_start:win_end),2); mean(con_erp(:,win_start:win_end),2); mean(con_erp(:,win_start:win_end),2)],[],'all');
+        cb_lim_upper = max([mean(erp(:,win_start:win_end),2); mean(con_erp(:,win_start:win_end),2); mean(con_erp(:,win_start:win_end),2)],[],'all');
+        figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
+        subplot(131)
+        topoplot(mean(erp(:,win_start:win_end),2), EEG.chanlocs, 'emarker2', {CHANI,'o','r',5,1})
+        colormap("parula")
+        cb = colorbar;
+        title(cb, 'Amplitude [µV]')
+        clim([cb_lim_lower cb_lim_upper])
+        title('Uncorrected')
+        subplot(132)
+        topoplot(mean(con_erp(:,win_start:win_end),2), EEG.chanlocs, 'emarker2', {CHANI,'o','r',5,1})
+        colormap("parula")
+        cb = colorbar;
+        title(cb, 'Amplitude [µV]')
+        clim([cb_lim_lower cb_lim_upper])
+        title('Control')
+        subplot(133)
+        topoplot(mean(cor_erp(:,win_start:win_end),2), EEG.chanlocs, 'emarker2', {CHANI,'o','r',5,1})
+        colormap("parula")
+        cb = colorbar;
+        title(cb, 'Amplitude [µV]')
+        clim([cb_lim_lower cb_lim_upper])
+        title('Corrected')
+        sgtitle(['ERPs for ' subj ' and Condition ' EVENTS{cond}])
+
+        saveas(gcf,fullfile(OUTPATH, [subj '_erp_' EVENTS{cond} '.png']))
+
 
     end
 
@@ -185,7 +217,7 @@ end
 
 check_done = 'tid_psam_erp_preprocessing_DONE'
 
-delete(wb); %%close all;
+delete(wb); close all;
 
 
 
