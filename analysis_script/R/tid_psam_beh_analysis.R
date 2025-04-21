@@ -24,7 +24,7 @@ library(cowplot)
 library(tidyverse)
 library(psych)
 library(RVAideMemoire)
-library(effectsize)
+library(rstatix)
 
 rm(list=ls())
 
@@ -75,7 +75,6 @@ df_probe_properties <- df_probe_properties %>%
     values_to = "f0_z"
   )
 df_probe_properties$probe_type <- as.factor(df_probe_properties$probe_type)
-
 
 # Z-standardized vocal responses F0 values for probe and no-probe trials for each subject
 df_probe_f0_z <- df_beh %>% 
@@ -214,7 +213,6 @@ ezPlot(
   , within= .(probe_type, probe_onset_cat)
   , x = .(probe_onset_cat)
   , split   = .(probe_type)
-  , type = 3
 )
 
 # Descriptive statistics
@@ -312,7 +310,6 @@ ezPlot(
   , within= .(probe_type, probe_onset_cat)
   , x = .(probe_onset_cat)
   , split   = .(probe_type)
-  , type = 3
 )
 
 # Descriptive statistics
@@ -387,7 +384,7 @@ BEH6_PWC
 
 # Assupmtions 
 # Sphericity
-# Checked in rmANOVA. Correction applied if needed
+# Checked in rmANOVA. Correction applied if needed.
 
 # Normal distibution
 df_block_f0_z %>%
@@ -445,7 +442,7 @@ BEH7_PWC
 
 # Assupmtions 
 # Sphericity
-# Checked in rmANOVA. Correction applied if needed
+# Checked in rmANOVA. Correction applied if needed.
 
 # Normal distibution
 df_block_vot_z %>%

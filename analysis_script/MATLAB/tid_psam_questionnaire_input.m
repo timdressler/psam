@@ -28,7 +28,7 @@ addpath(FUNPATH);
 tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)
 
 % Get filename
-fal_filename = fullfile(INPATH, 'tid_psam_fal_data.xlsx');
+fal_filename = fullfile(INPATH, 'fal_data.xlsx');
 
 % Load or create FAL data
 if exist(fal_filename, 'file') ~= 2
@@ -171,7 +171,7 @@ end
 
 % NASA-TLX
 % Get filename
-nasatlx_filename = fullfile(INPATH, 'tid_psam_nasatlx_data.xlsx');
+nasatlx_filename = fullfile(INPATH, 'nasatlx_data.xlsx');
 
 % Load or create FAL data
 if exist(nasatlx_filename, 'file') ~= 2
@@ -241,14 +241,14 @@ end
 
 % SAM
 % Get filename
-sam_filename = fullfile(INPATH, 'tid_psam_sam_data.xlsx');
+sam_filename = fullfile(INPATH, 'sam_data.xlsx');
 
 % Load or create FAL data
 if exist(sam_filename, 'file') ~= 2
     sam_varNames = {
         'subj', 'var1_mood_break1', 'var2_tiredness_break1', 'var3_mood_break2', 'var4_tiredness_break2', ...
         'var5_mood_break3', 'var6_tiredness_break3','var7_mood_break4', 'var8_tiredness_break4','var9_mood_break5', 'var10_tiredness_break5',...
-        'var11_mood_break6', 'var12_tiredness_break6', 'var13_mood_break7', 'var14_tiredness_break7'
+        'var11_mood_break6', 'var12_tiredness_break6', 'var13_mood_break7', 'var14_tiredness_break7', 'var15_mood_break8', 'var16_tiredness_break8'
         };
     sam = cell2table(cell(0, numel(sam_varNames)), 'VariableNames', sam_varNames);
 else
