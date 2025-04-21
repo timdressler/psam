@@ -67,7 +67,11 @@ df_sam <- read_excel(file.path(INPATH, "sam_data.xlsx"))
 
 # Change FAL variable types
 df_fal <- df_fal %>%
-  mutate(across(c(2, 10, 18, 6, 3), as.numeric))
+  mutate(across(c(2, 10, 18, 6), as.numeric))
+
+df_fal <- df_fal %>%
+  mutate(across(c(3,4,5,6,7,9,11,12,14,16,17,19,21,23,25,27), as.factor))
+
 
 # Change NASA-TLX variable types
 df_nasatlx <- df_nasatlx %>%
@@ -75,7 +79,29 @@ df_nasatlx <- df_nasatlx %>%
 
 # Change SAM variable types
 df_sam <- df_sam %>%
-  mutate(across(c(2:15), as.numeric))
+  mutate(across(c(2:17), as.numeric))
+
+# Recode FAL variables
+df_fal$var2_handedness <- recode(df_fal$var2_handedness, '1' = "right-handed", '2' = "left-handed", '3' = "two-handed")
+df_fal$var3_sex <- recode(df_fal$var3_sex, '1' = "male", '2' = "female", '3' = "diverse")
+df_fal$var4_education <- recode(df_fal$var4_education, '0' = "no degree", '1' = "Hauptschule", '2' = "Mittlere-Reife", '3' = "Abitur")
+df_fal$var5_occupation <- recode(df_fal$var5_occupation, '1' = "student", '2' = "employed", '3' = "unemployed")
+df_fal$var5_hearing_problems <- recode(df_fal$var5_hearing_problems, '1' = "yes", '2' = "no")
+df_fal$var7_ringing_ears <- recode(df_fal$var7_ringing_ears, '1' = "yes", '2' = "no")
+df_fal$var9_sleep_assessment <- recode(df_fal$var9_sleep_assessment, '1' = "normal", '2' = "rather long", '3' = "way too short")
+df_fal$var10_alcohol_yesterday <- recode(df_fal$var10_alcohol_yesterday, '1' = "yes", '2' = "no")
+df_fal$var11_alcohol_today <- recode(df_fal$var11_alcohol_today, '1' = "yes", '2' = "no")
+df_fal$var12_smoking <- recode(df_fal$var12_smoking, '0' = "non-smoker", '1' = "little", '2' = "normal", '3' = "heavy")
+df_fal$var13_coffee_and_other <- recode(df_fal$var13_coffee_and_other, '0' = "little/none", '2' = "normal", '3' = "much")
+df_fal$var15_currently_neuro_treatment <- recode(df_fal$var15_currently_neuro_treatment, '1' = "yes", '2' = "no")
+df_fal$var16_earlier_neuro_treatment <- recode(df_fal$var16_earlier_neuro_treatment, '1' = "yes", '2' = "no")
+df_fal$var17_other_treatment <- recode(df_fal$var17_other_treatment, '1' = "yes", '2' = "no")
+df_fal$var18_medication <- recode(df_fal$var18_medication, '1' = "yes", '2' = "no")
+df_fal$var19_drugs <- recode(df_fal$var19_drugs, '1' = "yes", '2' = "no")
+
+
+
+
 
 #-------------------------------Create needed dfs-------------------------------
 
