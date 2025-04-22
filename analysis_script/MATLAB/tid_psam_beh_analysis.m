@@ -2,6 +2,19 @@
 %
 % Performs analysis of vocal data.
 %
+% Processing includes the following steps 
+%
+    % Plots each subjects' z-transformed F0 values of vocal responses relative 
+    %   to the F0 values of each subjects' probes
+    % Plots each subjects' z-transformed F0 values of vocal responses relative 
+    %   to the F0 values of each subjects' probes for each block (in one plot 
+    %   and in a subplot)
+    % Plots each subjects' z-transformed F0 values of vocal responses for
+    %   trials including no probe, an unaltered probe and an altered probe
+    % Plots each subject vocal onset time for no-probe trials and probe
+    %   trials, for trials including early and late probes and for all
+    %   trials
+%
 % Tim Dressler, 07.04.2025
 
 clear
@@ -262,14 +275,6 @@ end
 check_done = 'tid_psam_vocal_analysis_DONE'
 
 delete(wb); close all;
-
-
-
-
-% % [h_unaltered, p_unaltered, ci_unaltered, stats_unaltered] = ttest(subj_full_cleaned.recording_f0, subj_full_cleaned.recording_f0_unaltered(1));
-% % cohens_d_unaltered = stats_unaltered.tstat / sqrt(stats_unaltered.df + 1);
-% % [h_pitched, p_pitched, ci_pitched, stats_pitched] = ttest(subj_full_cleaned.recording_f0, subj_full_cleaned.recording_f0_pitched(1));
-% % cohens_d_pitched = stats_pitched.tstat / sqrt(stats_pitched.df + 1);
 
 
 

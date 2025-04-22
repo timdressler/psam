@@ -6,10 +6,12 @@
 % The proccessing steps include:
     % Loading behavioural and ERP data
     % Matches invalid trials identified in either dataset
+    % Performs multiple transformations using on the included trials
     % Checks number of valid trials per condition
     % Excludes subjects if the number of trials in below threshold for
     %   either condition
     % Stores datasets 
+%
 % Concatinates all individual data sets to one large one and stores it.
 %
 % Tim Dressler, 04.04.2025

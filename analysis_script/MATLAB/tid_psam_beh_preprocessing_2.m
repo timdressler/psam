@@ -7,20 +7,20 @@
 % Loads log file and removes not needed columns
 % Loads vocal data (preprocessed in Praat, see tid_psam_beh_preproecessing_1.praat)
 % Merges data
+% Calculates reaction time relative to the 'go-signal' based on the start
+%   time of the recording
 %
 % Marks trials for exclusion based on the following criteria
-% If a trial's onset time differs more than 3 SDs from the mean onset time
-% If a trial's F0 differs more than 3 SDs from the mean F0
-% If a 'Passive' trial includes a reponses
-% If a 'Active' trial includes no response
+%   If a trial's onset time differs more than 3 SDs from the mean onset time
+%   If a trial's F0 differs more than 3 SDs from the mean F0
+%   If a 'Passive' trial includes a reponses
+%   If a 'Active' trial includes no response
 %
 % Stores dataset
 %
 % Note. Trials are only marked for exclusion but not excluded yet!
 %
 % Tim Dressler, 04.04.2025
-
-% Add RT calculation rt_tab - (go_onset-mic.started)
 
 clear
 close all

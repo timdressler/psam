@@ -15,32 +15,28 @@
 %
 % Preprocessing includes the following steps
 %
-% Loads raw data
-% Renames the events
-% Applies band-pass filter
-% Performs PREP pipeline (Bigdely-Shamlo et al., 2015)
-%
-% Performs ICA-specific processing
-% Loads raw datasets for talk & listen condition
-% Merges datasets
-% Applies band-pass filter
-% Resamples dataset
-% Calculates ICA weights
-%
-% Applies ICA to original data
-% Marks and rejects bad components using the IC Label Plugin (Pion-Tonachini et al., 2019)
-% Applies band-pass filter
-% Epochs data
-% Performs baseline correction
-% Reject bad epochs using threshold and probability
+    % Load data and data set containing ICA weights (see
+    %   tid_psam_ica_preprocessing.m)
+    % Rename events
+    % Apply a 0.3 Hz - 30 Hz BP-Filter
+    % Remove bad channels as identified in tid_psam_ica_preprocessing.m
+    % Idenitify and remove bad channels using the
+    %   bemobil_detect_bad_channels() funtion
+    % Attach ICA weights and remove bad components using the ICLabel Plugin
+    %   (Pion-Tonachini et al., 2019)
+    % Interpolate bad (and removed) channels
+    % Epoch data around probe events (see above)
+    % Apply baseline correction
+    % Mark bad epochs based on amplitude and probability
 %
 % Stores dataset
 %
+% Note. Trials are only marked for exclusion but not excluded yet!
 %
 % Literature
 % Pion-Tonachini, L., Kreutz-Delgado, K., & Makeig, S. (2019).
-% ICLabel: An automated electroencephalographic independent component classifier, dataset, and website.
-% NeuroImage, 198, 181-197.
+%   ICLabel: An automated electroencephalographic independent component classifier, dataset, and website.
+%   NeuroImage, 198, 181-197.
 %
 % Tim Dressler, 04.04.2025
 
