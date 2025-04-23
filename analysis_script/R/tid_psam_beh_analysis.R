@@ -119,7 +119,7 @@ df_block_vot_z$block <- as.factor(df_block_vot_z$block)
 #------------------------------------Analysis-----------------------------------
 
 # BEH1
-# Paired T-Test: (DV = Z-transformed probe F0 value, within = Probe-type)
+# Paired T-Test (DV = Z-transformed probe F0 value, within = Probe-type)
 # Analysis BEH1 concerns the F0 of the auditory probes (unaltered and altered) relative to the distribution of the F0 of the vocal responses during the experiment.
 BEH1 <- t.test(data = df_probe_properties, f0_z ~ probe_type, paired = TRUE) 
 BEH1
@@ -137,7 +137,7 @@ ggplot(df_probe_properties, aes(x = probe_type, y = f0_z, fill = probe_type)) +
 psych::describeBy(df_probe_properties$f0_z,
                   group = df_probe_properties$probe_type)
 
-# Assupmtions 
+# Assumptions 
 # Normal distibution
 df_probe_properties %>%
   ggplot(aes(x = f0_z)) +
@@ -157,7 +157,7 @@ byf.shapiro(f0_z ~ probe_type,
 #------------------------------------------------------------------------------#
 
 # BEH2
-# Paired T-Test: (DV = Z-transformed F0 value, within = Probe)
+# Paired T-Test (DV = Z-transformed F0 value, within = Probe (Yes, No))
 # Analysis BEH2 concerns how the F0 of the vocal responses during the experiment is influenced by a probe being presented.
 BEH2 <- t.test(data = df_probe_f0_z, recording_f0_z ~ probe, paired = TRUE) 
 BEH2
@@ -175,7 +175,7 @@ ggplot(df_probe_f0_z, aes(x = probe, y = recording_f0_z, fill = probe)) +
 psych::describeBy(df_probe_f0_z$recording_f0_z,
                   group = df_probe_f0_z$probe)
 
-# Assupmtions 
+# Assumptions 
 # Normal distibution
 df_probe_f0_z %>%
   ggplot(aes(x = recording_f0_z)) +
@@ -226,7 +226,7 @@ BEH3_EM <- emmeans(BEH3, ~ probe_type | probe_onset_cat)
 BEH3_PWC <- pairs(BEH3_EM, adjust = "bonferroni")
 BEH3_PWC
 
-# Assupmtions 
+# Assumptions 
 # Sphericity
 # Not applicable due to only 2 factor levels per factor
 
@@ -254,7 +254,7 @@ ezDesign(df_probe_type_onset_f0_z, x = probe_type, y = subj, row = probe_onset_c
 #------------------------------------------------------------------------------#
 
 # BEH4
-# Paired T-Test: (DV = Z-transformed vocal onset time, within = Probe)
+# Paired T-Test (DV = Z-transformed vocal onset time, within = Probe (Yes, No))
 # Analysis BEH4 concerns how the vocal onset time is influenced by a probe being presented.
 BEH4 <- t.test(data = df_probe_vot_z, recording_vot_z ~ probe, paired = TRUE) 
 BEH4
@@ -272,7 +272,7 @@ ggplot(df_probe_vot_z, aes(x = probe, y = recording_vot_z, fill = probe)) +
 psych::describeBy(df_probe_vot_z$recording_vot_z,
                   group = df_probe_vot_z$probe)
 
-# Assupmtions 
+# Assumptions 
 # Normal distibution
 df_probe_vot_z %>%
   ggplot(aes(x = recording_vot_z)) +
@@ -323,7 +323,7 @@ BEH5_EM <- emmeans(BEH5, ~ probe_onset_cat| probe_type)
 BEH5_PWC <- pairs(BEH5_EM, adjust = "bonferroni")
 BEH5_PWC
 
-# Assupmtions 
+# Assumptions 
 # Sphericity
 # Not applicable due to only 2 factor levels per factor
 
@@ -382,7 +382,7 @@ BEH6_EM <- emmeans(BEH6, ~ block)
 BEH6_PWC <- pairs(BEH6_EM, adjust = "bonferroni")
 BEH6_PWC
 
-# Assupmtions 
+# Assumptions 
 # Sphericity
 # Checked in rmANOVA. Correction applied if needed.
 
@@ -440,7 +440,7 @@ BEH7_EM <- emmeans(BEH7, ~ block)
 BEH7_PWC <- pairs(BEH7_EM, adjust = "bonferroni")
 BEH7_PWC
 
-# Assupmtions 
+# Assumptions 
 # Sphericity
 # Checked in rmANOVA. Correction applied if needed.
 

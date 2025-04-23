@@ -99,15 +99,15 @@ for subj_idx= 1:length(dircont_subj)
         erp_sam = find(erp(CHANI,:) == erp_amp);
         erp_lat = EEG.times(erp_sam);
         % Store ERP
-        all_erp{counter,1} = erp;
+        % % all_erp{counter,1} = erp;
         % Store ERP data
-        all_erp_data{counter,1} = ERP_FROM;
-        all_erp_data{counter,2} = ERP_TILL;
-        all_erp_data{counter,3} = erp_amp;
-        all_erp_data{counter,4} = erp_lat;
-        all_erp_data{counter,5} = EVENTS{cond};
-        all_erp_data{counter,6} = subj;
-        counter = counter+1;
+        % % all_erp_data{counter,6} = ERP_FROM;
+        % % all_erp_data{counter,5} = ERP_TILL;
+        % % all_erp_data{counter,4} = erp_amp;
+        % % all_erp_data{counter,3} = erp_lat;
+        % % all_erp_data{counter,2} = EVENTS{cond};
+        % % all_erp_data{counter,1} = subj;
+        % % counter = counter+1;
 
         % ERP analysis (corrected)
         % Get N100 amplitude (corrected)
@@ -115,15 +115,54 @@ for subj_idx= 1:length(dircont_subj)
         % Get N100 latency (corrected)
         cor_erp_sam = find(cor_erp(CHANI,:) == cor_erp_amp);
         cor_erp_lat = EEG.times(cor_erp_sam);
-        % Store ERP
+        % Store ERP (corrected)
         all_cor_erp{cor_counter,1} = cor_erp;
-        % Store ERP data
-        all_cor_erp_data{cor_counter,1} = ERP_FROM;
-        all_cor_erp_data{cor_counter,2} = ERP_TILL;
-        all_cor_erp_data{cor_counter,3} = cor_erp_amp;
-        all_cor_erp_data{cor_counter,4} = cor_erp_lat;
-        all_cor_erp_data{cor_counter,5} = EVENTS{cond};
-        all_cor_erp_data{cor_counter,6} = subj;
+        all_cor_erp{cor_counter,2} = subj;
+        all_cor_erp{cor_counter,3} = ERP_FROM;
+        all_cor_erp{cor_counter,4} = ERP_TILL;
+        all_cor_erp{cor_counter,5} = cor_erp_amp;
+        all_cor_erp{cor_counter,6} = cor_erp_lat;
+        all_cor_erp{cor_counter,7} = EVENTS{cond};
+        % Store ERP data (corrected)
+        all_cor_erp_data{cor_counter,1} = subj;
+        all_cor_erp_data{cor_counter,2} = ERP_FROM;
+        all_cor_erp_data{cor_counter,3} = ERP_TILL;
+        all_cor_erp_data{cor_counter,4} = cor_erp_amp;
+        all_cor_erp_data{cor_counter,5} = cor_erp_lat;
+        all_cor_erp_data{cor_counter,6} = EVENTS{cond};
+        % Split condition labels into multiple columns (corrected)
+        cond_parts = strsplit(EVENTS{cond}, '_');
+        % Map and rename task condition
+        switch cond_parts{1}
+            case 'act'
+                task_label = 'Active';
+            case 'pas'
+                task_label = 'Passive';
+            otherwise
+                error('Invalid label')
+        end
+        % Map and rename probe-onset condition (corrected)
+          switch cond_parts{2}
+              case 'early'
+                probe_onset_label = 'Early';
+              case 'late'
+                probe_onset_label = 'Late';
+            otherwise
+                error('Invalid label')
+          end
+        % Map and rename probe-type condition (corrected)
+        switch cond_parts{3}
+            case 'alt'
+                probe_type_label = 'Altered';
+            case 'unalt'
+                probe_type_label = 'Unaltered';
+            otherwise
+                error('Invalid label')
+        end
+        % Store mapped and renamed values (corrected)
+        all_cor_erp_data{cor_counter, 7} = task_label;
+        all_cor_erp_data{cor_counter, 8} = probe_onset_label;
+        all_cor_erp_data{cor_counter, 9} = probe_type_label;
         cor_counter = cor_counter+1;
 
         % Plot: ERP, control ERP and corrected ERP
@@ -185,11 +224,8 @@ for subj_idx= 1:length(dircont_subj)
         title('Corrected')
         sgtitle(['ERPs for ' subj ' and Condition ' EVENTS{cond}])
 
-        saveas(gcf,fullfile(OUTPATH, [subj '_erp_' EVENTS{cond} '.png']))
+        saveas(gcf,fullfile(OUTPATH, [subj '_topo_erp_' EVENTS{cond} '.png']))
     end
-
-
-    % Save ERP data
 
     % Update Protocol
     subj_time = toc;
@@ -202,6 +238,13 @@ for subj_idx= 1:length(dircont_subj)
     end
 
 end
+
+% Save ERP
+save(fullfile(OUTPATH, 'all_subj_erp.mat'),'all_cor_erp')
+
+% Save ERP data
+all_cor_erp_data = cell2table(all_cor_erp_data, 'VariableNames',{'subj','erp_from', 'erp_till', 'erp_amp', 'erp_lat', 'condition_full', 'task_instruction', 'probe_onset_cat', 'probe_type'})
+writetable(all_cor_erp_data, fullfile(OUTPATH, 'all_subj_erp_data.xlsx'))
 
 % End of processing
 
