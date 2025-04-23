@@ -96,9 +96,9 @@ for subj_idx= 1:length(dircont_subj)
 
     % Remove bad channels
     EEG.badchans = []; 
-    [chans_to_interp, chan_detected_fraction_threshold, detected_bad_channels] = bemobil_detect_bad_channels(EEG, ALLEEG, 1, [], [], 5);
-    EEG.badchans = chans_to_interp; 
-    EEG = pop_select(EEG,'nochannel', EEG.badchans); 
+    %%[chans_to_interp, chan_detected_fraction_threshold, detected_bad_channels] = bemobil_detect_bad_channels(EEG, ALLEEG, 1, [], [], 5);
+    %%EEG.badchans = chans_to_interp; 
+    %%EEG = pop_select(EEG,'nochannel', EEG.badchans); 
 
     % Create 1s epochs & remove bad ones
     EEG = eeg_regepochs(EEG); 

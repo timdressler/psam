@@ -161,7 +161,7 @@ for subj_idx= 1:length(dircont_subj)
 
     % Remove bad channels as identified in tid_psam_ica_preprocessing.m (see above)
     EEG.badchans = chans_to_interp;
-    EEG = pop_select(EEG,'nochannel', EEG.badchans);
+    %%EEG = pop_select(EEG,'nochannel', EEG.badchans);
 
     EEG.setname = [subj '_ready_for_ICA_weights'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);

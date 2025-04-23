@@ -213,6 +213,8 @@ for subj_idx= 1:length(dircont_subj_erp)
     protocol{subj_idx,2} = subj_time;
     if any(strcmp(excluded_subj, subj), 'all')
         protocol{subj_idx,3} = 'EXCLUDED';
+    elseif any(strcmp(marked_subj, subj), 'all') && ~any(strcmp(excluded_subj, subj), 'all')
+        protocol{subj_idx,3} = 'MARKED';
     else
         protocol{subj_idx,3} = 'OK';
     end
@@ -222,7 +224,7 @@ end
 % Sanity Check: Correct number of saved datasets 
 n_saved_erp = length(dir(fullfile(OUTPATH_ERP, 'sub-*.set')));  
 n_saved_beh = length(dir(fullfile(OUTPATH_BEH, 'sub-*.xlsx')));
-n_excluded = length(excluded_subj);
+n_excluded = size(excluded_subj,1);
 n_subjects_all = length(dircont_subj_erp);
 
 if n_saved_erp == n_saved_beh && n_saved_erp == (n_subjects_all - n_excluded)
