@@ -144,6 +144,41 @@ psych::describeBy(
 # - :  
 #------------------------------------------------------------------------------#
 
+# MAIN_ERP1
+# Linear Mixed Model (Random Intercepts, Fixed Slopes) (DV = N1 Amplitude, within = Task (active, passive), Probe-type (unaltered, altered), Probe-onset (early, late))
+# Analysis MAIN_ERP1 concerns how N1 ERP amplitudes are influenced by probe-type, probe-onset and task.
+MAIN_ERP2 <- lme4::lmer(psam_amp ~ probe_onset_cat*probe_type + (1|subj), data = df_psam)
+summary(MAIN_ERP2)
+
+# Plot: Vocal onset time by probe-onset and probe-type
+ezPlot(
+  data = df_psam 
+  , dv = psam_amp 
+  , wid = subj  
+  , within= .(probe_type, probe_onset_cat)
+  , x = .(probe_type)
+  , split   = .(probe_onset_cat)
+)
+
+# Descriptive statistics
+psych::describeBy(
+  df_psam$psam_amp,
+  list(df_psam$probe_type, df_psam$probe_onset_cat)
+)
+
+# Follow-Up Tests
+
+# Assumptions 
+
+
+#------------------------------------------------------------------------------#
+#
+#
+
+# Assumptions
+# - :  
+#------------------------------------------------------------------------------#
+
 
 
 
