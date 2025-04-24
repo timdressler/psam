@@ -167,8 +167,17 @@ psych::describeBy(
 )
 
 # Follow-Up Tests
+emmeans_results <- emmeans(MAIN_ERP2, ~ probe_type | probe_onset_cat)
+contrast(emmeans_results, method = "pairwise", adjust = "bonferroni")
+
+
 
 # Assumptions 
+performance::check_collinearity(MAIN_ERP2)
+performance::binned_residuals(MAIN_ERP2)
+performance::check_autocorrelation(MAIN_ERP2)
+performance::check_convergence(MAIN_ERP2)
+performance::check_model(MAIN_ERP2)
 
 
 #------------------------------------------------------------------------------#
