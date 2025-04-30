@@ -108,13 +108,35 @@ rm(temp_df_active, temp_df_passive) # Delete the temporary dfs
 
 #------------------------------------Analysis-----------------------------------
 
+# MAIN_ERPBASE
+# Linear Mixed Model (Random Intercepts, Fixed Slopes) (DV = N1 Amplitude)
+# Analysis MAIN_ERPBASE is included as a baseline model.
+MAIN_ERPBASE <- lme4::lmer(erp_amp ~ 1 + (1|subj), data = df_erp)
+summary(MAIN_ERPBASE)
+performance::icc(MAIN_ERPBASE)
+
+# Assumptions
+performance::check_convergence(MAIN_ERPBASE)
+performance::check_model(MAIN_ERPBASE)
+
+#------------------------------------------------------------------------------#
+#
+#
+
+# Assumptions
+# (- Convergence: )
+# - Normally distributed random effects:
+# - Normally distributed residuals:  
+# - Homogeneity of variance of the residuals: 
+#------------------------------------------------------------------------------#
+
 # MAIN_ERP1
 # Linear Mixed Model (Random Intercepts, Fixed Slopes) (DV = N1 Amplitude, within = Task (active, passive), Probe-type (unaltered, altered), Probe-onset (early, late))
 # Analysis MAIN_ERP1 concerns how N1 ERP amplitudes are influenced by probe-type, probe-onset and task.
 MAIN_ERP1 <- lme4::lmer(erp_amp ~ task_instruction*probe_onset_cat*probe_type + (1|subj), data = df_erp)
 summary(MAIN_ERP1)
 
-# Plot: Vocal onset time by probe-onset and probe-type
+# Plot: N1 ERP amplitude by probe-onset and probe-type
 ezPlot(
   data = df_erp 
   , dv = erp_amp 
@@ -133,24 +155,28 @@ psych::describeBy(
 
 # Follow-Up Tests
 
-# Assumptions 
-
+# Assumptions
+performance::check_convergence(MAIN_ERP1)
+performance::check_model(MAIN_ERP1)
 
 #------------------------------------------------------------------------------#
 #
 #
 
 # Assumptions
-# - :  
+# (- Convergence: )
+# - Normally distributed random effects:
+# - Normally distributed residuals:  
+# - Homogeneity of variance of the residuals: 
 #------------------------------------------------------------------------------#
 
-# MAIN_ERP1
-# Linear Mixed Model (Random Intercepts, Fixed Slopes) (DV = N1 Amplitude, within = Task (active, passive), Probe-type (unaltered, altered), Probe-onset (early, late))
-# Analysis MAIN_ERP1 concerns how N1 ERP amplitudes are influenced by probe-type, probe-onset and task.
+# MAIN_ERP2
+# Linear Mixed Model (Random Intercepts, Fixed Slopes) (DV = PSAM effect, within = Probe-type (unaltered, altered), Probe-onset (early, late))
+# Analysis MAIN_ERP2 concerns how the PSAM effect is influenced by probe-type, probe-onset. 
 MAIN_ERP2 <- lme4::lmer(psam_amp ~ probe_onset_cat*probe_type + (1|subj), data = df_psam)
 summary(MAIN_ERP2)
 
-# Plot: Vocal onset time by probe-onset and probe-type
+# Plot: PSAM effect by probe-onset and probe-type
 ezPlot(
   data = df_psam 
   , dv = psam_amp 
@@ -167,25 +193,67 @@ psych::describeBy(
 )
 
 # Follow-Up Tests
-emmeans_results <- emmeans(MAIN_ERP2, ~ probe_type | probe_onset_cat)
-contrast(emmeans_results, method = "pairwise", adjust = "bonferroni")
+MAIN_ERP2_FUT <- emmeans(MAIN_ERP2, ~ probe_type | probe_onset_cat)
+contrast(MAIN_ERP2_FUT, method = "pairwise", adjust = "bonferroni")
 
 
 
-# Assumptions 
-performance::check_collinearity(MAIN_ERP2)
-performance::binned_residuals(MAIN_ERP2)
-performance::check_autocorrelation(MAIN_ERP2)
-performance::check_convergence(MAIN_ERP2)
-performance::check_model(MAIN_ERP2)
-
+# Assumptions
+performance::check_convergence(MAIN_ERP1)
+performance::check_model(MAIN_ERP1)
 
 #------------------------------------------------------------------------------#
 #
 #
 
 # Assumptions
-# - :  
+# (- Convergence: )
+# - Normally distributed random effects:
+# - Normally distributed residuals:  
+# - Homogeneity of variance of the residuals: 
+#------------------------------------------------------------------------------#
+
+# MAIN_ERP3
+# Linear Mixed Model (Random Intercepts, Fixed Slopes) (DV = N1 Latency, within = Task (active, passive), Probe-type (unaltered, altered), Probe-onset (early, late))
+# Analysis MAIN_ERP3 concerns how the N1 ERP latency is influenced by probe-type, probe-onset and task. 
+MAIN_ERP3 <- lme4::lmer(erp_lat ~ task_instruction*probe_onset_cat*probe_type + (1|subj), data = df_erp)
+summary(MAIN_ERP3)
+
+# Plot: N1 ERP latency by probe-onset and probe-type
+ezPlot(
+  data = df_erp 
+  , dv = erp_lat 
+  , wid = subj  
+  , within= .(task_instruction,probe_type)
+  , within_full= .(task_instruction,probe_type, probe_onset_cat)
+  , x = .(probe_type)
+  , split   = .(task_instruction)
+)
+
+# Descriptive statistics# Descriptive statiprobe_onset_catstics
+psych::describeBy(
+  df_erp$erp_lat,
+  list(df_erp$task_instruction,df_erp$probe_type)
+)
+
+# Follow-Up Tests
+MAIN_ERP3_FUT <- emmeans(MAIN_ERP3, ~ probe_type | task_instruction)
+contrast(MAIN_ERP3_FUT, method = "pairwise", adjust = "bonferroni")
+
+
+# Assumptions
+performance::check_convergence(MAIN_ERP3)
+performance::check_model(MAIN_ERP3)
+
+#------------------------------------------------------------------------------#
+#
+#
+
+# Assumptions
+# (- Convergence: )
+# - Normally distributed random effects:
+# - Normally distributed residuals:  
+# - Homogeneity of variance of the residuals: 
 #------------------------------------------------------------------------------#
 
 

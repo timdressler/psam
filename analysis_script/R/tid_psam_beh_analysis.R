@@ -4,6 +4,9 @@
 #
 # Tim Dressler, 18.04.25
 
+# NOTES
+# Check ANOVA Type before running, for some cases I changed the type from III to I in order for it to run with the limited amount of pilot data
+
 #-------------------------------------Set up------------------------------------
 #load packages
 library(tidyr) 
@@ -76,12 +79,18 @@ df_probe_properties <- df_probe_properties %>%
   )
 df_probe_properties$probe_type <- as.factor(df_probe_properties$probe_type)
 
+df_probe_properties_wide <- df_probe_properties %>% # Same df in wide format (for t.test)
+  pivot_wider(names_from = probe_type, values_from = f0_z)
+
 # Z-standardized vocal responses F0 values for probe and no-probe trials for each subject
 df_probe_f0_z <- df_beh %>% 
   group_by(probe, subj) %>%
   summarise(mean(recording_f0_z, na.rm = T))  
 colnames(df_probe_f0_z) <- c("probe", "subj", "recording_f0_z")
 df_probe_f0_z$probe <- as.factor(df_probe_f0_z$probe)
+
+df_probe_f0_z_wide <- df_probe_f0_z %>% # Same df in wide format (for t.test)
+  pivot_wider(names_from = probe, values_from = recording_f0_z)
 
 # Z-standardized vocal responses F0 values for probe and no-probe trials for each subject
 df_probe_type_onset_f0_z <- filter(df_beh, probe == "Yes") %>% 
@@ -95,6 +104,9 @@ df_probe_vot_z <- df_beh %>%
   summarise(mean(recording_vot_z, na.rm = T))  
 colnames(df_probe_vot_z) <- c("probe", "subj", "recording_vot_z")
 df_probe_vot_z$probe <- as.factor(df_probe_vot_z$probe)
+
+df_probe_vot_z_wide <- df_probe_vot_z %>% # Same df in wide format (for t.test)
+  pivot_wider(names_from = probe, values_from = recording_vot_z)
 
 # Z-standardized VOTs for probe and no-probe trials for each subject
 df_probe_type_onset_vot_z <- filter(df_beh, probe == "Yes") %>% 
@@ -121,7 +133,11 @@ df_block_vot_z$block <- as.factor(df_block_vot_z$block)
 # BEH1
 # Paired T-Test (DV = Z-transformed probe F0 value, within = Probe-type)
 # Analysis BEH1 concerns the F0 of the auditory probes (unaltered and altered) relative to the distribution of the F0 of the vocal responses during the experiment.
-BEH1 <- t.test(data = df_probe_properties, f0_z ~ probe_type, paired = TRUE) 
+BEH1 <- t.test(
+  df_probe_properties_wide$probe_f0_altered_z,
+  df_probe_properties_wide$probe_f0_unaltered_z,
+  paired = TRUE
+)
 BEH1
 
 BEH1_ES <- as.data.frame(df_probe_properties) %>% 
@@ -159,7 +175,11 @@ byf.shapiro(f0_z ~ probe_type,
 # BEH2
 # Paired T-Test (DV = Z-transformed F0 value, within = Probe (Yes, No))
 # Analysis BEH2 concerns how the F0 of the vocal responses during the experiment is influenced by a probe being presented.
-BEH2 <- t.test(data = df_probe_f0_z, recording_f0_z ~ probe, paired = TRUE) 
+BEH2 <- t.test(
+  df_probe_f0_z_wide$No,
+  df_probe_f0_z_wide$Yes,
+  paired = TRUE
+) 
 BEH2
 
 BEH2_ES <- as.data.frame(df_probe_f0_z) %>% 
@@ -256,7 +276,11 @@ ezDesign(df_probe_type_onset_f0_z, x = probe_type, y = subj, row = probe_onset_c
 # BEH4
 # Paired T-Test (DV = Z-transformed vocal onset time, within = Probe (Yes, No))
 # Analysis BEH4 concerns how the vocal onset time is influenced by a probe being presented.
-BEH4 <- t.test(data = df_probe_vot_z, recording_vot_z ~ probe, paired = TRUE) 
+BEH4 <- t.test(
+  df_probe_vot_z_wide$No,
+  df_probe_vot_z_wide$Yes,
+  paired = TRUE
+)
 BEH4
 
 BEH4_ES <- as.data.frame(df_probe_vot_z) %>% 
@@ -397,7 +421,7 @@ byf.shapiro(recording_f0_z ~ block,
             data = df_block_f0_z)
 
 #Balance of the design
-ezDesign(df_block_f0_z, x = block, y = subjt) 
+ezDesign(df_block_f0_z, x = block, y = subj) 
 
 #------------------------------------------------------------------------------#
 #
@@ -467,6 +491,3 @@ ezDesign(df_block_vot_z, x = block, y = subj)
 # - Balance of the design: OK
 #------------------------------------------------------------------------------#
 
-# BEH8
-
-# BEH9
