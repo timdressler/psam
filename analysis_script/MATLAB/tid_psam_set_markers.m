@@ -85,7 +85,7 @@ for subj_idx = 1:length(dircont_subj)
     subj_path = fullfile(INPATH, [subj '\eeg\']);
 
     % Start EEGLAB
-    eeglab;
+    [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
     tic;
 
     % Load EEG data
