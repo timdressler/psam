@@ -11,7 +11,7 @@
     % Checks number of valid trials per condition
     % Loading behavioural and EEG-SVM data
     % Matches invalid trials identified in EEG-SVM data and behavioural data
-    % Removes tagged trials only from both EEG-SVM data
+    % Removes tagged trials only from the EEG-SVM data
     % Excludes subjects if the number of trials in below threshold for
     %   either condition
     % Stores datasets
@@ -27,9 +27,9 @@
 %   analysis is somewhat independent, potentially including different trials.
 %   The rationale behind this approach is to maximize the usable trials
 %   for each analysis. Since the ERP analysis relates to quantities like
-%   pitch (differences), it makes sense to match this analysis with the
+%   F0 (differences), it makes sense to match this analysis with the
 %   behavioural one. On the other hand, the SVM analysis is not related to
-%   that, making a more liberal approach possible. 
+%   such quantities, making a more liberal approach possible. 
 %
 % Tim Dressler, 04.04.2025
 
@@ -225,6 +225,11 @@ for subj_idx= 1:length(dircont_subj_erp)
 
         % Extract no-probe trials from behavioural data
         excluded_trials_beh_no_probe = excluded_trials_beh(strcmp(beh.probe, 'No'));
+
+        % % a = find(strcmp(beh.probe, 'No'));
+        % % b = zeros(1,960);
+        % % b(a) = EEG.reject.rejglobal;
+        % % d = b(strcmp(beh.probe, 'No'));
 
         % Sanity Check: Correct number of no-probe trials (=480)
         if length(excluded_trials_beh_no_probe) == n_trials_no_probe && size(EEG.data,3) == n_trials_no_probe
