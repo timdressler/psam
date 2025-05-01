@@ -4,19 +4,34 @@
 %   subjects with too many excluded trials.
 %
 % The proccessing steps include:
-% Loading behavioural and EEG data
-% Matches invalid trials identified in either dataset
-% Performs multiple transformations using on the included trials
-% Checks number of valid trials per condition
-% Excludes subjects if the number of trials in below threshold for
-%   either condition
-% Stores datasets
+    % Loading behavioural and EEG-ERP data
+    % Matches invalid trials identified in EEG-ERP data and behavioural data
+    % Removes tagged trials from both EEG-ERP data and behavioural data
+    % Performs multiple transformations using on the included trials
+    % Checks number of valid trials per condition
+    % Loading behavioural and EEG-SVM data
+    % Matches invalid trials identified in EEG-SVM data and behavioural data
+    % Removes tagged trials only from both EEG-SVM data
+    % Excludes subjects if the number of trials in below threshold for
+    %   either condition
+    % Stores datasets
 %
 % Concatinates all individual behavioural data sets to one large one and stores it.
 %
+% Note. The ERP analysis and the behavioural analysis include the exact
+%   same trials and participants after the described procedures. The SVM
+%   analysis might include trials that are excluded for the ERP analysis and
+%   vice versa. Further, the behavioural analysis might include trials which
+%   are excluded from the SVM analysis. To sum up, the trials for the ERP
+%   analysis and the behavoural analysis are perfectly matched. The SVM
+%   analysis is somewhat independent, potentially including different trials.
+%   The rationale behind this approach is to maximize the usable trials
+%   for each analysis. Since the ERP analysis relates to quantities like
+%   pitch (differences), it makes sense to match this analysis with the
+%   behavioural one. On the other hand, the SVM analysis is not related to
+%   that, making a more liberal approach possible. 
+%
 % Tim Dressler, 04.04.2025
-
-% Add RT calculation rt_tab - (go_onset-mic.started)
 
 clear
 close all
@@ -174,7 +189,7 @@ for subj_idx= 1:length(dircont_subj_erp)
     conditionNames = strcat(condTab, '_', lower(onsetCat), '_', probeStr(:));
     n_trials_condition_beh = struct('condition', conditionNames, 'n_trials', num2cell(counts))';
 
-    % Sanity Check: Matching number of trials per condition in EPR data and behavioural data
+    % Sanity Check: Matching number of trials per condition in ERP data and behavioural data
     % Extract condition names and trial counts
     behConditions = {n_trials_condition_beh.condition};
     behCounts = [n_trials_condition_beh.n_trials];
@@ -226,7 +241,6 @@ for subj_idx= 1:length(dircont_subj_erp)
         EEG = pop_rejepoch( EEG, EEG.reject.rejglobal ,0);
         EEG.setname = [subj '_svm_clean'];
         [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
-
 
         % Exclude subjects if not enough trials per condition are left
         if sum(strcmp({EEG.event.type}, 'go_act')) > N_TRIALS_NO_PROBE_THRESH && sum(strcmp({EEG.event.type}, 'go_pas')) > N_TRIALS_NO_PROBE_THRESH
