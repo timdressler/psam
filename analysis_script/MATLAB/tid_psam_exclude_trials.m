@@ -72,9 +72,9 @@ n_trials_no_probe = 480;
 EVENTS = {'act_early_unalt', 'act_early_alt', 'act_late_unalt', 'act_late_alt', ...
     'pas_early_unalt', 'pas_early_alt', 'pas_late_unalt', 'pas_late_alt', 'con_act_early', 'con_act_late', ...
     'con_pas_early', 'con_pas_late'};
-N_TRIALS_THRESH = 30; % Number of minimal required trials per condition for ERP analysis (excluded)
-N_TRIALS_NO_PROBE_THRESH = 100; % Number of minimal required trials per condition for SVM analysis (excluded)
-N_TRIALS_BLOCK_THRESH = 60; % Number of minimal required trials per block (only marked, not excluded)
+N_TRIALS_THRESH = 30; % More than 30 trials trials per condition required for ERP analysis (excluded)
+N_TRIALS_NO_PROBE_THRESH = 100; % More than 100 trials trials required per condition for SVM analysis (excluded)
+N_TRIALS_BLOCK_THRESH = 60; % More than 60 trials trials required per block (only marked, not excluded)
 
 % Get directory content
 dircont_subj_erp = dir(fullfile(INPATH_ERP, 'sub-*.set'));
@@ -204,14 +204,14 @@ for subj_idx= 1:length(dircont_subj_erp)
 
     % Sanity Check: Enough trials per block
     for block_num = 1:8
-        if sum([beh_clean.block] == block_num) < N_TRIALS_BLOCK_THRESH
+        if sum([beh_clean.block] == block_num) <= N_TRIALS_BLOCK_THRESH
             marked_subj{end+1,1} = subj;
             marked_subj{end,2} = ['number_of_trials_block_' num2str(block_num)];
         end
     end
 
     % Exclude subjects if not enough trials per condition are left
-    if any([n_trials_condition_beh.n_trials] < N_TRIALS_THRESH)
+    if any([n_trials_condition_beh.n_trials] <= N_TRIALS_THRESH)
         excluded_subj{end+1,1} = subj;
         excluded_subj{end,2} = 'number_of_trials';
     end
