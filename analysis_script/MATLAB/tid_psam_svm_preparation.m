@@ -121,8 +121,10 @@ for subj_idx= 1:length(dircont_subj)
     win_early_activity = tid_psam_hjorth_activity_TD(win_early_data);
 
     % Mobility
+    win_early_mobility = tid_psam_hjorth_mobility_TD(win_early_data);
 
     % Complexity
+    win_early_complexity = tid_psam_hjorth_complexity_TD(win_early_data);
 
 
 
