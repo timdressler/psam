@@ -4,7 +4,7 @@
 %
 % Preparation includes the following steps
 %
-    % Load data and data set containing ICA weights (see
+% Load data and data set containing ICA weights (see
 %
 % Stores data
 %
@@ -74,32 +74,42 @@ for subj_idx= 1:length(dircont_subj)
     % Load data
     EEG = pop_loadset('filename',[subj '_svm_preprocessed_clean.set'],'filepath',INPATH);
 
-    % Extract data from early and late time window 
+    % Extract data from early and late time window
     [~,win_early_start] = min(abs(EEG.times-WIN_EARLY_FROM)); % Start of the early window
     [~,win_early_end] = min(abs(EEG.times-WIN_EARLY_TILL)); % End of the early window
     [~,win_late_start] = min(abs(EEG.times-WIN_LATE_FROM)); % Start of the late window
     [~,win_late_end] = min(abs(EEG.times-WIN_LATE_TILL)); % End of the late window
-  
+
     win_early_data = EEG.data(:,win_early_start:win_early_end,:);
     win_late_data = EEG.data(:,win_late_start:win_late_end,:);
 
     % Extract the features
     % Time-domain features
     % Mean amplitude
+    win_early_mean = squeeze(mean(win_early_data, 2));
 
     % RMS
+    win_early_rms = squeeze(rms(win_early_data, 2));
 
     % SD of the amplitude
+    win_early_sd = squeeze(std(win_early_data, [], 2));
 
     % Maximum amplitude
+    win_early_min = squeeze(min(win_early_data, [], 2));
 
     % Minimum amplitude
+    win_early_max = squeeze(max(win_early_data, [], 2));
 
     % Kurtosis
+    win_early_kurtosis = squeeze(kurtosis(win_early_data, [], 2));
 
     % Skewness
+    win_early_skewness = squeeze(skewness(win_early_data, [], 2));
 
     % Zero-crossing rate
+    for i = 1:size(win_early_data,3)
+        win_early_zerocrossing(:,i) = zerocrossrate(win_early_data(:,:,i)')';
+    end
 
     % Frequency-domain features
     % Preparations
@@ -108,6 +118,7 @@ for subj_idx= 1:length(dircont_subj)
 
     % Hjorth Parameters
     % Activity
+    win_early_activity = tid_psam_hjorth_activity_TD(win_early_data);
 
     % Mobility
 
@@ -116,9 +127,9 @@ for subj_idx= 1:length(dircont_subj)
 
 
 
-   
 
-   
+
+
 
     % Update Protocol
     subj_time = toc;
