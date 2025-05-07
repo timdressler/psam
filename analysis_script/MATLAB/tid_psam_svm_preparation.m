@@ -46,6 +46,13 @@ WIN_EARLY_FROM = -600;
 WIN_EARLY_TILL = -401;
 WIN_LATE_FROM = -400;
 WIN_LATE_TILL = -201;
+ZEROPADDING = 1000; % Zeropadding to 1 s (1000 Samples due to 1000 Hz SR)
+APLHA_FROM = 8;
+APLHA_TILL = 13;
+BETA_FROM = 14;
+BETA_TILL = 30;
+GAMMA_FROM = 31;
+GAMMA_TILL = 37;
 
 % Get directory content
 dircont_subj = dir(fullfile(INPATH, 'sub-*.set'));
@@ -74,64 +81,100 @@ for subj_idx= 1:length(dircont_subj)
     % Load data
     EEG = pop_loadset('filename',[subj '_svm_preprocessed_clean.set'],'filepath',INPATH);
 
-    % Extract data from early and late time window
-    [~,win_early_start] = min(abs(EEG.times-WIN_EARLY_FROM)); % Start of the early window
-    [~,win_early_end] = min(abs(EEG.times-WIN_EARLY_TILL)); % End of the early window
-    [~,win_late_start] = min(abs(EEG.times-WIN_LATE_FROM)); % Start of the late window
-    [~,win_late_end] = min(abs(EEG.times-WIN_LATE_TILL)); % End of the late window
+    % Get epoch labels
+    labels = cellfun(@(x) x{2}, {EEG.epoch.eventtype}, 'UniformOutput', false);
 
-    win_early_data = EEG.data(:,win_early_start:win_early_end,:);
-    win_late_data = EEG.data(:,win_late_start:win_late_end,:);
+    % Define time windows
+    windows = struct( ...
+        'early', struct('from', WIN_EARLY_FROM, 'till', WIN_EARLY_TILL), ...
+        'late', struct('from', WIN_LATE_FROM, 'till', WIN_LATE_TILL) ...
+        );
 
-    % Extract the features
-    % Time-domain features
-    % Mean amplitude
-    win_early_mean = squeeze(mean(win_early_data, 2));
+    % Initialize feature struct
+    features = struct();
 
-    % RMS
-    win_early_rms = squeeze(rms(win_early_data, 2));
+    % Loop through windows
+    for win_label = ["early", "late"]
+        label = char(win_label);
 
-    % SD of the amplitude
-    win_early_sd = squeeze(std(win_early_data, [], 2));
+        % Get time indices
+        [~,start_idx] = min(abs(EEG.times - windows.(label).from));
+        [~,end_idx] = min(abs(EEG.times - windows.(label).till));
 
-    % Maximum amplitude
-    win_early_min = squeeze(min(win_early_data, [], 2));
+        % Get window data
+        data = EEG.data(:, start_idx:end_idx, :);
+        features.(label).data = data;
 
-    % Minimum amplitude
-    win_early_max = squeeze(max(win_early_data, [], 2));
+        % Sanity Check: Correct dimensions
+        if size(data,1) ~= 30 || size(data,2) ~= 200 || size(data,3) == 1
+            marked_subj{end+1,1} = subj;
+            marked_subj{end,2} = 'wrong_dimensions';
+        end
 
-    % Kurtosis
-    win_early_kurtosis = squeeze(kurtosis(win_early_data, [], 2));
+        % Time-domain features
+        features.(label).mean = squeeze(mean(data, 2));
+        features.(label).rms = squeeze(rms(data, 2));
+        features.(label).sd = squeeze(std(data, [], 2));
+        features.(label).min = squeeze(min(data, [], 2));
+        features.(label).max = squeeze(max(data, [], 2));
+        features.(label).kurtosis = squeeze(kurtosis(data, [], 2));
+        features.(label).skewness = squeeze(skewness(data, [], 2));
 
-    % Skewness
-    win_early_skewness = squeeze(skewness(win_early_data, [], 2));
+        for i = 1:size(data, 3)
+            features.(label).zerocrossing(:, i) = zerocrossrate(data(:,:,i)')';
+        end
 
-    % Zero-crossing rate
-    for i = 1:size(win_early_data,3)
-        win_early_zerocrossing(:,i) = zerocrossrate(win_early_data(:,:,i)')';
+        % Frequency-domain features
+        % Preparation
+        % Apply Hamming window to each epoch for each electrode
+        ham = hamming(size(data,2));
+
+        for e = 1:size(data,3)
+            for ch = 1:size(data,1)
+                data(ch, :, e) = squeeze(data(ch, :, e)) .* ham';
+            end
+        end
+
+        % Apply zeropadding to 1 s (i.e., 1000 Samples due to SR = 1000 Hz)
+        padding_needed = ZEROPADDING - size(data,2);
+        data_padded = padarray(data, [0, padding_needed, 0], 0, 'post');
+
+        % Sanity check: Correct dimensions after padding
+        if size(data_padded,1) ~= 30 || size(data_padded,2) ~= ZEROPADDING || size(data_padded,3) == 1
+            marked_subj{end+1,1} = subj;
+            marked_subj{end,2} = 'wrong_dimensions_after_padding';
+        end
+        if ~all(data_padded(201:end,:) == 0, 'all')
+            marked_subj{end+1,1} = subj;
+            marked_subj{end,2} = 'wrong_values_after_padding';
+        end
+
+        % Apply FFT
+        fft_data = abs(fft(data_padded, [], 2)) / size(data, 2);
+        fft_data = fft_data(:, 1:end/2, :);
+        fft_data(:, 2:end, :) = fft_data(:, 2:end, :) * 2;
+
+        % Get bandpower for alpha, beta and gamma bands
+        freq_vec = 0:1/(ZEROPADDING/1000):EEG.srate/2 - (1/(ZEROPADDING/1000));
+        [~,a_start] = min(abs(freq_vec - APLHA_FROM));
+        [~,a_end] = min(abs(freq_vec - APLHA_TILL));
+        [~,b_start] = min(abs(freq_vec - BETA_FROM));
+        [~,b_end] = min(abs(freq_vec - BETA_TILL));
+        [~,g_start] = min(abs(freq_vec - GAMMA_FROM));
+        [~,g_end] = min(abs(freq_vec - GAMMA_TILL));
+
+        features.(label).alpha = squeeze(mean(fft_data(:, a_start:a_end, :), 2));
+        features.(label).beta = squeeze(mean(fft_data(:, b_start:b_end, :), 2));
+        features.(label).gamma = squeeze(mean(fft_data(:, g_start:g_end, :), 2));
+
+        % Hjorth parameters
+        % Get Activity
+        features.(label).activity = tid_psam_hjorth_activity_TD(data);
+        % Get Mobility
+        features.(label).mobility = tid_psam_hjorth_mobility_TD(data);
+        % Get Complexity
+        features.(label).complexity = tid_psam_hjorth_complexity_TD(data);
     end
-
-    % Frequency-domain features
-    % Preparations
-
-    % Bandpower for alpha, beta and (low) gamma bands
-
-    % Hjorth Parameters
-    % Activity
-    win_early_activity = tid_psam_hjorth_activity_TD(win_early_data);
-
-    % Mobility
-    win_early_mobility = tid_psam_hjorth_mobility_TD(win_early_data);
-
-    % Complexity
-    win_early_complexity = tid_psam_hjorth_complexity_TD(win_early_data);
-
-
-
-
-
-
-
 
     % Update Protocol
     subj_time = toc;
@@ -159,4 +202,5 @@ check_done = 'tid_psam_svm_preparation_DONE'
 
 delete(wb)
 
-
+%% 
+plot(freq_vec,fft_data(1,:,1))
