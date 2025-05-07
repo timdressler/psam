@@ -47,7 +47,6 @@ HCF = 30;
 LCF_ICA = 1;
 BL_FROM = -200;
 THRESH = 75;
-SD_PROB = 3;
 SD_PROB_ICA = 3;
 EVENTS = {'act_early_unalt', 'act_early_alt', 'act_late_unalt', 'act_late_alt', ...
     'pas_early_unalt', 'pas_early_alt', 'pas_late_unalt', 'pas_late_alt', 'con_act_early', 'con_act_late', ...
