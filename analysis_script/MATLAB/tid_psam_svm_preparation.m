@@ -42,6 +42,7 @@ tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)
 tid_psam_clean_up_folder_TD(OUTPATH)
 
 % Variables to edit
+EOG_CHAN = {'E29','E30'}; % Labels of EOG electrodes
 WIN_EARLY_FROM = -600;
 WIN_EARLY_TILL = -401;
 WIN_LATE_FROM = -400;
@@ -80,6 +81,10 @@ for subj_idx= 1:length(dircont_subj)
 
     % Load data
     EEG = pop_loadset('filename',[subj '_svm_preprocessed_clean.set'],'filepath',INPATH);
+
+    % Remove EOG channels as they are not used for classification
+    eog_chani = find(ismember({EEG.chanlocs.labels}, EOG_CHAN));
+    %TODO REMOVE CANNELS !!!!!!!!!!!!!!!!!!!!!!!!!
 
     % Get epoch labels
     labels = cellfun(@(x) x{2}, {EEG.epoch.eventtype}, 'UniformOutput', false);

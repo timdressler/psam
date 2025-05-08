@@ -91,6 +91,7 @@ for subj_idx= 1:length(dircont_subj)
     % Add type = EOG for EOG electrodes for bemobil_detect_bad_channels to ignore them
     eog_chani = find(ismember({EEG.chanlocs.labels}, EOG_CHAN));
     [EEG.chanlocs(eog_chani).type] = deal('EOG');
+    EEG = eeg_checkset( EEG );
 
     EEG.setname = [subj '_ready_for_ICA_preprocessing'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
