@@ -40,6 +40,7 @@ tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)
 tid_psam_clean_up_folder_TD(OUTPATH)
 
 % Variables to edit
+EOG_CHAN = {'E29','E30'}; % Labels of EOG electrodes
 EPO_FROM = -0.2;
 EPO_TILL = 0.400;
 LCF = 0.3; 
@@ -86,6 +87,10 @@ for subj_idx= 1:length(dircont_subj)
     % Add channel locations
     EEG.chanlocs = readlocs( fullfile(MAINPATH,'\config\elec_96ch_adapted.elp')); 
     EEG = eeg_checkset( EEG );
+
+    % Add type = EOG for EOG electrodes for bemobil_detect_bad_channels to ignore them
+    eog_chani = find(ismember({EEG.chanlocs.labels}, EOG_CHAN));
+    [EEG.chanlocs(eog_chani).type] = deal('EOG');
 
     EEG.setname = [subj '_ready_for_ICA_preprocessing'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
