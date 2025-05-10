@@ -83,8 +83,7 @@ for subj_idx= 1:length(dircont_subj)
     EEG = pop_loadset('filename',[subj '_svm_preprocessed_clean.set'],'filepath',INPATH);
 
     % Remove EOG channels as they are not used for classification
-    eog_chani = find(ismember({EEG.chanlocs.labels}, EOG_CHAN));
-    %TODO REMOVE CANNELS !!!!!!!!!!!!!!!!!!!!!!!!!
+    EEG = pop_select( EEG, 'rmchannel',EOG_CHAN);
 
     % Get epoch labels
     labels = cellfun(@(x) x{2}, {EEG.epoch.eventtype}, 'UniformOutput', false);
@@ -111,7 +110,7 @@ for subj_idx= 1:length(dircont_subj)
         features.(label).data = data;
 
         % Sanity Check: Correct dimensions
-        if size(data,1) ~= 30 || size(data,2) ~= 200 || size(data,3) == 1
+        if size(data,1) ~= EEG.nbchan || size(data,2) ~= 200 || size(data,3) == 1
             marked_subj{end+1,1} = subj;
             marked_subj{end,2} = 'wrong_dimensions';
         end
@@ -145,7 +144,7 @@ for subj_idx= 1:length(dircont_subj)
         data_padded = padarray(data, [0, padding_needed, 0], 0, 'post');
 
         % Sanity check: Correct dimensions after padding
-        if size(data_padded,1) ~= 30 || size(data_padded,2) ~= ZEROPADDING || size(data_padded,3) == 1
+        if size(data_padded,1) ~= EEG.nbchan || size(data_padded,2) ~= ZEROPADDING || size(data_padded,3) == 1
             marked_subj{end+1,1} = subj;
             marked_subj{end,2} = 'wrong_dimensions_after_padding';
         end
