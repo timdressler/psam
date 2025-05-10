@@ -57,7 +57,7 @@ tid_psam_clean_up_folder_TD(OUTPATH)
 % Variables to edit
 EOG_CHAN = {'E29','E30'}; % Labels of EOG electrodes
 EPO_FROM = -1;
-EPO_TILL = 0.1;
+EPO_TILL = 0;
 LCF = 0.3;
 HCF = 40;
 BL_FROM = -1000;
