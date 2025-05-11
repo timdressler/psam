@@ -3,17 +3,17 @@
 % Performs preparations for SVM analysis and saves data.
 %
 % Preparation includes the following steps
-%
-% Load data and data set containing ICA weights (see
+    % Removes EOG electrodes
+    % Extracts early and late time windows relative to the 'go-signal'
+    % Extract the following features for each epoch, time window and channel
+    %   Mean amplitude, RMS, standard deviation of the amplitude, maximum and minimum amplitude, kurtosis, skewness, and zero-crossing rate
+    %   Bandpower for alpha (8-13 Hz), beta (13 - 30 Hz) and (low) gamma (30 -37 Hz) 
+    %       Note that before applying the FFT, the a Hamming window was applied and the data was zeropadded
+    %   Hjorth Parameters (Activity, Mobility and Complexity)
 %
 % Stores data
 %
-% Note. Trials are only marked for exclusion but not excluded yet!
-%
-% Literature
-% Pion-Tonachini, L., Kreutz-Delgado, K., & Makeig, S. (2019).
-%   ICLabel: An automated electroencephalographic independent component classifier, dataset, and website.
-%   NeuroImage, 198, 181-197.
+% Also see: tid_psam_hjorth_activity_TD, tid_psam_hjorth_mobility_TD, tid_psam_hjorth_complexity_TD.
 %
 % Tim Dressler, 05.05.2025
 
