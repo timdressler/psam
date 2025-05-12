@@ -72,7 +72,7 @@ n_trials_no_probe = 480;
 EVENTS = {'act_early_unalt', 'act_early_alt', 'act_late_unalt', 'act_late_alt', ...
     'pas_early_unalt', 'pas_early_alt', 'pas_late_unalt', 'pas_late_alt', 'con_act_early', 'con_act_late', ...
     'con_pas_early', 'con_pas_late'};
-N_TRIALS_THRESH = 30; % More than 30 trials trials per condition required for ERP analysis (excluded)
+N_TRIALS_THRESH = 25; % More than 25 trials trials per condition required for ERP analysis (excluded)
 N_TRIALS_NO_PROBE_THRESH = 100; % More than 100 trials trials required per condition for SVM analysis (excluded)
 N_TRIALS_BLOCK_THRESH = 60; % More than 60 trials trials required per block (only marked, not excluded)
 
@@ -216,6 +216,8 @@ for subj_idx= 1:length(dircont_subj_erp)
         excluded_subj{end,2} = 'number_of_trials';
     end
 
+    % Exclusion details: Enough trials per condition
+
     % Load SVM data and merge to be excluded trials with behavioural data
     % Note. ERP preprocessed excluded and SVM preprocessed excluded trials are not merged
     % Update excluded subjects
@@ -253,6 +255,9 @@ for subj_idx= 1:length(dircont_subj_erp)
             excluded_subj{end+1,1} = subj;
             excluded_subj{end,2} = 'number_of_no_probe_trials';
         end
+
+        % Exclusion details: Enoughno-probe trials
+
     end
 
     % Store and save datasets for non-excluded subjects
@@ -311,6 +316,8 @@ end
     if ~isempty(excluded_subj)
         excluded_subj = cell2table(excluded_subj, 'VariableNames',{'subj','issue'})
         writetable(excluded_subj,fullfile(OUTPATH, 'tid_psam_exclude_trials_excluded_subj.xlsx'))
+
+        % Details
     end
 
     if ~isempty(marked_subj)
