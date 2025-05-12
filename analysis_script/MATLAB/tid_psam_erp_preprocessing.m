@@ -166,17 +166,17 @@ for subj_idx= 1:length(dircont_subj)
 
     % Remove bad channels as identified in tid_psam_ica_preprocessing.m (see above)
     EEG.badchans = chans_to_interp;
-    %%EEG = pop_select(EEG,'nochannel', EEG.badchans);
+    EEG = pop_select(EEG,'nochannel', EEG.badchans);
 
     EEG.setname = [subj '_ready_for_ICA_weights'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
     % Attach ICA weight to main data
-    % % EEG = pop_editset(EEG,'run', [], 'icaweights','ALLEEG(1).icaweights', 'icasphere','ALLEEG(1).icasphere');
+    EEG = pop_editset(EEG,'run', [], 'icaweights','ALLEEG(1).icaweights', 'icasphere','ALLEEG(1).icasphere');
     % Label ICA components with IC Label Plugin (Pion-Tonachini et al., 2019)
-    % EEG = pop_iclabel(EEG, 'default');
-    % EEG = pop_icflag(EEG, [0 0.2;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1]);
-    % EEG = pop_subcomp( EEG, [], 0);
+    EEG = pop_iclabel(EEG, 'default');
+    EEG = pop_icflag(EEG, [0 0.2;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1]);
+    EEG = pop_subcomp( EEG, [], 0);
 
     % Interpolate bad channels
     if ~isempty(EEG.badchans)
