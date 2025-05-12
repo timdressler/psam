@@ -69,17 +69,17 @@ df_beh <- read_excel(file.path(INPATH, "all_subj_beh_preprocessed_clean.xlsx"))
 #-------------------------------Create needed dfs-------------------------------
 
 # Z-standardized probe F0 values for unaltered and altered probes for each subject
-df_probe_properties <- df_beh %>%
+df_probe_properties_z <- df_beh %>%
   distinct(subj, probe_f0_unaltered_z, probe_f0_altered_z)
-df_probe_properties <- df_probe_properties %>%
+df_probe_properties_z <- df_probe_properties_z %>%
   pivot_longer(
     cols = c("probe_f0_unaltered_z", "probe_f0_altered_z"),
     names_to = "probe_type",
     values_to = "f0_z"
   )
-df_probe_properties$probe_type <- as.factor(df_probe_properties$probe_type)
+df_probe_properties_z$probe_type <- as.factor(df_probe_properties_z$probe_type)
 
-df_probe_properties_wide <- df_probe_properties %>% # Same df in wide format (for t.test)
+df_probe_properties_z_wide <- df_probe_properties_z %>% # Same df in wide format (for t.test)
   pivot_wider(names_from = probe_type, values_from = f0_z)
 
 # Z-standardized vocal responses F0 values for probe and no-probe trials for each subject
@@ -91,6 +91,16 @@ df_probe_f0_z$probe <- as.factor(df_probe_f0_z$probe)
 
 df_probe_f0_z_wide <- df_probe_f0_z %>% # Same df in wide format (for t.test)
   pivot_wider(names_from = probe, values_from = recording_f0_z)
+
+# Vocal responses F0 values for probe and no-probe trials for each subject
+df_probe_f0 <- df_beh %>% 
+  group_by(probe, subj) %>%
+  summarise(mean(recording_f0, na.rm = T))  
+colnames(df_probe_f0) <- c("probe", "subj", "recording_f0")
+df_probe_f0$probe <- as.factor(df_probe_f0$probe)
+
+df_probe_f0_wide <- df_probe_f0 %>% # Same df in wide format (for t.test)
+  pivot_wider(names_from = probe, values_from = recording_f0)
 
 # Z-standardized vocal responses F0 values for probe and no-probe trials for each subject
 df_probe_type_onset_f0_z <- filter(df_beh, probe == "Yes") %>% 
@@ -134,35 +144,35 @@ df_block_vot_z$block <- as.factor(df_block_vot_z$block)
 # Paired T-Test (DV = Z-transformed probe F0 value, within = Probe-type)
 # Analysis BEH1 concerns the F0 of the auditory probes (unaltered and altered) relative to the distribution of the F0 of the vocal responses during the experiment.
 BEH1 <- t.test(
-  df_probe_properties_wide$probe_f0_altered_z,
-  df_probe_properties_wide$probe_f0_unaltered_z,
+  df_probe_properties_z_wide$probe_f0_altered_z,
+  df_probe_properties_z_wide$probe_f0_unaltered_z,
   paired = TRUE
 )
 BEH1
 
-BEH1_ES <- as.data.frame(df_probe_properties) %>% 
+BEH1_ES <- as.data.frame(df_probe_properties_z) %>% 
   cohens_d(f0_z ~ probe_type, paired = TRUE)
 BEH1_ES
 
 # Plot: Probe F0 by probe-type
-ggplot(df_probe_properties, aes(x = probe_type, y = f0_z, fill = probe_type)) +
+ggplot(df_probe_properties_z, aes(x = probe_type, y = f0_z, fill = probe_type)) +
   geom_boxplot(show.legend = T) +  
   theme_ggstatsplot() 
 
 # Descriptive statistics
-psych::describeBy(df_probe_properties$f0_z,
-                  group = df_probe_properties$probe_type)
+psych::describeBy(df_probe_properties_z$f0_z,
+                  group = df_probe_properties_z$probe_type)
 
 # Assumptions 
 # Normal distibution
-df_probe_properties %>%
+df_probe_properties_z %>%
   ggplot(aes(x = f0_z)) +
   geom_histogram(bins = 50) +
-  facet_wrap(df_probe_properties$probe_type) +
+  facet_wrap(df_probe_properties_z$probe_type) +
   theme_ggstatsplot()
 
 byf.shapiro(f0_z ~ probe_type, 
-            data = df_probe_properties)
+            data = df_probe_properties_z)
 
 #------------------------------------------------------------------------------#
 #
@@ -181,6 +191,17 @@ BEH2 <- t.test(
   paired = TRUE
 ) 
 BEH2
+
+################################################################################
+# TESTING
+BEH2.1 <- t.test(
+  df_probe_f0_wide$No,
+  df_probe_f0_wide$Yes,
+  paired = TRUE
+) 
+BEH2.1
+# TESTING
+################################################################################
 
 BEH2_ES <- as.data.frame(df_probe_f0_z) %>% 
   cohens_d(recording_f0_z ~ probe, paired = TRUE) 
