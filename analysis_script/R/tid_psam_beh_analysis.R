@@ -82,7 +82,7 @@ df_probe_properties_z$probe_type <- as.factor(df_probe_properties_z$probe_type)
 df_probe_properties_z_wide <- df_probe_properties_z %>% # Same df in wide format (for t.test)
   pivot_wider(names_from = probe_type, values_from = f0_z)
 
-# Z-standardized vocal responses F0 values for probe and no-probe trials for each subject
+# Z-standardized vocal responses F0 values for probe and no-probe trials for each subject 
 df_probe_f0_z <- df_beh %>% 
   group_by(probe, subj) %>%
   summarise(mean(recording_f0_z, na.rm = T))  
@@ -106,7 +106,13 @@ df_probe_f0_wide <- df_probe_f0 %>% # Same df in wide format (for t.test)
 df_probe_type_onset_f0_z <- filter(df_beh, probe == "Yes") %>% 
   group_by(probe_type, probe_onset_cat, subj) %>%
   summarise(mean(recording_f0_z, na.rm = T))  
-colnames(df_probe_type_onset_f0_z) <- c("probe_type", "probe_onset_cat", "subj", "recording_f0_z")
+colnames(df_probe_type_onset_f0_z) <- c("probe_type", "probe_onset_cat", "subj", "recording_f0")
+
+# Vocal responses F0 values for probe and no-probe trials for each subject
+df_probe_type_onset_f0 <- filter(df_beh, probe == "Yes") %>% 
+  group_by(probe_type, probe_onset_cat, subj) %>%
+  summarise(mean(recording_f0, na.rm = T))  
+colnames(df_probe_type_onset_f0) <- c("probe_type", "probe_onset_cat", "subj", "recording_f0")
 
 # Z-standardized VOTs for probe and no-probe trials for each subject
 df_probe_vot_z <- df_beh %>% 
@@ -118,11 +124,27 @@ df_probe_vot_z$probe <- as.factor(df_probe_vot_z$probe)
 df_probe_vot_z_wide <- df_probe_vot_z %>% # Same df in wide format (for t.test)
   pivot_wider(names_from = probe, values_from = recording_vot_z)
 
+# VOTs for probe and no-probe trials for each subject
+df_probe_vot <- df_beh %>% 
+  group_by(probe, subj) %>%
+  summarise(mean(recording_vot, na.rm = T))  
+colnames(df_probe_vot) <- c("probe", "subj", "recording_vot")
+df_probe_vot$probe <- as.factor(df_probe_vot$probe)
+
+df_probe_vot_wide <- df_probe_vot %>% # Same df in wide format (for t.test)
+  pivot_wider(names_from = probe, values_from = recording_vot)
+
 # Z-standardized VOTs for probe and no-probe trials for each subject
 df_probe_type_onset_vot_z <- filter(df_beh, probe == "Yes") %>% 
   group_by(probe_type, probe_onset_cat, subj) %>%
   summarise(mean(recording_vot_z, na.rm = T))  
 colnames(df_probe_type_onset_vot_z) <- c("probe_type", "probe_onset_cat", "subj", "recording_vot_z")
+
+# VOTs for probe and no-probe trials for each subject
+df_probe_type_onset_vot <- filter(df_beh, probe == "Yes") %>% 
+  group_by(probe_type, probe_onset_cat, subj) %>%
+  summarise(mean(recording_vot, na.rm = T))  
+colnames(df_probe_type_onset_vot) <- c("probe_type", "probe_onset_cat", "subj", "recording_vot")
 
 # Z-standardized vocal responses F0 values for each block and subject
 df_block_f0_z <- df_beh %>% 
@@ -131,12 +153,26 @@ df_block_f0_z <- df_beh %>%
 colnames(df_block_f0_z) <- c("block", "subj", "recording_f0_z")
 df_block_f0_z$block <- as.factor(df_block_f0_z$block)
 
+# Vocal responses F0 values for each block and subject
+df_block_f0 <- df_beh %>% 
+  group_by(block, subj) %>%
+  summarise(mean(recording_f0, na.rm = T))  
+colnames(df_block_f0) <- c("block", "subj", "recording_f0")
+df_block_f0$block <- as.factor(df_block_f0$block)
+
 # Z-standardized VOTs for each block and subject
 df_block_vot_z <- df_beh %>% 
   group_by(block, subj) %>%
   summarise(mean(recording_vot_z, na.rm = T))  
 colnames(df_block_vot_z) <- c("block", "subj", "recording_vot_z")
 df_block_vot_z$block <- as.factor(df_block_vot_z$block)
+
+# VOTs for each block and subject
+df_block_vot <- df_beh %>% 
+  group_by(block, subj) %>%
+  summarise(mean(recording_vot, na.rm = T))  
+colnames(df_block_vot) <- c("block", "subj", "recording_vot")
+df_block_vot$block <- as.factor(df_block_vot$block)
 
 #------------------------------------Analysis-----------------------------------
 
@@ -183,49 +219,38 @@ byf.shapiro(f0_z ~ probe_type,
 #------------------------------------------------------------------------------#
 
 # BEH2
-# Paired T-Test (DV = Z-transformed F0 value, within = Probe (Yes, No))
+# Paired T-Test (DV = F0 value, within = Probe (Yes, No))
 # Analysis BEH2 concerns how the F0 of the vocal responses during the experiment is influenced by a probe being presented.
 BEH2 <- t.test(
-  df_probe_f0_z_wide$No,
-  df_probe_f0_z_wide$Yes,
-  paired = TRUE
-) 
-BEH2
-
-################################################################################
-# TESTING
-BEH2.1 <- t.test(
   df_probe_f0_wide$No,
   df_probe_f0_wide$Yes,
   paired = TRUE
 ) 
-BEH2.1
-# TESTING
-################################################################################
+BEH2
 
-BEH2_ES <- as.data.frame(df_probe_f0_z) %>% 
-  cohens_d(recording_f0_z ~ probe, paired = TRUE) 
+BEH2_ES <- as.data.frame(df_probe_f0) %>% 
+  cohens_d(recording_f0 ~ probe, paired = TRUE) 
 BEH2_ES
 
 # Plot: F0 by probe
-ggplot(df_probe_f0_z, aes(x = probe, y = recording_f0_z, fill = probe)) +
+ggplot(df_probe_f0, aes(x = probe, y = recording_f0, fill = probe)) +
   geom_boxplot(show.legend = T) +  
   theme_ggstatsplot() 
 
 # Descriptive statistics
-psych::describeBy(df_probe_f0_z$recording_f0_z,
-                  group = df_probe_f0_z$probe)
+psych::describeBy(df_probe_f0$recording_f0,
+                  group = df_probe_f0$probe)
 
 # Assumptions 
 # Normal distibution
-df_probe_f0_z %>%
-  ggplot(aes(x = recording_f0_z)) +
+df_probe_f0 %>%
+  ggplot(aes(x = recording_f0)) +
   geom_histogram(bins = 50) +
-  facet_wrap(df_probe_f0_z$probe) +
+  facet_wrap(df_probe_f0$probe) +
   theme_ggstatsplot()
 
-byf.shapiro(recording_f0_z ~ probe, 
-            data = df_probe_f0_z)
+byf.shapiro(recording_f0 ~ probe, 
+            data = df_probe_f0)
 
 #------------------------------------------------------------------------------#
 #
@@ -236,20 +261,20 @@ byf.shapiro(recording_f0_z ~ probe,
 #------------------------------------------------------------------------------#
 
 # BEH3
-# rmANOVA (DV = Z-transformed F0 value, Within = Probe-type (unaltered, altered), Probe-onset (early, late)) 
+# rmANOVA (DV = F0 value, Within = Probe-type (unaltered, altered), Probe-onset (early, late)) 
 # Analysis BEH3 concerns how the F0 of the vocal responses during the experiment is influenced by probe-type and probe-onset.
 BEH3 <- aov_ez(id = "subj",
-                dv = "recording_f0_z",
-                data = df_probe_type_onset_f0_z,
+                dv = "recording_f0",
+                data = df_probe_type_onset_f0,
                 within = c("probe_type", "probe_onset_cat"),
                 type = 3)
 summary(BEH3)
-##anova_test(data = df_probe_type_onset_f0_z, dv = recording_f0_z, wid = subj, within = c(probe_type,probe_onset_cat), type = 3, effect.size = "ges") # To get corrected dfs
+##anova_test(data = df_probe_type_onset_f0, dv = recording_f0, wid = subj, within = c(probe_type,probe_onset_cat), type = 3, effect.size = "ges") # To get corrected dfs
 
 # Plot: F0 by probe-onset and probe-type
 ezPlot(
-  data = df_probe_type_onset_f0_z 
-  , dv = recording_f0_z 
+  data = df_probe_type_onset_f0 
+  , dv = recording_f0 
   , wid = subj  
   , within= .(probe_type, probe_onset_cat)
   , x = .(probe_onset_cat)
@@ -258,8 +283,8 @@ ezPlot(
 
 # Descriptive statistics
 psych::describeBy(
-  df_probe_type_onset_f0_z$recording_f0_z,
-  list(df_probe_type_onset_f0_z$probe_type, df_probe_type_onset_f0_z$probe_onset_cat)
+  df_probe_type_onset_f0$recording_f0,
+  list(df_probe_type_onset_f0$probe_type, df_probe_type_onset_f0$probe_onset_cat)
 )
 
 # Follow-Up T-Tests
@@ -272,17 +297,17 @@ BEH3_PWC
 # Not applicable due to only 2 factor levels per factor
 
 # Normal distibution
-df_probe_type_onset_f0_z %>%
-  ggplot(aes(x = recording_f0_z)) +
+df_probe_type_onset_f0 %>%
+  ggplot(aes(x = recording_f0)) +
   geom_histogram(bins = 50) +
   facet_grid(probe_type ~ probe_onset_cat) +
   theme_ggstatsplot()
 
-byf.shapiro(recording_f0_z ~ probe_type * probe_onset_cat, 
-            data = df_probe_type_onset_f0_z)
+byf.shapiro(recording_f0 ~ probe_type * probe_onset_cat, 
+            data = df_probe_type_onset_f0)
 
 #Balance of the design
-ezDesign(df_probe_type_onset_f0_z, x = probe_type, y = subj, row = probe_onset_cat) 
+ezDesign(df_probe_type_onset_f0, x = probe_type, y = subj, row = probe_onset_cat) 
 
 #------------------------------------------------------------------------------#
 #
@@ -295,38 +320,38 @@ ezDesign(df_probe_type_onset_f0_z, x = probe_type, y = subj, row = probe_onset_c
 #------------------------------------------------------------------------------#
 
 # BEH4
-# Paired T-Test (DV = Z-transformed vocal onset time, within = Probe (Yes, No))
+# Paired T-Test (DV = Vocal onset time, within = Probe (Yes, No))
 # Analysis BEH4 concerns how the vocal onset time is influenced by a probe being presented.
 BEH4 <- t.test(
-  df_probe_vot_z_wide$No,
-  df_probe_vot_z_wide$Yes,
+  df_probe_vot_wide$No,
+  df_probe_vot_wide$Yes,
   paired = TRUE
 )
 BEH4
 
-BEH4_ES <- as.data.frame(df_probe_vot_z) %>% 
-  cohens_d(recording_vot_z ~ probe, paired = TRUE) 
+BEH4_ES <- as.data.frame(df_probe_vot) %>% 
+  cohens_d(recording_vot ~ probe, paired = TRUE) 
 BEH4_ES
 
 # Plot: vot by probe
-ggplot(df_probe_vot_z, aes(x = probe, y = recording_vot_z, fill = probe)) +
+ggplot(df_probe_vot, aes(x = probe, y = recording_vot, fill = probe)) +
   geom_boxplot(show.legend = T) +  
   theme_ggstatsplot() 
 
 # Descriptive statistics
-psych::describeBy(df_probe_vot_z$recording_vot_z,
-                  group = df_probe_vot_z$probe)
+psych::describeBy(df_probe_vot$recording_vot,
+                  group = df_probe_vot$probe)
 
 # Assumptions 
 # Normal distibution
-df_probe_vot_z %>%
-  ggplot(aes(x = recording_vot_z)) +
+df_probe_vot %>%
+  ggplot(aes(x = recording_vot)) +
   geom_histogram(bins = 50) +
-  facet_wrap(df_probe_vot_z$probe) +
+  facet_wrap(df_probe_vot$probe) +
   theme_ggstatsplot()
 
-byf.shapiro(recording_vot_z ~ probe, 
-            data = df_probe_vot_z)
+byf.shapiro(recording_vot ~ probe, 
+            data = df_probe_vot)
 
 #------------------------------------------------------------------------------#
 #
@@ -337,11 +362,11 @@ byf.shapiro(recording_vot_z ~ probe,
 #------------------------------------------------------------------------------#
 
 # BEH5
-# rmANOVA (DV = Z-transformed vocal onset time, Within = Probe-type (unaltered, altered), Probe-onset (early, late)) 
+# rmANOVA (DV = Vocal onset time, Within = Probe-type (unaltered, altered), Probe-onset (early, late)) 
 # Analysis BEH5 concerns how the vocal onset time is influenced by probe-type and probe-onset.
 BEH5 <- aov_ez(id = "subj",
-               dv = "recording_vot_z",
-               data = df_probe_type_onset_vot_z,
+               dv = "recording_vot",
+               data = df_probe_type_onset_vot,
                within = c("probe_type", "probe_onset_cat"),
                type = 3)
 summary(BEH5)
@@ -349,8 +374,8 @@ summary(BEH5)
 
 # Plot: Vocal onset time by probe-onset and probe-type
 ezPlot(
-  data = df_probe_type_onset_vot_z 
-  , dv = recording_vot_z 
+  data = df_probe_type_onset_vot 
+  , dv = recording_vot 
   , wid = subj  
   , within= .(probe_type, probe_onset_cat)
   , x = .(probe_onset_cat)
@@ -359,8 +384,8 @@ ezPlot(
 
 # Descriptive statistics
 psych::describeBy(
-  df_probe_type_onset_f0_z$recording_f0_z,
-  list(df_probe_type_onset_vot_z$probe_type, df_probe_type_onset_vot_z$probe_onset_cat)
+  df_probe_type_onset_f0$recording_f0,
+  list(df_probe_type_onset_vot$probe_type, df_probe_type_onset_vot$probe_onset_cat)
 )
 
 # Follow-Up T-Tests
@@ -373,17 +398,17 @@ BEH5_PWC
 # Not applicable due to only 2 factor levels per factor
 
 # Normal distibution
-df_probe_type_onset_vot_z %>%
-  ggplot(aes(x = recording_vot_z)) +
+df_probe_type_onset_vot %>%
+  ggplot(aes(x = recording_vot)) +
   geom_histogram(bins = 50) +
   facet_grid(probe_type ~ probe_onset_cat) +
   theme_ggstatsplot()
 
-byf.shapiro(recording_vot_z ~ probe_type * probe_onset_cat, 
-            data = df_probe_type_onset_vot_z)
+byf.shapiro(recording_vot ~ probe_type * probe_onset_cat, 
+            data = df_probe_type_onset_vot)
 
 #Balance of the design
-ezDesign(df_probe_type_onset_vot_z, x = probe_type, y = subj, row = probe_onset_cat) 
+ezDesign(df_probe_type_onset_vot, x = probe_type, y = subj, row = probe_onset_cat) 
 
 #------------------------------------------------------------------------------#
 #
@@ -396,11 +421,11 @@ ezDesign(df_probe_type_onset_vot_z, x = probe_type, y = subj, row = probe_onset_
 #------------------------------------------------------------------------------#
 
 # BEH6
-# rmANOVA (DV = Z-transformed F0 value, Within = Block (1,2,3,4,5,6,7,8)) 
+# rmANOVA (DV = F0 value, Within = Block (1,2,3,4,5,6,7,8)) 
 # Analysis BEH6 concerns how the F0 of the vocal responses during the experiment is influenced by the block of the experiment.
 BEH6 <- aov_ez(id = "subj",
-               dv = "recording_f0_z",
-               data = df_block_f0_z,
+               dv = "recording_f0",
+               data = df_block_f0,
                within = c("block"),
                type = 3)
 summary(BEH6)
@@ -408,8 +433,8 @@ summary(BEH6)
 
 # Plot: Vocal onset time by probe-onset and probe-type
 ezPlot(
-  data = df_block_f0_z 
-  , dv = recording_f0_z 
+  data = df_block_f0 
+  , dv = recording_f0 
   , wid = subj  
   , within= .(block)
   , x = .(block)
@@ -418,8 +443,8 @@ ezPlot(
 
 # Descriptive statistics
 psych::describeBy(
-  df_block_f0_z$recording_f0_z,
-  list(df_block_f0_z$block)
+  df_block_f0$recording_f0,
+  list(df_block_f0$block)
 )
 
 # Follow-Up T-Tests
@@ -432,17 +457,17 @@ BEH6_PWC
 # Checked in rmANOVA. Correction applied if needed.
 
 # Normal distibution
-df_block_f0_z %>%
-  ggplot(aes(x = recording_f0_z)) +
+df_block_f0 %>%
+  ggplot(aes(x = recording_f0)) +
   geom_histogram(bins = 50) +
-  facet_wrap(df_block_f0_z$block) +
+  facet_wrap(df_block_f0$block) +
   theme_ggstatsplot()
 
-byf.shapiro(recording_f0_z ~ block, 
-            data = df_block_f0_z)
+byf.shapiro(recording_f0 ~ block, 
+            data = df_block_f0)
 
 #Balance of the design
-ezDesign(df_block_f0_z, x = block, y = subj) 
+ezDesign(df_block_f0, x = block, y = subj) 
 
 #------------------------------------------------------------------------------#
 #
@@ -455,19 +480,19 @@ ezDesign(df_block_f0_z, x = block, y = subj)
 #------------------------------------------------------------------------------#
 
 # BEH7
-# rmANOVA (DV = Z-transformed vocal onset time, Within = Block (1,2,3,4,5,6,7,8)) 
+# rmANOVA (DV = Vocal onset time, Within = Block (1,2,3,4,5,6,7,8)) 
 # Analysis BEH7 concerns how the F0 of the vocal onset time is influenced by the block of the experiment.
 BEH7 <- aov_ez(id = "subj",
-               dv = "recording_vot_z",
-               data = df_block_vot_z,
+               dv = "recording_vot",
+               data = df_block_vot,
                within = c("block"),
                type = 3)
 summary(BEH7)
 
 # Plot: Vocal onset time by probe-onset and probe-type
 ezPlot(
-  data = df_block_vot_z 
-  , dv = recording_vot_z 
+  data = df_block_vot 
+  , dv = recording_vot 
   , wid = subj  
   , within= .(block)
   , x = .(block)
@@ -476,8 +501,8 @@ ezPlot(
 
 # Descriptive statistics
 psych::describeBy(
-  df_block_vot_z$recording_vot_z,
-  list(df_block_vot_z$block)
+  df_block_vot$recording_vot,
+  list(df_block_vot$block)
 )
 
 # Follow-Up T-Tests
@@ -490,17 +515,17 @@ BEH7_PWC
 # Checked in rmANOVA. Correction applied if needed.
 
 # Normal distibution
-df_block_vot_z %>%
-  ggplot(aes(x = recording_vot_z)) +
+df_block_vot %>%
+  ggplot(aes(x = recording_vot)) +
   geom_histogram(bins = 50) +
-  facet_wrap(df_block_vot_z$block) +
+  facet_wrap(df_block_vot$block) +
   theme_ggstatsplot()
 
-byf.shapiro(recording_vot_z ~ block, 
-            data = df_block_vot_z)
+byf.shapiro(recording_vot ~ block, 
+            data = df_block_vot)
 
 #Balance of the design
-ezDesign(df_block_vot_z, x = block, y = subj) 
+ezDesign(df_block_vot, x = block, y = subj) 
 
 #------------------------------------------------------------------------------#
 #
