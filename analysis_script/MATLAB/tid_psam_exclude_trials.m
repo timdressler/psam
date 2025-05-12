@@ -211,7 +211,7 @@ for subj_idx= 1:length(dircont_subj_erp)
     end
 
     % Exclude subjects if not enough trials per condition are left
-    if any([n_trials_condition_beh.n_trials] <= N_TRIALS_THRESH)
+    if any([n_trials_condition_erp.n_trials] <= N_TRIALS_THRESH)
         excluded_subj{end+1,1} = subj;
         excluded_subj{end,2} = 'number_of_trials';
     end
