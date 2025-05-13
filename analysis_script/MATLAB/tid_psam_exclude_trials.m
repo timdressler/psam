@@ -211,12 +211,12 @@ for subj_idx= 1:length(dircont_subj_erp)
     end
 
     % Exclude subjects if not enough trials per condition are left
-    if any([n_trials_condition_erp.n_trials] <= N_TRIALS_THRESH)
+    for cond_num = 1:12
+        if n_trials_condition_erp(cond_num).n_trials <= N_TRIALS_THRESH
         excluded_subj{end+1,1} = subj;
-        excluded_subj{end,2} = 'number_of_trials';
+        excluded_subj{end,2} = ['number_of_trials_cond_' n_trials_condition_erp(cond_num) '_' num2str(n_trials_condition_erp(cond_num).n_trials)];
+        end
     end
-
-    % Exclusion details: Enough trials per condition
 
     % Load SVM data and merge to be excluded trials with behavioural data
     % Note. ERP preprocessed excluded and SVM preprocessed excluded trials are not merged
@@ -227,11 +227,6 @@ for subj_idx= 1:length(dircont_subj_erp)
 
         % Extract no-probe trials from behavioural data
         excluded_trials_beh_no_probe = excluded_trials_beh(strcmp(beh.probe, 'No'));
-
-        % % a = find(strcmp(beh.probe, 'No'));
-        % % b = zeros(1,960);
-        % % b(a) = EEG.reject.rejglobal;
-        % % d = b(strcmp(beh.probe, 'No'));
 
         % Sanity Check: Correct number of no-probe trials (=480)
         if length(excluded_trials_beh_no_probe) == n_trials_no_probe && size(EEG.data,3) == n_trials_no_probe
@@ -316,8 +311,6 @@ end
     if ~isempty(excluded_subj)
         excluded_subj = cell2table(excluded_subj, 'VariableNames',{'subj','issue'})
         writetable(excluded_subj,fullfile(OUTPATH, 'tid_psam_exclude_trials_excluded_subj.xlsx'))
-
-        % Details
     end
 
     if ~isempty(marked_subj)
