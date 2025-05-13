@@ -214,7 +214,7 @@ for subj_idx= 1:length(dircont_subj_erp)
     for cond_num = 1:12
         if n_trials_condition_erp(cond_num).n_trials <= N_TRIALS_THRESH
         excluded_subj{end+1,1} = subj;
-        excluded_subj{end,2} = ['number_of_trials_cond_' n_trials_condition_erp(cond_num) '_' num2str(n_trials_condition_erp(cond_num).n_trials)];
+        excluded_subj{end,2} = ['number_of_trials_' n_trials_condition_erp(cond_num).condition '_' num2str(n_trials_condition_erp(cond_num).n_trials)];
         end
     end
 
@@ -291,7 +291,7 @@ end
     % Sanity Check: Correct number of saved datasets
     n_saved_erp = length(dir(fullfile(OUTPATH_ERP, 'sub-*.set')));
     n_saved_beh = length(dir(fullfile(OUTPATH_BEH, 'sub-*.xlsx')));
-    n_excluded = size(excluded_subj,1);
+    n_excluded = length(unique({excluded_subj{:,1}}));
     n_subjects_all = length(dircont_subj_erp);
 
     if n_saved_erp == n_saved_beh && n_saved_erp == (n_subjects_all - n_excluded)
