@@ -55,6 +55,9 @@ protocol = {};
 % Setup progress bar
 wb = waitbar(0,'starting tid_psam_hilbert_preparation.m');
 
+% Aggregate frequency bands
+freq_bands = {[APLHA_FROM APLHA_TILL], [BETA_FROM BETA_TILL], [GAMMA_FROM GAMMA_TILL]};
+
 clear subj_idx
 for subj_idx= 1:length(dircont_subj)
 
@@ -74,6 +77,22 @@ for subj_idx= 1:length(dircont_subj)
 
     % Remove EOG channels as they are not used for classification
     EEG = pop_select( EEG, 'rmchannel',EOG_CHAN);
+
+    % Save data set
+
+    % Loop over frequency bands
+    for freq_band_num = 1:length(freq_bands)
+
+        % Apply BP-Filter
+
+        % Hilbert transform
+
+        % Epoch
+
+        % Reject bad epochs
+    end
+
+
 
 
 
