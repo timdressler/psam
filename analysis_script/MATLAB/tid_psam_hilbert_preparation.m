@@ -4,6 +4,15 @@
 %
 % Preparation includes the following steps
     % Removes EOG electrodes
+    % Load data and data set containing ICA weights (see
+    %   tid_psam_ica_preprocessing.m)
+    % Rename events
+    % Remove bad channels as identified in tid_psam_ica_preprocessing.m
+    % Attach ICA weights and remove bad components using the ICLabel Plugin
+    %   (Pion-Tonachini et al., 2019)
+    % Interpolate bad (and removed) channels
+    % Loop across frequency bands and apply Hilbert transformation
+    % Epoch and remove bad epoch based on the ones identified for the SVM analysis in tid_psam_exclude_trials.m
 %
 % Stores data
 %
@@ -26,7 +35,8 @@ end
 
 MAINPATH = erase(SCRIPTPATH, '\analysis_script\MATLAB');
 IDPATH = fullfile(MAINPATH, 'data\processed_data\svm_preprocessed_clean\'); % Only used to get subject IDs of non-excluded participants, data is loaded from INPATH
-INPATH = fullfile(MAINPATH, 'data\processed_data\svm_preprocessed_clean\');
+INPATH_RAW = fullfile(MAINPATH, 'data\processed_data\markers_included\');
+INPATH_ICA = fullfile(MAINPATH, 'data\processed_data\ica_preprocessed\');
 OUTPATH = fullfile(MAINPATH, 'data\processed_data\hilbert_prepared_clean');
 
 FUNPATH = fullfile(MAINPATH, '\functions\');
@@ -37,6 +47,8 @@ tid_psam_clean_up_folder_TD(OUTPATH)
 
 % Variables to edit
 EOG_CHAN = {'E29','E30'}; % Labels of EOG electrodes
+EPO_FROM = -1;
+EPO_TILL = 0.1;
 EVENTS = {'go_act', 'go_pas'};
 APLHA_FROM = 8;
 APLHA_TILL = 13;
@@ -63,24 +75,82 @@ for subj_idx= 1:length(dircont_subj)
     subj = regexp(subj, 'sub-\d+', 'match', 'once');
 
     % Update progress bar
-    waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_hilbert_preparation.m'])
+    waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_hilbert_preprocessing.m'])
 
     tic;
     % Start eeglab
     [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
 
-    % Load epoched data
-    EEG = pop_loadset('filename',[subj '_svm_preprocessed_clean.set'],'filepath',INPATH);
+    % Load ICA data
+    EEG = pop_loadset('filename',[subj '_ica_weights.set'],'filepath',INPATH_ICA);
+    EEG.setname = [subj '_ICA_weights'];
+    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
-    % Remove EOG channels as they are not used for classification
-    EEG = pop_select( EEG, 'rmchannel',EOG_CHAN);
+    % Get bad channels as identified in tid_psam_ica_preprocessing.m
+    chans_to_interp = EEG.badchans;
 
+    % Load raw data
+    EEG = pop_loadset('filename',[subj '_markers_inlcuded.set'],'filepath',INPATH_RAW);
 
+    % Remove Marker-Channel
+    EEG = pop_select( EEG, 'rmchannel',{'M'});
 
+    % Add channel locations
+    EEG.chanlocs = readlocs( fullfile(MAINPATH,'\config\elec_96ch_adapted.elp'));
+    EEG = eeg_checkset( EEG );
 
+    % Add type = EOG for EOG electrodes
+    eog_chani = find(ismember({EEG.chanlocs.labels}, EOG_CHAN));
+    [EEG.chanlocs(eog_chani).type] = deal('EOG');
+    EEG = eeg_checkset( EEG );
 
+    % Store channel locations in another field
+    EEG.urchanlocs = EEG.chanlocs;
 
+    % Rename events
+    clear event
+    for event = 1:length(EEG.event)
+        if strcmp(EEG.event(event).type, 'S  5') && strncmp(EEG.event(event-1).type, 'con', 3) % Get all go-signals (S  5) during no-probe trials
+            if strcmp(EEG.event(event-2).type, 'S 21')
+                EEG.event(event).type = 'go_act';
+            elseif strcmp(EEG.event(event-2).type, 'S 22')
+                EEG.event(event).type = 'go_pas';
+            else
+                error('Unkown Marker!')
+            end
+        end
     end
+
+    EEG.setname = [subj '_ready_for_preprocessing'];
+    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+
+    % Remove bad channels as identified in tid_psam_ica_preprocessing.m (see above)
+    EEG.badchans = chans_to_interp;
+    EEG = pop_select(EEG,'nochannel', EEG.badchans);
+
+    EEG.setname = [subj '_ready_for_ICA_weights'];
+    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+
+    % Attach ICA weight to main data
+    %%EEG = pop_editset(EEG,'run', [], 'icaweights','ALLEEG(1).icaweights', 'icasphere','ALLEEG(1).icasphere');
+    % Label ICA components with IC Label Plugin (Pion-Tonachini et al., 2019)
+    %%EEG = pop_iclabel(EEG, 'default');
+    %%EEG = pop_icflag(EEG, [0 0.2;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1]);
+    %%EEG = pop_subcomp( EEG, [], 0);
+
+    % Interpolate bad channels
+    if ~isempty(EEG.badchans)
+        EEG = pop_interp(EEG, EEG.urchanlocs , 'spherical'); % and interpolate them using urchanlocs
+    end
+
+    % Loop across frequency bands and apply Hilbert transformation
+
+
+
+
+
+
+
 
     % Update Protocol
     subj_time = toc;
@@ -91,7 +161,6 @@ for subj_idx= 1:length(dircont_subj)
     else
         protocol{subj_idx,3} = 'OK';
     end
-
 end
 
 % End of processing
@@ -104,6 +173,6 @@ if ~isempty(marked_subj)
     writetable(marked_subj,fullfile(OUTPATH, 'tid_psam_hilbert_preparation_marked_subj.xlsx'))
 end
 
-check_done = 'tid_psam_svm_preparation_DONE'
+check_done = 'tid_psam_hilbert_preparation_DONE'
 
 delete(wb)
