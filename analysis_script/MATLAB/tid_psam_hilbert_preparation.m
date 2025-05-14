@@ -147,9 +147,25 @@ for subj_idx= 1:length(dircont_subj)
     end
 
     % Loop across frequency bands and apply Hilbert transformation
+    for freq_band_num = 1:length(freq_bands)
+
+        % Apply BP-Filter
+
+        % Apply Hilbert transformation
+
+        % Epoch
+
+        % Reject bad epochs based on the ones identified for the SVM analysis in tid_psam_exclude_trials.m
+
+        % Extract time windows
+
+        % Get bandpower
+
+    end
 
 
 
+    % Sanity Check: Correct dimension for all frequency bands
 
 
 
