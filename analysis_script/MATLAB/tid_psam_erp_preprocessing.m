@@ -21,8 +21,6 @@
     % Apply a 0.3 Hz HP-Filter
     % Apply a 30 Hz LP-Filter
     % Remove bad channels as identified in tid_psam_ica_preprocessing.m
-    % Idenitify and remove bad channels using the
-    %   bemobil_detect_bad_channels() funtion
     % Attach ICA weights and remove bad components using the ICLabel Plugin
     %   (Pion-Tonachini et al., 2019)
     % Interpolate bad (and removed) channels
