@@ -7,7 +7,8 @@
     % Load data and data set containing ICA weights (see
     %   tid_psam_ica_preprocessing.m)
     % Rename events
-    % Apply a 0.3 Hz - 40 Hz BP-Filter
+    % Apply a 0.3 Hz HP-Filter
+    % Apply a 30 Hz LP-Filter
     % Remove bad channels as identified in tid_psam_ica_preprocessing.m
     % Idenitify and remove bad channels using the
     %   bemobil_detect_bad_channels() funtion
@@ -140,8 +141,9 @@ for subj_idx= 1:length(dircont_subj)
     EEG.setname = [subj '_ready_for_preprocessing'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
-    % Bandpass-Filter
-    EEG = pop_eegfiltnew(EEG, 'locutoff',LCF,'hicutoff',HCF,'plotfreqz',0);
+    % Filter
+    EEG = pop_eegfiltnew(EEG, 'locutoff',LCF,'hicutoff',0);
+    EEG = pop_eegfiltnew(EEG, 'hicutoff',HCF,'plotfreqz',0);
 
     % Remove bad channels as identified in tid_psam_ica_preprocessing.m (see above)
     EEG.badchans = chans_to_interp;
@@ -151,11 +153,11 @@ for subj_idx= 1:length(dircont_subj)
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
     % Attach ICA weight to main data
-    EEG = pop_editset(EEG,'run', [], 'icaweights','ALLEEG(1).icaweights', 'icasphere','ALLEEG(1).icasphere');
+    %%EEG = pop_editset(EEG,'run', [], 'icaweights','ALLEEG(1).icaweights', 'icasphere','ALLEEG(1).icasphere');
     % Label ICA components with IC Label Plugin (Pion-Tonachini et al., 2019)
-    EEG = pop_iclabel(EEG, 'default');
-    EEG = pop_icflag(EEG, [0 0.2;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1]);
-    EEG = pop_subcomp( EEG, [], 0);
+    %%EEG = pop_iclabel(EEG, 'default');
+    %%EEG = pop_icflag(EEG, [0 0.2;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1]);
+    %%EEG = pop_subcomp( EEG, [], 0);
 
     % Interpolate bad channels
     if ~isempty(EEG.badchans)

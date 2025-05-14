@@ -7,8 +7,7 @@
     % Extracts early and late time windows relative to the 'go-signal'
     % Extract the following features for each epoch, time window and channel
     %   Mean amplitude, RMS, standard deviation of the amplitude, maximum and minimum amplitude, kurtosis, skewness, and zero-crossing rate
-    %   Bandpower for alpha (8-13 Hz), beta (13 - 30 Hz) and (low) gamma (30 -37 Hz) 
-    %       Note that before applying the FFT, the a Hamming window was applied and the data was zeropadded
+    %   Bandpower for alpha (8-13 Hz), beta (13 - 30 Hz) and (low) gamma (30 -37 Hz)
     %   Hjorth Parameters (Activity, Mobility and Complexity)
 %
 % Stores data
@@ -43,6 +42,7 @@ tid_psam_clean_up_folder_TD(OUTPATH)
 
 % Variables to edit
 EOG_CHAN = {'E29','E30'}; % Labels of EOG electrodes
+EVENTS = {'go_act', 'go_pas'};
 WIN_EARLY_FROM = -600;
 WIN_EARLY_TILL = -401;
 WIN_LATE_FROM = -400;
@@ -79,7 +79,7 @@ for subj_idx= 1:length(dircont_subj)
     % Start eeglab
     [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
 
-    % Load data
+    % Load epoched data
     EEG = pop_loadset('filename',[subj '_svm_preprocessed_clean.set'],'filepath',INPATH);
 
     % Remove EOG channels as they are not used for classification
@@ -99,7 +99,7 @@ for subj_idx= 1:length(dircont_subj)
 
     % Loop through windows
     for win_label = ["early", "late"]
-        label = char(win_label);
+        label = win_label;
 
         % Get time indices
         [~,start_idx] = min(abs(EEG.times - windows.(label).from));
@@ -129,47 +129,51 @@ for subj_idx= 1:length(dircont_subj)
         end
 
         % Frequency-domain features
-        % Preparation
-        % Apply Hamming window to each epoch for each electrode
-        ham = hamming(size(data,2));
 
-        for e = 1:size(data,3)
-            for ch = 1:size(data,1)
-                data(ch, :, e) = squeeze(data(ch, :, e)) .* ham';
-            end
-        end
 
-        % Apply zeropadding to 1 s (i.e., 1000 Samples due to SR = 1000 Hz)
-        padding_needed = ZEROPADDING - size(data,2);
-        data_padded = padarray(data, [0, padding_needed, 0], 0, 'post');
 
-        % Sanity check: Correct dimensions after padding
-        if size(data_padded,1) ~= EEG.nbchan || size(data_padded,2) ~= ZEROPADDING || size(data_padded,3) == 1
-            marked_subj{end+1,1} = subj;
-            marked_subj{end,2} = 'wrong_dimensions_after_padding';
-        end
-        if ~all(data_padded(201:end,:) == 0, 'all')
-            marked_subj{end+1,1} = subj;
-            marked_subj{end,2} = 'wrong_values_after_padding';
-        end
 
-        % Apply FFT
-        fft_data = abs(fft(data_padded, [], 2)) / size(data, 2);
-        fft_data = fft_data(:, 1:end/2, :);
-        fft_data(:, 2:end, :) = fft_data(:, 2:end, :) * 2;
-
-        % Get bandpower for alpha, beta and gamma bands
-        freq_vec = 0:1/(ZEROPADDING/1000):EEG.srate/2 - (1/(ZEROPADDING/1000));
-        [~,a_start] = min(abs(freq_vec - APLHA_FROM));
-        [~,a_end] = min(abs(freq_vec - APLHA_TILL));
-        [~,b_start] = min(abs(freq_vec - BETA_FROM));
-        [~,b_end] = min(abs(freq_vec - BETA_TILL));
-        [~,g_start] = min(abs(freq_vec - GAMMA_FROM));
-        [~,g_end] = min(abs(freq_vec - GAMMA_TILL));
-
-        features.(label).alpha = squeeze(mean(fft_data(:, a_start:a_end, :), 2));
-        features.(label).beta = squeeze(mean(fft_data(:, b_start:b_end, :), 2));
-        features.(label).gamma = squeeze(mean(fft_data(:, g_start:g_end, :), 2));
+        % % % Preparation
+        % % % Apply Hamming window to each epoch for each electrode
+        % % ham = hamming(size(data,2));
+        % %
+        % % for e = 1:size(data,3)
+        % %     for ch = 1:size(data,1)
+        % %         data(ch, :, e) = squeeze(data(ch, :, e)) .* ham';
+        % %     end
+        % % end
+        % %
+        % % % Apply zeropadding to 1 s (i.e., 1000 Samples due to SR = 1000 Hz)
+        % % padding_needed = ZEROPADDING - size(data,2);
+        % % data_padded = padarray(data, [0, padding_needed, 0], 0, 'post');
+        % %
+        % % % Sanity check: Correct dimensions after padding
+        % % if size(data_padded,1) ~= EEG.nbchan || size(data_padded,2) ~= ZEROPADDING || size(data_padded,3) == 1
+        % %     marked_subj{end+1,1} = subj;
+        % %     marked_subj{end,2} = 'wrong_dimensions_after_padding';
+        % % end
+        % % if ~all(data_padded(201:end,:) == 0, 'all')
+        % %     marked_subj{end+1,1} = subj;
+        % %     marked_subj{end,2} = 'wrong_values_after_padding';
+        % % end
+        % %
+        % % % Apply FFT
+        % % fft_data = abs(fft(data_padded, [], 2)) / size(data, 2);
+        % % fft_data = fft_data(:, 1:end/2, :);
+        % % fft_data(:, 2:end, :) = fft_data(:, 2:end, :) * 2;
+        % %
+        % % % Get bandpower for alpha, beta and gamma bands
+        % % freq_vec = 0:1/(ZEROPADDING/1000):EEG.srate/2 - (1/(ZEROPADDING/1000));
+        % % [~,a_start] = min(abs(freq_vec - APLHA_FROM));
+        % % [~,a_end] = min(abs(freq_vec - APLHA_TILL));
+        % % [~,b_start] = min(abs(freq_vec - BETA_FROM));
+        % % [~,b_end] = min(abs(freq_vec - BETA_TILL));
+        % % [~,g_start] = min(abs(freq_vec - GAMMA_FROM));
+        % % [~,g_end] = min(abs(freq_vec - GAMMA_TILL));
+        % %
+        % % features.(label).alpha = squeeze(mean(fft_data(:, a_start:a_end, :), 2));
+        % % features.(label).beta = squeeze(mean(fft_data(:, b_start:b_end, :), 2));
+        % % features.(label).gamma = squeeze(mean(fft_data(:, g_start:g_end, :), 2));
 
         % Hjorth parameters
         % Get Activity
@@ -206,5 +210,5 @@ check_done = 'tid_psam_svm_preparation_DONE'
 
 delete(wb)
 
-%% 
-plot(freq_vec,fft_data(1,:,1))
+%%
+%%plot(freq_vec,fft_data(1,:,1))

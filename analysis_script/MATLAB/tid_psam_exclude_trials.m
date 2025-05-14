@@ -4,17 +4,17 @@
 %   subjects with too many excluded trials.
 %
 % The proccessing steps include:
-    % Loading behavioural and EEG-ERP data
-    % Matches invalid trials identified in EEG-ERP data and behavioural data
-    % Removes tagged trials from both EEG-ERP data and behavioural data
-    % Performs multiple transformations using on the included trials
-    % Checks number of valid trials per condition
-    % Loading behavioural and EEG-SVM data
-    % Matches invalid trials identified in EEG-SVM data and behavioural data
-    % Removes tagged trials only from the EEG-SVM data
-    % Excludes subjects if the number of trials in below threshold for
-    %   either condition
-    % Stores datasets
+% Loading behavioural and EEG-ERP data
+% Matches invalid trials identified in EEG-ERP data and behavioural data
+% Removes tagged trials from both EEG-ERP data and behavioural data
+% Performs multiple transformations using on the included trials
+% Checks number of valid trials per condition
+% Loading behavioural and EEG-SVM data
+% Matches invalid trials identified in EEG-SVM data and behavioural data
+% Removes tagged trials only from the EEG-SVM data
+% Excludes subjects if the number of trials in below threshold for
+%   either condition
+% Stores datasets
 %
 % Concatinates all individual behavioural data sets to one large one and stores it.
 %
@@ -29,7 +29,7 @@
 %   for each analysis. Since the ERP analysis relates to quantities like
 %   F0 (differences), it makes sense to match this analysis with the
 %   behavioural one. On the other hand, the SVM analysis is not related to
-%   such quantities, making a more liberal approach possible. 
+%   such quantities, making a more liberal approach possible.
 %
 % Tim Dressler, 04.04.2025
 
@@ -213,8 +213,8 @@ for subj_idx= 1:length(dircont_subj_erp)
     % Exclude subjects if not enough trials per condition are left
     for cond_num = 1:12
         if n_trials_condition_erp(cond_num).n_trials <= N_TRIALS_THRESH
-        excluded_subj{end+1,1} = subj;
-        excluded_subj{end,2} = ['number_of_trials_' n_trials_condition_erp(cond_num).condition '_' num2str(n_trials_condition_erp(cond_num).n_trials)];
+            excluded_subj{end+1,1} = subj;
+            excluded_subj{end,2} = ['number_of_trials_' n_trials_condition_erp(cond_num).condition '_' num2str(n_trials_condition_erp(cond_num).n_trials)];
         end
     end
 
@@ -250,9 +250,6 @@ for subj_idx= 1:length(dircont_subj_erp)
             excluded_subj{end+1,1} = subj;
             excluded_subj{end,2} = 'number_of_no_probe_trials';
         end
-
-        % Exclusion details: Enoughno-probe trials
-
     end
 
     % Store and save datasets for non-excluded subjects
@@ -288,36 +285,40 @@ for subj_idx= 1:length(dircont_subj_erp)
 
 end
 
-    % Sanity Check: Correct number of saved datasets
-    n_saved_erp = length(dir(fullfile(OUTPATH_ERP, 'sub-*.set')));
-    n_saved_beh = length(dir(fullfile(OUTPATH_BEH, 'sub-*.xlsx')));
+% Sanity Check: Correct number of saved datasets
+n_saved_erp = length(dir(fullfile(OUTPATH_ERP, 'sub-*.set')));
+n_saved_beh = length(dir(fullfile(OUTPATH_BEH, 'sub-*.xlsx')));
+if isempty(excluded_subj)
+    n_excluded = 0;
+else
     n_excluded = length(unique({excluded_subj{:,1}}));
-    n_subjects_all = length(dircont_subj_erp);
+end
+n_subjects_all = length(dircont_subj_erp);
 
-    if n_saved_erp == n_saved_beh && n_saved_erp == (n_subjects_all - n_excluded)
-    else
-        error('Number of saved files incorrect')
-    end
+if n_saved_erp == n_saved_beh && n_saved_erp == (n_subjects_all - n_excluded)
+else
+    error('Number of saved files incorrect')
+end
 
 
-    % Store behavioral data from all subjects
-    writetable(all_subj_beh_clean,fullfile(OUTPATH_BEH, 'all_subj_beh_preprocessed_clean.xlsx'))
+% Store behavioral data from all subjects
+writetable(all_subj_beh_clean,fullfile(OUTPATH_BEH, 'all_subj_beh_preprocessed_clean.xlsx'))
 
-    % End of processing
+% End of processing
 
-    protocol = cell2table(protocol, 'VariableNames',{'subj','time', 'status'})
-    writetable(protocol,fullfile(OUTPATH, 'tid_psam_exclude_trials_protocol.xlsx'))
+protocol = cell2table(protocol, 'VariableNames',{'subj','time', 'status'})
+writetable(protocol,fullfile(OUTPATH, 'tid_psam_exclude_trials_protocol.xlsx'))
 
-    if ~isempty(excluded_subj)
-        excluded_subj = cell2table(excluded_subj, 'VariableNames',{'subj','issue'})
-        writetable(excluded_subj,fullfile(OUTPATH, 'tid_psam_exclude_trials_excluded_subj.xlsx'))
-    end
+if ~isempty(excluded_subj)
+    excluded_subj = cell2table(excluded_subj, 'VariableNames',{'subj','issue'})
+    writetable(excluded_subj,fullfile(OUTPATH, 'tid_psam_exclude_trials_excluded_subj.xlsx'))
+end
 
-    if ~isempty(marked_subj)
-        marked_subj = cell2table(marked_subj, 'VariableNames',{'subj','issue'})
-        writetable(marked_subj,fullfile(OUTPATH, 'tid_psam_exclude_trials_marked_subj.xlsx'))
-    end
+if ~isempty(marked_subj)
+    marked_subj = cell2table(marked_subj, 'VariableNames',{'subj','issue'})
+    writetable(marked_subj,fullfile(OUTPATH, 'tid_psam_exclude_trials_marked_subj.xlsx'))
+end
 
-    check_done = 'tid_psam_exclude_trials_DONE'
+check_done = 'tid_psam_exclude_trials_DONE'
 
-    delete(wb)
+delete(wb)
