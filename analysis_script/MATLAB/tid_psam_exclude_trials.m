@@ -239,7 +239,7 @@ for subj_idx= 1:length(dircont_subj_erp)
         excluded_trials_all_no_probe = excluded_trials_beh_no_probe' | EEG.reject.rejglobal;
 
         % Remove to be excluded trials from SVM data
-        EEG.reject.rejglobal = excluded_trials_beh_no_probe;
+        EEG.reject.rejglobal = excluded_trials_all_no_probe;
         EEG = pop_rejepoch( EEG, EEG.reject.rejglobal ,0);
         EEG.setname = [subj '_svm_clean'];
         [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
@@ -269,6 +269,9 @@ for subj_idx= 1:length(dircont_subj_erp)
 
         % Get behavioral data for all subjects
         all_subj_beh_clean = vertcat(all_subj_beh_clean, beh_clean);
+
+        % Save to-be-exlcuded trials for use in tid_psam_hilbert_preparation
+        save(fullfile(OUTPATH, [subj '_excluded_no_probe_trials.mat']),'excluded_trials_all_no_probe')
     end
 
     % Update Protocol

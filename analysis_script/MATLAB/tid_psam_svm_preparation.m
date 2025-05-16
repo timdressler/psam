@@ -32,6 +32,7 @@ end
 
 MAINPATH = erase(SCRIPTPATH, '\analysis_script\MATLAB');
 INPATH = fullfile(MAINPATH, 'data\processed_data\svm_preprocessed_clean\');
+INPATH_HILBERT = fullfile(MAINPATH, 'data\processed_data\hilbert_prepared_clean'); 
 OUTPATH = fullfile(MAINPATH, 'data\processed_data\svm_prepared_clean');
 
 FUNPATH = fullfile(MAINPATH, '\functions\');
@@ -47,13 +48,6 @@ WIN_EARLY_FROM = -600;
 WIN_EARLY_TILL = -401;
 WIN_LATE_FROM = -400;
 WIN_LATE_TILL = -201;
-ZEROPADDING = 1000; % Zeropadding to 1 s (1000 Samples due to 1000 Hz SR)
-APLHA_FROM = 8;
-APLHA_TILL = 13;
-BETA_FROM = 14;
-BETA_TILL = 30;
-GAMMA_FROM = 31;
-GAMMA_TILL = 37;
 
 % Get directory content
 dircont_subj = dir(fullfile(INPATH, 'sub-*.set'));
@@ -82,6 +76,9 @@ for subj_idx= 1:length(dircont_subj)
     % Load epoched data
     EEG = pop_loadset('filename',[subj '_svm_preprocessed_clean.set'],'filepath',INPATH);
 
+    % Load epoched Hilbert transformed data
+    load(fullfile(INPATH_HILBERT, [subj '_hilbert_preparation_clean.mat'])) % loads variable 'data_hilbert'
+
     % Remove EOG channels as they are not used for classification
     EEG = pop_select( EEG, 'rmchannel',EOG_CHAN);
 
@@ -106,26 +103,30 @@ for subj_idx= 1:length(dircont_subj)
         [~,end_idx] = min(abs(EEG.times - windows.(label).till));
 
         % Get window data
-        data = EEG.data(:, start_idx:end_idx, :);
-        features.(label).data = data;
+        data_win = EEG.data(:, start_idx:end_idx, :);
+        features.(label).data_win = data_win;
+
+        % Get window Hilbert transformed data
+        data_hilbert_win = data_hilbert(1).hilbert_transformed_epochs_clean(:, start_idx:end_idx, :); % put down, loop through freq bands 
+        features.(label).data_hilbert_win = data_hilbert_win;
 
         % Sanity Check: Correct dimensions
-        if size(data,1) ~= EEG.nbchan || size(data,2) ~= 200 || size(data,3) == 1
+        if size(data_win,1) ~= EEG.nbchan || size(data_win,2) ~= 200 || size(data_win,3) == 1
             marked_subj{end+1,1} = subj;
             marked_subj{end,2} = 'wrong_dimensions';
         end
 
         % Time-domain features
-        features.(label).mean = squeeze(mean(data, 2));
-        features.(label).rms = squeeze(rms(data, 2));
-        features.(label).sd = squeeze(std(data, [], 2));
-        features.(label).min = squeeze(min(data, [], 2));
-        features.(label).max = squeeze(max(data, [], 2));
-        features.(label).kurtosis = squeeze(kurtosis(data, [], 2));
-        features.(label).skewness = squeeze(skewness(data, [], 2));
+        features.(label).mean = squeeze(mean(data_win, 2));
+        features.(label).rms = squeeze(rms(data_win, 2));
+        features.(label).sd = squeeze(std(data_win, [], 2));
+        features.(label).min = squeeze(min(data_win, [], 2));
+        features.(label).max = squeeze(max(data_win, [], 2));
+        features.(label).kurtosis = squeeze(kurtosis(data_win, [], 2));
+        features.(label).skewness = squeeze(skewness(data_win, [], 2));
 
-        for i = 1:size(data, 3)
-            features.(label).zerocrossing(:, i) = zerocrossrate(data(:,:,i)')';
+        for i = 1:size(data_win, 3)
+            features.(label).zerocrossing(:, i) = zerocrossrate(data_win(:,:,i)')';
         end
 
         % Frequency-domain features
@@ -135,32 +136,32 @@ for subj_idx= 1:length(dircont_subj)
 
         % % % Preparation
         % % % Apply Hamming window to each epoch for each electrode
-        % % ham = hamming(size(data,2));
+        % % ham = hamming(size(data_win,2));
         % %
-        % % for e = 1:size(data,3)
-        % %     for ch = 1:size(data,1)
-        % %         data(ch, :, e) = squeeze(data(ch, :, e)) .* ham';
+        % % for e = 1:size(data_win,3)
+        % %     for ch = 1:size(data_win,1)
+        % %         data_win(ch, :, e) = squeeze(data_win(ch, :, e)) .* ham';
         % %     end
         % % end
         % %
         % % % Apply zeropadding to 1 s (i.e., 1000 Samples due to SR = 1000 Hz)
-        % % padding_needed = ZEROPADDING - size(data,2);
-        % % data_padded = padarray(data, [0, padding_needed, 0], 0, 'post');
+        % % padding_needed = ZEROPADDING - size(data_win,2);
+        % % data_win_padded = padarray(data_win, [0, padding_needed, 0], 0, 'post');
         % %
         % % % Sanity check: Correct dimensions after padding
-        % % if size(data_padded,1) ~= EEG.nbchan || size(data_padded,2) ~= ZEROPADDING || size(data_padded,3) == 1
+        % % if size(data_win_padded,1) ~= EEG.nbchan || size(data_win_padded,2) ~= ZEROPADDING || size(data_win_padded,3) == 1
         % %     marked_subj{end+1,1} = subj;
         % %     marked_subj{end,2} = 'wrong_dimensions_after_padding';
         % % end
-        % % if ~all(data_padded(201:end,:) == 0, 'all')
+        % % if ~all(data_win_padded(201:end,:) == 0, 'all')
         % %     marked_subj{end+1,1} = subj;
         % %     marked_subj{end,2} = 'wrong_values_after_padding';
         % % end
         % %
         % % % Apply FFT
-        % % fft_data = abs(fft(data_padded, [], 2)) / size(data, 2);
-        % % fft_data = fft_data(:, 1:end/2, :);
-        % % fft_data(:, 2:end, :) = fft_data(:, 2:end, :) * 2;
+        % % fft_data_win = abs(fft(data_win_padded, [], 2)) / size(data_win, 2);
+        % % fft_data_win = fft_data_win(:, 1:end/2, :);
+        % % fft_data_win(:, 2:end, :) = fft_data_win(:, 2:end, :) * 2;
         % %
         % % % Get bandpower for alpha, beta and gamma bands
         % % freq_vec = 0:1/(ZEROPADDING/1000):EEG.srate/2 - (1/(ZEROPADDING/1000));
@@ -171,17 +172,17 @@ for subj_idx= 1:length(dircont_subj)
         % % [~,g_start] = min(abs(freq_vec - GAMMA_FROM));
         % % [~,g_end] = min(abs(freq_vec - GAMMA_TILL));
         % %
-        % % features.(label).alpha = squeeze(mean(fft_data(:, a_start:a_end, :), 2));
-        % % features.(label).beta = squeeze(mean(fft_data(:, b_start:b_end, :), 2));
-        % % features.(label).gamma = squeeze(mean(fft_data(:, g_start:g_end, :), 2));
+        % % features.(label).alpha = squeeze(mean(fft_data_win(:, a_start:a_end, :), 2));
+        % % features.(label).beta = squeeze(mean(fft_data_win(:, b_start:b_end, :), 2));
+        % % features.(label).gamma = squeeze(mean(fft_data_win(:, g_start:g_end, :), 2));
 
         % Hjorth parameters
         % Get Activity
-        features.(label).activity = tid_psam_hjorth_activity_TD(data);
+        features.(label).activity = tid_psam_hjorth_activity_TD(data_win);
         % Get Mobility
-        features.(label).mobility = tid_psam_hjorth_mobility_TD(data);
+        features.(label).mobility = tid_psam_hjorth_mobility_TD(data_win);
         % Get Complexity
-        features.(label).complexity = tid_psam_hjorth_complexity_TD(data);
+        features.(label).complexity = tid_psam_hjorth_complexity_TD(data_win);
     end
 
     % Update Protocol

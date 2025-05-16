@@ -37,12 +37,13 @@ MAINPATH = erase(SCRIPTPATH, '\analysis_script\MATLAB');
 IDPATH = fullfile(MAINPATH, 'data\processed_data\svm_preprocessed_clean\'); % Only used to get subject IDs of non-excluded participants, data is loaded from INPATH
 INPATH_RAW = fullfile(MAINPATH, 'data\processed_data\markers_included\');
 INPATH_ICA = fullfile(MAINPATH, 'data\processed_data\ica_preprocessed\');
+INPATH_EXCLUDED = fullfile(MAINPATH, 'data\processed_data\exclude_trials\');
 OUTPATH = fullfile(MAINPATH, 'data\processed_data\hilbert_prepared_clean');
 
 FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);
 
-tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)
+tid_psam_check_folder_TD(MAINPATH, IDPATH, OUTPATH, INPATH_RAW, INPATH_ICA)
 tid_psam_clean_up_folder_TD(OUTPATH)
 
 % Variables to edit
@@ -59,26 +60,42 @@ GAMMA_TILL = 37;
 
 % Get directory content
 dircont_subj = dir(fullfile(IDPATH, 'sub-*.set'));
+dircont_subj_exclude_trials = dir(fullfile(INPATH_EXCLUDED, 'sub-*.mat'));
+
+% Sanity Check: Same length of directory contents
+if length(dircont_subj) == length(dircont_subj_exclude_trials) 
+else
+    error('Different number of files')
+end
 
 % Initialize sanity check variables
 marked_subj = {};
 protocol = {};
 
-% Setup progress bar
-wb = waitbar(0,'starting tid_psam_hilbert_preparation.m');
-
 % Aggregate frequency bands
 freq_bands = {[APLHA_FROM APLHA_TILL], [BETA_FROM BETA_TILL], [GAMMA_FROM GAMMA_TILL]};
 
+% Setup progress bar
+wb = waitbar(0,'starting tid_psam_hilbert_preparation.m');
+
 clear subj_idx
 for subj_idx= 1:length(dircont_subj)
+
+    % Sanity Check: Same IDs
+    if ~strncmp(dircont_subj(subj_idx).name, dircont_subj_exclude_trials(subj_idx).name, 6)
+        error('Files from two different subjects')
+    end
 
     % Get current ID
     subj = dircont_subj(subj_idx).name;
     subj = regexp(subj, 'sub-\d+', 'match', 'once');
 
+    % Get file of to-be excluded trials based on tid_psam_exclude_trials 
+    exclusion_filename = fullfile(INPATH_EXCLUDED,[subj '_excluded_no_probe_trials.mat']);
+    load(exclusion_filename) % loads variable 'excluded_trials_all_no_probe'
+
     % Update progress bar
-    waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_hilbert_preprocessing.m'])
+    waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_hilbert_preparation.m'])
 
     tic;
     % Start eeglab
@@ -106,6 +123,9 @@ for subj_idx= 1:length(dircont_subj)
     eog_chani = find(ismember({EEG.chanlocs.labels}, EOG_CHAN));
     [EEG.chanlocs(eog_chani).type] = deal('EOG');
     EEG = eeg_checkset( EEG );
+
+    % Remove EOG channels as they are not used for classification
+    EEG = pop_select( EEG, 'rmchannel',EOG_CHAN);
 
     % Store channel locations in another field
     EEG.urchanlocs = EEG.chanlocs;
@@ -146,30 +166,38 @@ for subj_idx= 1:length(dircont_subj)
         EEG = pop_interp(EEG, EEG.urchanlocs , 'spherical'); % and interpolate them using urchanlocs
     end
 
+    EEG.setname = [subj '_ready_for_Hilbert_transformation'];
+    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+
     % Loop across frequency bands and apply Hilbert transformation
     for freq_band_num = 1:length(freq_bands)
+        EEG = ALLEEG(4);
+        CURRENTSET = 4;
 
         % Apply BP-Filter
+        EEG = pop_eegfiltnew(EEG, 'locutoff',freq_bands{freq_band_num}(1),'hicutoff',freq_bands{freq_band_num}(2));
 
         % Apply Hilbert transformation
+        EEG.data = abs(hilbert(EEG.data));
 
         % Epoch
-
+        EEG = pop_epoch( EEG, EVENTS, [EPO_FROM        EPO_TILL], 'epochinfo', 'yes');
+    
         % Reject bad epochs based on the ones identified for the SVM analysis in tid_psam_exclude_trials.m
+        EEG.reject.rejglobal = excluded_trials_all_no_probe;
+        EEG = pop_rejepoch( EEG, EEG.reject.rejglobal ,0);
 
-        % Extract time windows
+        % Store dataset
+        EEG.setname = [subj '_after_Hilbert_transformation_clean_epochs_' num2str(freq_bands{freq_band_num}(1)) '_' num2str(freq_bands{freq_band_num}(2))];
+        [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
-        % Get bandpower
+        % Store data
+        data_hilbert(freq_band_num).freqband = freq_bands{freq_band_num};
+        data_hilbert(freq_band_num).hilbert_transformed_epochs_clean = EEG.data;
 
+        % Save data
+        save(fullfile(OUTPATH, [subj '_hilbert_preparation_clean.mat']),'data_hilbert')
     end
-
-
-
-    % Sanity Check: Correct dimension for all frequency bands
-
-
-
-
 
     % Update Protocol
     subj_time = toc;
