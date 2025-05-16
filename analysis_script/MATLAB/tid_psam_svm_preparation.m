@@ -209,6 +209,3 @@ end
 check_done = 'tid_psam_svm_preparation_DONE'
 
 delete(wb)
-
-%%
-%%plot(freq_vec,fft_data(1,:,1))

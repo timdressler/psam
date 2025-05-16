@@ -1,6 +1,6 @@
-% tid_psam_beh_analysis.m
+% tid_psam_questionnaire_input.m
 %
-% Performs analysis of vocal data.
+% Is used to put questionnaires into a digital format.
 %
 % Tim Dressler, 07.04.2025
 
