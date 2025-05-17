@@ -11,7 +11,7 @@
     % Remove bad epochs based on probability
     % Calculate ICA weights
 %
-% Stores dataset
+% Saves data
 %
 % Tim Dressler, 04.04.2025
 

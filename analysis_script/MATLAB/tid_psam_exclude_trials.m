@@ -4,17 +4,18 @@
 %   subjects with too many excluded trials.
 %
 % The proccessing steps include:
-% Loading behavioural and EEG-ERP data
-% Matches invalid trials identified in EEG-ERP data and behavioural data
-% Removes tagged trials from both EEG-ERP data and behavioural data
-% Performs multiple transformations using on the included trials
-% Checks number of valid trials per condition
-% Loading behavioural and EEG-SVM data
-% Matches invalid trials identified in EEG-SVM data and behavioural data
-% Removes tagged trials only from the EEG-SVM data
-% Excludes subjects if the number of trials in below threshold for
-%   either condition
-% Stores datasets
+    % Loading behavioural and EEG-ERP data
+    % Matches invalid trials identified in EEG-ERP data and behavioural data
+    % Removes tagged trials from both EEG-ERP data and behavioural data
+    % Performs multiple transformations using on the included trials
+    % Checks number of valid trials per condition
+    % Loading behavioural and EEG-SVM data
+    % Matches invalid trials identified in EEG-SVM data and behavioural data
+    % Removes tagged trials only from the EEG-SVM data
+    % Excludes subjects if the number of trials in below threshold for
+    %   either condition
+%
+% Saves data
 %
 % Concatinates all individual behavioural data sets to one large one and stores it.
 %

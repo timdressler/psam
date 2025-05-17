@@ -1,7 +1,6 @@
 % tid_psam_erp_analysis.m
 %
 % Performs ERP analysis and exports data for further analysis.
-
 %
 % Tim Dressler, 17.04.2025
 

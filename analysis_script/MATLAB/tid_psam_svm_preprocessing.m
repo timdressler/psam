@@ -17,7 +17,7 @@
     % Apply baseline correction
     % Mark bad epochs based on amplitude and probability
 %
-% Stores dataset
+% Saves data
 %
 % Note. Trials are only marked for exclusion but not excluded yet!
 %

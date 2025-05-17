@@ -14,7 +14,7 @@
     % Loop across frequency bands and apply Hilbert transformation
     % Epoch and remove bad epoch based on the ones identified for the SVM analysis in tid_psam_exclude_trials.m
     %
-% Stores data
+% Saves data
 %
 %
 % Tim Dressler, 14.05.2025
@@ -196,7 +196,7 @@ for subj_idx= 1:length(dircont_subj)
         data_hilbert(freq_band_num).hilbert_transformed_epochs_clean = EEG.data;
 
         % Save data
-        save(fullfile(OUTPATH, [subj '_hilbert_preparation_clean.mat']),'data_hilbert')
+        save(fullfile(OUTPATH, [subj '_hilbert_preparation_clean.mat']),'data_hilbert', 'freq_bands')
     end
 
     % Update Protocol

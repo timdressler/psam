@@ -3,14 +3,14 @@
 % Performs preparations for SVM analysis and saves data.
 %
 % Preparation includes the following steps
-    % Removes EOG electrodes
-    % Extracts early and late time windows relative to the 'go-signal'
-    % Extract the following features for each epoch, time window and channel
-    %   Mean amplitude, RMS, standard deviation of the amplitude, maximum and minimum amplitude, kurtosis, skewness, and zero-crossing rate
-    %   Bandpower for alpha (8-13 Hz), beta (13 - 30 Hz) and (low) gamma (30 -37 Hz)
-    %   Hjorth Parameters (Activity, Mobility and Complexity)
+% Removes EOG electrodes
+% Extracts early and late time windows relative to the 'go-signal'
+% Extract the following features for each epoch, time window and channel
+%   Mean amplitude, RMS, standard deviation of the amplitude, maximum and minimum amplitude, kurtosis, skewness, and zero-crossing rate
+%   Bandpower for alpha (8-13 Hz), beta (13 - 30 Hz) and (low) gamma (30 -37 Hz)
+%   Hjorth Parameters (Activity, Mobility and Complexity)
 %
-% Stores data
+% Saves data
 %
 % Also see: tid_psam_hjorth_activity_TD, tid_psam_hjorth_mobility_TD, tid_psam_hjorth_complexity_TD.
 %
@@ -32,7 +32,7 @@ end
 
 MAINPATH = erase(SCRIPTPATH, '\analysis_script\MATLAB');
 INPATH = fullfile(MAINPATH, 'data\processed_data\svm_preprocessed_clean\');
-INPATH_HILBERT = fullfile(MAINPATH, 'data\processed_data\hilbert_prepared_clean'); 
+INPATH_HILBERT = fullfile(MAINPATH, 'data\processed_data\hilbert_prepared_clean');
 OUTPATH = fullfile(MAINPATH, 'data\processed_data\svm_prepared_clean');
 
 FUNPATH = fullfile(MAINPATH, '\functions\');
@@ -77,10 +77,13 @@ for subj_idx= 1:length(dircont_subj)
     EEG = pop_loadset('filename',[subj '_svm_preprocessed_clean.set'],'filepath',INPATH);
 
     % Load epoched Hilbert transformed data
-    load(fullfile(INPATH_HILBERT, [subj '_hilbert_preparation_clean.mat'])) % loads variable 'data_hilbert'
+    load(fullfile(INPATH_HILBERT, [subj '_hilbert_preparation_clean.mat'])) % loads variable 'data_hilbert' and 'freq_bands'
 
     % Remove EOG channels as they are not used for classification
     EEG = pop_select( EEG, 'rmchannel',EOG_CHAN);
+
+    % Get channel labels
+    chan_labels = {EEG.chanlocs.labels};
 
     % Get epoch labels
     labels = cellfun(@(x) x{2}, {EEG.epoch.eventtype}, 'UniformOutput', false);
@@ -104,16 +107,12 @@ for subj_idx= 1:length(dircont_subj)
 
         % Get window data
         data_win = EEG.data(:, start_idx:end_idx, :);
-        features.(label).data_win = data_win;
-
-        % Get window Hilbert transformed data
-        data_hilbert_win = data_hilbert(1).hilbert_transformed_epochs_clean(:, start_idx:end_idx, :); % put down, loop through freq bands 
-        features.(label).data_hilbert_win = data_hilbert_win;
+        features_data.(label).data_win = data_win;
 
         % Sanity Check: Correct dimensions
         if size(data_win,1) ~= EEG.nbchan || size(data_win,2) ~= 200 || size(data_win,3) == 1
             marked_subj{end+1,1} = subj;
-            marked_subj{end,2} = 'wrong_dimensions';
+            marked_subj{end,2} = 'wrong_dimensions_data';
         end
 
         % Time-domain features
@@ -130,51 +129,22 @@ for subj_idx= 1:length(dircont_subj)
         end
 
         % Frequency-domain features
+        for freq_band_num = 1:length(data_hilbert)
+            % Get window Hilbert transformed data
+            data_hilbert_win = data_hilbert(freq_band_num).hilbert_transformed_epochs_clean(:, start_idx:end_idx, :);
+            data_hilbert_label = sprintf('data_hilbert_%d_%d', freq_bands{freq_band_num});
+            features_data.(label).(data_hilbert_label) = data_hilbert_win;
 
+            % Sanity Check: Correct dimensions
+            if size(data_hilbert_win,1) ~= EEG.nbchan || size(data_hilbert_win,2) ~= 200 || size(data_hilbert_win,3) == 1
+                marked_subj{end+1,1} = subj;
+                marked_subj{end,2} = 'wrong_dimensions_hilbert_data';
+            end
 
-
-
-        % % % Preparation
-        % % % Apply Hamming window to each epoch for each electrode
-        % % ham = hamming(size(data_win,2));
-        % %
-        % % for e = 1:size(data_win,3)
-        % %     for ch = 1:size(data_win,1)
-        % %         data_win(ch, :, e) = squeeze(data_win(ch, :, e)) .* ham';
-        % %     end
-        % % end
-        % %
-        % % % Apply zeropadding to 1 s (i.e., 1000 Samples due to SR = 1000 Hz)
-        % % padding_needed = ZEROPADDING - size(data_win,2);
-        % % data_win_padded = padarray(data_win, [0, padding_needed, 0], 0, 'post');
-        % %
-        % % % Sanity check: Correct dimensions after padding
-        % % if size(data_win_padded,1) ~= EEG.nbchan || size(data_win_padded,2) ~= ZEROPADDING || size(data_win_padded,3) == 1
-        % %     marked_subj{end+1,1} = subj;
-        % %     marked_subj{end,2} = 'wrong_dimensions_after_padding';
-        % % end
-        % % if ~all(data_win_padded(201:end,:) == 0, 'all')
-        % %     marked_subj{end+1,1} = subj;
-        % %     marked_subj{end,2} = 'wrong_values_after_padding';
-        % % end
-        % %
-        % % % Apply FFT
-        % % fft_data_win = abs(fft(data_win_padded, [], 2)) / size(data_win, 2);
-        % % fft_data_win = fft_data_win(:, 1:end/2, :);
-        % % fft_data_win(:, 2:end, :) = fft_data_win(:, 2:end, :) * 2;
-        % %
-        % % % Get bandpower for alpha, beta and gamma bands
-        % % freq_vec = 0:1/(ZEROPADDING/1000):EEG.srate/2 - (1/(ZEROPADDING/1000));
-        % % [~,a_start] = min(abs(freq_vec - APLHA_FROM));
-        % % [~,a_end] = min(abs(freq_vec - APLHA_TILL));
-        % % [~,b_start] = min(abs(freq_vec - BETA_FROM));
-        % % [~,b_end] = min(abs(freq_vec - BETA_TILL));
-        % % [~,g_start] = min(abs(freq_vec - GAMMA_FROM));
-        % % [~,g_end] = min(abs(freq_vec - GAMMA_TILL));
-        % %
-        % % features.(label).alpha = squeeze(mean(fft_data_win(:, a_start:a_end, :), 2));
-        % % features.(label).beta = squeeze(mean(fft_data_win(:, b_start:b_end, :), 2));
-        % % features.(label).gamma = squeeze(mean(fft_data_win(:, g_start:g_end, :), 2));
+            % Extract bandpower
+            bandpower_label = sprintf('band_power_%d_%d', freq_bands{freq_band_num});
+            features.(label).(bandpower_label) = squeeze(mean(data_hilbert_win, 2));
+        end
 
         % Hjorth parameters
         % Get Activity
@@ -183,6 +153,44 @@ for subj_idx= 1:length(dircont_subj)
         features.(label).mobility = tid_psam_hjorth_mobility_TD(data_win);
         % Get Complexity
         features.(label).complexity = tid_psam_hjorth_complexity_TD(data_win);
+
+        % Bring features into the format epochs x features
+        feature_fields = fieldnames(features.(label));
+        field_tables = cell(1, length(feature_fields));  % Preallocate
+
+        for f = 1:length(feature_fields)
+            field_name = feature_fields{f};
+            field_data = features.(label).(field_name);  % channels x epochs
+
+            % Transpose to epochs x channels
+            field_data = field_data';
+
+            % Create column names
+            n_chans = size(field_data, 2);
+            % Sanity Check: Matching number of channels
+            if ~(n_chans == length(chan_labels))
+                error('number of channels does not match')
+            end
+            col_names = arrayfun(@(i) sprintf('%s_%s', field_name, chan_labels{i}), 1:n_chans, 'UniformOutput', false);
+
+            % Convert to table
+            field_tables{f} = array2table(field_data, 'VariableNames', col_names);
+        end
+
+        % Concatenate and store result
+        final_table = cat(2, field_tables{:});
+        features.(label).feature_table = final_table;
+
+        % Sanity Check: Correct dimensions of the feature table
+        if ~(size(features.(label).feature_table,2) == length(chan_labels)*length(feature_fields) && size(features.(label).feature_table,1) == length(labels))
+            error('dimensions of final feature table')
+        end
+
+        % Attach labels
+        features.(label).feature_table.labels = labels';
+
+        % Save features
+        writetable(features.(label).feature_table,fullfile(OUTPATH, [subj '_features_' char(label) '.csv']))
     end
 
     % Update Protocol
@@ -200,7 +208,7 @@ end
 % End of processing
 
 protocol = cell2table(protocol, 'VariableNames',{'subj','time', 'status'})
-writetable(protocol,fullfile(OUTPATH, 'tid_psam_svm_preparation.xlsx'))
+writetable(protocol,fullfile(OUTPATH, 'tid_psam_svm_preparation_protocol.xlsx'))
 
 if ~isempty(marked_subj)
     marked_subj = cell2table(marked_subj, 'VariableNames',{'subj','issue'})

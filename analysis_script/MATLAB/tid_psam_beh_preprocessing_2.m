@@ -16,7 +16,7 @@
     %   If a 'Passive' trial includes a reponses
     %   If a 'Active' trial includes no response
 %
-    % Stores dataset
+    % Saves data
 %
 % Note. Trials are only marked for exclusion but not excluded yet!
 %
