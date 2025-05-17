@@ -36,7 +36,7 @@ CON_EVENTS = {'con_act_early', 'con_act_late', ...
 CHANI = 1;
 ERP_FROM = 70;
 ERP_TILL = 130;
-INDIVIDUAL_PLOTS = true; % Whether or not to create individual ERP plots and Topoplots
+INDIVIDUAL_PLOTS = false; % Whether or not to create individual ERP plots and Topoplots
 
 % Set colors
 main_blue = '#004F9F';
@@ -63,6 +63,7 @@ wb = waitbar(0,'starting tid_psam_erp_analysis.m');
 clear subj_idx
 counter = 1;
 cor_counter = 1;
+con_counter = 1;
 for subj_idx= 1:length(dircont_subj)
 
     % Get current ID
@@ -109,6 +110,13 @@ for subj_idx= 1:length(dircont_subj)
         [~,win_end] = min(abs(EEG.times-ERP_TILL));
         [~,t_zero] = min(abs(EEG.times));
 
+        % ERP analysis (control)
+        % Store ERP (control)
+        all_con_erp{con_counter,1} = con_erp;
+        all_con_erp{con_counter,2} = subj;
+        all_con_erp{con_counter,3} = CON_EVENTS{con_cond};
+        con_counter = con_counter+1;
+
         % ERP analysis (uncorrected)
         % Get N100 amplitude (uncorrected)
         erp_amp = min(erp(CHANI,win_start:win_end));
@@ -116,15 +124,10 @@ for subj_idx= 1:length(dircont_subj)
         erp_sam = find(erp(CHANI,:) == erp_amp);
         erp_lat = EEG.times(erp_sam);
         % Store ERP
-        % % all_erp{counter,1} = erp;
-        % Store ERP data
-        % % all_erp_data{counter,6} = ERP_FROM;
-        % % all_erp_data{counter,5} = ERP_TILL;
-        % % all_erp_data{counter,4} = erp_amp;
-        % % all_erp_data{counter,3} = erp_lat;
-        % % all_erp_data{counter,2} = EVENTS{cond};
-        % % all_erp_data{counter,1} = subj;
-        % % counter = counter+1;
+        all_erp{counter,1} = erp;
+        all_erp{counter,2} = subj;
+        all_erp{counter,3} = EVENTS{cond};
+        counter = counter+1;
 
         % ERP analysis (corrected)
         % Get N100 amplitude (corrected)
@@ -135,11 +138,7 @@ for subj_idx= 1:length(dircont_subj)
         % Store ERP (corrected)
         all_cor_erp{cor_counter,1} = cor_erp;
         all_cor_erp{cor_counter,2} = subj;
-        all_cor_erp{cor_counter,3} = ERP_FROM;
-        all_cor_erp{cor_counter,4} = ERP_TILL;
-        all_cor_erp{cor_counter,5} = cor_erp_amp;
-        all_cor_erp{cor_counter,6} = cor_erp_lat;
-        all_cor_erp{cor_counter,7} = EVENTS{cond};
+        all_cor_erp{cor_counter,3} = EVENTS{cond};
         % Store ERP data (corrected)
         all_cor_erp_data{cor_counter,1} = subj;
         all_cor_erp_data{cor_counter,2} = ERP_FROM;
@@ -147,6 +146,7 @@ for subj_idx= 1:length(dircont_subj)
         all_cor_erp_data{cor_counter,4} = cor_erp_amp;
         all_cor_erp_data{cor_counter,5} = cor_erp_lat;
         all_cor_erp_data{cor_counter,6} = EVENTS{cond};
+
         % Split condition labels into multiple columns (corrected)
         cond_parts = strsplit(EVENTS{cond}, '_');
         % Map and rename task condition
@@ -176,6 +176,7 @@ for subj_idx= 1:length(dircont_subj)
             otherwise
                 error('Invalid label')
         end
+
         % Store mapped and renamed values (corrected)
         all_cor_erp_data{cor_counter, 7} = task_label;
         all_cor_erp_data{cor_counter, 8} = probe_onset_label;
@@ -258,12 +259,49 @@ for subj_idx= 1:length(dircont_subj)
 
 end
 
-% Get grandaverage ERP for each condition
+% Get grandaverage ERPs
 erp_data_col = 1;
-cond_col = 7;
+cond_col = 3;
+% Get grandaverage uncorrected ERP for each condition
 % Extract unique conditions
-[unique_conditions, ~, condition_idx] = unique(all_cor_erp(:, cond_col));
+[unique_conditions, ~, condition_idx] = unique(all_erp(:, cond_col));
 n_conds = numel(unique_conditions);
+grandaverage_erp = cell(n_conds, 2); % Preallocate
+% Group and compute grand average
+for i = 1:n_conds
+    % Get all ERP matrices for this condition
+    erp_group = all_erp(condition_idx == i, erp_data_col);
+
+    % Convert to 3D array (chan x time x subjects)
+    erp_stack = cat(3, erp_group{:});
+
+    % Get grand average
+    grandaverage_erp{i, 1} = mean(erp_stack, 3);
+    grandaverage_erp{i, 2} = unique_conditions{i};
+end
+
+% Get grandaverage control ERP for each condition
+% Extract unique conditions
+[unique_conditions_con, ~, condition_idx] = unique(all_con_erp(:, cond_col));
+n_conds = numel(unique_conditions_con);
+grandaverage_erp_con = cell(n_conds, 2); % Preallocate
+% Group and compute grand average
+for i = 1:n_conds
+    % Get all ERP matrices for this condition
+    erp_group = all_con_erp(condition_idx == i, erp_data_col);
+
+    % Convert to 3D array (chan x time x subjects)
+    erp_stack = cat(3, erp_group{:});
+
+    % Get grand average
+    grandaverage_erp_con{i, 1} = mean(erp_stack, 3);
+    grandaverage_erp_con{i, 2} = unique_conditions_con{i};
+end
+
+% Get grandaverage corrected ERP for each condition
+% Extract unique conditions
+[unique_conditions_cor, ~, condition_idx] = unique(all_cor_erp(:, cond_col));
+n_conds = numel(unique_conditions_cor);
 grandaverage_erp_cor = cell(n_conds, 2); % Preallocate
 % Group and compute grand average
 for i = 1:n_conds
@@ -275,11 +313,10 @@ for i = 1:n_conds
 
     % Get grand average
     grandaverage_erp_cor{i, 1} = mean(erp_stack, 3);
-    grandaverage_erp_cor{i, 2} = unique_conditions{i};
+    grandaverage_erp_cor{i, 2} = unique_conditions_cor{i};
 end
 
-
-% Save ERP
+% Save ERPs (control, uncorrected, corrected)
 save(fullfile(OUTPATH, 'all_subj_erp.mat'),'all_cor_erp')
 
 % Save ERP data
@@ -290,14 +327,6 @@ writetable(all_cor_erp_data, fullfile(OUTPATH, 'all_subj_cor_erp_data.xlsx'))
 save(fullfile(OUTPATH, 'grandaverage_cor_erp.mat'),'grandaverage_erp_cor')
 
 % Preparation for plots
-% Concatinate colors
-erp_colors = {
-    main_yellow;
-    main_red;
-    main_green;
-    main_blue;
-    };
-
 % Get channel ID
 chani = CHANI;
 
@@ -316,7 +345,12 @@ rename_conditions_map = {
     'pas_late_unalt',  'Passive - Late - Unaltered';
     'pas_late_alt',    'Passive - Late - Altered';
     };
-for i = 1:size(grandaverage_erp_cor,1)
+for i = 1:size(grandaverage_erp,1) % for uncorrected ERP
+    old_label = grandaverage_erp{i,2};
+    new_label = rename_conditions_map(strcmp(rename_conditions_map(:,1), old_label), 2);
+    grandaverage_erp{i,2} = new_label{1};
+end
+for i = 1:size(grandaverage_erp_cor,1) % for corrected ERP
     old_label = grandaverage_erp_cor{i,2};
     new_label = rename_conditions_map(strcmp(rename_conditions_map(:,1), old_label), 2);
     grandaverage_erp_cor{i,2} = new_label{1};
@@ -325,7 +359,6 @@ end
 % Split data into early and late conditions
 grandaverage_erp_cor_early = grandaverage_erp_cor(contains(grandaverage_erp_cor(:,2), 'Early'), :);
 grandaverage_erp_cor_late  = grandaverage_erp_cor(contains(grandaverage_erp_cor(:,2), 'Late'), :);
-
 
 % End of processing
 
@@ -342,17 +375,25 @@ check_done = 'tid_psam_erp_analysis_DONE'
 delete(wb); close all;
 
 %% Plots
+close all
 
 % Plot: ERPs for all conditions with Topoplots
+% Concatinate colors
+colors = {
+    main_yellow;
+    main_red;
+    main_green;
+    main_blue;
+    };
 % Create ERP plot
-close all
 figure('Units', 'normalized', 'Position', [0 0.0500 1 0.8771]);
+sgtitle('Corrected ERPs and Topoplots for all Conditions')
 subplot(3,4,5:6)
 for cond_early_num = 1:length(grandaverage_erp_cor_early)
     erp_2_plot = grandaverage_erp_cor_early{cond_early_num,1};
 
     plot(EEG.times, erp_2_plot(chani,:), 'LineWidth', 1.5, ...
-        'Color', erp_colors{cond_early_num});
+        'Color', colors{cond_early_num});
     hold on
 end
 xlim([-200 400])
@@ -368,10 +409,10 @@ hold off
 
 subplot(3,4,7:8)
 for cond_late_num = 1:length(grandaverage_erp_cor_late)
-    erp_2_plot = grandaverage_erp_cor_late{cond_late_num,1};
+    erp_cor_2_plot = grandaverage_erp_cor_late{cond_late_num,1};
 
-    plot(EEG.times, erp_2_plot(chani,:), 'LineWidth', 1.5, ...
-        'Color', erp_colors{cond_late_num});
+    plot(EEG.times, erp_cor_2_plot(chani,:), 'LineWidth', 1.5, ...
+        'Color', colors{cond_late_num});
     hold on
 end
 xlim([-200 400])
@@ -406,10 +447,70 @@ for cond_num = 1:length(grandaverage_erp_cor)
     colormap("parula")
     cb = colorbar;
     clim([cb_lim_lower cb_lim_upper]);
-    title(cb, 'Amplitude [µV]')
+    cb.Label.String = 'Amplitude [µV]';
+    cb.Label.Position = [2.2, -1, 0];
+    cb.Label.HorizontalAlignment = 'center';
 end
 
 % Save plot
 saveas(gcf,fullfile(OUTPATH, 'plot_erp_topo.png'))
+
+% Plot: ERP, control ERP and correct ERP for each condition
+% Concatinate colors
+colors = {
+    main_blue;
+    main_red;
+    main_green;
+    };
+% Create plot
+figure('Units', 'normalized', 'Position', [0 0.0500 1 0.8771]);
+sgtitle('Uncorrected, Corrected and Control ERPs for all Conditions')
+
+con_cond_num = 1;
+for cond_num = 1:length(grandaverage_erp_cor)
+    erp_2_plot = grandaverage_erp{cond_num,1};
+    erp_cor_2_plot = grandaverage_erp_cor{cond_num,1};
+    erp_con_2_plot = grandaverage_erp_con{con_cond_num,1};
+    subplot(2,4,cond_num)
+    plot(EEG.times, erp_2_plot(chani,:), 'LineWidth', 1.5, 'Color', colors{1})
+    hold on
+    plot(EEG.times, erp_cor_2_plot(chani,:), 'LineWidth', 1.5, 'Color', colors{2})
+    plot(EEG.times, erp_con_2_plot(chani,:), 'LineWidth', 1.5, 'Color', colors{3})
+    xlim([-200 400])
+    ylim([y_lim_lower-1 y_lim_upper+1])
+    xlabel('Time [ms]')
+    ylabel('Amplitude [µV]')
+    title(grandaverage_erp_cor{cond_num,2})
+    l = legend({'Uncorrected', 'Corrected', 'Control'}, 'Interpreter','none');
+    l.Location = 'northwest';
+    fontsize(l,10,'points')
+    hold off
+    if mod(cond_num,2) == 0 % There is no difference being made between unaltered control trials and altered control trials,
+        %   thus every control condition is used twice (e.g. both Active - Late - Unaltered and Active - Late - Altered are corrected
+        %   using the same control ERP (Control - Active - Late)
+        con_cond_num = con_cond_num +1;
+    end
+end
+
+% Save plot
+saveas(gcf,fullfile(OUTPATH, 'plot_erp_con_cor.png'))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
