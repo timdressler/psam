@@ -1,6 +1,6 @@
 % tid_psam_erp_analysis.m
 %
-% Performs ERP analysis and exports data for further analysis.
+% Performs ERP analysis, creates plots and exports data for further analysis.
 %
 % Tim Dressler, 17.04.2025
 
@@ -36,6 +36,19 @@ CON_EVENTS = {'con_act_early', 'con_act_late', ...
 CHANI = 1;
 ERP_FROM = 70;
 ERP_TILL = 130;
+INDIVIDUAL_PLOTS = true; % Whether or not to create individual ERP plots and Topoplots
+
+% Set colors
+main_blue = '#004F9F';
+main_blue = sscanf(main_blue(2:end),'%2x%2x%2x',[1 3])/255;
+main_red = '#D53D0E';
+main_red = sscanf(main_red(2:end),'%2x%2x%2x',[1 3])/255;
+main_green = '#00786B';
+main_green = sscanf(main_green(2:end),'%2x%2x%2x',[1 3])/255;
+light_blue = '#5BC5F2';
+light_blue = sscanf(light_blue(2:end),'%2x%2x%2x',[1 3])/255;
+main_yellow = '#FDC300';
+main_yellow = sscanf(main_yellow(2:end),'%2x%2x%2x',[1 3])/255;
 
 % Get directory content
 dircont_subj = dir(fullfile(INPATH, 'sub-*_clean.set'));
@@ -65,6 +78,11 @@ for subj_idx= 1:length(dircont_subj)
 
     % Load data
     EEG = pop_loadset('filename',[subj '_erp_preprocessed_clean.set'],'filepath',INPATH);
+
+    % Remove EOG channels
+    EEG = pop_select( EEG, 'rmchannel',{'E29','E30'});
+
+    % Store data
     EEG.setname = [subj '_all_conds'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
@@ -141,14 +159,14 @@ for subj_idx= 1:length(dircont_subj)
                 error('Invalid label')
         end
         % Map and rename probe-onset condition (corrected)
-          switch cond_parts{2}
-              case 'early'
+        switch cond_parts{2}
+            case 'early'
                 probe_onset_label = 'Early';
-              case 'late'
+            case 'late'
                 probe_onset_label = 'Late';
             otherwise
                 error('Invalid label')
-          end
+        end
         % Map and rename probe-type condition (corrected)
         switch cond_parts{3}
             case 'alt'
@@ -164,66 +182,68 @@ for subj_idx= 1:length(dircont_subj)
         all_cor_erp_data{cor_counter, 9} = probe_type_label;
         cor_counter = cor_counter+1;
 
-        % Plot: ERP, control ERP and corrected ERP
-        ylim_max = max([erp; con_erp; cor_erp],[], 'all');
-        ylim_min = min([erp; con_erp; cor_erp],[], 'all');
-        figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
-        subplot(131)
-        plot(EEG.times, erp(CHANI,:))
-        hold on
-        scatter(erp_lat, erp_amp)
-        hold off
-        ylabel('Amplitude [μV]')
-        xlabel('Time [ms]')
-        ylim([ylim_min ylim_max])
-        title('Uncorrected')
-        subplot(132)
-        plot(EEG.times, con_erp(CHANI,:))
-        ylabel('Amplitude [μV]')
-        xlabel('Time [ms]')
-        ylim([ylim_min ylim_max])
-        title('Control')
-        subplot(133)
-        plot(EEG.times, cor_erp(CHANI,:))
-        hold on
-        scatter(cor_erp_lat, cor_erp_amp)
-        hold off
-        ylabel('Amplitude [μV]')
-        xlabel('Time [ms]')
-        ylim([ylim_min ylim_max])
-        title('Corrected')
-        sgtitle(['ERPs for ' subj ' and Condition ' EVENTS{cond}])
+        if INDIVIDUAL_PLOTS
+            % Plot: ERP, control ERP and corrected ERP
+            ylim_max = max([erp; con_erp; cor_erp],[], 'all');
+            ylim_min = min([erp; con_erp; cor_erp],[], 'all');
+            figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
+            subplot(131)
+            plot(EEG.times, erp(CHANI,:))
+            hold on
+            scatter(erp_lat, erp_amp)
+            hold off
+            ylabel('Amplitude [μV]')
+            xlabel('Time [ms]')
+            ylim([ylim_min ylim_max])
+            title('Uncorrected')
+            subplot(132)
+            plot(EEG.times, con_erp(CHANI,:))
+            ylabel('Amplitude [μV]')
+            xlabel('Time [ms]')
+            ylim([ylim_min ylim_max])
+            title('Control')
+            subplot(133)
+            plot(EEG.times, cor_erp(CHANI,:))
+            hold on
+            scatter(cor_erp_lat, cor_erp_amp)
+            hold off
+            ylabel('Amplitude [μV]')
+            xlabel('Time [ms]')
+            ylim([ylim_min ylim_max])
+            title('Corrected')
+            sgtitle(['ERPs for ' subj ' and Condition ' EVENTS{cond}])
 
-        saveas(gcf,fullfile(OUTPATH, [subj '_erp_' EVENTS{cond} '.png']))
+            saveas(gcf,fullfile(OUTPATH, [subj '_erp_' EVENTS{cond} '.png']));
 
-        % Plot: Topography, control topography and corrected topography
-        cb_lim_lower = min([mean(erp(:,win_start:win_end),2); mean(con_erp(:,win_start:win_end),2); mean(con_erp(:,win_start:win_end),2)],[],'all');
-        cb_lim_upper = max([mean(erp(:,win_start:win_end),2); mean(con_erp(:,win_start:win_end),2); mean(con_erp(:,win_start:win_end),2)],[],'all');
-        figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
-        subplot(131)
-        topoplot(mean(erp(:,win_start:win_end),2), EEG.chanlocs, 'emarker2', {CHANI,'o','r',5,1})
-        colormap("parula")
-        cb = colorbar;
-        title(cb, 'Amplitude [µV]')
-        clim([cb_lim_lower cb_lim_upper])
-        title('Uncorrected')
-        subplot(132)
-        topoplot(mean(con_erp(:,win_start:win_end),2), EEG.chanlocs, 'emarker2', {CHANI,'o','r',5,1})
-        colormap("parula")
-        cb = colorbar;
-        title(cb, 'Amplitude [µV]')
-        clim([cb_lim_lower cb_lim_upper])
-        title('Control')
-        subplot(133)
-        topoplot(mean(cor_erp(:,win_start:win_end),2), EEG.chanlocs, 'emarker2', {CHANI,'o','r',5,1})
-        colormap("parula")
-        cb = colorbar;
-        title(cb, 'Amplitude [µV]')
-        clim([cb_lim_lower cb_lim_upper])
-        title('Corrected')
-        sgtitle(['ERPs for ' subj ' and Condition ' EVENTS{cond}])
+            % Plot: Topography, control topography and corrected topography
+            cb_lim_lower = min([mean(erp(:,win_start:win_end),2); mean(con_erp(:,win_start:win_end),2); mean(con_erp(:,win_start:win_end),2)],[],'all');
+            cb_lim_upper = max([mean(erp(:,win_start:win_end),2); mean(con_erp(:,win_start:win_end),2); mean(con_erp(:,win_start:win_end),2)],[],'all');
+            figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
+            subplot(131)
+            topoplot(mean(erp(:,win_start:win_end),2), EEG.chanlocs, 'emarker2', {CHANI,'o','r',5,1});
+            colormap("parula")
+            cb = colorbar;
+            title(cb, 'Amplitude [µV]')
+            clim([cb_lim_lower cb_lim_upper])
+            title('Uncorrected')
+            subplot(132)
+            topoplot(mean(con_erp(:,win_start:win_end),2), EEG.chanlocs, 'emarker2', {CHANI,'o','r',5,1});
+            colormap("parula")
+            cb = colorbar;
+            title(cb, 'Amplitude [µV]')
+            clim([cb_lim_lower cb_lim_upper])
+            title('Control')
+            subplot(133)
+            topoplot(mean(cor_erp(:,win_start:win_end),2), EEG.chanlocs, 'emarker2', {CHANI,'o','r',5,1});
+            colormap("parula")
+            cb = colorbar;
+            title(cb, 'Amplitude [µV]')
+            clim([cb_lim_lower cb_lim_upper])
+            title('Corrected')
+            sgtitle(['ERPs for ' subj ' and Condition ' EVENTS{cond}])
 
-        saveas(gcf,fullfile(OUTPATH, [subj '_topo_erp_' EVENTS{cond} '.png']))
+            saveas(gcf,fullfile(OUTPATH, [subj '_topo_erp_' EVENTS{cond} '.png']));
+        end
     end
 
     % Update Protocol
@@ -238,12 +258,74 @@ for subj_idx= 1:length(dircont_subj)
 
 end
 
+% Get grandaverage ERP for each condition
+erp_data_col = 1;
+cond_col = 7;
+% Extract unique conditions
+[unique_conditions, ~, condition_idx] = unique(all_cor_erp(:, cond_col));
+n_conds = numel(unique_conditions);
+grandaverage_erp_cor = cell(n_conds, 2); % Preallocate
+% Group and compute grand average
+for i = 1:n_conds
+    % Get all ERP matrices for this condition
+    erp_group = all_cor_erp(condition_idx == i, erp_data_col);
+
+    % Convert to 3D array (chan x time x subjects)
+    erp_stack = cat(3, erp_group{:});
+
+    % Get grand average
+    grandaverage_erp_cor{i, 1} = mean(erp_stack, 3);
+    grandaverage_erp_cor{i, 2} = unique_conditions{i};
+end
+
+
 % Save ERP
 save(fullfile(OUTPATH, 'all_subj_erp.mat'),'all_cor_erp')
 
 % Save ERP data
-all_cor_erp_data = cell2table(all_cor_erp_data, 'VariableNames',{'subj','erp_from', 'erp_till', 'erp_amp', 'erp_lat', 'condition_full', 'task_instruction', 'probe_onset_cat', 'probe_type'})
-writetable(all_cor_erp_data, fullfile(OUTPATH, 'all_subj_erp_data.xlsx'))
+all_cor_erp_data = cell2table(all_cor_erp_data, 'VariableNames',{'subj','erp_from', 'erp_till', 'erp_amp', 'erp_lat', 'condition_full', 'task_instruction', 'probe_onset_cat', 'probe_type'});
+writetable(all_cor_erp_data, fullfile(OUTPATH, 'all_subj_cor_erp_data.xlsx'))
+
+% Save grandaverage ERP
+save(fullfile(OUTPATH, 'grandaverage_cor_erp.mat'),'grandaverage_erp_cor')
+
+% Preparation for plots
+% Concatinate colors
+erp_colors = {
+    main_yellow;
+    main_red;
+    main_green;
+    main_blue;
+    };
+
+% Get channel ID
+chani = CHANI;
+
+% Get values for dynamic plot limits
+y_lim_lower = min(cellfun(@(x) min(x(:)), grandaverage_erp_cor(:,1)))-1;
+y_lim_upper = max(cellfun(@(x) max(x(:)), grandaverage_erp_cor(:,1)))+1;
+
+% Rename condition labels
+rename_conditions_map = {
+    'act_early_unalt', 'Active - Early - Unaltered';
+    'act_early_alt',   'Active - Early - Altered';
+    'act_late_unalt',  'Active - Late - Unaltered';
+    'act_late_alt',    'Active - Late - Altered';
+    'pas_early_unalt', 'Passive - Early - Unaltered';
+    'pas_early_alt',   'Passive - Early - Altered';
+    'pas_late_unalt',  'Passive - Late - Unaltered';
+    'pas_late_alt',    'Passive - Late - Altered';
+    };
+for i = 1:size(grandaverage_erp_cor,1)
+    old_label = grandaverage_erp_cor{i,2};
+    new_label = rename_conditions_map(strcmp(rename_conditions_map(:,1), old_label), 2);
+    grandaverage_erp_cor{i,2} = new_label{1};
+end
+
+% Split data into early and late conditions
+grandaverage_erp_cor_early = grandaverage_erp_cor(contains(grandaverage_erp_cor(:,2), 'Early'), :);
+grandaverage_erp_cor_late  = grandaverage_erp_cor(contains(grandaverage_erp_cor(:,2), 'Late'), :);
+
 
 % End of processing
 
@@ -255,19 +337,79 @@ if ~isempty(marked_subj)
     writetable(marked_subj,fullfile(OUTPATH, 'tid_psam_erp_analysis_marked_subj.xlsx'))
 end
 
-check_done = 'tid_psam_erp_preprocessing_DONE'
+check_done = 'tid_psam_erp_analysis_DONE'
 
 delete(wb); close all;
 
+%% Plots
 
+% Plot: ERPs for all conditions with Topoplots
+% Create ERP plot
+close all
+figure('Units', 'normalized', 'Position', [0 0.0500 1 0.8771]);
+subplot(3,4,5:6)
+for cond_early_num = 1:length(grandaverage_erp_cor_early)
+    erp_2_plot = grandaverage_erp_cor_early{cond_early_num,1};
 
+    plot(EEG.times, erp_2_plot(chani,:), 'LineWidth', 1.5, ...
+        'Color', erp_colors{cond_early_num});
+    hold on
+end
+xlim([-200 400])
+ylim([y_lim_lower y_lim_upper])
+xlabel('Time [ms]')
+ylabel('Amplitude [µV]')
+title('ERPs for early probes')
+fill([70 130 130 70], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], light_blue, 'FaceAlpha',0.1, 'EdgeColor','none');
+l = legend([grandaverage_erp_cor_early(:,2)]', 'Interpreter','none');
+l.Location = 'northwest';
+fontsize(l,10,'points')
+hold off
 
+subplot(3,4,7:8)
+for cond_late_num = 1:length(grandaverage_erp_cor_late)
+    erp_2_plot = grandaverage_erp_cor_late{cond_late_num,1};
 
+    plot(EEG.times, erp_2_plot(chani,:), 'LineWidth', 1.5, ...
+        'Color', erp_colors{cond_late_num});
+    hold on
+end
+xlim([-200 400])
+ylim([y_lim_lower y_lim_upper])
+xlabel('Time [ms]')
+ylabel('Amplitude [µV]')
+title('ERPs for late probes')
+fill([70 130 130 70], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], light_blue, 'FaceAlpha',0.1, 'EdgeColor','none');
+l = legend([grandaverage_erp_cor_late(:,2)]', 'Interpreter','none');
+l.Location = 'northwest';
+fontsize(l,10,'points')
+hold off
 
+% Create Topoplots
+% Get limit values
+for cond_num = 1:length(grandaverage_erp_cor)
+    topo_2_plot = grandaverage_erp_cor{cond_num,1};
+    all_topo_2_plot(:,cond_num) = mean(topo_2_plot(:,win_start:win_end),2);
+    cb_lim_lower = min(all_topo_2_plot, [], 'all');
+    cb_lim_upper = max(all_topo_2_plot, [], 'all');
+end
 
+% Set up indices for Topoplots in Subplot
+topo_idx = [1 2 3 4 9 10 11 12];
 
+% Create Topoplot
+for cond_num = 1:length(grandaverage_erp_cor)
+    subplot(3,4,topo_idx(cond_num))
+    topo_2_plot = grandaverage_erp_cor{cond_num,1};
+    topoplot(mean(topo_2_plot(:,win_start:win_end),2), EEG.chanlocs, 'emarker2', {chani,'o','r',5,1});
+    title(grandaverage_erp_cor{cond_num,2})
+    colormap("parula")
+    cb = colorbar;
+    clim([cb_lim_lower cb_lim_upper]);
+    title(cb, 'Amplitude [µV]')
+end
 
-
-
+% Save plot
+saveas(gcf,fullfile(OUTPATH, 'plot_erp_topo.png'))
 
 
