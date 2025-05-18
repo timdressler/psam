@@ -43,7 +43,7 @@ tid_psam_clean_up_folder_TD(OUTPATH)
 
 % Variables to edit
 N_BLOCKS = 8; % Shoud be left at 8
-INDIVIDUAL_PLOTS = false; % Whether or not to create individual ERP plots and Topoplots
+INDIVIDUAL_PLOTS = true; % Whether or not to create individual ERP plots and Topoplots
 
 % Set colors
 main_blue = '#004F9F';
