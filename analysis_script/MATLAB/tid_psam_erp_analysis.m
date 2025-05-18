@@ -36,7 +36,7 @@ CON_EVENTS = {'con_act_early', 'con_act_late', ...
 CHANI = 1;
 ERP_FROM = 70;
 ERP_TILL = 130;
-INDIVIDUAL_PLOTS = false; % Whether or not to create individual ERP plots and Topoplots
+INDIVIDUAL_PLOTS = true; % Whether or not to create individual ERP plots and Topoplots
 
 % Set colors
 main_blue = '#004F9F';
@@ -451,7 +451,7 @@ for cond_num = 1:length(grandaverage_erp_cor)
 end
 
 % Save plot
-saveas(gcf,fullfile(OUTPATH, 'plot_erp_topo.png'))
+saveas(gcf,fullfile(OUTPATH, 'tid_psam_plot_erp_topo.png'))
 
 % Plot: ERP, control ERP and correct ERP for each condition
 % Concatinate colors
@@ -491,7 +491,7 @@ for cond_num = 1:length(grandaverage_erp_cor)
 end
 
 % Save plot
-saveas(gcf,fullfile(OUTPATH, 'plot_erp_con_cor.png'))
+saveas(gcf,fullfile(OUTPATH, 'tid_psam_plot_erp_con_cor.png'))
 
 
 

@@ -311,19 +311,19 @@ colors = {
     main_green;
     main_blue;
     };
+
 % Create F0 plot
 figure('Units', 'normalized', 'Position', [0 0.0500 1 0.8771]);
 x = linspace(-6, 6, 1000);  % Common F0 range for all subjects
 hold on;
 view(3);  % 3D view
-%%colormap turbo;
 
 for subj_idx= 1:length(dircont_subj)
     % Get current ID
     subj = dircont_subj(subj_idx).name;
     subj = regexp(subj, 'sub-\d+', 'match', 'once');
 
-    % Sanity Check: Matching F0 data and proeb data
+    % Sanity Check: Matching F0 data and probe data
     subj_idx_f0 = find(strcmp(all_recording_f0_z(:,1), subj));
     subj_idx_probe = find(strcmp(all_probe_f0_z(:,1), subj));
     if ~(subj_idx_f0 == subj_idx_probe)
@@ -333,31 +333,42 @@ for subj_idx= 1:length(dircont_subj)
     % Z-transformed F0 data
     f0_data = all_recording_f0_z{subj_idx_f0,2}';
     [density, xi] = ksdensity(f0_data, x);
-    %%[density, xi] = ksdensity(f0_data);
 
     % Z-transformed Probe values 
     unaltered_probe = all_probe_f0_z{subj_idx_probe,2};
     altered_probe = all_probe_f0_z{subj_idx_probe,3};
 
-    % Plot F0 distribution
+    % Plot F0 distribution 
     y = subj_idx * ones(size(xi)); % Create Y-axis vector (same for whole curve)
     fill3([xi, fliplr(xi)], ...
           [y, fliplr(y)], ...
           [density, zeros(size(density))], ...
-          'b','FaceAlpha', 0.5, 'EdgeColor', 'none');
-    plot3(xi, y, density, 'b', 'LineWidth', 1.5);
+          main_blue, 'FaceAlpha', 0.5, 'EdgeColor', main_blue); 
+    plot3(xi, y, density,'Color' ,main_blue, 'LineWidth', 1.5); 
 
     % Plot probe F0 values
-    plot3([unaltered_probe unaltered_probe], [subj_idx subj_idx], [0 max(density)], 'k--', 'LineWidth', 1.2);
-    plot3([altered_probe altered_probe], [subj_idx subj_idx], [0 max(density)], 'r--', 'LineWidth', 1.2);
+    plot3([unaltered_probe unaltered_probe], [subj_idx subj_idx], [0 max(density)], '--', 'Color','k', 'LineWidth', 1.2);
+    plot3([altered_probe altered_probe], [subj_idx subj_idx], [0 max(density)],'--','Color', main_red, ...
+        'LineWidth', 1.2);
 end
 
 xlabel('F0 [Z-Transformed]');
-ylabel('Subject Index');
+%%ylabel('Subject');
 zlabel('Density');
 title('3D Filled F0 Distributions Across Subjects');
 grid on;
-%%view(az,el)
+view(-12.6193,77.8152) % for fixed 3D view
 
+% Adjust y-axis ticks and labels
+yticks(1:length(dircont_subj));  % only integer ticks for subjects
+subj_labels = cell(length(dircont_subj),1);
+for idx = 1:length(dircont_subj)
+    s = dircont_subj(idx).name;
+    s = regexp(s, 'sub-\d+', 'match', 'once');
+    subj_labels{idx} = s;
+end
+yticklabels(subj_labels);
 
+% Save plot
+saveas(gcf,fullfile(OUTPATH, ['tid_psam_all_z_f0_distribution_' subj '.png']))
 
