@@ -183,6 +183,7 @@ for subj_idx= 1:length(dircont_subj)
         all_cor_erp_data{cor_counter, 9} = probe_type_label;
         cor_counter = cor_counter+1;
 
+        % Plots
         if INDIVIDUAL_PLOTS
             % Plot: ERP, control ERP and corrected ERP
             ylim_max = max([erp; con_erp; cor_erp],[], 'all');
@@ -329,11 +330,9 @@ save(fullfile(OUTPATH, 'grandaverage_cor_erp.mat'),'grandaverage_erp_cor')
 % Preparation for plots
 % Get channel ID
 chani = CHANI;
-
 % Get values for dynamic plot limits
 y_lim_lower = min(cellfun(@(x) min(x(:)), grandaverage_erp_cor(:,1)))-1;
 y_lim_upper = max(cellfun(@(x) max(x(:)), grandaverage_erp_cor(:,1)))+1;
-
 % Rename condition labels
 rename_conditions_map = {
     'act_early_unalt', 'Active - Early - Unaltered';
@@ -355,7 +354,6 @@ for i = 1:size(grandaverage_erp_cor,1) % for corrected ERP
     new_label = rename_conditions_map(strcmp(rename_conditions_map(:,1), old_label), 2);
     grandaverage_erp_cor{i,2} = new_label{1};
 end
-
 % Split data into early and late conditions
 grandaverage_erp_cor_early = grandaverage_erp_cor(contains(grandaverage_erp_cor(:,2), 'Early'), :);
 grandaverage_erp_cor_late  = grandaverage_erp_cor(contains(grandaverage_erp_cor(:,2), 'Late'), :);

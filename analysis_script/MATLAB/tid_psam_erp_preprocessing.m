@@ -26,7 +26,7 @@
     % Interpolate bad (and removed) channels
     % Epoch data around probe events (see above)
     % Apply baseline correction
-    % Mark bad epochs based on amplitude and probability
+    % Mark bad epochs based on probability
 %
 % Saves data
 %
@@ -71,7 +71,6 @@ EPO_TILL = 0.400;
 LCF = 0.3;
 HCF = 30;
 BL_FROM = -200;
-THRESH = 75;
 SD_PROB = 3;
 SD_PROB_ICA = 3;
 EVENTS = {'act_early_unalt', 'act_early_alt', 'act_late_unalt', 'act_late_alt', ...
@@ -188,9 +187,6 @@ for subj_idx= 1:length(dircont_subj)
 
     % Baseline-Removal
     EEG = pop_rmbase( EEG, [BL_FROM 0] ,[]);
-
-    % Threshold removal
-    EEG = pop_eegthresh(EEG,1,[1:EEG.nbchan] ,-THRESH,THRESH,EPO_FROM,EPO_TILL,0,0);
     
     % Probability-based removal
     EEG = pop_jointprob(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
