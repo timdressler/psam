@@ -74,7 +74,7 @@ for subj_idx, file in enumerate(tqdm(dircont_subj, desc="SVM Analysis")):
     tic = time.time()
 
     # Placeholder for main ERP logic
-
+    time.sleep(5)
     # Update Protocol
     subj_time = time.time() - tic
     protocol.append([subj, subj_time, 'MARKED' if subj in [x[0] for x in marked_subj] else 'OK'])
