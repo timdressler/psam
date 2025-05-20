@@ -1,18 +1,18 @@
-# tid_psam_svm_analysis.py
-#
-# Performs SVM analysis, creates plots and exports data for further analysis.
-#
-# Tim Dressler, 17.04.2025
-
 import os
 import re
 import time
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 from tqdm import tqdm
 
-# Set up paths
+from sklearn.model_selection import StratifiedKFold
+from sklearn.svm import SVC
+from sklearn.decomposition import KernelPCA
+from sklearn.metrics import accuracy_score
+
+# Set up and validate script path
 SCRIPTPATH = os.path.dirname(os.path.abspath(__file__))
 expected_subpath = os.path.join('psam', 'analysis_script', 'python')
 if re.search(re.escape(expected_subpath) + r'$', SCRIPTPATH):
@@ -20,20 +20,14 @@ if re.search(re.escape(expected_subpath) + r'$', SCRIPTPATH):
 else:
     raise EnvironmentError('Path not OK')
 
+# Define input and output paths
 MAINPATH = os.path.abspath(os.path.join(SCRIPTPATH, '..', '..'))
 INPATH = os.path.join(MAINPATH, 'data', 'processed_data', 'svm_prepared_clean')
-#INPATH = Path(INPATH)
 OUTPATH = os.path.join(MAINPATH, 'data', 'analysis_data', 'svm_analysis')
-# FUNPATH = os.path.join(MAINPATH, 'functions')  # Placeholder for addpath
 
 os.makedirs(OUTPATH, exist_ok=True)
-# Placeholder: tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)
-# Placeholder: tid_psam_clean_up_folder_TD(OUTPATH)
 
-# Variables to edit
-INDIVIDUAL_PLOTS = True  # Whether or not to create individual ERP plots and Topoplots
-
-# Set colors
+# Color definitions
 def hex_to_rgb(color):
     color = color.lstrip('#')
     return tuple(int(color[i:i+2], 16) / 255 for i in (0, 2, 4))
@@ -41,63 +35,98 @@ def hex_to_rgb(color):
 main_blue = hex_to_rgb('#004F9F')
 main_red = hex_to_rgb('#D53D0E')
 main_green = hex_to_rgb('#00786B')
-light_blue = hex_to_rgb('#5BC5F2')
-main_yellow = hex_to_rgb('#FDC300')
 
-# Get directory content
-dircont_subj = [f for f in Path(INPATH).glob("sub*.csv")]
+# Subject files
+dircont_subj_early = [f for f in Path(INPATH).glob("sub-96*early.csv")]
 
-# Initialize sanity check variables
-marked_subj = []
+# Protocol
 protocol = []
 
-# Setup progress bar
-print("Starting subject loop...")
+# Hyperparameter ranges (log-spaced)
+lower_C = -5
+upper_C = 5
+C_range = np.logspace(lower_C, upper_C, 32)      
+gamma_range = np.logspace(-3, 7, 16)   
 
-# clear subj_idx
-subj_idx = None
-counter = 1
-cor_counter = 1
-con_counter = 1
+n_splits = 5  # Stratified CV
 
-for subj_idx, file in enumerate(tqdm(dircont_subj, desc="SVM Analysis")):
-
-    # Get current ID
+for subj_idx, file in enumerate(tqdm(dircont_subj_early, desc="SVM Analysis")):
     subj = file.name
-    print(file)
-    print(subj)
     subj = re.search(r'sub-\d+', subj).group(0)
-
-    # Update progress bar
-    print(f"Processing {subj}...")
-
     tic = time.time()
 
-    # Placeholder for main ERP logic
-    time.sleep(5)
-    # Update Protocol
-    subj_time = time.time() - tic
-    protocol.append([subj, subj_time, 'MARKED' if subj in [x[0] for x in marked_subj] else 'OK'])
+    print(subj)
 
+    try:
+        df = pd.read_csv(file)
+        X = df.iloc[:, :-1].values
+        y = df.iloc[:, -1].values
+        print('read file...')
 
-# Get grandaverage ERPs (Placeholder)
+        acc_matrix = np.zeros((len(gamma_range), len(C_range)))
+        skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=123)
 
-# End of processing
+        print('start grid search...')
+        for i, gamma_val in enumerate(gamma_range):
+            for j, C_val in enumerate(C_range):
+                fold_accuracies = []
 
-protocol = pd.DataFrame(protocol, columns=['subj', 'time', 'status'])
+                for train_idx, test_idx in skf.split(X, y):
+                    X_train, X_test = X[train_idx], X[test_idx]
+                    y_train, y_test = y[train_idx], y[test_idx]
+
+                    print('fit pca...')
+                    kpca = KernelPCA(n_components=min(10, X_train.shape[1]),
+                                     kernel='rbf', gamma=0.01)
+                    X_train_kpca = kpca.fit_transform(X_train)
+                    X_test_kpca = kpca.transform(X_test)
+
+                    print(X_train_kpca)
+
+                    print('fit svm...')
+                    clf = SVC(C=C_val, kernel='rbf', gamma=gamma_val)
+                    clf.fit(X_train_kpca, y_train)
+                    y_pred = clf.predict(X_test_kpca)
+                    acc = accuracy_score(y_test, y_pred)
+                    fold_accuracies.append(acc)
+
+                acc_matrix[i, j] = np.mean(fold_accuracies)
+
+        subj_time = time.time() - tic
+        protocol.append([subj, subj_time, 'OK', np.mean(acc_matrix)])
+
+        # Save accuracy grid
+        acc_df = pd.DataFrame(acc_matrix,
+                              index=[f"{g:.5f}" for g in gamma_range],
+                              columns=[f"{c:.5f}" for c in C_range])
+        acc_path = os.path.join(OUTPATH, f"{subj}_acc_grid.csv")
+        acc_df.to_csv(acc_path)
+
+        # Plot heatmap
+        plt.figure(figsize=(8, 6))
+        im = plt.imshow(acc_matrix, origin='lower', aspect='auto',
+                        extent=[C_range[0], C_range[-1], gamma_range[0], gamma_range[-1]],
+                        cmap='magma', vmin=0.5, vmax=0.95)
+        plt.xscale('log')
+        plt.yscale('log')
+        plt.xlabel("C", fontsize=12)
+        plt.ylabel("Gamma", fontsize=12)
+        plt.title(f"Validation Accuracy Grid: {subj}", fontsize=14)
+        cbar = plt.colorbar(im)
+        cbar.set_label('Mean Accuracy', fontsize=12)
+        plt.tight_layout()
+
+        plot_path = os.path.join(OUTPATH, f"{subj}_heatmap.png")
+        plt.savefig(plot_path, dpi=300)
+        plt.close()
+
+    except Exception as e:
+        protocol.append([subj, 0.0, f"ERROR: {str(e)}", 0.0])
+        print(f"Error with {subj}: {e}")
+
+# Save protocol
+protocol_df = pd.DataFrame(protocol, columns=['subj', 'time', 'status', 'mean_accuracy'])
 protocol_path = os.path.join(OUTPATH, 'svm_analysis_protocol.xlsx')
-protocol.to_excel(protocol_path, index=False)
-quit()
+protocol_df.to_excel(protocol_path, index=False)
 print(f"Protocol saved to: {protocol_path}")
-
-if marked_subj:
-    marked_subj_df = pd.DataFrame(marked_subj, columns=['subj', 'issue'])
-    marked_path = os.path.join(OUTPATH, 'tid_psam_svm_analysis_marked_subj.xlsx')
-    marked_subj_df.to_excel(marked_path, index=False)
-    print(f"Marked subjects saved to: {marked_path}")
-
-check_done = 'tid_psam_svm_analysis_DONE'
-print(check_done)
-
-# Plots
-plt.close('all')
+print("tid_psam_svm_analysis_DONE")
