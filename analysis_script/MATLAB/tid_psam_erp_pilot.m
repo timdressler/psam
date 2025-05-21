@@ -62,8 +62,8 @@ USE_RAW_DATA = 0;
 
 EPO_FROM = -0.2;
 EPO_TILL = 0.400;
-LCF = 0.3;
-HCF = 25;
+LCF = 1;
+HCF = 30;
 BL_FROM = -200;
 THRESH = 75;
 SD_PROB = 3;

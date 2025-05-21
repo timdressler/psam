@@ -43,10 +43,10 @@ dircont_subj_early = [f for f in Path(INPATH).glob("sub-*early.csv")]
 protocol = []
 
 # Hyperparameter ranges (log-spaced)
-lower_C = -50
-upper_C = 50
-C_range = np.logspace(lower_C, upper_C, 50)
-gamma_range = np.logspace(-10, 10, 50)
+lower_C = 0
+upper_C = 10
+C_range = np.logspace(lower_C, upper_C, 32)
+gamma_range = np.logspace(lower_C, upper_C, 32)
 
 n_splits = 5  # Stratified CV
 
@@ -62,6 +62,17 @@ for subj_idx, file in enumerate(tqdm(dircont_subj_early, desc="SVM Analysis")):
     y = df.iloc[:, -1].values
     print('read file...')
 
+    ######
+    df2 = pd.read_csv(file)
+    # Assume the last column is the label
+    label_col = df2.columns[-1]
+    # Group by the label and compute the mean of each feature
+    means_by_class = df2.groupby(label_col).mean()
+    print(means_by_class)
+    sd_by_class = df2.groupby(label_col).std()
+    print(sd_by_class)
+    ######
+
     acc_matrix = np.zeros((len(gamma_range), len(C_range)))
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=123)
 
@@ -74,25 +85,30 @@ for subj_idx, file in enumerate(tqdm(dircont_subj_early, desc="SVM Analysis")):
                 X_train, X_test = X[train_idx], X[test_idx]
                 y_train, y_test = y[train_idx], y[test_idx]
 
-                #kpca = KernelPCA(n_components=min(10, X_train.shape[1]),
-                #                 kernel='rbf', gamma=0.01)
-                print("pca")
+                #kpca = KernelPCA(n_components=50,
+                #                 kernel='poly')
+                print('pca')
                 #X_train_kpca = kpca.fit_transform(X_train)
                 #X_test_kpca = kpca.transform(X_test)
 
                 # Use standard PCA
-                kpca = PCA(n_components=50)
+                kpca = PCA(n_components=120)
                 X_train_kpca = kpca.fit_transform(X_train)
                 X_test_kpca = kpca.transform(X_test)
 
+                explained_var = kpca.explained_variance_ratio_.sum()
+                print(f"Total variance retained: {explained_var:.2f}")
+
                 print("svm")
                 clf = SVC(C=C_val, kernel='rbf', gamma=gamma_val)
-                clf.fit(X_train_kpca, y_train)
-                y_pred = clf.predict(X_test_kpca)
+                clf.fit(X_train, y_train)
+                y_pred = clf.predict(X_test)
+                #print(y_pred)
                 acc = accuracy_score(y_test, y_pred)
                 fold_accuracies.append(acc)
 
             acc_matrix[i, j] = np.mean(fold_accuracies)
+            print(str(np.mean(fold_accuracies)))
 
     subj_time = time.time() - tic
     protocol.append([subj, subj_time, 'OK', np.mean(acc_matrix)])
