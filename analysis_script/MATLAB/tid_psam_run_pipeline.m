@@ -1,6 +1,6 @@
-% Run tid_psam_beh_preprocessing_1.praat
+% Run tid_psam_set_markers.m
 
-tid_psam_set_markers
+% Run tid_psam_beh_preprocessing_1.praat
 
 tid_psam_ica_preprocessing
 
