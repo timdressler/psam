@@ -163,11 +163,11 @@ for subj_idx= 1:length(dircont_subj)
         EEG = pop_interp(EEG, EEG.urchanlocs , 'spherical'); % and interpolate them using urchanlocs
     end
 
-    EEG.setname = [subj '_ready_for_Hilbert_transformation'];
-    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
-
     % Remove EOG channels as they are not used for classification
     EEG = pop_select( EEG, 'rmchannel',EOG_CHAN);
+    
+    EEG.setname = [subj '_ready_for_Hilbert_transformation'];
+    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
     % Loop across frequency bands and apply Hilbert transformation
     for freq_band_num = 1:length(freq_bands)
