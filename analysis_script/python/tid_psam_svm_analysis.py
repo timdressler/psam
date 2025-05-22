@@ -37,16 +37,19 @@ main_red = hex_to_rgb('#D53D0E')
 main_green = hex_to_rgb('#00786B')
 
 # Subject files
-dircont_subj_early = [f for f in Path(INPATH).glob("sub-*early.csv")]
+dircont_subj_early = [f for f in Path(INPATH).glob("sub-95*early.csv")]
 
 # Protocol
 protocol = []
 
 # Hyperparameter ranges (log-spaced)
-lower_C = 0
-upper_C = 10
+lower_C = -5
+upper_C = 5
+lower_gamma = 0
+upper_gamma = 100
 C_range = np.logspace(lower_C, upper_C, 32)
-gamma_range = np.logspace(lower_C, upper_C, 32)
+#C_range = np.linspace(lower_C, upper_C, 32)
+gamma_range = np.logspace(lower_gamma, upper_gamma, 32)
 
 n_splits = 5  # Stratified CV
 
@@ -85,22 +88,22 @@ for subj_idx, file in enumerate(tqdm(dircont_subj_early, desc="SVM Analysis")):
                 X_train, X_test = X[train_idx], X[test_idx]
                 y_train, y_test = y[train_idx], y[test_idx]
 
-                #kpca = KernelPCA(n_components=50,
-                #                 kernel='poly')
+                kpca = KernelPCA(n_components=50,
+                                 kernel='poly')
                 print('pca')
-                #X_train_kpca = kpca.fit_transform(X_train)
-                #X_test_kpca = kpca.transform(X_test)
-
-                # Use standard PCA
-                kpca = PCA(n_components=120)
                 X_train_kpca = kpca.fit_transform(X_train)
                 X_test_kpca = kpca.transform(X_test)
 
-                explained_var = kpca.explained_variance_ratio_.sum()
-                print(f"Total variance retained: {explained_var:.2f}")
+                # Use standard PCA
+                #kpca = PCA(n_components=120)
+                #X_train_kpca = kpca.fit_transform(X_train)
+                #X_test_kpca = kpca.transform(X_test)
+
+                #explained_var = kpca.explained_variance_ratio_.sum()
+                #print(f"Total variance retained: {explained_var:.2f}")
 
                 print("svm")
-                clf = SVC(C=C_val, kernel='rbf', gamma=gamma_val)
+                clf = SVC(C=C_val, kernel='rbf', gamma=gamma_val) # class_weight = 'balanced'
                 clf.fit(X_train, y_train)
                 y_pred = clf.predict(X_test)
                 #print(y_pred)
