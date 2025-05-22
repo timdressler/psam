@@ -124,9 +124,6 @@ for subj_idx= 1:length(dircont_subj)
     [EEG.chanlocs(eog_chani).type] = deal('EOG');
     EEG = eeg_checkset( EEG );
 
-    % Remove EOG channels as they are not used for classification
-    EEG = pop_select( EEG, 'rmchannel',EOG_CHAN);
-
     % Store channel locations in another field
     EEG.urchanlocs = EEG.chanlocs;
 
@@ -147,7 +144,7 @@ for subj_idx= 1:length(dircont_subj)
     EEG.setname = [subj '_ready_for_preprocessing'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
-    % Reject bad epochs
+    % Remove bad channels as identified in tid_psam_ica_preprocessing.m (see above)
     EEG.badchans = chans_to_interp;
     EEG = pop_select(EEG,'nochannel', EEG.badchans);
 
@@ -168,6 +165,9 @@ for subj_idx= 1:length(dircont_subj)
 
     EEG.setname = [subj '_ready_for_Hilbert_transformation'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+
+    % Remove EOG channels as they are not used for classification
+    EEG = pop_select( EEG, 'rmchannel',EOG_CHAN);
 
     % Loop across frequency bands and apply Hilbert transformation
     for freq_band_num = 1:length(freq_bands)
