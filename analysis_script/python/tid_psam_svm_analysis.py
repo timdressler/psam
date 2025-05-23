@@ -9,8 +9,8 @@ from tqdm import tqdm
 
 from sklearn.model_selection import StratifiedKFold
 from sklearn.svm import SVC
-from sklearn.decomposition import KernelPCA
-from sklearn.decomposition import PCA
+from sklearn.decomposition import KernelPCA, PCA
+from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.metrics import accuracy_score
 
 # Set up and validate script path
@@ -27,37 +27,21 @@ INPATH = os.path.join(MAINPATH, 'data', 'processed_data', 'svm_prepared_clean')
 OUTPATH = os.path.join(MAINPATH, 'data', 'analysis_data', 'svm_analysis')
 os.makedirs(OUTPATH, exist_ok=True)
 
-# Color definitions
-def hex_to_rgb(color):
-    color = color.lstrip('#')
-    return tuple(int(color[i:i+2], 16) / 255 for i in (0, 2, 4))
-
-main_blue = hex_to_rgb('#004F9F')
-main_red = hex_to_rgb('#D53D0E')
-main_green = hex_to_rgb('#00786B')
-
 # Subject files
-dircont_subj_early = [f for f in Path(INPATH).glob("sub-95*early.csv")]
+dircont_subj_early = [f for f in Path(INPATH).glob("sub-*early.csv")]
 
 # Protocol
 protocol = []
 
-# Hyperparameter ranges (log-spaced)
-lower_C = -5
-upper_C = 5
-lower_gamma = -5
-upper_gamma = 5
-C_range = np.logspace(lower_C, upper_C, 32)
-#C_range = np.linspace(lower_C, upper_C, 32)
-gamma_range = np.logspace(lower_gamma, upper_gamma, 32)
-
+# Hyperparameter ranges (narrowed)
+C_range = np.logspace(3, 7, 10)
+gamma_range = np.logspace(-3, 1, 10)
 n_splits = 5  # Stratified CV
 
 for subj_idx, file in enumerate(tqdm(dircont_subj_early, desc="SVM Analysis")):
     subj = file.name
     subj = re.search(r'sub-\d+', subj).group(0)
     tic = time.time()
-
     print(subj)
 
     df = pd.read_csv(file)
@@ -65,16 +49,37 @@ for subj_idx, file in enumerate(tqdm(dircont_subj_early, desc="SVM Analysis")):
     y = df.iloc[:, -1].values
     print('read file...')
 
-    ######
-    df2 = pd.read_csv(file)
-    # Assume the last column is the label
-    label_col = df2.columns[-1]
-    # Group by the label and compute the mean of each feature
-    means_by_class = df2.groupby(label_col).mean()
+    ###### Classwise mean/std print
+    label_col = df.columns[-1]
+    means_by_class = df.groupby(label_col).mean()
+    sd_by_class = df.groupby(label_col).std()
     print(means_by_class)
-    sd_by_class = df2.groupby(label_col).std()
     print(sd_by_class)
     ######
+
+    # Sanity Check: Label distribution
+    unique_labels, label_counts = np.unique(y, return_counts=True)
+    print(f"Sanity Check: Label counts: {dict(zip(unique_labels, label_counts))}")
+
+    # === PCA Visualization ===
+    scaler_vis = StandardScaler()
+    X_scaled_vis = scaler_vis.fit_transform(X)
+
+    pca_vis = PCA(n_components=2)
+    X_pca_vis = pca_vis.fit_transform(X_scaled_vis)
+
+    # Convert string labels to numeric for coloring
+    y_encoded = LabelEncoder().fit_transform(y)
+
+    plt.figure(figsize=(6, 5))
+    plt.scatter(X_pca_vis[:, 0], X_pca_vis[:, 1], c=y_encoded, cmap='coolwarm', edgecolors='k', alpha=0.7)
+    plt.title(f"{subj} - PCA Projection", fontsize=12)
+    plt.xlabel("PC 1")
+    plt.ylabel("PC 2")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(os.path.join(OUTPATH, f"{subj}_pca_projection.png"), dpi=300)
+    plt.close()
 
     acc_matrix = np.zeros((len(gamma_range), len(C_range)))
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=123)
@@ -84,34 +89,43 @@ for subj_idx, file in enumerate(tqdm(dircont_subj_early, desc="SVM Analysis")):
         for j, C_val in enumerate(C_range):
             fold_accuracies = []
 
-            for train_idx, test_idx in skf.split(X, y):
+            for fold_idx, (train_idx, test_idx) in enumerate(skf.split(X, y)):
                 X_train, X_test = X[train_idx], X[test_idx]
                 y_train, y_test = y[train_idx], y[test_idx]
 
-                #kpca = KernelPCA(n_components=180,
-                #                 kernel='poly')
-                print('pca')
-                #X_train_kpca = kpca.fit_transform(X_train)
-                #X_test_kpca = kpca.transform(X_test)
+                # Sanity Check: Per-fold label distribution
+                u_train, c_train = np.unique(y_train, return_counts=True)
+                u_test, c_test = np.unique(y_test, return_counts=True)
+                print(f"Sanity Check: Fold {fold_idx} train labels: {dict(zip(u_train, c_train))}")
+                print(f"Sanity Check: Fold {fold_idx} test labels: {dict(zip(u_test, c_test))}")
 
-                # Use standard PCA
-                kpca = PCA(n_components=180)
-                X_train_kpca = kpca.fit_transform(X_train)
-                X_test_kpca = kpca.transform(X_test)
+                # Scale and apply PCA
+                scaler = StandardScaler()
+                X_train_scaled = scaler.fit_transform(X_train)
+                X_test_scaled = scaler.transform(X_test)
 
-                explained_var = kpca.explained_variance_ratio_.sum()
+                # PCA (or KernelPCA alternative)
+                pca = PCA(n_components=180)
+                X_train_pca = pca.fit_transform(X_train_scaled)
+                X_test_pca = pca.transform(X_test_scaled)
+
+                explained_var = pca.explained_variance_ratio_.sum()
                 print(f"Total variance retained: {explained_var:.2f}")
 
-                print("svm")
-                clf = SVC(C=C_val, kernel='rbf', gamma=gamma_val) # class_weight = 'balanced'
-                clf.fit(X_train, y_train)
-                y_pred = clf.predict(X_test)
-                #print(y_pred)
+                # SVM training and evaluation
+                clf = SVC(C=C_val, kernel='rbf', gamma=gamma_val)
+                clf.fit(X_train_pca, y_train)
+                y_pred = clf.predict(X_test_pca)
+
+                # Sanity Check: Prediction distribution
+                u_pred, c_pred = np.unique(y_pred, return_counts=True)
+                print(f"Sanity Check: Fold {fold_idx} predictions: {dict(zip(u_pred, c_pred))}")
+
                 acc = accuracy_score(y_test, y_pred)
                 fold_accuracies.append(acc)
 
             acc_matrix[i, j] = np.mean(fold_accuracies)
-            print(str(np.mean(fold_accuracies)))
+            print(f"Mean accuracy (γ={gamma_val:.4f}, C={C_val:.4f}): {acc_matrix[i, j]:.4f}")
 
     subj_time = time.time() - tic
     protocol.append([subj, subj_time, 'OK', np.mean(acc_matrix)])
@@ -123,7 +137,7 @@ for subj_idx, file in enumerate(tqdm(dircont_subj_early, desc="SVM Analysis")):
     acc_path = os.path.join(OUTPATH, f"{subj}_acc_grid.csv")
     acc_df.to_csv(acc_path)
 
-    # Plot heatmap
+    # Heatmap plot
     plt.figure(figsize=(8, 6))
     im = plt.imshow(acc_matrix, origin='lower', aspect='auto',
                     extent=[C_range[0], C_range[-1], gamma_range[0], gamma_range[-1]],
@@ -135,13 +149,21 @@ for subj_idx, file in enumerate(tqdm(dircont_subj_early, desc="SVM Analysis")):
     plt.title(f"Validation Accuracy Grid: {subj}", fontsize=14)
     cbar = plt.colorbar(im)
     cbar.set_label('Mean Accuracy', fontsize=12)
-    plt.tight_layout()
 
+    # Add min and max accuracy annotation
+    min_acc = acc_matrix.min()
+    max_acc = acc_matrix.max()
+    text_str = f"Min Acc: {min_acc:.3f}\nMax Acc: {max_acc:.3f}"
+    plt.text(0.05, 0.95, text_str, transform=plt.gca().transAxes,
+             fontsize=10, color='white', ha='left', va='top',
+             bbox=dict(boxstyle='round,pad=0.3', facecolor='black', alpha=0.5))
+
+    plt.tight_layout()
     plot_path = os.path.join(OUTPATH, f"{subj}_heatmap.png")
     plt.savefig(plot_path, dpi=300)
     plt.close()
 
-# Save protocol
+# Save protocol summary
 protocol_df = pd.DataFrame(protocol, columns=['subj', 'time', 'status', 'mean_accuracy'])
 protocol_path = os.path.join(OUTPATH, 'svm_analysis_protocol.xlsx')
 protocol_df.to_excel(protocol_path, index=False)
