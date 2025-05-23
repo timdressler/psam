@@ -58,12 +58,12 @@ tid_psam_check_folder_TD(MAINPATH, INPATH_RAW, INPATH_PROC_CLEAN,OUTPATH)
 tid_psam_clean_up_folder_TD(OUTPATH)
 
 % Variables to edit
-USE_RAW_DATA = 0;
+USE_RAW_DATA = 1;
 
 EPO_FROM = -0.2;
 EPO_TILL = 0.400;
 LCF = 1;
-HCF = 30;
+HCF = 40;
 BL_FROM = -200;
 THRESH = 75;
 SD_PROB = 3;
@@ -77,7 +77,7 @@ ERP_FROM = 75;
 ERP_TILL = 125;
 
 % Get directory content
-subj = 95;
+subj = 96;
 dircont_subj = dir(fullfile(INPATH_RAW, ['sub-' num2str(subj) '*']));
 
 %initialize sanity check variables
