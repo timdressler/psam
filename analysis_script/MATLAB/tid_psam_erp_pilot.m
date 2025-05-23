@@ -77,7 +77,7 @@ ERP_FROM = 75;
 ERP_TILL = 125;
 
 % Get directory content
-subj = 96;
+subj = 95;
 dircont_subj = dir(fullfile(INPATH_RAW, ['sub-' num2str(subj) '*']));
 
 %initialize sanity check variables
@@ -545,7 +545,7 @@ saveas(gcf,fullfile(OUTPATH, 'erp_corrected_2_pilot.png'))
 protocol = cell2table(protocol, 'VariableNames',{'subj','time', 'status'})
 writetable(protocol,fullfile(OUTPATH, 'erp_pilot_protocol.xlsx'))
 
-delete(wb); close all;
+delete(wb); %%close all;
 
 
 
