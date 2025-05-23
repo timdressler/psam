@@ -34,7 +34,7 @@ dircont_subj_early = [f for f in Path(INPATH).glob("sub-*early.csv")]
 protocol = []
 
 # Hyperparameter ranges (narrowed)
-C_range = np.logspace(-2, 2, 10)
+C_range = np.logspace(0, 4, 10)
 gamma_range = np.logspace(-3, 1, 10)
 n_splits = 5  # Stratified CV
 
