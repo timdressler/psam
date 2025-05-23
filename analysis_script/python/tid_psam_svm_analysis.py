@@ -34,7 +34,7 @@ dircont_subj_early = [f for f in Path(INPATH).glob("sub-*early.csv")]
 protocol = []
 
 # Hyperparameter ranges (narrowed)
-C_range = np.logspace(3, 7, 10)
+C_range = np.logspace(-2, 2, 10)
 gamma_range = np.logspace(-3, 1, 10)
 n_splits = 5  # Stratified CV
 
@@ -80,6 +80,23 @@ for subj_idx, file in enumerate(tqdm(dircont_subj_early, desc="SVM Analysis")):
     plt.tight_layout()
     plt.savefig(os.path.join(OUTPATH, f"{subj}_pca_projection.png"), dpi=300)
     plt.close()
+
+    # === Manual Feature Plot: mean_E01 vs band_power_14_30_E01 ===
+    if 'mean_E01' in df.columns and 'band_power_14_30_E01' in df.columns:
+        x_manual = df['mean_E01'].values
+        y_manual = df['band_power_14_30_E01'].values
+
+        plt.figure(figsize=(6, 5))
+        plt.scatter(x_manual, y_manual, c=y_encoded, cmap='coolwarm', edgecolors='k', alpha=0.7)
+        plt.xlabel("mean_E01")
+        plt.ylabel("band_power_14_30_E01")
+        plt.title(f"{subj} - Feature Space: mean_E01 vs band_power_14_30_E01", fontsize=12)
+        plt.grid(True)
+        plt.tight_layout()
+        plt.savefig(os.path.join(OUTPATH, f"{subj}_manual_features_plot.png"), dpi=300)
+        plt.close()
+    else:
+        print(f"Warning: One or both of mean_E01 and band_power_14_30_E01 not found in {subj}!")
 
     acc_matrix = np.zeros((len(gamma_range), len(C_range)))
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=123)
