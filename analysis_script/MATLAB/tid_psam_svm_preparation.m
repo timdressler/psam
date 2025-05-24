@@ -79,6 +79,9 @@ protocol = {};
 % Setup progress bar
 wb = waitbar(0,'starting tid_psam_svm_preparation.m');
 
+all_erp_go_act = [];
+all_erp_go_pas = [];
+
 clear subj_idx
 for subj_idx= 1:length(dircont_subj)
 
@@ -218,18 +221,26 @@ for subj_idx= 1:length(dircont_subj)
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
     y_lim_lower = -8;
     y_lim_upper = 8;
-    figure;
+    figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
     for cond = 1:length(EVENTS)
         EEG = pop_selectevent( ALLEEG(1), 'latency','-2<=2','type',EVENTS(cond), ...
             'deleteevents','off','deleteepochs','on','invertepochs','off');
         erp = mean(EEG.data, 3);
+
+        % Store ERP
+        if strcmp('go_act', EVENTS{cond})
+            all_erp_go_act(:,:,subj_idx) = erp;
+        elseif strcmp('go_pas', EVENTS{cond})
+            all_erp_go_pas(:,:,subj_idx) = erp;
+        end
+
         subplot(1,2,cond)
         plot(EEG.times, erp(CHANI,:), 'LineWidth', 1.5, 'Color',main_blue)
         xlim([EEG.times(1) EEG.times(end)])
         ylim([y_lim_lower y_lim_upper])
         xlabel('Time [ms]')
         ylabel('Amplitude [µV]')
-        title(['ERPs for ' EVENTS{cond} ' condition'])
+        title(['ERP for ' EVENTS{cond} ' condition'])
         hold on
         fill([WIN_LATE_FROM WIN_LATE_TILL WIN_LATE_TILL WIN_LATE_FROM], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], main_yellow, 'FaceAlpha',0.1, 'EdgeColor','none');
         fill([WIN_EARLY_FROM WIN_EARLY_TILL WIN_EARLY_TILL WIN_EARLY_FROM], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], main_red, 'FaceAlpha',0.1, 'EdgeColor','none');
@@ -249,6 +260,33 @@ for subj_idx= 1:length(dircont_subj)
     end
 
 end
+
+% Sanity Check: Plot grandaverage ERPs
+figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
+subplot(121)
+plot(EEG.times, mean(all_erp_go_act(CHANI,:,:),3), 'LineWidth', 1.5, 'Color',main_blue)
+xlim([EEG.times(1) EEG.times(end)])
+ylim([y_lim_lower y_lim_upper])
+xlabel('Time [ms]')
+ylabel('Amplitude [µV]')
+title('Grandaverage ERP for go_act condition')
+hold on
+fill([WIN_LATE_FROM WIN_LATE_TILL WIN_LATE_TILL WIN_LATE_FROM], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], main_yellow, 'FaceAlpha',0.1, 'EdgeColor','none');
+fill([WIN_EARLY_FROM WIN_EARLY_TILL WIN_EARLY_TILL WIN_EARLY_FROM], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], main_red, 'FaceAlpha',0.1, 'EdgeColor','none');
+hold off
+subplot(122)
+plot(EEG.times, mean(all_erp_go_pas(CHANI,:,:),3), 'LineWidth', 1.5, 'Color',main_blue)
+xlim([EEG.times(1) EEG.times(end)])
+ylim([y_lim_lower y_lim_upper])
+xlabel('Time [ms]')
+ylabel('Amplitude [µV]')
+title('Grandaverage ERP for go_pas condition')
+hold on
+fill([WIN_LATE_FROM WIN_LATE_TILL WIN_LATE_TILL WIN_LATE_FROM], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], main_yellow, 'FaceAlpha',0.1, 'EdgeColor','none');
+fill([WIN_EARLY_FROM WIN_EARLY_TILL WIN_EARLY_TILL WIN_EARLY_FROM], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], main_red, 'FaceAlpha',0.1, 'EdgeColor','none');
+hold off
+sgtitle('Sanity Check ERPs (grandaverage)')
+saveas(gcf,fullfile(OUTPATH, 'grandaverage_sanity_erp.png'));
 
 % End of processing
 

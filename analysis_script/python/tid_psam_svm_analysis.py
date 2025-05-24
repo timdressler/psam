@@ -28,7 +28,7 @@ OUTPATH = os.path.join(MAINPATH, 'data', 'analysis_data', 'svm_analysis')
 os.makedirs(OUTPATH, exist_ok=True)
 
 # Subject files
-dircont_subj_early = [f for f in Path(INPATH).glob("sub-*late.csv")]
+dircont_subj_early = [f for f in Path(INPATH).glob("sub-96*late.csv")]
 
 # Protocol
 protocol = []
