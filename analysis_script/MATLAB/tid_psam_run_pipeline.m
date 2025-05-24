@@ -2,7 +2,7 @@
 
 % Run tid_psam_beh_preprocessing_1.praat
 
-tid_psam_ica_preprocessing
+%%tid_psam_ica_preprocessing
 
 tid_psam_erp_preprocessing
 

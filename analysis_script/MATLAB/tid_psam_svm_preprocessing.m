@@ -4,18 +4,18 @@
 %
 % Preprocessing includes the following steps
 %
-    % Load data and data set containing ICA weights (see
-    %   tid_psam_ica_preprocessing.m)
-    % Rename events
-    % Apply a 0.3 Hz HP-Filter
-    % Apply a 30 Hz LP-Filter
-    % Remove bad channels as identified in tid_psam_ica_preprocessing.m
-    % Attach ICA weights and remove bad components using the ICLabel Plugin
-    %   (Pion-Tonachini et al., 2019)
-    % Interpolate bad (and removed) channels
-    % Epoch data 
-    % Apply baseline correction
-    % Mark bad epochs based on probability
+% Load data and data set containing ICA weights (see
+%   tid_psam_ica_preprocessing.m)
+% Rename events
+% Apply a 0.3 Hz HP-Filter
+% Apply a 30 Hz LP-Filter
+% Remove bad channels as identified in tid_psam_ica_preprocessing.m
+% Attach ICA weights and remove bad components using the ICLabel Plugin
+%   (Pion-Tonachini et al., 2019)
+% Interpolate bad (and removed) channels
+% Epoch data
+% Apply baseline correction
+% Mark bad epochs based on probability
 %
 % Saves data
 %
@@ -57,7 +57,7 @@ tid_psam_clean_up_folder_TD(OUTPATH)
 EOG_CHAN = {'E29','E30'}; % Labels of EOG electrodes
 EPO_FROM = -1;
 EPO_TILL = 0.1;
-LCF = 1; 
+LCF = 1;
 HCF = 40;
 BL_FROM = -1000;
 BL_TILL = -800;
@@ -113,7 +113,7 @@ for subj_idx= 1:length(dircont_subj)
     EEG.chanlocs = readlocs( fullfile(MAINPATH,'\config\elec_96ch_adapted.elp'));
     EEG = eeg_checkset( EEG );
 
-    % Add type = EOG for EOG electrodes 
+    % Add type = EOG for EOG electrodes
     eog_chani = find(ismember({EEG.chanlocs.labels}, EOG_CHAN));
     [EEG.chanlocs(eog_chani).type] = deal('EOG');
     EEG = eeg_checkset( EEG );
@@ -131,7 +131,7 @@ for subj_idx= 1:length(dircont_subj)
                 EEG.event(event).type = 'go_pas';
             else
                 error('Unkown Marker!')
-            end         
+            end
         end
     end
 
@@ -153,7 +153,10 @@ for subj_idx= 1:length(dircont_subj)
     EEG = pop_editset(EEG,'run', [], 'icaweights','ALLEEG(1).icaweights', 'icasphere','ALLEEG(1).icasphere');
     % Label ICA components with IC Label Plugin (Pion-Tonachini et al., 2019)
     EEG = pop_iclabel(EEG, 'default');
-    EEG = pop_icflag(EEG, [0 0.2;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1]);
+    EEG = pop_icflag(EEG, [0 0.2;0.8 1;0.8 1;0.8 1;0.8 1;0.8 1;0.8 1]);
+    % Sanity Check: Plot flagged ICs
+    tid_psam_plot_flagged_ICs_TD(EEG,['ICs for ' subj], fullfile(OUTPATH, [subj '_ic_topo.png']))
+    % Remove flagged ICs
     EEG = pop_subcomp( EEG, [], 0);
 
     % Interpolate bad channels
@@ -166,7 +169,7 @@ for subj_idx= 1:length(dircont_subj)
 
     % Baseline-Removal
     EEG = pop_rmbase( EEG, [BL_FROM BL_TILL] ,[]);
- 
+
     % Probability-based removal
     EEG = pop_jointprob(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
     EEG = pop_rejkurt(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);

@@ -65,7 +65,7 @@ marked_subj = {};
 protocol = {};
 
 % Setup progress bar
-wb = waitbar(0,'starting tid_psam_vocal_analysis.m');
+wb = waitbar(0,'starting tid_psam_beh_analysis.m');
 
 clear subj_idx
 all_recording_f0_z = {};
@@ -77,7 +77,7 @@ for subj_idx= 1:length(dircont_subj)
     subj = regexp(subj, 'sub-\d+', 'match', 'once');
 
     % Update progress bar
-    waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_vocal_analysis.m'])
+    waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_beh_analysis.m'])
 
     tic;
 
@@ -289,14 +289,14 @@ end
 % End of processing
 
 protocol = cell2table(protocol, 'VariableNames',{'subj','time', 'status'})
-writetable(protocol,fullfile(OUTPATH, 'tid_psam_vocal_analysis_protocol.xlsx'))
+writetable(protocol,fullfile(OUTPATH, 'tid_psam_beh_analysis_protocol.xlsx'))
 
 if ~isempty(marked_subj)
     marked_subj = cell2table(marked_subj, 'VariableNames',{'subj','issue'})
-    writetable(marked_subj,fullfile(OUTPATH, 'tid_psam_vocal_analysis_marked_subj.xlsx'))
+    writetable(marked_subj,fullfile(OUTPATH, 'tid_psam_beh_analysis_marked_subj.xlsx'))
 end
 
-check_done = 'tid_psam_vocal_analysis_DONE'
+check_done = 'tid_psam_beh_analysis_DONE'
 
 delete(wb); close all;
 
