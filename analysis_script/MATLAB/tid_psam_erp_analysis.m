@@ -33,7 +33,7 @@ EVENTS = {'act_early_unalt', 'act_early_alt', 'act_late_unalt', 'act_late_alt', 
     'pas_early_unalt', 'pas_early_alt', 'pas_late_unalt', 'pas_late_alt'};
 CON_EVENTS = {'con_act_early', 'con_act_late', ...
     'con_pas_early', 'con_pas_late'};
-CHANI = 1;
+CHANI = 1; % Channel to plot ERP from
 ERP_FROM = 70;
 ERP_TILL = 130;
 INDIVIDUAL_PLOTS = true; % Whether or not to create individual ERP plots and Topoplots

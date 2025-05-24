@@ -44,10 +44,23 @@ tid_psam_clean_up_folder_TD(OUTPATH)
 % Variables to edit
 EOG_CHAN = {'E29','E30'}; % Labels of EOG electrodes
 EVENTS = {'go_act', 'go_pas'};
+CHANI = 1; % Channel to plot sanity check ERP
 WIN_EARLY_FROM = -600;
 WIN_EARLY_TILL = -401;
 WIN_LATE_FROM = -400;
 WIN_LATE_TILL = -201;
+
+% Set colors
+main_blue = '#004F9F';
+main_blue = sscanf(main_blue(2:end),'%2x%2x%2x',[1 3])/255;
+main_red = '#D53D0E';
+main_red = sscanf(main_red(2:end),'%2x%2x%2x',[1 3])/255;
+main_green = '#00786B';
+main_green = sscanf(main_green(2:end),'%2x%2x%2x',[1 3])/255;
+light_blue = '#5BC5F2';
+light_blue = sscanf(light_blue(2:end),'%2x%2x%2x',[1 3])/255;
+main_yellow = '#FDC300';
+main_yellow = sscanf(main_yellow(2:end),'%2x%2x%2x',[1 3])/255;
 
 % Get directory content
 dircont_subj = dir(fullfile(INPATH, 'sub-*.set'));
@@ -192,6 +205,31 @@ for subj_idx= 1:length(dircont_subj)
         % Save features
         writetable(features.(label).feature_table,fullfile(OUTPATH, [subj '_features_' char(label) '.csv']))
     end
+
+    % Sanity Check: Plot ERPs
+    EEG.setname = [subj '_all_conds'];
+    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+    y_lim_lower = -8;
+    y_lim_upper = 8;
+    figure;
+    for cond = 1:length(EVENTS)
+        EEG = pop_selectevent( ALLEEG(1), 'latency','-2<=2','type',EVENTS(cond), ...
+            'deleteevents','off','deleteepochs','on','invertepochs','off');
+        erp = mean(EEG.data, 3);
+        subplot(1,2,cond)
+        plot(EEG.times, erp(CHANI,:), 'LineWidth', 1.5, 'Color',main_blue)
+        xlim([EEG.times(1) EEG.times(end)])
+        ylim([y_lim_lower y_lim_upper])
+        xlabel('Time [ms]')
+        ylabel('Amplitude [µV]')
+        title(['ERPs for ' EVENTS{cond} ' condition'])
+        hold on
+        fill([WIN_LATE_FROM WIN_LATE_TILL WIN_LATE_TILL WIN_LATE_FROM], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], main_yellow, 'FaceAlpha',0.1, 'EdgeColor','none');
+        fill([WIN_EARLY_FROM WIN_EARLY_TILL WIN_EARLY_TILL WIN_EARLY_FROM], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], main_red, 'FaceAlpha',0.1, 'EdgeColor','none');
+        hold off
+    end
+    sgtitle(['Sanity Check ERPs for ' subj])
+    saveas(gcf,fullfile(OUTPATH, [subj '_sanity_erp.png']));
 
     % Update Protocol
     subj_time = toc;
