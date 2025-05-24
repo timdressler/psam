@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 from sklearn.model_selection import StratifiedKFold
 from sklearn.svm import SVC
-from sklearn.decomposition import KernelPCA, PCA
+from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.metrics import accuracy_score
 
@@ -28,13 +28,13 @@ OUTPATH = os.path.join(MAINPATH, 'data', 'analysis_data', 'svm_analysis')
 os.makedirs(OUTPATH, exist_ok=True)
 
 # Subject files
-dircont_subj_early = [f for f in Path(INPATH).glob("sub-96*late.csv")]
+dircont_subj_early = [f for f in Path(INPATH).glob("sub-*late.csv")]
 
 # Protocol
 protocol = []
 
 # Hyperparameter ranges (narrowed)
-C_range = np.logspace(0, 4, 10)
+C_range = np.logspace(-2, 4, 10)
 gamma_range = np.logspace(-3, 1, 10)
 n_splits = 5  # Stratified CV
 
@@ -68,7 +68,6 @@ for subj_idx, file in enumerate(tqdm(dircont_subj_early, desc="SVM Analysis")):
     pca_vis = PCA(n_components=2)
     X_pca_vis = pca_vis.fit_transform(X_scaled_vis)
 
-    # Convert string labels to numeric for coloring
     y_encoded = LabelEncoder().fit_transform(y)
 
     plt.figure(figsize=(6, 5))
@@ -110,33 +109,20 @@ for subj_idx, file in enumerate(tqdm(dircont_subj_early, desc="SVM Analysis")):
                 X_train, X_test = X[train_idx], X[test_idx]
                 y_train, y_test = y[train_idx], y[test_idx]
 
-                # Sanity Check: Per-fold label distribution
-                u_train, c_train = np.unique(y_train, return_counts=True)
-                u_test, c_test = np.unique(y_test, return_counts=True)
-                print(f"Sanity Check: Fold {fold_idx} train labels: {dict(zip(u_train, c_train))}")
-                print(f"Sanity Check: Fold {fold_idx} test labels: {dict(zip(u_test, c_test))}")
-
-                # Scale and apply PCA
                 scaler = StandardScaler()
                 X_train_scaled = scaler.fit_transform(X_train)
                 X_test_scaled = scaler.transform(X_test)
 
-                # PCA (or KernelPCA alternative)
-                pca = PCA(n_components=180)
+                pca = PCA(n_components=100)
                 X_train_pca = pca.fit_transform(X_train_scaled)
                 X_test_pca = pca.transform(X_test_scaled)
 
                 explained_var = pca.explained_variance_ratio_.sum()
                 print(f"Total variance retained: {explained_var:.2f}")
 
-                # SVM training and evaluation
                 clf = SVC(C=C_val, kernel='rbf', gamma=gamma_val)
                 clf.fit(X_train_pca, y_train)
                 y_pred = clf.predict(X_test_pca)
-
-                # Sanity Check: Prediction distribution
-                u_pred, c_pred = np.unique(y_pred, return_counts=True)
-                print(f"Sanity Check: Fold {fold_idx} predictions: {dict(zip(u_pred, c_pred))}")
 
                 acc = accuracy_score(y_test, y_pred)
                 fold_accuracies.append(acc)
@@ -154,6 +140,49 @@ for subj_idx, file in enumerate(tqdm(dircont_subj_early, desc="SVM Analysis")):
     acc_path = os.path.join(OUTPATH, f"{subj}_acc_grid.csv")
     acc_df.to_csv(acc_path)
 
+    # === NEW: Plot accuracy vs C and Gamma for best hyperparameters ===
+    best_idx = np.unravel_index(np.argmax(acc_matrix), acc_matrix.shape)
+    best_gamma = gamma_range[best_idx[0]]
+    best_C = C_range[best_idx[1]]
+    print(f"Best gamma: {best_gamma}, Best C: {best_C}")
+
+    # Plot accuracy vs C
+    plt.figure(figsize=(8, 5))
+    plt.plot(C_range, acc_matrix[best_idx[0], :], marker='o', label=f'Gamma = {best_gamma:.4f}')
+    plt.fill_between(C_range,
+                     acc_matrix[best_idx[0], :] - 0.01,
+                     acc_matrix[best_idx[0], :] + 0.01,
+                     alpha=0.2)
+    plt.xscale('log')
+    plt.ylim(0.4, 1.05)
+    plt.xlabel("C")
+    plt.ylabel("Accuracy")
+    plt.title(f"{subj} - Accuracy vs C (Gamma = {best_gamma:.4f})")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(os.path.join(OUTPATH, f"{subj}_accuracy_vs_C.png"), dpi=300)
+    plt.close()
+
+    # Plot accuracy vs Gamma
+    plt.figure(figsize=(8, 5))
+    plt.plot(gamma_range, acc_matrix[:, best_idx[1]], marker='o', label=f'C = {best_C:.4f}')
+    plt.fill_between(gamma_range,
+                     acc_matrix[:, best_idx[1]] - 0.01,
+                     acc_matrix[:, best_idx[1]] + 0.01,
+                     alpha=0.2)
+    plt.xscale('log')
+    plt.ylim(0.4, 1.05)
+    plt.xlabel("Gamma")
+    plt.ylabel("Accuracy")
+    plt.title(f"{subj} - Accuracy vs Gamma (C = {best_C:.4f})")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(os.path.join(OUTPATH, f"{subj}_accuracy_vs_Gamma.png"), dpi=300)
+    plt.close()
+    # === END NEW PLOTS ===
+
     # Heatmap plot
     plt.figure(figsize=(8, 6))
     im = plt.imshow(acc_matrix, origin='lower', aspect='auto',
@@ -167,7 +196,6 @@ for subj_idx, file in enumerate(tqdm(dircont_subj_early, desc="SVM Analysis")):
     cbar = plt.colorbar(im)
     cbar.set_label('Mean Accuracy', fontsize=12)
 
-    # Add min and max accuracy annotation
     min_acc = acc_matrix.min()
     max_acc = acc_matrix.max()
     text_str = f"Min Acc: {min_acc:.3f}\nMax Acc: {max_acc:.3f}"

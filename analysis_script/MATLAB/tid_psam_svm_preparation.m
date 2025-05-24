@@ -45,10 +45,17 @@ tid_psam_clean_up_folder_TD(OUTPATH)
 EOG_CHAN = {'E29','E30'}; % Labels of EOG electrodes
 EVENTS = {'go_act', 'go_pas'};
 CHANI = 1; % Channel to plot sanity check ERP
-WIN_EARLY_FROM = -600;
+WIN_EARLY_FROM = -700;
 WIN_EARLY_TILL = -401;
 WIN_LATE_FROM = -400;
-WIN_LATE_TILL = -201;
+WIN_LATE_TILL = -101;
+
+% Sanity Check: Same window length
+win_early_length = abs(WIN_EARLY_FROM - WIN_EARLY_TILL)+1;
+win_late_length = abs(WIN_LATE_FROM - WIN_LATE_TILL)+1;
+if win_early_length ~= win_late_length
+    error('Different window lengths!')
+end
 
 % Set colors
 main_blue = '#004F9F';
@@ -123,7 +130,7 @@ for subj_idx= 1:length(dircont_subj)
         features_data.(label).data_win = data_win;
 
         % Sanity Check: Correct dimensions
-        if size(data_win,1) ~= EEG.nbchan || size(data_win,2) ~= 200 || size(data_win,3) == 1
+        if size(data_win,1) ~= EEG.nbchan || size(data_win,2) ~= win_early_length || size(data_win,3) == 1
             marked_subj{end+1,1} = subj;
             marked_subj{end,2} = 'wrong_dimensions_data';
         end
@@ -149,7 +156,7 @@ for subj_idx= 1:length(dircont_subj)
             features_data.(label).(data_hilbert_label) = data_hilbert_win;
 
             % Sanity Check: Correct dimensions
-            if size(data_hilbert_win,1) ~= EEG.nbchan || size(data_hilbert_win,2) ~= 200 || size(data_hilbert_win,3) == 1
+            if size(data_hilbert_win,1) ~= EEG.nbchan || size(data_hilbert_win,2) ~= win_early_length || size(data_hilbert_win,3) == 1
                 marked_subj{end+1,1} = subj;
                 marked_subj{end,2} = 'wrong_dimensions_hilbert_data';
             end
