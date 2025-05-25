@@ -76,6 +76,10 @@ for subj_idx= 1:length(dircont_subj)
     subj = dircont_subj(subj_idx).name;
     subj = regexp(subj, 'sub-\d+', 'match', 'once');
 
+    % Get subject outpath
+    subj_outpath = fullfile(OUTPATH,subj);
+    mkdir(subj_outpath);
+
     % Update progress bar
     waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_beh_analysis.m'])
 
@@ -114,7 +118,7 @@ for subj_idx= 1:length(dircont_subj)
         legend('F0 Distribution Vocal Responses', 'F0 Unaltered Probe', 'F0 Altered Probe', 'Location', 'northwest', 'Interpreter', 'none');
         hold off;
 
-        saveas(gcf,fullfile(OUTPATH, ['tid_psam_z_f0_distribution_' subj '.png']))
+        saveas(gcf,fullfile(subj_outpath, [subj '_z_f0_distribution.png']))
 
         % Plot: Z-transformed F0 Distribution including Probe F0's (binnedin one plot)
         % Prepare figure
@@ -142,7 +146,7 @@ for subj_idx= 1:length(dircont_subj)
         box on;
         hold off;
 
-        saveas(gcf, fullfile(OUTPATH, ['tid_psam_z_f0_distribution_blocks_' subj '.png']));
+        saveas(gcf, fullfile(subj_outpath, [subj '_z_f0_distribution_blocks.png']));
 
         % Plot: Z-transformed F0 Distribution including Probe F0's (binned in subplots)
         % Prepare data
@@ -183,7 +187,7 @@ for subj_idx= 1:length(dircont_subj)
         sgtitle(['Z-transformed F0 Distribution across Bins for ' subj]);
         hold off;
 
-        saveas(gcf, fullfile(OUTPATH, ['tid_psam_z_f0_distribution_blocks_subplots_' subj '.png']));
+        saveas(gcf, fullfile(subj_outpath, [subj '_z_f0_distribution_blocks_subplots.png']));
 
 
         % Plot: Z-transformed F0 Distribution including Probe F0's (for no-probe, unaltered probe and altered probe trials)
@@ -205,7 +209,7 @@ for subj_idx= 1:length(dircont_subj)
         legend('No Probe','Unaltered Probe','Altered Probe', 'F0 Unaltered Probe', 'F0 Altered Probe', 'Location', 'northwest', 'Interpreter', 'none');
         hold off;
 
-        saveas(gcf,fullfile(OUTPATH, ['tid_psam_z_f0_distribution_probe_types_' subj '.png']))
+        saveas(gcf,fullfile(subj_outpath, [subj '_z_f0_distribution_probe_types.png']))
 
     end
 
@@ -271,7 +275,7 @@ for subj_idx= 1:length(dircont_subj)
 
         sgtitle(['VOT Distributions for ' subj]);
 
-        saveas(gcf,fullfile(OUTPATH, ['tid_psam_rt_distributions_' subj '.png']))
+        saveas(gcf,fullfile(subj_outpath, [subj '_rt_distributions.png']))
     end
 
     % Update Protocol
@@ -355,7 +359,7 @@ end
 xlabel('F0 [Z-Transformed]');
 %%ylabel('Subject');
 zlabel('Density');
-title('3D Filled F0 Distributions Across Subjects');
+title('F0 Distributions and Probe F0s Across Subjects');
 grid on;
 view(-12.6193,77.8152) % for fixed 3D view
 
@@ -370,5 +374,5 @@ end
 yticklabels(subj_labels);
 
 % Save plot
-saveas(gcf,fullfile(OUTPATH, ['tid_psam_all_z_f0_distribution_' subj '.png']))
+saveas(gcf,fullfile(OUTPATH, 'tid_psam_all_z_f0_distribution.png'))
 

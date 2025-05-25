@@ -70,6 +70,10 @@ for subj_idx= 1:length(dircont_subj)
     subj = dircont_subj(subj_idx).name;
     subj = regexp(subj, 'sub-\d+', 'match', 'once');
 
+    % Get subject outpath
+    subj_outpath = fullfile(OUTPATH,subj);
+    mkdir(subj_outpath);
+
     % Update progress bar
     waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_erp_analysis.m'])
 
@@ -215,7 +219,7 @@ for subj_idx= 1:length(dircont_subj)
             title('Corrected')
             sgtitle(['ERPs for ' subj ' and Condition ' EVENTS{cond}])
 
-            saveas(gcf,fullfile(OUTPATH, [subj '_erp_' EVENTS{cond} '.png']));
+            saveas(gcf,fullfile(subj_outpath, [subj '_erp_' EVENTS{cond} '.png']));
 
             % Plot: Topography, control topography and corrected topography
             cb_lim_lower = min([mean(erp(:,win_start:win_end),2); mean(con_erp(:,win_start:win_end),2); mean(con_erp(:,win_start:win_end),2)],[],'all');
@@ -244,7 +248,7 @@ for subj_idx= 1:length(dircont_subj)
             title('Corrected')
             sgtitle(['ERPs for ' subj ' and Condition ' EVENTS{cond}])
 
-            saveas(gcf,fullfile(OUTPATH, [subj '_topo_erp_' EVENTS{cond} '.png']));
+            saveas(gcf,fullfile(subj_outpath, [subj '_topo_erp_' EVENTS{cond} '.png']));
         end
     end
 
@@ -451,7 +455,7 @@ for cond_num = 1:length(grandaverage_erp_cor)
 end
 
 % Save plot
-saveas(gcf,fullfile(OUTPATH, 'tid_psam_plot_erp_topo.png'))
+saveas(gcf,fullfile(OUTPATH, 'tid_psam_plot_grandaverage_erp_topo.png'))
 
 % Plot: ERP, control ERP and correct ERP for each condition
 % Concatinate colors
@@ -491,7 +495,7 @@ for cond_num = 1:length(grandaverage_erp_cor)
 end
 
 % Save plot
-saveas(gcf,fullfile(OUTPATH, 'tid_psam_plot_erp_con_cor.png'))
+saveas(gcf,fullfile(OUTPATH, 'tid_psam_plot_grandaverage_erp_con_cor.png'))
 
 
 
