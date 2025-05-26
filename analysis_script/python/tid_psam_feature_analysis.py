@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
-from scipy.stats import ttest_rel
+from scipy.stats import pointbiserialr
 import numpy as np
 import math
 
@@ -12,17 +12,19 @@ import math
 SCRIPTPATH = os.path.dirname(os.path.abspath(__file__))
 MAINPATH = os.path.abspath(os.path.join(SCRIPTPATH, '..', '..'))
 INPATH = os.path.join(MAINPATH, 'data', 'processed_data', 'svm_prepared_clean')
-OUTPATH = os.path.join(MAINPATH, 'data', 'analysis_data', 'svm_analysis_TEST')
+OUTPATH = os.path.join(MAINPATH, 'data', 'analysis_data', 'feature_analysis')
 os.makedirs(OUTPATH, exist_ok=True)
 
 # Define both epochs
 EPOCHS = ['early', 'late']
 
-# Store t-values for group-level plot (combined across epochs)
-group_tvals_by_epoch = {epoch: {} for epoch in EPOCHS}
+# Store r-values (Fisher Z-transformed) for group-level plot
+group_rvals_by_epoch = {epoch: {} for epoch in EPOCHS}
 
 def chunk_list(data, n_chunks):
-    avg = math.ceil(len(data) / n_chunks)
+    if not data:
+        return []
+    avg = max(1, math.ceil(len(data) / n_chunks))
     return [data[i:i + avg] for i in range(0, len(data), avg)]
 
 def plot_horizontal_bar_columns(title, data_dict, color_dict, outpath, n_cols=10, format='png'):
@@ -30,7 +32,7 @@ def plot_horizontal_bar_columns(title, data_dict, color_dict, outpath, n_cols=10
     chunks = chunk_list(items, n_cols)
 
     fig_width = 4.5 * n_cols
-    fig_height = max(4, len(chunks[0]) * 0.4)
+    fig_height = max(4, len(chunks[0]) * 0.4) if chunks else 4
 
     fig, axs = plt.subplots(1, len(chunks), figsize=(fig_width, fig_height), squeeze=False)
 
@@ -44,11 +46,11 @@ def plot_horizontal_bar_columns(title, data_dict, color_dict, outpath, n_cols=10
         ax.set_yticks(y_pos)
         ax.set_yticklabels(names, fontsize=7)
         ax.invert_yaxis()
-        ax.set_xlabel('t-value')
-        ax.set_xlim(min(values) - 0.5, max(values) + 0.5)
+        ax.set_xlabel('Effect Size (r)')
+        ax.set_xlim(min(values) - 0.1, max(values) + 0.1)
 
         for i, (bar, val) in enumerate(zip(bars, values)):
-            ax.text(val + 0.05 * np.sign(val), i, f'{val:.2f}', va='center', fontsize=6)
+            ax.text(val + 0.02 * np.sign(val), i, f'{val:.2f}', va='center', fontsize=6)
 
     fig.suptitle(title, fontsize=14)
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
@@ -70,28 +72,42 @@ for epoch in EPOCHS:
         df = pd.read_csv(file)
 
         cond_col = 'labels'
+
+        # 🔁 Convert labels to binary (0/1)
+        label_map = {label: idx for idx, label in enumerate(sorted(df[cond_col].unique()))}
+        df[cond_col] = df[cond_col].map(label_map)
+        print(f"Label mapping: {label_map}")
+
         feature_cols = [col for col in df.columns if col not in ['labels', 'trial']]
         df['trial'] = df.groupby(cond_col).cumcount()
 
-        subj_tvals = {}
+        subj_rvals = {}
         subj_signif = {}
 
         for val_col in feature_cols:
-            df_wide = df.pivot(index='trial', columns=cond_col, values=val_col)
+            # Ensure numeric input for both x and y
+            x = pd.to_numeric(df[val_col], errors='coerce').values
+            y = pd.to_numeric(df[cond_col], errors='coerce').values
 
-            if df_wide.shape[1] != 2:
-                print(f"Warning: Expected 2 conditions for '{val_col}', found {df_wide.shape[1]}. Skipping.")
+            # Remove NaNs before correlation
+            valid_mask = ~np.isnan(x) & ~np.isnan(y)
+            x_valid = x[valid_mask]
+            y_valid = y[valid_mask]
+
+            if len(x_valid) < 2 or len(np.unique(y_valid)) < 2:
+                print(f"Skipping feature '{val_col}': not enough valid or variable data.")
                 continue
 
-            conds = df_wide.columns.tolist()
-            x = df_wide[conds[0]].values
-            y = df_wide[conds[1]].values
+            try:
+                r, p_val = pointbiserialr(y_valid, x_valid)
+            except Exception as e:
+                print(f"Skipping feature '{val_col}': {e}")
+                continue
 
-            t_stat, p_val = ttest_rel(x, y, nan_policy='omit')
-            subj_tvals[val_col] = t_stat
+            subj_rvals[val_col] = r
             subj_signif[val_col] = p_val < 0.05
 
-            print(f"Feature '{val_col}': t = {t_stat:.4f}, p = {p_val:.4g}")
+            print(f"Feature '{val_col}': r = {r:.4f}, p = {p_val:.4g}")
 
             if p_val < 0.10:
                 plt.figure(figsize=(8, 6))
@@ -108,16 +124,18 @@ for epoch in EPOCHS:
                 plt.savefig(plot_path, dpi=600, format='png')
                 plt.close()
 
-        # Store for group-level analysis
-        for feat, tval in subj_tvals.items():
-            group_tvals_by_epoch[epoch].setdefault(feat, []).append(tval)
+        # Store Fisher-Z transformed r-values
+        for feat, r in subj_rvals.items():
+            if np.abs(r) < 1:
+                z = np.arctanh(r)
+                group_rvals_by_epoch[epoch].setdefault(feat, []).append(z)
 
         # Per-subject bar plot
-        color_dict = {feat: 'red' if subj_signif[feat] else 'blue' for feat in subj_tvals}
-        barplot_path = os.path.join(subj_outpath, "tvals_barplot.png")
+        color_dict = {feat: 'red' if subj_signif[feat] else 'blue' for feat in subj_rvals}
+        barplot_path = os.path.join(subj_outpath, "rvals_barplot.png")
         plot_horizontal_bar_columns(
-            title=f"{subj_name} - Paired t-test by Feature ({epoch})",
-            data_dict=subj_tvals,
+            title=f"{subj_name} - Point-Biserial Correlation by Feature ({epoch})",
+            data_dict=subj_rvals,
             color_dict=color_dict,
             outpath=barplot_path,
             n_cols=10,
@@ -125,13 +143,18 @@ for epoch in EPOCHS:
         )
 
 # === GROUP PLOTS BY EPOCH ===
-for epoch, tvals_dict in group_tvals_by_epoch.items():
-    mean_group_tvals = {feat: np.mean(tvals) for feat, tvals in tvals_dict.items()}
-    color_dict_group = {feat: 'blue' for feat in mean_group_tvals}
-    group_barplot_path = os.path.join(OUTPATH, f"group_mean_tvals_barplot_{epoch}.pdf")
+for epoch, zvals_dict in group_rvals_by_epoch.items():
+    mean_group_rvals = {}
+    for feat, zvals in zvals_dict.items():
+        mean_z = np.mean(zvals)
+        mean_r = np.tanh(mean_z)  # inverse Fisher
+        mean_group_rvals[feat] = mean_r
+
+    color_dict_group = {feat: 'blue' for feat in mean_group_rvals}
+    group_barplot_path = os.path.join(OUTPATH, f"group_mean_rvals_barplot_{epoch}.pdf")
     plot_horizontal_bar_columns(
-        title=f"Group-Averaged t-values ({epoch})",
-        data_dict=mean_group_tvals,
+        title=f"Group-Averaged r-values (Fisher Z-transformed) ({epoch})",
+        data_dict=mean_group_rvals,
         color_dict=color_dict_group,
         outpath=group_barplot_path,
         n_cols=10,
