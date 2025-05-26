@@ -26,8 +26,8 @@ os.makedirs(OUTPATH, exist_ok=True)
 dircont_subj_early = sorted([f for f in Path(INPATH).glob("sub-*early.csv")])
 dircont_subj_late = sorted([f for f in Path(INPATH).glob("sub-*late.csv")])
 
-C_range = np.logspace(-2, 4, 10)
-gamma_range = np.logspace(-3, 1, 10)
+C_range = np.logspace(0, 8, 10)
+gamma_range = np.logspace(-5, 5, 10)
 n_splits = 5
 protocol = []
 acc_collection_early, acc_collection_late = [], []
