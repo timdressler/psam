@@ -15,10 +15,7 @@ INPATH = os.path.join(MAINPATH, 'data', 'processed_data', 'svm_prepared_clean')
 OUTPATH = os.path.join(MAINPATH, 'data', 'analysis_data', 'feature_analysis')
 os.makedirs(OUTPATH, exist_ok=True)
 
-# Define both epochs
 EPOCHS = ['early', 'late']
-
-# Store r-values (Fisher Z-transformed) for group-level plot
 group_rvals_by_epoch = {epoch: {} for epoch in EPOCHS}
 
 def chunk_list(data, n_chunks):
@@ -54,7 +51,7 @@ def plot_horizontal_bar_columns(title, data_dict, color_dict, outpath, n_cols=10
 
     fig.suptitle(title, fontsize=14)
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-    plt.savefig(outpath, dpi=600, format=format)
+    plt.savefig(outpath, dpi=300)
     plt.close()
 
 # === MAIN PROCESSING LOOP ===
@@ -66,30 +63,29 @@ for epoch in EPOCHS:
         subj_name = re.search(r'sub-\d+', file.name).group(0)
         print(f"\nProcessing {subj_name}...")
 
-        subj_outpath = os.path.join(OUTPATH, epoch, subj_name)
-        os.makedirs(subj_outpath, exist_ok=True)
-
         df = pd.read_csv(file)
 
         cond_col = 'labels'
-
-        # 🔁 Convert labels to binary (0/1)
-        label_map = {label: idx for idx, label in enumerate(sorted(df[cond_col].unique()))}
-        df[cond_col] = df[cond_col].map(label_map)
+        original_labels = df[cond_col].unique()
+        label_map = {label: idx for idx, label in enumerate(sorted(original_labels))}
+        reverse_label_map = {v: k for k, v in label_map.items()}
+        df['labels_numeric'] = df[cond_col].map(label_map)
         print(f"Label mapping: {label_map}")
 
-        feature_cols = [col for col in df.columns if col not in ['labels', 'trial']]
-        df['trial'] = df.groupby(cond_col).cumcount()
+        feature_cols = [col for col in df.columns if col not in ['labels', 'trial', 'labels_numeric']]
+        df['trial'] = df.groupby('labels_numeric').cumcount()
 
         subj_rvals = {}
         subj_signif = {}
 
-        for val_col in feature_cols:
-            # Ensure numeric input for both x and y
-            x = pd.to_numeric(df[val_col], errors='coerce').values
-            y = pd.to_numeric(df[cond_col], errors='coerce').values
+        # Output path format: OUTPATH/sub-X/epoch
+        subj_outpath = os.path.join(OUTPATH, subj_name, epoch)
+        os.makedirs(subj_outpath, exist_ok=True)
 
-            # Remove NaNs before correlation
+        for val_col in feature_cols:
+            x = pd.to_numeric(df[val_col], errors='coerce').values
+            y = pd.to_numeric(df['labels_numeric'], errors='coerce').values
+
             valid_mask = ~np.isnan(x) & ~np.isnan(y)
             x_valid = x[valid_mask]
             y_valid = y[valid_mask]
@@ -111,17 +107,20 @@ for epoch in EPOCHS:
 
             if p_val < 0.10:
                 plt.figure(figsize=(8, 6))
-                sns.boxplot(data=df, x=cond_col, y=val_col, whis=[5, 95], width=0.5, fliersize=0)
-                sns.stripplot(data=df, x=cond_col, y=val_col, color='black', alpha=0.6, jitter=True)
-                plt.title(f"{subj_name} - {val_col} ({epoch}, p = {p_val:.3f})")
+                temp_df = df[[cond_col, val_col]].copy()
+                temp_df[cond_col] = temp_df[cond_col].astype(str)
+
+                sns.boxplot(data=temp_df, x=cond_col, y=val_col, whis=[5, 95], width=0.5, fliersize=0)
+                sns.stripplot(data=temp_df, x=cond_col, y=val_col, color='black', alpha=0.6, jitter=True)
+                plt.title(f"{subj_name} - {val_col} ({epoch})\nr = {r:.3f}, p = {p_val:.3f}")
                 plt.ylabel(val_col)
                 plt.xlabel("Condition")
                 plt.grid(True, axis='y')
                 plt.tight_layout()
 
-                plot_filename = f"{val_col}_p{p_val:.3f}.png".replace('.', '_')
-                plot_path = os.path.join(subj_outpath, plot_filename)
-                plt.savefig(plot_path, dpi=600, format='png')
+                # ✅ Save as sub-XX_feature_epoch.png
+                plot_path = os.path.join(subj_outpath, f"{subj_name}_{val_col}_{epoch}.png")
+                plt.savefig(plot_path, dpi=300)
                 plt.close()
 
         # Store Fisher-Z transformed r-values
@@ -132,7 +131,7 @@ for epoch in EPOCHS:
 
         # Per-subject bar plot
         color_dict = {feat: 'red' if subj_signif[feat] else 'blue' for feat in subj_rvals}
-        barplot_path = os.path.join(subj_outpath, "rvals_barplot.png")
+        barplot_path = os.path.join(subj_outpath, f"{subj_name}_{epoch}_rvals_barplot.png")
         plot_horizontal_bar_columns(
             title=f"{subj_name} - Point-Biserial Correlation by Feature ({epoch})",
             data_dict=subj_rvals,
@@ -147,16 +146,16 @@ for epoch, zvals_dict in group_rvals_by_epoch.items():
     mean_group_rvals = {}
     for feat, zvals in zvals_dict.items():
         mean_z = np.mean(zvals)
-        mean_r = np.tanh(mean_z)  # inverse Fisher
+        mean_r = np.tanh(mean_z)
         mean_group_rvals[feat] = mean_r
 
     color_dict_group = {feat: 'blue' for feat in mean_group_rvals}
-    group_barplot_path = os.path.join(OUTPATH, f"group_mean_rvals_barplot_{epoch}.pdf")
+    group_barplot_path = os.path.join(OUTPATH, f"group_mean_rvals_barplot_{epoch}.png")
     plot_horizontal_bar_columns(
         title=f"Group-Averaged r-values (Fisher Z-transformed) ({epoch})",
         data_dict=mean_group_rvals,
         color_dict=color_dict_group,
         outpath=group_barplot_path,
         n_cols=10,
-        format='pdf'
+        format='png'
     )
