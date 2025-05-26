@@ -3,12 +3,13 @@
 % Performs preparations for SVM analysis and saves data.
 %
 % Preparation includes the following steps
-% Removes EOG electrodes
-% Extracts early and late time windows relative to the 'go-signal'
-% Extract the following features for each epoch, time window and channel
-%   Mean amplitude, RMS, standard deviation of the amplitude, maximum and minimum amplitude, kurtosis, skewness, and zero-crossing rate
-%   Bandpower for alpha (8-13 Hz), beta (13 - 30 Hz) and (low) gamma (30 -37 Hz)
-%   Hjorth Parameters (Activity, Mobility and Complexity)
+%
+    % Removes EOG electrodes
+    % Extracts early and late time windows relative to the 'go-signal'
+    % Extract the following features for each epoch, time window and channel
+    %   Mean amplitude, RMS, standard deviation of the amplitude, maximum and minimum amplitude, kurtosis, skewness, and zero-crossing rate
+    %   Bandpower for alpha (8-13 Hz), beta (14 - 30 Hz) and (low) gamma (31 -37 Hz)
+    %   Hjorth Parameters (Activity, Mobility and Complexity)
 %
 % Saves data
 %
@@ -226,6 +227,7 @@ for subj_idx= 1:length(dircont_subj)
         EEG = pop_selectevent( ALLEEG(1), 'latency','-2<=2','type',EVENTS(cond), ...
             'deleteevents','off','deleteepochs','on','invertepochs','off');
         erp = mean(EEG.data, 3);
+        erp_se = std(EEG.data, [], 3) / sqrt(size(EEG.data,3)); % Get standard error over epochs
 
         % Store ERP
         if strcmp('go_act', EVENTS{cond})
@@ -235,7 +237,8 @@ for subj_idx= 1:length(dircont_subj)
         end
 
         subplot(1,2,cond)
-        plot(EEG.times, erp(CHANI,:), 'LineWidth', 1.5, 'Color',main_blue)
+        %%plot(EEG.times, erp(CHANI,:), 'LineWidth', 1.5, 'Color',main_blue)
+        shadedErrorBar(EEG.times, erp(CHANI,:), erp_se(CHANI,:), 'lineprops', '-b', 'transparent', true);
         xlim([EEG.times(1) EEG.times(end)])
         ylim([y_lim_lower y_lim_upper])
         xlabel('Time [ms]')
@@ -246,7 +249,7 @@ for subj_idx= 1:length(dircont_subj)
         fill([WIN_EARLY_FROM WIN_EARLY_TILL WIN_EARLY_TILL WIN_EARLY_FROM], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], main_red, 'FaceAlpha',0.1, 'EdgeColor','none');
         hold off
     end
-    sgtitle(['Sanity Check ERPs for ' subj])
+    sgtitle(['Sanity Check ERPs for ' subj ' (including SE across trials)'])
     saveas(gcf,fullfile(OUTPATH, [subj '_sanity_erp.png']));
 
     % Update Protocol
@@ -300,4 +303,4 @@ end
 
 check_done = 'tid_psam_svm_preparation_DONE'
 
-delete(wb)
+close all; delete(wb)

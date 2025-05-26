@@ -3,15 +3,15 @@
 % Performs ERP preprocessing and saves datasets.
 %
 % Conditions
-% S 931 - Active - Early Probe - Unaltered
-% S 932 - Active - Early Probe - Altered
-% S 933 - Active - Late Probe - Unaltered
-% S 934 - Active - Late Probe - Altered
+% S 931 = Active - Early Probe - Unaltered
+% S 932 = Active - Early Probe - Altered
+% S 933 = Active - Late Probe - Unaltered
+% S 934 = Active - Late Probe - Altered
 %
-% S 941 - Passive - Early Probe - Unaltered
-% S 942 - Passive - Early Probe - Altered
-% S 943 - Passive - Late Probe - Unaltered
-% S 944 - Passive - Late Probe - Altered
+% S 941 = Passive - Early Probe - Unaltered
+% S 942 = Passive - Early Probe - Altered
+% S 943 = Passive - Late Probe - Unaltered
+% S 944 = Passive - Late Probe - Altered
 %
 % Preprocessing includes the following steps
 %

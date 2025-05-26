@@ -3,6 +3,7 @@
 % Performs a hilbert transformation later used for the SVM analysis and saves data.
 %
 % Preparation includes the following steps
+%
     % Removes EOG electrodes
     % Load data and data set containing ICA weights (see
     %   tid_psam_ica_preprocessing.m)
@@ -15,7 +16,6 @@
     % Epoch and remove bad epoch based on the ones identified for the SVM analysis in tid_psam_exclude_trials.m
     %
 % Saves data
-%
 %
 % Tim Dressler, 14.05.2025
 

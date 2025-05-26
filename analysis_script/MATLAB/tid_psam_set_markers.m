@@ -7,18 +7,24 @@
 % other words, instead of classifying no-probe trials as Control -
 % Active - Early - Unaltered; Control - Active - Early - Altered;
 % Control - Active - Late - Unaltered; ..., no-probe trial are
-% classified as Control - Active - Early; Control - Active - Late;
+% classified as Control - Active - Early; Control - Active - Late, ...;
+%
+% The following systems was used: While the stimulus file contained the
+%   true audio on the right channel, the left channel contained a 'rectangle'
+%   that was fed in the EEG system. This script detects the onset of the
+%   'rectangle' and thus the true onset of the stimulus, placing accurate
+%   markers into the EEG data.
 %
 % Conditions
-% S 931 - Active - Early Probe - Unaltered
-% S 932 - Active - Early Probe - Altered
-% S 933 - Active - Late Probe - Unaltered
-% S 934 - Active - Late Probe - Altered
+% S 931 = Active - Early Probe - Unaltered
+% S 932 = Active - Early Probe - Altered
+% S 933 = Active - Late Probe - Unaltered
+% S 934 = Active - Late Probe - Altered
 %
-% S 941 - Passive - Early Probe - Unaltered
-% S 942 - Passive - Early Probe - Altered
-% S 943 - Passive - Late Probe - Unaltered
-% S 944 - Passive - Late Probe - Altered
+% S 941 = Passive - Early Probe - Unaltered
+% S 942 = Passive - Early Probe - Altered
+% S 943 = Passive - Late Probe - Unaltered
+% S 944 = Passive - Late Probe - Altered
 %
 % Tim Dressler, 27.03.2025
 

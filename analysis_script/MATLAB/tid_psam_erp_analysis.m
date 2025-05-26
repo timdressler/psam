@@ -2,6 +2,24 @@
 %
 % Performs ERP analysis, creates plots and exports data for further analysis.
 %
+% Processing steps include
+%
+    % Extract ERP and control ERP for each condition
+    %   Control ERPs are extracted from no-probe trials and are thought to
+    %   only reflect non-auditory processes (e.g. cognitive ones). The
+    %   uncorrected ERPs are thought to reflect both auditory and
+    %   non-auditory processes. The corrected ERPs are thought to relfect
+    %   mainly auditory processes (see Daliri & Max, 2016)
+    % Get corrected ERP 
+    % Extract ERP component infortmation
+    % Plot uncorrected, corrected and control ERPs for each condition
+    % Plot corrected ERPs and Topoplots for each condition
+%
+% Literature
+% Daliri, A., & Max, L. (2016). Modulation of auditory responses to speech vs.
+%   nonspeech stimuli during speech movement planning. 
+%   Frontiers in human neuroscience, 10. https://doi.org/10.3389/fnhum.2016.00234
+%
 % Tim Dressler, 17.04.2025
 
 clear

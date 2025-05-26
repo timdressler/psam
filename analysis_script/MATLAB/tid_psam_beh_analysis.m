@@ -4,16 +4,17 @@
 %
 % Processing includes the following steps
 %
-% Plots each subjects' z-transformed F0 values of vocal responses relative
-%   to the F0 values of each subjects' probes
-% Plots each subjects' z-transformed F0 values of vocal responses relative
-%   to the F0 values of each subjects' probes for each block (in one plot
-%   and in a subplot)
-% Plots each subjects' z-transformed F0 values of vocal responses for
-%   trials including no probe, an unaltered probe and an altered probe
-% Plots each subject vocal onset time for no-probe trials and probe
-%   trials, for trials including early and late probes and for all
-%   trials
+    % Plots each subjects' z-transformed F0 values of vocal responses relative
+    %   to the F0 values of each subjects' probes
+    % Plots each subjects' z-transformed F0 values of vocal responses relative
+    %   to the F0 values of each subjects' probes for each block (in one plot
+    %   and in a subplot)
+    % Plots each subjects' z-transformed F0 values of vocal responses for
+    %   trials including no probe, an unaltered probe and an altered probe
+    % Plots each subject vocal onset time for no-probe trials and probe
+    %   trials, for trials including early and late probes and for all
+    %   trials
+    % Plots F0 distribution and probe F0 values across all participants
 %
 % Tim Dressler, 07.04.2025
 

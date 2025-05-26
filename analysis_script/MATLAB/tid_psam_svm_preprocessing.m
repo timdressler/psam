@@ -4,18 +4,18 @@
 %
 % Preprocessing includes the following steps
 %
-% Load data and data set containing ICA weights (see
-%   tid_psam_ica_preprocessing.m)
-% Rename events
-% Apply a 0.3 Hz HP-Filter
-% Apply a 30 Hz LP-Filter
-% Remove bad channels as identified in tid_psam_ica_preprocessing.m
-% Attach ICA weights and remove bad components using the ICLabel Plugin
-%   (Pion-Tonachini et al., 2019)
-% Interpolate bad (and removed) channels
-% Epoch data
-% Apply baseline correction
-% Mark bad epochs based on probability
+    % Load data and data set containing ICA weights (see
+    %   tid_psam_ica_preprocessing.m)
+    % Rename events
+    % Apply a 1 Hz HP-Filter
+    % Apply a 30 Hz LP-Filter
+    % Remove bad channels as identified in tid_psam_ica_preprocessing.m
+    % Attach ICA weights and remove bad components using the ICLabel Plugin
+    %   (Pion-Tonachini et al., 2019)
+    % Interpolate bad (and removed) channels
+    % Epoch data around 'go-signal'
+    % Apply baseline correction
+    % Mark bad epochs based on probability
 %
 % Saves data
 %
@@ -204,7 +204,7 @@ end
 
 check_done = 'tid_psam_svm_preprocessing_DONE'
 
-delete(wb)
+close all; delete(wb)
 
 
 
