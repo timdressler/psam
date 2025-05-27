@@ -25,11 +25,11 @@ INPATH = os.path.join(MAINPATH, 'data', 'processed_data', 'svm_prepared_clean')
 OUTPATH = os.path.join(MAINPATH, 'data', 'analysis_data', 'svm_analysis_TEST') 
 os.makedirs(OUTPATH, exist_ok=True)
 
-dircont_subj_early = sorted([f for f in Path(INPATH).glob("sub-*early.csv")])
-dircont_subj_late = sorted([f for f in Path(INPATH).glob("sub-*late.csv")])
+dircont_subj_early = sorted([f for f in Path(INPATH).glob("sub-96*early.csv")])
+dircont_subj_late = sorted([f for f in Path(INPATH).glob("sub-96*late.csv")])
 
-C_range = np.logspace(0, 8, 10)
-gamma_range = np.logspace(-12, -2, 10)
+C_range = np.logspace(-2, 10, 30)
+gamma_range = np.logspace(-14, 0, 30)
 
 print("C_range:", C_range)
 print("gamma_range:", gamma_range)
@@ -86,6 +86,7 @@ def process_subject(file, condition):
                 clf = SVC(C=C_val, kernel='rbf', gamma=gamma_val)
                 clf.fit(X_train_pca, y[train_idx])
                 acc = accuracy_score(y[test_idx], clf.predict(X_test_pca))
+                print('fold acc: ' + str(acc))
                 fold_accuracies.append(acc)
             acc_matrix[i, j] = np.mean(fold_accuracies)
 
