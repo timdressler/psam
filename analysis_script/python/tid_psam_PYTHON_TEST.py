@@ -29,7 +29,7 @@ dircont_subj_early = sorted([f for f in Path(INPATH).glob("sub-*early.csv")])
 dircont_subj_late = sorted([f for f in Path(INPATH).glob("sub-*late.csv")])
 
 C_range = np.logspace(0, 8, 10)
-gamma_range = np.logspace(-5, 5, 10)
+gamma_range = np.logspace(-12, -2, 10)
 
 print("C_range:", C_range)
 print("gamma_range:", gamma_range)
