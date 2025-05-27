@@ -40,6 +40,8 @@ print("Grid shape (gamma x C):", (len(gamma_range), len(C_range)))
 n_splits = 5
 protocol = []
 acc_collection_early, acc_collection_late = [], []
+best_gamma_early_list, best_gamma_late_list = [], []
+best_C_early_list, best_C_late_list = [], []
 
 def plain_number(x, _):
     return f"{x:.5f}"
@@ -106,9 +108,32 @@ for file_early, file_late in tqdm(zip(dircont_subj_early, dircont_subj_late), to
 
     acc_collection_early.append(acc_early)
     acc_collection_late.append(acc_late)
+    best_gamma_early_list.append(best_gamma_early)
+    best_gamma_late_list.append(best_gamma_late)
+    best_C_early_list.append(best_C_early)
+    best_C_late_list.append(best_C_late)
     protocol.append([subj, time.time() - tic, 'OK', np.mean(acc_early), np.mean(acc_late)])
 
-    # Line plots
+    # Heatmaps with min/max annotation
+    fig, axs = plt.subplots(1, 2, figsize=(16, 6), constrained_layout=True)
+    for i, (acc_matrix, label) in enumerate(zip([acc_early, acc_late], ['early', 'late'])):
+        acc_df = pd.DataFrame(acc_matrix, index=[f"{g:.5f}" for g in gamma_range], columns=[f"{c:.5f}" for c in C_range])
+        sns.heatmap(acc_df, ax=axs[i], cmap='magma', vmin=0.5, vmax=0.95,
+                    cbar=(i == 1), cbar_kws={"label": "Mean Accuracy"}, xticklabels=True, yticklabels=True)
+        axs[i].set_title(f"{subj} - {label} - Accuracy Grid")
+        axs[i].set_xlabel("C")
+        axs[i].set_ylabel("Gamma")
+        axs[i].tick_params(axis='x', rotation=90, labelsize=8)
+        axs[i].tick_params(axis='y', labelsize=8)
+        min_acc = acc_matrix.min()
+        max_acc = acc_matrix.max()
+        axs[i].text(0.95, 0.05, f"Min Acc: {min_acc:.3f}\nMax Acc: {max_acc:.3f}",
+                    transform=axs[i].transAxes, fontsize=10, color='white', ha='right', va='bottom',
+                    bbox=dict(boxstyle='round,pad=0.3', facecolor='black', alpha=0.5))
+    plt.savefig(os.path.join(outpath, f"combined_heatmaps.png"), dpi=300)
+    plt.close()
+
+    # Individual line plots
     plt.figure(figsize=(10, 5))
     plt.plot(C_range, acc_early[best_idx_early[0], :], label='Early', marker='o')
     plt.plot(C_range, acc_late[best_idx_late[0], :], label='Late', marker='s')
@@ -139,46 +164,75 @@ for file_early, file_late in tqdm(zip(dircont_subj_early, dircont_subj_late), to
     plt.savefig(os.path.join(outpath, f"combined_accuracy_vs_Gamma.png"), dpi=300)
     plt.close()
 
-    # Heatmaps using seaborn
-    fig, axs = plt.subplots(1, 2, figsize=(16, 6), constrained_layout=True)
-
-    for i, (acc_matrix, label) in enumerate(zip([acc_early, acc_late], ['early', 'late'])):
-        acc_df = pd.DataFrame(acc_matrix,
-                              index=[f"{g:.5f}" for g in gamma_range],
-                              columns=[f"{c:.5f}" for c in C_range])
-
-        sns.heatmap(acc_df, ax=axs[i], cmap='magma', vmin=0.5, vmax=0.95,
-                    cbar=(i == 1), cbar_kws={"label": "Mean Accuracy"},
-                    xticklabels=True, yticklabels=True)
-
-        axs[i].set_title(f"{subj} - {label} - Accuracy Grid")
-        axs[i].set_xlabel("C")
-        axs[i].set_ylabel("Gamma")
-        axs[i].tick_params(axis='x', rotation=90, labelsize=8)
-        axs[i].tick_params(axis='y', labelsize=8)
-
-        min_acc = acc_matrix.min()
-        max_acc = acc_matrix.max()
-        axs[i].text(0.05, 0.95, f"Min Acc: {min_acc:.3f}\nMax Acc: {max_acc:.3f}",
-                    transform=axs[i].transAxes, fontsize=10, color='white', ha='left', va='top',
-                    bbox=dict(boxstyle='round,pad=0.3', facecolor='black', alpha=0.5))
-
-    plt.savefig(os.path.join(outpath, f"combined_heatmaps.png"), dpi=300)
-    plt.close()
 
 # Grand averages
 ga_early = np.mean(acc_collection_early, axis=0)
 ga_late = np.mean(acc_collection_late, axis=0)
 
-# Save grand average accuracy maps to Excel
-ga_early_df = pd.DataFrame(ga_early, index=[f"{g:.5f}" for g in gamma_range],
-                                     columns=[f"{c:.5f}" for c in C_range])
-ga_late_df = pd.DataFrame(ga_late, index=[f"{g:.5f}" for g in gamma_range],
-                                    columns=[f"{c:.5f}" for c in C_range])
-ga_early_df.to_excel(os.path.join(OUTPATH, 'grand_average_accuracy_early.xlsx'))
-ga_late_df.to_excel(os.path.join(OUTPATH, 'grand_average_accuracy_late.xlsx'))
+mean_C_early, std_C_early = np.mean(best_C_early_list), np.std(best_C_early_list)
+mean_C_late, std_C_late = np.mean(best_C_late_list), np.std(best_C_late_list)
+mean_gamma_early, std_gamma_early = np.mean(best_gamma_early_list), np.std(best_gamma_early_list)
+mean_gamma_late, std_gamma_late = np.mean(best_gamma_late_list), np.std(best_gamma_late_list)
 
-# Save protocol
+# Grand average heatmaps
+fig, axs = plt.subplots(1, 2, figsize=(16, 6), constrained_layout=True)
+for i, (ga_matrix, label) in enumerate(zip([ga_early, ga_late], ['early', 'late'])):
+    ga_df = pd.DataFrame(ga_matrix, index=[f"{g:.5f}" for g in gamma_range], columns=[f"{c:.5f}" for c in C_range])
+    sns.heatmap(ga_df, ax=axs[i], cmap='magma', vmin=0.5, vmax=0.95,
+                cbar=(i == 1), cbar_kws={"label": "Mean Accuracy"}, xticklabels=True, yticklabels=True)
+    axs[i].set_title(f"Grand Average - {label.capitalize()}")
+    axs[i].set_xlabel("C")
+    axs[i].set_ylabel("Gamma")
+    axs[i].tick_params(axis='x', rotation=90, labelsize=8)
+    axs[i].tick_params(axis='y', labelsize=8)
+    min_acc = ga_matrix.min()
+    max_acc = ga_matrix.max()
+    axs[i].text(0.95, 0.05, f"Min Acc: {min_acc:.3f}\nMax Acc: {max_acc:.3f}",
+                transform=axs[i].transAxes, fontsize=10, color='white', ha='right', va='bottom',
+                bbox=dict(boxstyle='round,pad=0.3', facecolor='black', alpha=0.5))
+plt.savefig(os.path.join(OUTPATH, "grand_average_heatmaps.png"), dpi=300)
+plt.close()
+
+# Grand average line plots
+best_gamma_idx = np.unravel_index(np.argmax(ga_early), ga_early.shape)[0]
+best_C_idx = np.unravel_index(np.argmax(ga_early), ga_early.shape)[1]
+
+plt.figure(figsize=(10, 5))
+plt.plot(C_range, ga_early[best_gamma_idx, :], label='Early', marker='o')
+plt.plot(C_range, ga_late[best_gamma_idx, :], label='Late', marker='s')
+plt.xscale('log')
+plt.xlabel("C")
+plt.ylabel("Accuracy")
+plt.title(f"GA - Accuracy vs C (Mean Best Gamma: Early {mean_gamma_early:.5f}±{std_gamma_early:.5f}, Late {mean_gamma_late:.5f}±{std_gamma_late:.5f})")
+plt.xticks(C_range, [f"{c:.5f}" for c in C_range], rotation=90)
+plt.tick_params(axis='both', labelsize=8)
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.savefig(os.path.join(OUTPATH, "GA_accuracy_vs_C.png"), dpi=300)
+plt.close()
+
+plt.figure(figsize=(10, 5))
+plt.plot(gamma_range, ga_early[:, best_C_idx], label='Early', marker='o')
+plt.plot(gamma_range, ga_late[:, best_C_idx], label='Late', marker='s')
+plt.xscale('log')
+plt.xlabel("Gamma")
+plt.ylabel("Accuracy")
+plt.title(f"GA - Accuracy vs Gamma (Mean Best C: Early {mean_C_early:.2f}±{std_C_early:.2f}, Late {mean_C_late:.2f}±{std_C_late:.2f})")
+plt.xticks(gamma_range, [f"{g:.5f}" for g in gamma_range], rotation=90)
+plt.tick_params(axis='both', labelsize=8)
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.savefig(os.path.join(OUTPATH, "GA_accuracy_vs_Gamma.png"), dpi=300)
+plt.close()
+
+# Excel exports
+pd.DataFrame(ga_early, index=[f"{g:.5f}" for g in gamma_range], columns=[f"{c:.5f}" for c in C_range]) \
+    .to_excel(os.path.join(OUTPATH, 'grand_average_accuracy_early.xlsx'))
+pd.DataFrame(ga_late, index=[f"{g:.5f}" for g in gamma_range], columns=[f"{c:.5f}" for c in C_range]) \
+    .to_excel(os.path.join(OUTPATH, 'grand_average_accuracy_late.xlsx'))
+
 protocol_df = pd.DataFrame(protocol, columns=['subj', 'time', 'status', 'mean_accuracy_early', 'mean_accuracy_late'])
 protocol_df.to_excel(os.path.join(OUTPATH, 'svm_analysis_protocol.xlsx'), index=False)
 
