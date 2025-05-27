@@ -28,8 +28,8 @@ os.makedirs(OUTPATH, exist_ok=True)
 dircont_subj_early = sorted([f for f in Path(INPATH).glob("sub-96*early.csv")])
 dircont_subj_late = sorted([f for f in Path(INPATH).glob("sub-96*late.csv")])
 
-C_range = np.logspace(-2, 10, 30)
-gamma_range = np.logspace(-14, 0, 30)
+C_range = np.logspace(-2, 10, 30) 
+gamma_range = np.logspace(-14, -1, 30) 
 
 print("C_range:", C_range)
 print("gamma_range:", gamma_range)
@@ -91,7 +91,7 @@ def process_subject(file, condition):
             acc_matrix[i, j] = np.mean(fold_accuracies)
 
     acc_df = pd.DataFrame(acc_matrix,
-                          index=[f"{g:.5f}" for g in gamma_range],
+                          index=[f"{g:.0e}" for g in gamma_range],
                           columns=[f"{c:.5f}" for c in C_range])
     acc_df.to_csv(os.path.join(subj_outpath, f"{condition}_acc_grid.csv"))
 
@@ -118,7 +118,7 @@ for file_early, file_late in tqdm(zip(dircont_subj_early, dircont_subj_late), to
     # Heatmaps with min/max annotation
     fig, axs = plt.subplots(1, 2, figsize=(16, 6), constrained_layout=True)
     for i, (acc_matrix, label) in enumerate(zip([acc_early, acc_late], ['early', 'late'])):
-        acc_df = pd.DataFrame(acc_matrix, index=[f"{g:.5f}" for g in gamma_range], columns=[f"{c:.5f}" for c in C_range])
+        acc_df = pd.DataFrame(acc_matrix, index=[f"{g:.0e}" for g in gamma_range], columns=[f"{c:.5f}" for c in C_range])
         sns.heatmap(acc_df, ax=axs[i], cmap='magma', vmin=0.5, vmax=0.95,
                     cbar=(i == 1), cbar_kws={"label": "Mean Accuracy"}, xticklabels=True, yticklabels=True)
         axs[i].set_title(f"{subj} - {label} - Accuracy Grid")
@@ -157,14 +157,13 @@ for file_early, file_late in tqdm(zip(dircont_subj_early, dircont_subj_late), to
     plt.xlabel("Gamma")
     plt.ylabel("Accuracy")
     plt.title(f"{subj} - Accuracy vs Gamma (Best C - Early: {best_C_early:.1f}, Late: {best_C_late:.1f})")
-    plt.xticks(gamma_range, [f"{g:.5f}" for g in gamma_range], rotation=90)
+    plt.xticks(gamma_range, [f"{g:.0e}" for g in gamma_range], rotation=90)
     plt.tick_params(axis='both', labelsize=8)
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
     plt.savefig(os.path.join(outpath, f"combined_accuracy_vs_Gamma.png"), dpi=300)
     plt.close()
-
 
 # Grand averages
 ga_early = np.mean(acc_collection_early, axis=0)
@@ -178,7 +177,7 @@ mean_gamma_late, std_gamma_late = np.mean(best_gamma_late_list), np.std(best_gam
 # Grand average heatmaps
 fig, axs = plt.subplots(1, 2, figsize=(16, 6), constrained_layout=True)
 for i, (ga_matrix, label) in enumerate(zip([ga_early, ga_late], ['early', 'late'])):
-    ga_df = pd.DataFrame(ga_matrix, index=[f"{g:.5f}" for g in gamma_range], columns=[f"{c:.5f}" for c in C_range])
+    ga_df = pd.DataFrame(ga_matrix, index=[f"{g:.0e}" for g in gamma_range], columns=[f"{c:.5f}" for c in C_range])
     sns.heatmap(ga_df, ax=axs[i], cmap='magma', vmin=0.5, vmax=0.95,
                 cbar=(i == 1), cbar_kws={"label": "Mean Accuracy"}, xticklabels=True, yticklabels=True)
     axs[i].set_title(f"Grand Average - {label.capitalize()}")
@@ -220,7 +219,7 @@ plt.xscale('log')
 plt.xlabel("Gamma")
 plt.ylabel("Accuracy")
 plt.title(f"GA - Accuracy vs Gamma (Mean Best C: Early {mean_C_early:.2f}±{std_C_early:.2f}, Late {mean_C_late:.2f}±{std_C_late:.2f})")
-plt.xticks(gamma_range, [f"{g:.5f}" for g in gamma_range], rotation=90)
+plt.xticks(gamma_range, [f"{g:.0e}" for g in gamma_range], rotation=90)
 plt.tick_params(axis='both', labelsize=8)
 plt.legend()
 plt.grid(True)
@@ -229,9 +228,9 @@ plt.savefig(os.path.join(OUTPATH, "GA_accuracy_vs_Gamma.png"), dpi=300)
 plt.close()
 
 # Excel exports
-pd.DataFrame(ga_early, index=[f"{g:.5f}" for g in gamma_range], columns=[f"{c:.5f}" for c in C_range]) \
+pd.DataFrame(ga_early, index=[f"{g:.0e}" for g in gamma_range], columns=[f"{c:.5f}" for c in C_range]) \
     .to_excel(os.path.join(OUTPATH, 'grand_average_accuracy_early.xlsx'))
-pd.DataFrame(ga_late, index=[f"{g:.5f}" for g in gamma_range], columns=[f"{c:.5f}" for c in C_range]) \
+pd.DataFrame(ga_late, index=[f"{g:.0e}" for g in gamma_range], columns=[f"{c:.5f}" for c in C_range]) \
     .to_excel(os.path.join(OUTPATH, 'grand_average_accuracy_late.xlsx'))
 
 protocol_df = pd.DataFrame(protocol, columns=['subj', 'time', 'status', 'mean_accuracy_early', 'mean_accuracy_late'])
