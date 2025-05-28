@@ -23,7 +23,7 @@ if not re.search(re.escape(expected_subpath) + r'$', SCRIPTPATH):
 
 MAINPATH = os.path.abspath(os.path.join(SCRIPTPATH, '..', '..'))
 INPATH = os.path.join(MAINPATH, 'data', 'processed_data', 'svm_prepared_clean')
-OUTPATH = os.path.join(MAINPATH, 'data', 'analysis_data', 'svm_analysis_TEST') 
+OUTPATH = os.path.join(MAINPATH, 'data', 'analysis_data', 'svm_analysis') 
 os.makedirs(OUTPATH, exist_ok=True)
 
 # Variables to edit
