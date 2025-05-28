@@ -221,7 +221,7 @@ for subj_idx, subj in enumerate([re.search(r'sub-\d+', f.name).group(0) for f in
     acc_early = acc_collection_early[subj_idx]
     acc_late = acc_collection_late[subj_idx]
 
-    # Plot: Grandaverage accuracy as a function of C (with fixed Gamma)
+    # Plot: Individual accuracy as a function of C (with fixed Gamma)
     plt.figure(figsize=(10, 5))
     plt.plot(C_range, acc_early[fixed_gamma_idx, :], label='Early', marker='o')
     plt.plot(C_range, acc_late[fixed_gamma_idx, :], label='Late', marker='s')
@@ -237,7 +237,7 @@ for subj_idx, subj in enumerate([re.search(r'sub-\d+', f.name).group(0) for f in
     plt.savefig(os.path.join(outpath, f"{subj}_c_accuracy.png"), dpi=300)
     plt.close()
 
-    # Plot: Grandaverage accuracy as a function of Gamma (with fixed C)
+    # Plot: Individual accuracy as a function of Gamma (with fixed C)
     plt.figure(figsize=(10, 5))
     plt.plot(gamma_range, acc_early[:, fixed_C_idx], label='Early', marker='o')
     plt.plot(gamma_range, acc_late[:, fixed_C_idx], label='Late', marker='s')
