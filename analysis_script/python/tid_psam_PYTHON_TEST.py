@@ -31,11 +31,7 @@ dircont_subj_late = sorted([f for f in Path(INPATH).glob("sub-96*late.csv")])
 C_range = np.logspace(-2, 10, 30) 
 gamma_range = np.logspace(-14, -1, 30) 
 
-print("C_range:", C_range)
-print("gamma_range:", gamma_range)
-print("Size of C_range:", len(C_range))
-print("Size of gamma_range:", len(gamma_range))
-print("Grid shape (gamma x C):", (len(gamma_range), len(C_range)))
+sig_tresh = 0.55
 
 n_splits = 5
 protocol = []
@@ -236,4 +232,19 @@ pd.DataFrame(ga_late, index=[f"{g:.0e}" for g in gamma_range], columns=[f"{c:.5f
 protocol_df = pd.DataFrame(protocol, columns=['subj', 'time', 'status', 'mean_accuracy_early', 'mean_accuracy_late'])
 protocol_df.to_excel(os.path.join(OUTPATH, 'svm_analysis_protocol.xlsx'), index=False)
 
+# Save proportion of significant accuracies in separate file
+sig_props = []
+
+for subj_idx, subj in enumerate([re.search(r'sub-\d+', f.name).group(0) for f in dircont_subj_early]):
+    acc_early = acc_collection_early[subj_idx]
+    acc_late = acc_collection_late[subj_idx]
+    prop_early = np.mean(acc_early > sig_tresh)
+    prop_late = np.mean(acc_late > sig_tresh)
+    sig_props.append([subj, prop_early, prop_late])
+
+sig_prop_df = pd.DataFrame(sig_props, columns=['subj', 'prop_sig_early', 'prop_sig_late'])
+sig_prop_df.to_excel(os.path.join(OUTPATH, 'svm_significant_accuracy_proportions.xlsx'), index=False)
+
 print("tid_psam_svm_analysis_DONE")
+
+
