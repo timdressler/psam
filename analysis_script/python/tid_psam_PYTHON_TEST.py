@@ -15,6 +15,7 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.metrics import accuracy_score
 
+# Set up paths
 SCRIPTPATH = os.path.dirname(os.path.abspath(__file__))
 expected_subpath = os.path.join('psam', 'analysis_script', 'python')
 if not re.search(re.escape(expected_subpath) + r'$', SCRIPTPATH):
@@ -25,36 +26,61 @@ INPATH = os.path.join(MAINPATH, 'data', 'processed_data', 'svm_prepared_clean')
 OUTPATH = os.path.join(MAINPATH, 'data', 'analysis_data', 'svm_analysis_TEST') 
 os.makedirs(OUTPATH, exist_ok=True)
 
-dircont_subj_early = sorted([f for f in Path(INPATH).glob("sub-96*early.csv")])
-dircont_subj_late = sorted([f for f in Path(INPATH).glob("sub-96*late.csv")])
+# Variables to edit
+C_range_lower = -2
+C_range_upper = 10
+gamma_range_lower = -14
+gamma_range_upper = -1
+fixed_gamma_val = 1e-10
+fixed_C_val = 1e4
+grid_size = 3
+sig_tresh = 0.55 # Threshold used for determined above-chance-level classification
+n_splits = 5 # Number splits in k-fold CV
 
-C_range = np.logspace(-2, 10, 30) 
-gamma_range = np.logspace(-14, -1, 30) 
+# Get directory content
+dircont_subj_early = sorted([f for f in Path(INPATH).glob("sub-*early.csv")])
+dircont_subj_late = sorted([f for f in Path(INPATH).glob("sub-*late.csv")])
 
-sig_tresh = 0.55
+# Create C-Range and Gamma-Range 
+C_range = np.logspace(C_range_lower, C_range_upper, grid_size) 
+gamma_range = np.logspace(gamma_range_lower, gamma_range_upper, grid_size) 
 
-n_splits = 5
+# Look for nearest value in the selected range to the selected fixed value (only relevant for plotting)
+fixed_gamma_idx = np.argmin(np.abs(gamma_range - fixed_gamma_val))
+fixed_C_idx = np.argmin(np.abs(C_range - fixed_C_val))
+fixed_gamma_val = gamma_range[fixed_gamma_idx] # get gamma value (as selected one might be not exactly present in the gamma range)
+fixed_C_val = C_range[fixed_C_idx] # get C value (as selected one might be not exactly present in the gamma range)
+
+# Initialize variables
 protocol = []
 acc_collection_early, acc_collection_late = [], []
 best_gamma_early_list, best_gamma_late_list = [], []
 best_C_early_list, best_C_late_list = [], []
 
-def plain_number(x, _):
-    return f"{x:.5f}"
-
+# Define functions
+# Function: Performs stratified k-fold CV, PCA and fits SVMs for each subject and condition
 def process_subject(file, condition):
+    # Get current ID
     subj = re.search(r'sub-\d+', file.name).group(0)
     subj_outpath = os.path.join(OUTPATH, subj)
+    # Get subject outpath
     os.makedirs(subj_outpath, exist_ok=True)
+    # Load data
     df = pd.read_csv(file)
+    # Extract features
     X = df.iloc[:, :-1].values
+    # Extract outcome
     y = df.iloc[:, -1].values
 
+    # Scale features
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
+
+    # Fit 2D PCA (only for plotting)
     pca = PCA(n_components=2)
     X_pca = pca.fit_transform(X_scaled)
 
+    # Plot: Individual 2D PCA projections including class labels
     y_encoded = LabelEncoder().fit_transform(y)
     plt.figure(figsize=(6, 5))
     plt.scatter(X_pca[:, 0], X_pca[:, 1], c=y_encoded, cmap='coolwarm', edgecolors='k', alpha=0.7)
@@ -63,114 +89,88 @@ def process_subject(file, condition):
     plt.ylabel("PC 2")
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig(os.path.join(subj_outpath, f"{condition}_pca_projection.png"), dpi=300)
+    plt.savefig(os.path.join(subj_outpath, f"{subj}_{condition}_pca_projection.png"), dpi=300)
     plt.close()
 
+    # Initialize accuracy matrix
     acc_matrix = np.zeros((len(gamma_range), len(C_range)))
+    # Prepare stratified k-fold CV
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=123)
 
+    # Start grid search
     for i, gamma_val in enumerate(gamma_range):
         for j, C_val in enumerate(C_range):
             fold_accuracies = []
-            for train_idx, test_idx in skf.split(X, y):
+            for train_idx, test_idx in skf.split(X, y): # Get train and test indices
+                # Scale features
                 scaler = StandardScaler()
                 X_train_scaled = scaler.fit_transform(X[train_idx])
                 X_test_scaled = scaler.transform(X[test_idx])
+                # Fit PCA (only fitted using the train split)
                 pca = PCA(n_components=100)
                 X_train_pca = pca.fit_transform(X_train_scaled)
+                # Apply PCA weights also to the test split
                 X_test_pca = pca.transform(X_test_scaled)
+                # Fit SVM
                 clf = SVC(C=C_val, kernel='rbf', gamma=gamma_val)
                 clf.fit(X_train_pca, y[train_idx])
+                # Get accuracy based on the test split 
                 acc = accuracy_score(y[test_idx], clf.predict(X_test_pca))
-                print('fold acc: ' + str(acc))
                 fold_accuracies.append(acc)
             acc_matrix[i, j] = np.mean(fold_accuracies)
+            print(str(np.mean(fold_accuracies)))
 
+    # Save accuracy grid
     acc_df = pd.DataFrame(acc_matrix,
                           index=[f"{g:.0e}" for g in gamma_range],
                           columns=[f"{c:.5f}" for c in C_range])
-    acc_df.to_csv(os.path.join(subj_outpath, f"{condition}_acc_grid.csv"))
+    acc_df.to_csv(os.path.join(subj_outpath, f"{subj}_{condition}_accuracy_grid.csv"))
 
+    # Get individual best gamma and best C value (not further used)
     best_idx = np.unravel_index(np.argmax(acc_matrix), acc_matrix.shape)
     best_gamma = gamma_range[best_idx[0]]
     best_C = C_range[best_idx[1]]
 
     return acc_matrix, best_idx, subj_outpath, best_gamma, best_C
 
+# Start processing
 for file_early, file_late in tqdm(zip(dircont_subj_early, dircont_subj_late), total=len(dircont_subj_early), desc="Processing subjects"):
+    # Get current ID
     subj = re.search(r'sub-\d+', file_early.name).group(0)
     tic = time.time()
+
+    # Run process_subject function (see above)
     acc_early, best_idx_early, outpath, best_gamma_early, best_C_early = process_subject(file_early, 'early')
     acc_late, best_idx_late, _, best_gamma_late, best_C_late = process_subject(file_late, 'late')
 
+    # Store values
     acc_collection_early.append(acc_early)
     acc_collection_late.append(acc_late)
     best_gamma_early_list.append(best_gamma_early)
     best_gamma_late_list.append(best_gamma_late)
     best_C_early_list.append(best_C_early)
     best_C_late_list.append(best_C_late)
-    protocol.append([subj, time.time() - tic, 'OK', np.mean(acc_early), np.mean(acc_late)])
+    protocol.append([subj, time.time() - tic, 'OK'])
 
-    # Heatmaps with min/max annotation
+    # Plot: Individual accuracy heatmaps
     fig, axs = plt.subplots(1, 2, figsize=(16, 6), constrained_layout=True)
     for i, (acc_matrix, label) in enumerate(zip([acc_early, acc_late], ['early', 'late'])):
         acc_df = pd.DataFrame(acc_matrix, index=[f"{g:.0e}" for g in gamma_range], columns=[f"{c:.5f}" for c in C_range])
         sns.heatmap(acc_df, ax=axs[i], cmap='magma', vmin=0.5, vmax=0.95,
-                    cbar=(i == 1), cbar_kws={"label": "Mean Accuracy"}, xticklabels=True, yticklabels=True)
+                    cbar=(i == 1), cbar_kws={"label": "Validation Accuracy"}, xticklabels=True, yticklabels=True)
         axs[i].set_title(f"{subj} - {label} - Accuracy Grid")
         axs[i].set_xlabel("C")
         axs[i].set_ylabel("Gamma")
         axs[i].tick_params(axis='x', rotation=90, labelsize=8)
         axs[i].tick_params(axis='y', labelsize=8)
-        min_acc = acc_matrix.min()
-        max_acc = acc_matrix.max()
-        axs[i].text(0.95, 0.05, f"Min Acc: {min_acc:.3f}\nMax Acc: {max_acc:.3f}",
-                    transform=axs[i].transAxes, fontsize=10, color='white', ha='right', va='bottom',
-                    bbox=dict(boxstyle='round,pad=0.3', facecolor='black', alpha=0.5))
-    plt.savefig(os.path.join(outpath, f"combined_heatmaps.png"), dpi=300)
+    plt.savefig(os.path.join(outpath, f"{subj}_accuracy_heatmaps.png"), dpi=300)
     plt.close()
 
-    # Individual line plots
-    plt.figure(figsize=(10, 5))
-    plt.plot(C_range, acc_early[best_idx_early[0], :], label='Early', marker='o')
-    plt.plot(C_range, acc_late[best_idx_late[0], :], label='Late', marker='s')
-    plt.xscale('log')
-    plt.xlabel("C")
-    plt.ylabel("Accuracy")
-    plt.title(f"{subj} - Accuracy vs C (Best Gamma - Early: {best_gamma_early:.5f}, Late: {best_gamma_late:.5f})")
-    plt.xticks(C_range, [f"{c:.5f}" for c in C_range], rotation=90)
-    plt.tick_params(axis='both', labelsize=8)
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    plt.savefig(os.path.join(outpath, f"combined_accuracy_vs_C.png"), dpi=300)
-    plt.close()
-
-    plt.figure(figsize=(10, 5))
-    plt.plot(gamma_range, acc_early[:, best_idx_early[1]], label='Early', marker='o')
-    plt.plot(gamma_range, acc_late[:, best_idx_late[1]], label='Late', marker='s')
-    plt.xscale('log')
-    plt.xlabel("Gamma")
-    plt.ylabel("Accuracy")
-    plt.title(f"{subj} - Accuracy vs Gamma (Best C - Early: {best_C_early:.1f}, Late: {best_C_late:.1f})")
-    plt.xticks(gamma_range, [f"{g:.0e}" for g in gamma_range], rotation=90)
-    plt.tick_params(axis='both', labelsize=8)
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    plt.savefig(os.path.join(outpath, f"combined_accuracy_vs_Gamma.png"), dpi=300)
-    plt.close()
-
-# Grand averages
+# Get grandaverages of the accuracy matrices
 ga_early = np.mean(acc_collection_early, axis=0)
 ga_late = np.mean(acc_collection_late, axis=0)
 
-mean_C_early, std_C_early = np.mean(best_C_early_list), np.std(best_C_early_list)
-mean_C_late, std_C_late = np.mean(best_C_late_list), np.std(best_C_late_list)
-mean_gamma_early, std_gamma_early = np.mean(best_gamma_early_list), np.std(best_gamma_early_list)
-mean_gamma_late, std_gamma_late = np.mean(best_gamma_late_list), np.std(best_gamma_late_list)
-
-# Grand average heatmaps
+# Plot: Grandaverage accuracy heatmaps
 fig, axs = plt.subplots(1, 2, figsize=(16, 6), constrained_layout=True)
 for i, (ga_matrix, label) in enumerate(zip([ga_early, ga_late], ['early', 'late'])):
     ga_df = pd.DataFrame(ga_matrix, index=[f"{g:.0e}" for g in gamma_range], columns=[f"{c:.5f}" for c in C_range])
@@ -181,60 +181,86 @@ for i, (ga_matrix, label) in enumerate(zip([ga_early, ga_late], ['early', 'late'
     axs[i].set_ylabel("Gamma")
     axs[i].tick_params(axis='x', rotation=90, labelsize=8)
     axs[i].tick_params(axis='y', labelsize=8)
-    min_acc = ga_matrix.min()
-    max_acc = ga_matrix.max()
-    axs[i].text(0.95, 0.05, f"Min Acc: {min_acc:.3f}\nMax Acc: {max_acc:.3f}",
-                transform=axs[i].transAxes, fontsize=10, color='white', ha='right', va='bottom',
-                bbox=dict(boxstyle='round,pad=0.3', facecolor='black', alpha=0.5))
-plt.savefig(os.path.join(OUTPATH, "grand_average_heatmaps.png"), dpi=300)
+plt.savefig(os.path.join(OUTPATH, "grandaverage_accuracy_heatmaps.png"), dpi=300)
 plt.close()
 
-# Grand average line plots
-best_gamma_idx = np.unravel_index(np.argmax(ga_early), ga_early.shape)[0]
-best_C_idx = np.unravel_index(np.argmax(ga_early), ga_early.shape)[1]
-
+# Plot: Grandaverage accuracy as a function of C (with fixed Gamma)
 plt.figure(figsize=(10, 5))
-plt.plot(C_range, ga_early[best_gamma_idx, :], label='Early', marker='o')
-plt.plot(C_range, ga_late[best_gamma_idx, :], label='Late', marker='s')
+plt.plot(C_range, ga_early[fixed_gamma_idx, :], label='Early', marker='o')
+plt.plot(C_range, ga_late[fixed_gamma_idx, :], label='Late', marker='s')
 plt.xscale('log')
 plt.xlabel("C")
 plt.ylabel("Accuracy")
-plt.title(f"GA - Accuracy vs C (Mean Best Gamma: Early {mean_gamma_early:.5f}±{std_gamma_early:.5f}, Late {mean_gamma_late:.5f}±{std_gamma_late:.5f})")
+plt.title(f"GA - Accuracy vs C (Fixed Gamma: {gamma_range[fixed_gamma_idx]:.5e})")
 plt.xticks(C_range, [f"{c:.5f}" for c in C_range], rotation=90)
 plt.tick_params(axis='both', labelsize=8)
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
-plt.savefig(os.path.join(OUTPATH, "GA_accuracy_vs_C.png"), dpi=300)
+plt.savefig(os.path.join(OUTPATH, "grandaverage_c_accuracy.png"), dpi=300)
 plt.close()
 
+# Plot: Grandaverage accuracy as a function of Gamma (with fixed C)
 plt.figure(figsize=(10, 5))
-plt.plot(gamma_range, ga_early[:, best_C_idx], label='Early', marker='o')
-plt.plot(gamma_range, ga_late[:, best_C_idx], label='Late', marker='s')
+plt.plot(gamma_range, ga_early[:, fixed_C_idx], label='Early', marker='o')
+plt.plot(gamma_range, ga_late[:, fixed_C_idx], label='Late', marker='s')
 plt.xscale('log')
 plt.xlabel("Gamma")
 plt.ylabel("Accuracy")
-plt.title(f"GA - Accuracy vs Gamma (Mean Best C: Early {mean_C_early:.2f}±{std_C_early:.2f}, Late {mean_C_late:.2f}±{std_C_late:.2f})")
+plt.title(f"GA - Accuracy vs Gamma (Fixed C: {C_range[fixed_C_idx]:.2f})")
 plt.xticks(gamma_range, [f"{g:.0e}" for g in gamma_range], rotation=90)
 plt.tick_params(axis='both', labelsize=8)
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
-plt.savefig(os.path.join(OUTPATH, "GA_accuracy_vs_Gamma.png"), dpi=300)
+plt.savefig(os.path.join(OUTPATH, "grandaverage_gamma_accuracy.png"), dpi=300)
 plt.close()
 
-# Excel exports
+for subj_idx, subj in enumerate([re.search(r'sub-\d+', f.name).group(0) for f in dircont_subj_early]):
+    outpath = os.path.join(OUTPATH, subj)
+    acc_early = acc_collection_early[subj_idx]
+    acc_late = acc_collection_late[subj_idx]
+
+    # Plot: Grandaverage accuracy as a function of C (with fixed Gamma)
+    plt.figure(figsize=(10, 5))
+    plt.plot(C_range, acc_early[fixed_gamma_idx, :], label='Early', marker='o')
+    plt.plot(C_range, acc_late[fixed_gamma_idx, :], label='Late', marker='s')
+    plt.xscale('log')
+    plt.xlabel("C")
+    plt.ylabel("Accuracy")
+    plt.title(f"{subj} - Accuracy vs C (Fixed Gamma: {gamma_range[fixed_gamma_idx]:.5e})")
+    plt.xticks(C_range, [f"{c:.5f}" for c in C_range], rotation=90)
+    plt.tick_params(axis='both', labelsize=8)
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(os.path.join(outpath, f"{subj}_c_accuracy.png"), dpi=300)
+    plt.close()
+
+    # Plot: Grandaverage accuracy as a function of Gamma (with fixed C)
+    plt.figure(figsize=(10, 5))
+    plt.plot(gamma_range, acc_early[:, fixed_C_idx], label='Early', marker='o')
+    plt.plot(gamma_range, acc_late[:, fixed_C_idx], label='Late', marker='s')
+    plt.xscale('log')
+    plt.xlabel("Gamma")
+    plt.ylabel("Accuracy")
+    plt.title(f"{subj} - Accuracy vs Gamma (Fixed C: {C_range[fixed_C_idx]:.2f})")
+    plt.xticks(gamma_range, [f"{g:.0e}" for g in gamma_range], rotation=90)
+    plt.tick_params(axis='both', labelsize=8)
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(os.path.join(outpath, f"{subj}_gamma_accuracy.png"), dpi=300)
+    plt.close()
+
+# Save accuracy data
 pd.DataFrame(ga_early, index=[f"{g:.0e}" for g in gamma_range], columns=[f"{c:.5f}" for c in C_range]) \
-    .to_excel(os.path.join(OUTPATH, 'grand_average_accuracy_early.xlsx'))
+    .to_excel(os.path.join(OUTPATH, 'grandaverage_accuracy_grid_early.xlsx'))
 pd.DataFrame(ga_late, index=[f"{g:.0e}" for g in gamma_range], columns=[f"{c:.5f}" for c in C_range]) \
-    .to_excel(os.path.join(OUTPATH, 'grand_average_accuracy_late.xlsx'))
+    .to_excel(os.path.join(OUTPATH, 'grandaverage_accuracy_grid_late.xlsx'))
 
-protocol_df = pd.DataFrame(protocol, columns=['subj', 'time', 'status', 'mean_accuracy_early', 'mean_accuracy_late'])
-protocol_df.to_excel(os.path.join(OUTPATH, 'svm_analysis_protocol.xlsx'), index=False)
-
-# Save proportion of significant accuracies in separate file
+# Get proportion of the possible hyperparameter pairs that resulted in a above-chance-level classification for both early and late conditions
 sig_props = []
-
 for subj_idx, subj in enumerate([re.search(r'sub-\d+', f.name).group(0) for f in dircont_subj_early]):
     acc_early = acc_collection_early[subj_idx]
     acc_late = acc_collection_late[subj_idx]
@@ -242,9 +268,14 @@ for subj_idx, subj in enumerate([re.search(r'sub-\d+', f.name).group(0) for f in
     prop_late = np.mean(acc_late > sig_tresh)
     sig_props.append([subj, prop_early, prop_late])
 
+# Save proportion data
 sig_prop_df = pd.DataFrame(sig_props, columns=['subj', 'prop_sig_early', 'prop_sig_late'])
-sig_prop_df.to_excel(os.path.join(OUTPATH, 'svm_significant_accuracy_proportions.xlsx'), index=False)
+sig_prop_df.to_excel(os.path.join(OUTPATH, 'all_subj_accuracy_proportions.xlsx'), index=False)
 
-print("tid_psam_svm_analysis_DONE")
+# End of processing
 
+protocol_df = pd.DataFrame(protocol, columns=['subj', 'time', 'status'])
+protocol_df.to_excel(os.path.join(OUTPATH, 'svm_analysis_protocol.xlsx'), index=False)
 
+check_done = "tid_psam_svm_analysis_DONE"
+print(check_done)
