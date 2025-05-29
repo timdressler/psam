@@ -1,10 +1,12 @@
 import os
+import sys
 import re
 import time
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from matplotlib.ticker import FuncFormatter
 from pathlib import Path
 from tqdm import tqdm
 
@@ -22,8 +24,17 @@ if not re.search(re.escape(expected_subpath) + r'$', SCRIPTPATH):
 
 MAINPATH = os.path.abspath(os.path.join(SCRIPTPATH, '..', '..'))
 INPATH = os.path.join(MAINPATH, 'data', 'processed_data', 'svm_prepared_clean')
-OUTPATH = os.path.join(MAINPATH, 'data', 'analysis_data', 'svm_analysis_TEST') 
-os.makedirs(OUTPATH, exist_ok=True)
+OUTPATH = os.path.join(MAINPATH, 'data', 'analysis_data', 'svm_analysis_TEST')
+
+FUNPATH = os.path.join(MAINPATH, 'functions')
+sys.path.append(FUNPATH)
+
+# Load costum functions
+from tid_psam_check_folder_clean_up_folder_TD import tid_psam_check_folder_TD, tid_psam_clean_up_folder_TD
+
+tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)
+tid_psam_clean_up_folder_TD(OUTPATH)
+#os.makedirs(OUTPATH, exist_ok=True)
 
 # Variables to edit
 C_range_lower = -2
