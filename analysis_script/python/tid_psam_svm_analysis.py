@@ -34,7 +34,6 @@ from tid_psam_check_folder_clean_up_folder_TD import tid_psam_check_folder_TD, t
 
 tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)
 tid_psam_clean_up_folder_TD(OUTPATH)
-#os.makedirs(OUTPATH, exist_ok=True)
 
 # Variables to edit
 C_range_lower = -2

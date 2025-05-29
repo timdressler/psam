@@ -14,7 +14,7 @@ def tid_psam_check_folder_TD(*folder_paths):
     Inputs:
         *folder_paths - any number of folder paths as strings
 
-    Tim Dressler, 07.11.2024
+    Tim Dressler, 29.05.2024
     """
     for folder_path in folder_paths:
         if not os.path.exists(folder_path):
@@ -39,7 +39,7 @@ def tid_psam_clean_up_folder_TD(folder_path):
     Input:
         folder_path - The path of the folder to check and clean up.
 
-    Tim Dressler, 12.11.2024 (Updated)
+    Tim Dressler, 29.05.2024 (Updated)
     """
     # Check if the folder exists
     if not os.path.isdir(folder_path):

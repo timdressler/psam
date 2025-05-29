@@ -1,4 +1,5 @@
 import os
+import sys
 import re
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -13,7 +14,15 @@ SCRIPTPATH = os.path.dirname(os.path.abspath(__file__))
 MAINPATH = os.path.abspath(os.path.join(SCRIPTPATH, '..', '..'))
 INPATH = os.path.join(MAINPATH, 'data', 'processed_data', 'svm_prepared_clean')
 OUTPATH = os.path.join(MAINPATH, 'data', 'analysis_data', 'feature_analysis')
-os.makedirs(OUTPATH, exist_ok=True)
+
+FUNPATH = os.path.join(MAINPATH, 'functions')
+sys.path.append(FUNPATH)
+
+# Load costum functions
+from tid_psam_check_folder_clean_up_folder_TD import tid_psam_check_folder_TD, tid_psam_clean_up_folder_TD
+
+tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)
+tid_psam_clean_up_folder_TD(OUTPATH)
 
 EPOCHS = ['early', 'late']
 group_rvals_by_epoch = {epoch: {} for epoch in EPOCHS}
@@ -118,7 +127,7 @@ for epoch in EPOCHS:
                 plt.grid(True, axis='y')
                 plt.tight_layout()
 
-                # ✅ Save as sub-XX_feature_epoch.png
+                # Save as sub-XX_feature_epoch.png
                 plot_path = os.path.join(subj_outpath, f"{subj_name}_{val_col}_{epoch}.png")
                 plt.savefig(plot_path, dpi=300)
                 plt.close()
