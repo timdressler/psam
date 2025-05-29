@@ -5,3 +5,6 @@ data/
 timingtest/
 markertest/
 generaltest/
+
+__pycache__/
+*.pyc
