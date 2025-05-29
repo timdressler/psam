@@ -54,9 +54,12 @@ MAINPATH <- gsub("/analysis_script/R", "", SCRIPTPATH)
 INPATH <- file.path(MAINPATH, "data", "processed_data", "beh_preprocessed_clean")
 OUTPATH <- file.path(MAINPATH, "data", "analysis_data", "stats_beh_analysis")
 
-if (!dir.exists(OUTPATH)) {
-  dir.create(OUTPATH, recursive = TRUE)
-}
+FUNPATH <- file.path(MAINPATH, "functions")
+source(file.path(FUNPATH, "tid_psam_check_folder_TD.R"))
+source(file.path(FUNPATH, "tid_psam_clean_up_folder_TD.R"))
+
+tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)
+tid_psam_clean_up_folder_TD(OUTPATH)
 
 setwd(OUTPATH)
 

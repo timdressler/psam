@@ -5,8 +5,8 @@ tid_psam_clean_up_folder_TD <- function(folder_path) {
   
   items <- list.files(folder_path, full.names = TRUE, all.files = FALSE, recursive = FALSE)
   
-  # Exclude "archive" and "__pycache__"
-  items <- items[!basename(items) %in% c("archive", "__pycache__")]
+  # Exclude "archive" 
+  items <- items[!basename(items) %in% c("archive")]
   
   if (length(items) == 0) {
     cat("The folder is empty. No action taken.\n")
