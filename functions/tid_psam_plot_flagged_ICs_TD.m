@@ -8,7 +8,7 @@ function activity = tid_psam_plot_flagged_ICs_TD(EEG,sgtitlestr,savestr)
 %   EEG - an EEGLAB structure
 %       EEG must contain information regarding flagged ICs
 %
-%   sgtitlestr - a string used for the title of the plottitlestrtitlestr
+%   sgtitlestr - a string used for the title of the plot
 %
 %   savestr - a sting used for saving the plot (full path required)
 %
