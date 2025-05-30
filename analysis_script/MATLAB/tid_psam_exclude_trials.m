@@ -145,6 +145,7 @@ for subj_idx= 1:length(dircont_subj_erp)
     else
         marked_subj{end+1,1} = subj;
         marked_subj{end,2} = 'number_of_trials';
+        error('Invalid number of trials')
     end
 
     % Merge to be excluded trials
