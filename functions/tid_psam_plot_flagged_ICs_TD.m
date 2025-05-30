@@ -2,7 +2,7 @@ function activity = tid_psam_plot_flagged_ICs_TD(EEG,sgtitlestr,savestr)
 % tid_psam_plot_flagged_ICs_TD - Plots flagged ICs..
 %
 % Usage:
-%   tid_psam_plot_flagged_ICs_TD(EEG)
+%   tid_psam_plot_flagged_ICs_TD(EEG, sgtitlestr, savestr)
 %
 % Inputs:
 %   EEG - an EEGLAB structure
