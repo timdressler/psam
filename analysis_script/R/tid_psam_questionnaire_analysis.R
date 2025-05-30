@@ -47,7 +47,7 @@ if (grepl("psam/analysis_script/R", SCRIPTPATH)) {
 }
 
 MAINPATH <- gsub("/analysis_script/R", "", SCRIPTPATH)
-INPATH <- file.path(MAINPATH, "data", "questionnaire_data")
+INPATH <- file.path(MAINPATH, "data", "questionnaire_data_clean")
 OUTPATH <- file.path(MAINPATH, "data", "analysis_data", "stats_questionnaire_analysis")
 
 FUNPATH <- file.path(MAINPATH, "functions")
@@ -62,11 +62,11 @@ setwd(OUTPATH)
 #------------------------------Load & Modify data-------------------------------
 
 # Load FAL data
-df_fal <- read_excel(file.path(INPATH, "fal_data.xlsx"))
+df_fal <- read_excel(file.path(INPATH, "fal_data_clean.xlsx"))
 # Load NASA-TLX data
-df_nasatlx <- read_excel(file.path(INPATH, "nasatlx_data.xlsx"))
+df_nasatlx <- read_excel(file.path(INPATH, "nasatlx_data_clean.xlsx"))
 # Load SAM data
-df_sam <- read_excel(file.path(INPATH, "sam_data.xlsx"))
+df_sam <- read_excel(file.path(INPATH, "sam_data_clean.xlsx"))
 
 # Change FAL variable types
 df_fal <- df_fal %>%
@@ -74,7 +74,6 @@ df_fal <- df_fal %>%
 
 df_fal <- df_fal %>%
   mutate(across(c(3,4,5,6,7,9,11,12,14,16,17,19,21,23,25,27), as.factor))
-
 
 # Change NASA-TLX variable types
 df_nasatlx <- df_nasatlx %>%

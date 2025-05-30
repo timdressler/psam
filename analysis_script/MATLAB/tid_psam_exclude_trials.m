@@ -20,26 +20,26 @@
 %
 % Concatinates all individual behavioural data sets to one large one and stores it.
 %
-% Note. Since multiple data types (EEG data and vocal data) and different EEG preprocessing pipelines 
-    % (ERP-specific preprocessing and single-trial-specific preprocessing) will be used (see below), the flagged 
-    % trials will need to be merged in a systematic way. Because the ERP analysis and the behavioural analysis are linked, 
-    % in the sense that the vocal responses made are thought to influence the ERP analysis, the flagged trials will be merged. 
-    % In other words, if a trial is flagged based on the behavioural data, it will also be removed from the ERP analysis. 
-    % Likewise, if a trial is flagged based on the ERP-specific preprocessing, it will also be removed from the behavioural analysis. 
-    % Thus, the ERP analysis and the behavioural analysis will include the exact same trials. Since the classification analysis 
-    % does not rely on any quantities associated with the vocal responses themselves, a different approach will be used. 
-    % A trial will be excluded from the classification analysis if it is flagged based on the single-trial-specific preprocessing 
-    % and/or the behavioural preprocessing. However, the single-trial-specific preprocessing will not affect the trials included in 
-    % the behavioural analysis. Therefore, if a trial is flagged based on the behavioural preprocessing, it will also be excluded 
-    % from the classification analysis. Conversely, if a trial is (only) flagged based on the single-trial-specific preprocessing, 
-    % it will not be excluded from the behavioural analysis. This approach is used to maximize the number of usable trials in each analysis. 
-    % If the flagged trials were matched across all preprocessing pipelines, this could lead to trials being unnecessarily excluded. 
-    % For example, as the epochs for the EEG analyses will be extracted based on different events, an artefact could be present 
-    % at one time-point but not another. Thus, matching flagged trials could result in the loss of valid data. 
-    % Finally, participants will only be included if more than 30 trials per condition remain for the ERP analysis, 
-    % and more than 100 trials per condition remain for the classification analysis. Participants who do not meet these 
-    % criteria will be excluded from all analyses. Furthermore, if data from any dataset is missing, the 
-    % participant will also be excluded from all analyses. Thus, while individual trials will be matched between the 
+% Note. Since multiple data types (EEG data and vocal data) and different EEG preprocessing pipelines
+    % (ERP-specific preprocessing and single-trial-specific preprocessing) will be used (see below), the flagged
+    % trials will need to be merged in a systematic way. Because the ERP analysis and the behavioural analysis are linked,
+    % in the sense that the vocal responses made are thought to influence the ERP analysis, the flagged trials will be merged.
+    % In other words, if a trial is flagged based on the behavioural data, it will also be removed from the ERP analysis.
+    % Likewise, if a trial is flagged based on the ERP-specific preprocessing, it will also be removed from the behavioural analysis.
+    % Thus, the ERP analysis and the behavioural analysis will include the exact same trials. Since the classification analysis
+    % does not rely on any quantities associated with the vocal responses themselves, a different approach will be used.
+    % A trial will be excluded from the classification analysis if it is flagged based on the single-trial-specific preprocessing
+    % and/or the behavioural preprocessing. However, the single-trial-specific preprocessing will not affect the trials included in
+    % the behavioural analysis. Therefore, if a trial is flagged based on the behavioural preprocessing, it will also be excluded
+    % from the classification analysis. Conversely, if a trial is (only) flagged based on the single-trial-specific preprocessing,
+    % it will not be excluded from the behavioural analysis. This approach is used to maximize the number of usable trials in each analysis.
+    % If the flagged trials were matched across all preprocessing pipelines, this could lead to trials being unnecessarily excluded.
+    % For example, as the epochs for the EEG analyses will be extracted based on different events, an artefact could be present
+    % at one time-point but not another. Thus, matching flagged trials could result in the loss of valid data.
+    % Finally, participants will only be included if more than 30 trials per condition remain for the ERP analysis,
+    % and more than 100 trials per condition remain for the classification analysis. Participants who do not meet these
+    % criteria will be excluded from all analyses. Furthermore, if data from any dataset is missing, the
+    % participant will also be excluded from all analyses. Thus, while individual trials will be matched between the
     % ERP and behavioural analyses—but not with the classification analysis—the same set of participants will be included across all analyses.
 %
 % Tim Dressler, 04.04.2025
@@ -62,20 +62,22 @@ MAINPATH = erase(SCRIPTPATH, '\analysis_script\MATLAB');
 INPATH_ERP = fullfile(MAINPATH, 'data\processed_data\erp_preprocessed\');
 INPATH_SVM = fullfile(MAINPATH, 'data\processed_data\svm_preprocessed\');
 INPATH_BEH = fullfile(MAINPATH, 'data\processed_data\beh_preprocessed_2\');
+INPATH_QUEST = fullfile(MAINPATH, 'data\questionnaire_data\');
 OUTPATH_ERP = fullfile(MAINPATH, 'data\processed_data\erp_preprocessed_clean\');
 OUTPATH_SVM = fullfile(MAINPATH, 'data\processed_data\svm_preprocessed_clean\');
 OUTPATH_BEH = fullfile(MAINPATH, 'data\processed_data\beh_preprocessed_clean\');
+OUTPATH_QUEST = fullfile(MAINPATH, 'data\questionnaire_data_clean\');
 OUTPATH = fullfile(MAINPATH, 'data\processed_data\exclude_trials\');
 
 FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);
 
-tid_psam_check_folder_TD(MAINPATH, INPATH_ERP, INPATH_SVM, INPATH_BEH, OUTPATH_ERP, OUTPATH_SVM,OUTPATH_BEH, OUTPATH)
+tid_psam_check_folder_TD(MAINPATH, INPATH_ERP, INPATH_SVM, INPATH_BEH, OUTPATH_ERP, OUTPATH_SVM,OUTPATH_BEH,OUTPATH_QUEST ,OUTPATH)
 tid_psam_clean_up_folder_TD(OUTPATH_ERP)
 tid_psam_clean_up_folder_TD(OUTPATH_SVM)
 tid_psam_clean_up_folder_TD(OUTPATH_BEH)
 tid_psam_clean_up_folder_TD(OUTPATH)
-
+tid_psam_clean_up_folder_TD(OUTPATH_QUEST)
 
 % Variables to edit
 n_trials = 960;
@@ -300,9 +302,34 @@ for subj_idx= 1:length(dircont_subj_erp)
 
 end
 
-% Sanity Check: Correct number of saved datasets
+% Remove excluded subjects from questionnaire data
+fal_data = readtable(fullfile(INPATH_QUEST, 'fal_data.xlsx')); % Load data
+nasatlx_data = readtable(fullfile(INPATH_QUEST, 'nasatlx_data.xlsx')); % Load data
+sam_data = readtable(fullfile(INPATH_QUEST, 'sam_data.xlsx')); % Load data
+
+if ~isempty(excluded_subj)
+    excluded_subj_unique = unique(excluded_subj.subj); % Get IDs of excluded subjects
+
+    fal_data_clean = fal_data(~strcmp(fal_data.subj, excluded_subj_unique ),:); % Remove excluded subjects
+    nasatlx_data_clean = nasatlx_data(~strcmp(nasatlx_data.subj, excluded_subj_unique ),:); % Remove excluded subjects
+    sam_data_clean = sam_data(~strcmp(sam_data.subj, excluded_subj_unique ),:); % Remove excluded subjects
+else
+    fal_data_clean = fal_data;
+    nasatlx_data_clean = nasatlx_data;
+    sam_data_clean = sam_data;
+end
+
+writetable(fal_data_clean,fullfile(OUTPATH_QUEST, 'fal_data_clean.xlsx')); % Store data
+writetable(nasatlx_data_clean,fullfile(OUTPATH_QUEST, 'nasatlx_data_clean.xlsx')); % Store data
+writetable(sam_data_clean,fullfile(OUTPATH_QUEST, 'sam_data_clean.xlsx')); % Store data
+
+% Sanity Check: Correct number of saved datasets and rows in questionnaire data
 n_saved_erp = length(dir(fullfile(OUTPATH_ERP, 'sub-*.set')));
+n_saved_svm = length(dir(fullfile(OUTPATH_SVM, 'sub-*.set')));
 n_saved_beh = length(dir(fullfile(OUTPATH_BEH, 'sub-*.xlsx')));
+n_rows_fal = size(fal_data_clean,1);
+n_rows_nasatlx = size(nasatlx_data_clean,1);
+n_rows_sam = size(sam_data_clean,1);
 if isempty(excluded_subj)
     n_excluded = 0;
 else
@@ -310,11 +337,24 @@ else
 end
 n_subjects_all = length(dircont_subj_erp);
 
-if n_saved_erp == n_saved_beh && n_saved_erp == (n_subjects_all - n_excluded)
+if n_saved_erp == n_saved_beh && n_saved_erp == n_saved_svm && n_saved_erp == (n_subjects_all - n_excluded) && n_saved_erp == n_rows_fal && n_rows_fal == n_rows_nasatlx && n_rows_fal == n_rows_sam
 else
     error('Number of saved files incorrect')
 end
 
+% Sanity Check: Same subjects in behavioural, EEG (ERP), EEG (SVM) and questionnaire data
+subj_list_erp = regexp({dir(fullfile(OUTPATH_ERP, 'sub-*.set')).name}, 'sub-\d+', 'match', 'once')';
+subj_list_svm = regexp({dir(fullfile(OUTPATH_SVM, 'sub-*.set')).name}, 'sub-\d+', 'match', 'once')';
+subj_list_beh = regexp({dir(fullfile(OUTPATH_BEH, 'sub-*.xlsx')).name}, 'sub-\d+', 'match', 'once')'; % Individual data
+subj_list_beh2 = unique(all_subj_beh_clean.subj); % Merged data containing all subjects
+subj_list_fal = fal_data_clean.subj;
+subj_list_nasatlx = nasatlx_data_clean.subj;
+subj_list_sam = sam_data_clean.subj;
+
+subj_list_all = {subj_list_erp, subj_list_svm, subj_list_beh, subj_list_beh2, subj_list_fal, subj_list_nasatlx, subj_list_sam};
+if ~all(cellfun(@(x) isequal(x, subj_list_all{1}), subj_list_all))
+    error('Different subjects included in data')
+end
 
 % Store behavioral data from all subjects
 writetable(all_subj_beh_clean,fullfile(OUTPATH_BEH, 'all_subj_beh_preprocessed_clean.xlsx'))
