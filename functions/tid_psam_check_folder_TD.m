@@ -13,7 +13,7 @@ for i = 1:numel(varargin)
     folderPath = varargin{i};
     if ~exist(folderPath)
         fprintf('The folder "%s" does not exist.\n', folderPath);
-        % create the folder
+        % Create the folder
         try
             mkdir(folderPath);
             fprintf('Folder "%s" was successfully created\n', folderPath);
