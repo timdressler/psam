@@ -157,6 +157,8 @@ psych::describeBy(
 )
 
 # Follow-Up Tests
+MAIN_ERP1_FUT <- emmeans(MAIN_ERP1, ~ task_instruction)
+contrast(MAIN_ERP1_FUT, method = "pairwise", adjust = "bonferroni")
 
 # Assumptions
 performance::check_convergence(MAIN_ERP1)

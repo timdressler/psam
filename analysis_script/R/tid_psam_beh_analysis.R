@@ -387,7 +387,7 @@ ezPlot(
 
 # Descriptive statistics
 psych::describeBy(
-  df_probe_type_onset_f0$recording_f0,
+  df_probe_type_onset_vot$recording_vot,
   list(df_probe_type_onset_vot$probe_type, df_probe_type_onset_vot$probe_onset_cat)
 )
 
