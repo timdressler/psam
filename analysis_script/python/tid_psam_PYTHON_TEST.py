@@ -164,15 +164,21 @@ for file_early, file_late in tqdm(zip(dircont_subj_early, dircont_subj_late), to
     fig, axs = plt.subplots(1, 2, figsize=(16, 6), constrained_layout=True)
     for i, (acc_matrix, label) in enumerate(zip([acc_early, acc_late], ['early', 'late'])):
         acc_df = pd.DataFrame(acc_matrix, index=[f"{g:.0e}" for g in gamma_range], columns=[f"{c:.5f}" for c in C_range])
+        min_val = acc_matrix.min()
+        max_val = acc_matrix.max()
+        above_chance_prop = np.mean(acc_matrix > sig_tresh)
+
         sns.heatmap(acc_df, ax=axs[i], cmap='magma', vmin=0.5, vmax=0.95,
                     cbar=(i == 1), cbar_kws={"label": "Validation Accuracy"}, xticklabels=True, yticklabels=True)
-        axs[i].set_title(f"{subj} - {label} - Accuracy Grid")
+        axs[i].set_title(f"{subj} - {label} - Accuracy Grid\n"
+                        f"Min: {min_val:.3f}, Max: {max_val:.3f}, >Chance: {above_chance_prop:.2%}")
         axs[i].set_xlabel("C")
         axs[i].set_ylabel("Gamma")
         axs[i].tick_params(axis='x', rotation=90, labelsize=8)
         axs[i].tick_params(axis='y', labelsize=8)
     plt.savefig(os.path.join(outpath, f"{subj}_accuracy_heatmaps.png"), dpi=300)
     plt.close()
+
 
     # CHATGPT: Plot: Accuracy vs C (with fixed Gamma) for early and late
     plt.figure(figsize=(10, 5))
