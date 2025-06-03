@@ -174,9 +174,9 @@ for subj_idx= 1:length(dircont_subj)
     EEG = pop_editset(EEG,'run', [], 'icaweights','ALLEEG(1).icaweights', 'icasphere','ALLEEG(1).icasphere');
     % Label ICA components with IC Label Plugin (Pion-Tonachini et al., 2019)
     EEG = pop_iclabel(EEG, 'default');
-    EEG = pop_icflag(EEG, [0 0.2;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1]);
+    EEG = pop_icflag(EEG, [0 0.4;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1]);
     % Sanity Check: Plot flagged ICs
-    tid_psam_plot_flagged_ICs_TD(EEG,['ICs for ' subj], fullfile(OUTPATH, [subj '_ic_topo.png']))
+    tid_psam_plot_flagged_ICs_TD(EEG,['ICs for ' subj], 'SavePath' ,fullfile(OUTPATH, [subj '_ic_topo.png']), 'PlotOn', false)
     % Remove flagged ICs
     EEG = pop_subcomp( EEG, [], 0);
 
@@ -184,6 +184,9 @@ for subj_idx= 1:length(dircont_subj)
     if ~isempty(EEG.badchans)
         EEG = pop_interp(EEG, EEG.urchanlocs , 'spherical'); % and interpolate them using urchanlocs
     end
+
+    % Sanity Check: Plot RMS in 10s bins for each electode
+    tid_psam_plot_rms_bins_TD(EEG, [subj ' RMS bins'], 'SavePath', fullfile(OUTPATH, [subj '_channel_rms.png']), 'PlotOn', false)
 
     % Epoching
     EEG = pop_epoch( EEG, EVENTS, [EPO_FROM        EPO_TILL], 'epochinfo', 'yes');
@@ -225,7 +228,7 @@ end
 
 check_done = 'tid_psam_erp_preprocessing_DONE'
 
-delete(wb)
+close all; delete(wb)
 
 
 
