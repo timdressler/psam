@@ -11,7 +11,7 @@ function tid_psam_plot_rms_bins_TD(EEG, titlestr, varargin)
 %   EEG - EEG dataset structure from EEGLAB (containing EEG.data and EEG.srate)
 %   titlestr - a string used for the title of the plot.
 %
-% Name-Value Pair Arguments:
+% Optional Inputs:
 %   'BinDuration' - Bin duration in seconds (default: 10 seconds)
 %   'SavePath' - Full file path (including name) to save the plot (optional)
 %   'PlotOn' - Logical flag to control whether the plot is shown (default: true)
