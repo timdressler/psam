@@ -71,7 +71,7 @@ main_yellow = '#FDC300';
 main_yellow = sscanf(main_yellow(2:end),'%2x%2x%2x',[1 3])/255;
 
 % Get directory content
-dircont_subj = dir(fullfile(INPATH, 'sub-*.set'));
+dircont_subj = dir(fullfile(INPATH, 'sub*.set'));
 
 %initialize sanity check variables
 marked_subj = {};
@@ -217,17 +217,29 @@ for subj_idx= 1:length(dircont_subj)
         writetable(features.(label).feature_table,fullfile(OUTPATH, [subj '_features_' char(label) '.csv']))
     end
 
-    % Sanity Check: Plot ERPs
+    % Sanity Check: Plot ERPs & Topographies
     EEG.setname = [subj '_all_conds'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+
+    [~,win_early_start] = min(abs(EEG.times-WIN_EARLY_FROM));
+    [~,win_early_end] = min(abs(EEG.times-WIN_EARLY_TILL));
+
+    [~,win_late_start] = min(abs(EEG.times-WIN_LATE_FROM));
+    [~,win_late_end] = min(abs(EEG.times-WIN_LATE_TILL));
+
+    [~,t_zero] = min(abs(EEG.times));
+
     y_lim_lower = -8;
     y_lim_upper = 8;
-    figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
-    for cond = 1:length(EVENTS)
+    cb_lim_lower = -5;
+    cb_lim_upper = 2;
+
+    figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.7, 0.7]);
+    for cond = 1:2
         EEG = pop_selectevent( ALLEEG(1), 'latency','-2<=2','type',EVENTS(cond), ...
             'deleteevents','off','deleteepochs','on','invertepochs','off');
         erp = mean(EEG.data, 3);
-        erp_se = std(EEG.data, [], 3) / sqrt(size(EEG.data,3)); % Get standard error over epochs
+        erp_se = std(EEG.data, [], 3) / sqrt(size(EEG.data,3));
 
         % Store ERP
         if strcmp('go_act', EVENTS{cond})
@@ -236,21 +248,42 @@ for subj_idx= 1:length(dircont_subj)
             all_erp_go_pas(:,:,subj_idx) = erp;
         end
 
-        subplot(1,2,cond)
-        %%plot(EEG.times, erp(CHANI,:), 'LineWidth', 1.5, 'Color',main_blue)
-        shadedErrorBar(EEG.times, erp(CHANI,:), erp_se(CHANI,:), 'lineprops', '-b', 'transparent', true);
+        subplot(2, 4, 2*(cond-1) + [1 2])
+        shadedErrorBar(EEG.times, erp(CHANI,:), erp_se(CHANI,:), ...
+            'lineprops', '-b', 'transparent', true);
         xlim([EEG.times(1) EEG.times(end)])
         ylim([y_lim_lower y_lim_upper])
         xlabel('Time [ms]')
         ylabel('Amplitude [µV]')
-        title(['ERP for ' EVENTS{cond} ' condition'])
+        title(['ERP for ' EVENTS{cond}])
         hold on
-        fill([WIN_LATE_FROM WIN_LATE_TILL WIN_LATE_TILL WIN_LATE_FROM], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], main_yellow, 'FaceAlpha',0.1, 'EdgeColor','none');
-        fill([WIN_EARLY_FROM WIN_EARLY_TILL WIN_EARLY_TILL WIN_EARLY_FROM], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], main_red, 'FaceAlpha',0.1, 'EdgeColor','none');
+        fill([WIN_LATE_FROM WIN_LATE_TILL WIN_LATE_TILL WIN_LATE_FROM], ...
+            [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], main_yellow, 'FaceAlpha',0.1, 'EdgeColor','none');
+        fill([WIN_EARLY_FROM WIN_EARLY_TILL WIN_EARLY_TILL WIN_EARLY_FROM], ...
+            [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], main_red, 'FaceAlpha',0.1, 'EdgeColor','none');
         hold off
+
+        subplot(2, 4, 4 + (cond-1)*2 + 1)
+        topoplot(mean(erp(:,win_early_start:win_early_end),2), EEG.chanlocs, ...
+            'emarker2', {CHANI,'o','r',5,1});
+        colormap("parula")
+        cb = colorbar;
+        title(cb, 'Amplitude [µV]')
+        clim([cb_lim_lower cb_lim_upper])
+        title('Early Window')
+
+        subplot(2, 4, 4 + (cond-1)*2 + 2)
+        topoplot(mean(erp(:,win_late_start:win_late_end),2), EEG.chanlocs, ...
+            'emarker2', {CHANI,'o','r',5,1});
+        colormap("parula")
+        cb = colorbar;
+        title(cb, 'Amplitude [µV]')
+        clim([cb_lim_lower cb_lim_upper])
+        title('Late Window')
     end
+
     sgtitle(['Sanity Check ERPs for ' subj ' (including SE across trials)'])
-    saveas(gcf,fullfile(OUTPATH, [subj '_sanity_erp.png']));
+    saveas(gcf, fullfile(OUTPATH, [subj '_sanity_erp_topo.png']));
 
     % Update Protocol
     subj_time = toc;
@@ -264,10 +297,13 @@ for subj_idx= 1:length(dircont_subj)
 
 end
 
+grandaverage_erp_act = mean(all_erp_go_act,3);
+grandaverage_erp_pas = mean(all_erp_go_pas,3);
+
 % Sanity Check: Plot grandaverage ERPs
-figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
-subplot(121)
-plot(EEG.times, mean(all_erp_go_act(CHANI,:,:),3), 'LineWidth', 1.5, 'Color',main_blue)
+figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.7, 0.7]);
+subplot(2,4,1:2)
+plot(EEG.times, grandaverage_erp_act(CHANI,:,:), 'LineWidth', 1.5, 'Color',main_blue)
 xlim([EEG.times(1) EEG.times(end)])
 ylim([y_lim_lower y_lim_upper])
 xlabel('Time [ms]')
@@ -277,8 +313,9 @@ hold on
 fill([WIN_LATE_FROM WIN_LATE_TILL WIN_LATE_TILL WIN_LATE_FROM], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], main_yellow, 'FaceAlpha',0.1, 'EdgeColor','none');
 fill([WIN_EARLY_FROM WIN_EARLY_TILL WIN_EARLY_TILL WIN_EARLY_FROM], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], main_red, 'FaceAlpha',0.1, 'EdgeColor','none');
 hold off
-subplot(122)
-plot(EEG.times, mean(all_erp_go_pas(CHANI,:,:),3), 'LineWidth', 1.5, 'Color',main_blue)
+
+subplot(2,4,3:4)
+plot(EEG.times, grandaverage_erp_pas(CHANI,:,:), 'LineWidth', 1.5, 'Color',main_blue)
 xlim([EEG.times(1) EEG.times(end)])
 ylim([y_lim_lower y_lim_upper])
 xlabel('Time [ms]')
@@ -288,8 +325,45 @@ hold on
 fill([WIN_LATE_FROM WIN_LATE_TILL WIN_LATE_TILL WIN_LATE_FROM], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], main_yellow, 'FaceAlpha',0.1, 'EdgeColor','none');
 fill([WIN_EARLY_FROM WIN_EARLY_TILL WIN_EARLY_TILL WIN_EARLY_FROM], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], main_red, 'FaceAlpha',0.1, 'EdgeColor','none');
 hold off
+
+subplot(2, 4, 5)
+topoplot(mean(grandaverage_erp_act(:,win_early_start:win_early_end),2), EEG.chanlocs, ...
+    'emarker2', {CHANI,'o','r',5,1});
+colormap("parula")
+cb = colorbar;
+title(cb, 'Amplitude [µV]')
+clim([cb_lim_lower cb_lim_upper])
+title('Early Window')
+
+subplot(2, 4, 6)
+topoplot(mean(grandaverage_erp_act(:,win_late_start:win_late_end),2), EEG.chanlocs, ...
+    'emarker2', {CHANI,'o','r',5,1});
+colormap("parula")
+cb = colorbar;
+title(cb, 'Amplitude [µV]')
+clim([cb_lim_lower cb_lim_upper])
+title('Late Window')
+
+subplot(2, 4, 7)
+topoplot(mean(grandaverage_erp_pas(:,win_early_start:win_early_end),2), EEG.chanlocs, ...
+    'emarker2', {CHANI,'o','r',5,1});
+colormap("parula")
+cb = colorbar;
+title(cb, 'Amplitude [µV]')
+clim([cb_lim_lower cb_lim_upper])
+title('Early Window')
+
+subplot(2, 4, 8)
+topoplot(mean(all_erp_go_pas(:,win_late_start:win_late_end),2), EEG.chanlocs, ...
+    'emarker2', {CHANI,'o','r',5,1});
+colormap("parula")
+cb = colorbar;
+title(cb, 'Amplitude [µV]')
+clim([cb_lim_lower cb_lim_upper])
+title('Late Window')
+
 sgtitle('Sanity Check ERPs (grandaverage)')
-saveas(gcf,fullfile(OUTPATH, 'grandaverage_sanity_erp.png'));
+saveas(gcf,fullfile(OUTPATH, 'grandaverage_sanity_erp_topo.png'));
 
 % End of processing
 
