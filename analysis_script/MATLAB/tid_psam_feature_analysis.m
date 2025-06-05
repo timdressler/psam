@@ -172,7 +172,7 @@ for subj_idx= 1:length(dircont_subj)
 end
 
 
-
+delete(wb), close all;
 
 
 
