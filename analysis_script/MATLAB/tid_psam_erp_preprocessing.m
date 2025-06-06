@@ -174,7 +174,7 @@ for subj_idx= 1:length(dircont_subj)
     EEG = pop_editset(EEG,'run', [], 'icaweights','ALLEEG(1).icaweights', 'icasphere','ALLEEG(1).icasphere');
     % Label ICA components with IC Label Plugin (Pion-Tonachini et al., 2019)
     EEG = pop_iclabel(EEG, 'default');
-    EEG = pop_icflag(EEG, [0 0.4;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1]);
+    EEG = pop_icflag(EEG, [0 0;0.7 1;0.7 1;0.7 1;0.7 1;0.7 1;0.7 1]);
     % Sanity Check: Plot flagged ICs
     tid_psam_plot_flagged_ICs_TD(EEG,['ICs for ' subj], 'SavePath' ,fullfile(OUTPATH, [subj '_ic_topo.png']), 'PlotOn', false)
     % Remove flagged ICs

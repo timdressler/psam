@@ -155,9 +155,9 @@ for subj_idx= 1:length(dircont_subj)
     EEG = pop_editset(EEG,'run', [], 'icaweights','ALLEEG(1).icaweights', 'icasphere','ALLEEG(1).icasphere');
     % Label ICA components with IC Label Plugin (Pion-Tonachini et al., 2019)
     EEG = pop_iclabel(EEG, 'default');
-    EEG = pop_icflag(EEG, [0 0.4;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1;0.9 1]);
+    EEG = pop_icflag(EEG, [0 0;0.7 1;0.7 1;0.7 1;0.7 1;0.7 1;0.7 1]);
     % Sanity Check: Plot flagged ICs
-    tid_psam_plot_flagged_ICs_TD(EEG,['ICs for ' subj], fullfile(OUTPATH, [subj '_ic_topo.png']))
+    tid_psam_plot_flagged_ICs_TD(EEG,['ICs for ' subj], 'SavePath' ,fullfile(OUTPATH, [subj '_ic_topo.png']), 'PlotOn', false)
     % Remove flagged ICs
     EEG = pop_subcomp( EEG, [], 0);
 
@@ -178,7 +178,8 @@ for subj_idx= 1:length(dircont_subj)
         CURRENTSET = 4;
 
         % Apply BP-Filter
-        EEG = pop_eegfiltnew(EEG, 'locutoff',freq_bands{freq_band_num}(1),'hicutoff',freq_bands{freq_band_num}(2));
+        EEG = pop_eegfiltnew(EEG, 'locutoff',freq_bands{freq_band_num}(1), 'plotfreqz', 1);
+        EEG = pop_eegfiltnew(EEG, 'hicutoff',freq_bands{freq_band_num}(2));
 
         % Apply Hilbert transformation
         EEG.data = abs(hilbert(EEG.data));

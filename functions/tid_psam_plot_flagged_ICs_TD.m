@@ -21,7 +21,7 @@ function tid_psam_plot_flagged_ICs_TD(EEG, sgtitlestr, varargin)
 % Plots:
 %   Plots all extracted ICs and marks the flagged ones based on EEG.reject.gcompreject.
 %
-% Tim Dressler, 24.05.2025 (Updated)
+% Tim Dressler, 24.05.2025 
 
 % Parse optional inputs
 p = inputParser;

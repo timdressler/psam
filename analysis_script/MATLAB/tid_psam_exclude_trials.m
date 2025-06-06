@@ -21,26 +21,26 @@
 % Concatinates all individual behavioural data sets to one large one and stores it.
 %
 % Note. Since multiple data types (EEG data and vocal data) and different EEG preprocessing pipelines
-    % (ERP-specific preprocessing and single-trial-specific preprocessing) will be used (see below), the flagged
-    % trials will need to be merged in a systematic way. Because the ERP analysis and the behavioural analysis are linked,
-    % in the sense that the vocal responses made are thought to influence the ERP analysis, the flagged trials will be merged.
-    % In other words, if a trial is flagged based on the behavioural data, it will also be removed from the ERP analysis.
-    % Likewise, if a trial is flagged based on the ERP-specific preprocessing, it will also be removed from the behavioural analysis.
-    % Thus, the ERP analysis and the behavioural analysis will include the exact same trials. Since the classification analysis
-    % does not rely on any quantities associated with the vocal responses themselves, a different approach will be used.
-    % A trial will be excluded from the classification analysis if it is flagged based on the single-trial-specific preprocessing
-    % and/or the behavioural preprocessing. However, the single-trial-specific preprocessing will not affect the trials included in
-    % the behavioural analysis. Therefore, if a trial is flagged based on the behavioural preprocessing, it will also be excluded
-    % from the classification analysis. Conversely, if a trial is (only) flagged based on the single-trial-specific preprocessing,
-    % it will not be excluded from the behavioural analysis. This approach is used to maximize the number of usable trials in each analysis.
-    % If the flagged trials were matched across all preprocessing pipelines, this could lead to trials being unnecessarily excluded.
-    % For example, as the epochs for the EEG analyses will be extracted based on different events, an artefact could be present
-    % at one time-point but not another. Thus, matching flagged trials could result in the loss of valid data.
-    % Finally, participants will only be included if more than 30 trials per condition remain for the ERP analysis,
-    % and more than 100 trials per condition remain for the classification analysis. Participants who do not meet these
-    % criteria will be excluded from all analyses. Furthermore, if data from any dataset is missing, the
-    % participant will also be excluded from all analyses. Thus, while individual trials will be matched between the
-    % ERP and behavioural analyses—but not with the classification analysis—the same set of participants will be included across all analyses.
+% (ERP-specific preprocessing and single-trial-specific preprocessing) will be used (see below), the flagged
+% trials will need to be merged in a systematic way. Because the ERP analysis and the behavioural analysis are linked,
+% in the sense that the vocal responses made are thought to influence the ERP analysis, the flagged trials will be merged.
+% In other words, if a trial is flagged based on the behavioural data, it will also be removed from the ERP analysis.
+% Likewise, if a trial is flagged based on the ERP-specific preprocessing, it will also be removed from the behavioural analysis.
+% Thus, the ERP analysis and the behavioural analysis will include the exact same trials. Since the classification analysis
+% does not rely on any quantities associated with the vocal responses themselves, a different approach will be used.
+% A trial will be excluded from the classification analysis if it is flagged based on the single-trial-specific preprocessing
+% and/or the behavioural preprocessing. However, the single-trial-specific preprocessing will not affect the trials included in
+% the behavioural analysis. Therefore, if a trial is flagged based on the behavioural preprocessing, it will also be excluded
+% from the classification analysis. Conversely, if a trial is (only) flagged based on the single-trial-specific preprocessing,
+% it will not be excluded from the behavioural analysis. This approach is used to maximize the number of usable trials in each analysis.
+% If the flagged trials were matched across all preprocessing pipelines, this could lead to trials being unnecessarily excluded.
+% For example, as the epochs for the EEG analyses will be extracted based on different events, an artefact could be present
+% at one time-point but not another. Thus, matching flagged trials could result in the loss of valid data.
+% Finally, participants will only be included if more than 30 trials per condition remain for the ERP analysis,
+% and more than 100 trials per condition remain for the classification analysis. Participants who do not meet these
+% criteria will be excluded from all analyses. Furthermore, if data from any dataset is missing, the
+% participant will also be excluded from all analyses. Thus, while individual trials will be matched between the
+% ERP and behavioural analyses—but not with the classification analysis—the same set of participants will be included across all analyses.
 %
 % Tim Dressler, 04.04.2025
 
