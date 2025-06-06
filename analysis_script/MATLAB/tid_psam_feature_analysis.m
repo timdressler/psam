@@ -1,15 +1,18 @@
 % tid_psam_feature_analysis.m
 %
-% Performs .
+% Performs rudamentary analysis concerning the association between the outcome of the svm analysis and the fetaures.
 %
 % Processing includes the following steps
-%
-% Removes EOG electrodes
-
-%
-% Saves data
-%
-% Also see: tid_psam_hjorth_activity_TD, tid_psam_hjorth_mobility_TD, tid_psam_hjorth_complexity_TD.
+%   Loads channel locations and removes EOG electrodes
+%   Loads early and late feature set and correlates each feature with the
+%       outcome (i.e. whether a trial was passive or active)
+%   Creates individual topoplot for each feature with the correlation of
+%       each feature at each respective electrode
+%   Creates a grandaverage topoplot for each feature 
+%       Before averaging a Fisher-z transformation was applied
+%       After averaging the data was back-transformed to correlation values
+%   
+% Saves plots
 %
 % Tim Dressler, 05.05.2025
 
@@ -155,7 +158,6 @@ for subj_idx= 1:length(dircont_subj)
             marked_subj{end,2} = ['nans_present_in_' feature_late_name];
         end
 
-
         % Sanity Check: Order of features matches EEG.chanlocs
         if ~(strcmp(cell2mat({EEG.chanlocs.labels}'), cell2mat(feature_early_data(:,2))) && strcmp(cell2mat({EEG.chanlocs.labels}'), cell2mat(feature_late_data(:,2))))
             error('Non-matching electrodes!')
@@ -201,8 +203,7 @@ for subj_idx= 1:length(dircont_subj)
 
 end
 
-% Grand average plots
-
+% Topoplots: Correlation with outcome (grandaveraged)
 feature_names_all = fieldnames(all_features_grouped);
 
 for feature_idx = 1:length(feature_names_all)
