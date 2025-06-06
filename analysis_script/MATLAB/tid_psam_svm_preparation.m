@@ -73,7 +73,7 @@ main_yellow = sscanf(main_yellow(2:end),'%2x%2x%2x',[1 3])/255;
 % Get directory content
 dircont_subj = dir(fullfile(INPATH, 'sub*.set'));
 
-%initialize sanity check variables
+% Initialize sanity check variables
 marked_subj = {};
 protocol = {};
 
