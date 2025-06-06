@@ -30,7 +30,7 @@ FUNPATH = os.path.join(MAINPATH, 'functions')
 sys.path.append(FUNPATH)
 
 # Load costum functions
-from tid_psam_check_folder_clean_up_folder_TD import tid_psam_check_folder_TD, tid_psam_clean_up_folder_TD
+from tid_psam_check_folder_clean_up_folder_TD import tid_psam_check_folder_TD, tid_psam_clean_up_folder_TD # type: ignore
 
 tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)
 tid_psam_clean_up_folder_TD(OUTPATH)
