@@ -16,6 +16,23 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.metrics import accuracy_score
 
+"""
+tid_psam_svm_analysis.py
+
+Performs subject-level classification using
+SVMs with grid search and stratified k-fold cross-validation.
+
+Processing includes:
+- Loading early and late time-window features for each subject
+- Feature scaling and PCA
+- Grid search across C and gamma hyperparameters
+- Accuracy evaluation and statistical thresholding
+- Generation of per-subject and grand-average accuracy plots
+- Export of accuracy grids, plots, and summary metrics
+
+Tim Dressler, 07.06.2025
+"""
+
 # Set up paths
 SCRIPTPATH = os.path.dirname(os.path.abspath(__file__))
 expected_subpath = os.path.join('psam', 'analysis_script', 'python')
@@ -342,5 +359,4 @@ protocol_df = pd.DataFrame(protocol, columns=['subj', 'time', 'status'])
 protocol_df.to_excel(os.path.join(OUTPATH, 'svm_analysis_protocol.xlsx'), index=False)
 
 check_done = "tid_psam_svm_analysis_DONE"
-
 print(check_done)
