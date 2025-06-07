@@ -32,9 +32,9 @@ Pipeline overview:
 Logging:
 - A plain .txt log ("tid_psam_run_pipeline_log.txt") tracks successfully completed scripts (used for skip logic)
 - A .xlsx protocol file ("tid_psam_run_pipeline_protocol.xlsx") logs:
-    • script: the filename of each script
-    • status: one of "OK", "ERROR", or "SKIPPED"
-    • runtime_sec: execution time in seconds (NaN for skipped)
+    - script: the filename of each script
+    - status: one of "OK", "ERROR", or "SKIPPED"
+    - runtime_sec: execution time in seconds (NaN for skipped)
 
 Skipping options:
 - SKIP_SCRIPTS: manually list script filenames (including extension) to skip regardless of log status
