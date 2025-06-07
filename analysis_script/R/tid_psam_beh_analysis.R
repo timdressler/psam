@@ -68,6 +68,8 @@ setwd(OUTPATH)
 # Load data
 df_beh <- read_excel(file.path(INPATH, "all_subj_beh_preprocessed_clean.xlsx"))
 
+# Load questionnaire data
+
 
 #-------------------------------Create needed dfs-------------------------------
 
@@ -176,6 +178,9 @@ df_block_vot <- df_beh %>%
   summarise(mean(recording_vot, na.rm = T))  
 colnames(df_block_vot) <- c("block", "subj", "recording_vot")
 df_block_vot$block <- as.factor(df_block_vot$block)
+
+# Vocal responses F0 values for each sex
+
 
 #------------------------------------Analysis-----------------------------------
 

@@ -115,3 +115,17 @@ byf.shapiro(percent_above_chance ~ feature_extraction_window,
 # Assumptions
 # - Normal distribution:  
 #------------------------------------------------------------------------------#
+
+# SVM2 # SVM3
+# Descriptive only
+# Analysis SVM2 concerns the chance-level thresholds for each subject.
+# Analysis SVM3 concerns the number of included trials per subject.
+
+# Descriptive statistics
+describe(df_svm_wide)
+
+#------------------------------------------------------------------------------#
+#
+#
+#------------------------------------------------------------------------------#
+
