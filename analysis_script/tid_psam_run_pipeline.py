@@ -27,7 +27,7 @@ Pipeline overview:
 - tid_psam_beh_analysis.R (R)
 - tid_psam_erp_analysis.R (R)
 - tid_psam_questionnaire_analysis.R (R)
-- tid_psam_scm_analysis.R (R)
+- tid_psam_svm_analysis.R (R)
 
 Logging:
 - A plain .txt log ("tid_psam_run_pipeline_log.txt") tracks successfully completed scripts (used for skip logic)
@@ -46,6 +46,8 @@ Note:
 - Praat is called with subprocess.call() due to its requirements
 - The Praat script requires hardcoding the location of it
 
+- The path to Rscript.exe has to be adapted (hardcoded)
+
 - Execution will stop if any subprocess fails
 
 Tim Dressler, 07.04.2025
@@ -59,15 +61,20 @@ if not re.search(re.escape(expected_subpath) + r'$', SCRIPTPATH):
 
 MAINPATH = os.path.abspath(os.path.join(SCRIPTPATH, '..'))
 
+
+RSCRIPT_EXE = r"C:\Program Files\R\R-4.5.0\bin\Rscript.exe" # Path to Rscript.exe
+
+
 # Variables to edit
 SKIP_SCRIPTS = [ # Manually excluded scripts. Example: "tid_psam_erp_analysis.m", "tid_psam_questionnaire_analysis.R", ...
-    "tid_psam_ica_preprocessing.m"
+    "tid_psam_ica_preprocessing.m", "tid_psam_questionnaire_analysis.R"
 ]
 SKIP_ALREADY_RUN = True # If True, previously run scripts (based on the log file) are not executed again
 
-# Initialize variables
+# Prepare variables
 log_txt_path = os.path.join(SCRIPTPATH, "tid_psam_run_pipeline_log.txt")
-log_xlsx_path = os.path.join(SCRIPTPATH, "tid_psam_run_pipeline_protocol.xlsx")
+log_xlsx_path = os.path.join(SCRIPTPATH, "tid_psam_run_pipeline_last_run_protocol.xlsx")
+protocol_df = pd.DataFrame(columns=["script", "status", "runtime_sec"])
 
 # Load log file of previously run scripts
 if SKIP_ALREADY_RUN and os.path.exists(log_txt_path):
@@ -75,12 +82,6 @@ if SKIP_ALREADY_RUN and os.path.exists(log_txt_path):
         already_run_scripts = set(line.strip() for line in f)
 else:
     already_run_scripts = set()
-
-# Load existing log file (.txt) or create new
-if os.path.exists(log_xlsx_path):
-    protocol_df = pd.read_excel(log_xlsx_path)
-else:
-    protocol_df = pd.DataFrame(columns=["script", "status", "runtime_sec"])
 
 # Function: Update log file (.txt)
 def log_script_txt(script_name):
@@ -169,12 +170,12 @@ r_scripts = [
     "tid_psam_beh_analysis.R",
     "tid_psam_erp_analysis.R",
     "tid_psam_questionnaire_analysis.R",
-    "tid_psam_scm_analysis.R"
+    "tid_psam_svm_analysis.R"
 ]
 
 for r_script in r_scripts:
     r_path = os.path.join(MAINPATH, "analysis_script", "R", r_script)
-    run_script(["Rscript", r_path], f"Running {r_script} (R)", r_script)
+    run_script([RSCRIPT_EXE, r_path], f"Running {r_script} (R)", r_script)
 
 # End of processing
 

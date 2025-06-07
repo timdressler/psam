@@ -6,6 +6,7 @@
 
 # NOTES
 # Check ANOVA Type before running, for some cases I changed the type from III to I in order for it to run with the limited amount of pilot data
+# byf.shapiro currently commented out due to small pilot data set not working with it 
 
 #-------------------------------------Set up------------------------------------
 #load packages
@@ -16,7 +17,6 @@ library(readxl)
 library(car) 
 library(corrplot) 
 library(dplyr) 
-library(rstudioapi)
 library(ez)
 library(ggplot2)
 library(ggstatsplot)
@@ -43,9 +43,18 @@ colors$main_yellow <- "#FDC300"
 colors$UI <- "grey"
 
 # Set up paths
-SCRIPTPATH <- dirname(rstudioapi::getSourceEditorContext()$path)
+if (interactive()) {
+  # Running inside RStudio
+  library(rstudioapi)
+  SCRIPTPATH <- dirname(rstudioapi::getSourceEditorContext()$path)
+} else {
+  # Running via Rscript (called from tid_psam_run_pipeline.py)
+  args <- commandArgs(trailingOnly = FALSE)
+  script_path <- normalizePath(sub("--file=", "", args[grep("--file=", args)]))
+  SCRIPTPATH <- dirname(script_path)
+}
 if (grepl("psam/analysis_script/R", SCRIPTPATH)) {
-  cat("Path OK\n") 
+  cat("Path OK") 
 } else {
   stop("Path not OK")  
 }
@@ -215,8 +224,8 @@ df_probe_properties_z %>%
   facet_wrap(df_probe_properties_z$probe_type) +
   theme_ggstatsplot()
 
-byf.shapiro(f0_z ~ probe_type, 
-            data = df_probe_properties_z)
+##byf.shapiro(f0_z ~ probe_type, 
+            ##data = df_probe_properties_z)
 
 #------------------------------------------------------------------------------#
 #
@@ -257,8 +266,8 @@ df_probe_f0 %>%
   facet_wrap(df_probe_f0$probe) +
   theme_ggstatsplot()
 
-byf.shapiro(recording_f0 ~ probe, 
-            data = df_probe_f0)
+##byf.shapiro(recording_f0 ~ probe, 
+            ##data = df_probe_f0)
 
 #------------------------------------------------------------------------------#
 #
@@ -311,8 +320,8 @@ df_probe_type_onset_f0 %>%
   facet_grid(probe_type ~ probe_onset_cat) +
   theme_ggstatsplot()
 
-byf.shapiro(recording_f0 ~ probe_type * probe_onset_cat, 
-            data = df_probe_type_onset_f0)
+##byf.shapiro(recording_f0 ~ probe_type * probe_onset_cat, 
+            ##data = df_probe_type_onset_f0)
 
 #Balance of the design
 ezDesign(df_probe_type_onset_f0, x = probe_type, y = subj, row = probe_onset_cat) 
@@ -358,8 +367,8 @@ df_probe_vot %>%
   facet_wrap(df_probe_vot$probe) +
   theme_ggstatsplot()
 
-byf.shapiro(recording_vot ~ probe, 
-            data = df_probe_vot)
+##byf.shapiro(recording_vot ~ probe, 
+            ##data = df_probe_vot)
 
 #------------------------------------------------------------------------------#
 #
@@ -412,8 +421,8 @@ df_probe_type_onset_vot %>%
   facet_grid(probe_type ~ probe_onset_cat) +
   theme_ggstatsplot()
 
-byf.shapiro(recording_vot ~ probe_type * probe_onset_cat, 
-            data = df_probe_type_onset_vot)
+##byf.shapiro(recording_vot ~ probe_type * probe_onset_cat, 
+            ##data = df_probe_type_onset_vot)
 
 #Balance of the design
 ezDesign(df_probe_type_onset_vot, x = probe_type, y = subj, row = probe_onset_cat) 
@@ -471,8 +480,8 @@ df_block_f0 %>%
   facet_wrap(df_block_f0$block) +
   theme_ggstatsplot()
 
-byf.shapiro(recording_f0 ~ block, 
-            data = df_block_f0)
+##byf.shapiro(recording_f0 ~ block, 
+            ##data = df_block_f0)
 
 #Balance of the design
 ezDesign(df_block_f0, x = block, y = subj) 
@@ -529,8 +538,8 @@ df_block_vot %>%
   facet_wrap(df_block_vot$block) +
   theme_ggstatsplot()
 
-byf.shapiro(recording_vot ~ block, 
-            data = df_block_vot)
+##byf.shapiro(recording_vot ~ block, 
+            ##data = df_block_vot)
 
 #Balance of the design
 ezDesign(df_block_vot, x = block, y = subj) 

@@ -14,7 +14,6 @@ library(car)
 library(corrplot) 
 library(dplyr)
 library(stringr)
-library(rstudioapi)
 library(ez)
 library(ggplot2)
 library(ggstatsplot)
@@ -42,9 +41,18 @@ colors$main_yellow <- "#FDC300"
 colors$UI <- "grey"
 
 # Set up paths
-SCRIPTPATH <- dirname(rstudioapi::getSourceEditorContext()$path)
+if (interactive()) {
+  # Running inside RStudio
+  library(rstudioapi)
+  SCRIPTPATH <- dirname(rstudioapi::getSourceEditorContext()$path)
+} else {
+  # Running via Rscript (called from tid_psam_run_pipeline.py)
+  args <- commandArgs(trailingOnly = FALSE)
+  script_path <- normalizePath(sub("--file=", "", args[grep("--file=", args)]))
+  SCRIPTPATH <- dirname(script_path)
+}
 if (grepl("psam/analysis_script/R", SCRIPTPATH)) {
-  cat("Path OK\n") 
+  cat("Path OK") 
 } else {
   stop("Path not OK")  
 }

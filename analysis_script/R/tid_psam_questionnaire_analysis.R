@@ -4,6 +4,10 @@
 #
 # Tim Dressler, 21.04.25
 
+# NOTES
+# Check ANOVA Type before running, for some cases I changed the type from III to I in order for it to run with the limited amount of pilot data
+# byf.shapiro currently commented out due to small pilot data set not working with it 
+
 #-------------------------------------Set up------------------------------------
 #load packages
 library(tidyr) 
@@ -13,7 +17,6 @@ library(readxl)
 library(car) 
 library(corrplot) 
 library(dplyr) 
-library(rstudioapi)
 library(ez)
 library(ggplot2)
 library(ggstatsplot)
@@ -39,9 +42,18 @@ colors$main_yellow <- "#FDC300"
 colors$UI <- "grey"
 
 # Set up paths
-SCRIPTPATH <- dirname(rstudioapi::getSourceEditorContext()$path)
+if (interactive()) {
+  # Running inside RStudio
+  library(rstudioapi)
+  SCRIPTPATH <- dirname(rstudioapi::getSourceEditorContext()$path)
+} else {
+  # Running via Rscript (called from tid_psam_run_pipeline.py)
+  args <- commandArgs(trailingOnly = FALSE)
+  script_path <- normalizePath(sub("--file=", "", args[grep("--file=", args)]))
+  SCRIPTPATH <- dirname(script_path)
+}
 if (grepl("psam/analysis_script/R", SCRIPTPATH)) {
-  cat("Path OK\n") 
+  cat("Path OK") 
 } else {
   stop("Path not OK")  
 }
@@ -100,10 +112,6 @@ df_fal$var16_earlier_neuro_treatment <- recode(df_fal$var16_earlier_neuro_treatm
 df_fal$var17_other_treatment <- recode(df_fal$var17_other_treatment, '1' = "yes", '2' = "no")
 df_fal$var18_medication <- recode(df_fal$var18_medication, '1' = "yes", '2' = "no")
 df_fal$var19_drugs <- recode(df_fal$var19_drugs, '1' = "yes", '2' = "no")
-
-
-
-
 
 #-------------------------------Create needed dfs-------------------------------
 
@@ -271,7 +279,7 @@ SAM17 <- aov_ez(id = "subj",
                dv = "mood",
                data = df_sam_long,
                within = c("break_num"),
-               type = 3)
+               type = 1)
 summary(SAM17)
 
 
@@ -307,8 +315,8 @@ df_sam_long %>%
   facet_wrap(df_sam_long$break_num) +
   theme_ggstatsplot()
 
-byf.shapiro(mood ~ break_num, 
-            data = df_sam_long)
+##byf.shapiro(mood ~ break_num, 
+            ##data = df_sam_long)
 
 #Balance of the design
 ezDesign(df_sam_long, x = break_num, y = subj) 
@@ -330,7 +338,7 @@ SAM17 <- aov_ez(id = "subj",
                 dv = "tiredness",
                 data = df_sam_long,
                 within = c("break_num"),
-                type = 3)
+                type = 1)
 summary(SAM17)
 
 
@@ -366,8 +374,8 @@ df_sam_long %>%
   facet_wrap(df_sam_long$break_num) +
   theme_ggstatsplot()
 
-byf.shapiro(tiredness ~ break_num, 
-            data = df_sam_long)
+##byf.shapiro(tiredness ~ break_num, 
+             ##= df_sam_long)
 
 #Balance of the design
 ezDesign(df_sam_long, x = break_num, y = subj) 

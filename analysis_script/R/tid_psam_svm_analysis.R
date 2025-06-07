@@ -5,7 +5,7 @@
 # Tim Dressler, 18.04.25
 
 # NOTES
-# Check ANOVA Type before running, for some cases I changed the type from III to I in order for it to run with the limited amount of pilot data
+# byf.shapiro currently commented out due to small pilot data set not working with it 
 
 #-------------------------------------Set up------------------------------------
 #load packages
@@ -16,7 +16,6 @@ library(readxl)
 library(car) 
 library(corrplot) 
 library(dplyr) 
-library(rstudioapi)
 library(ez)
 library(ggplot2)
 library(ggstatsplot)
@@ -43,9 +42,18 @@ colors$main_yellow <- "#FDC300"
 colors$UI <- "grey"
 
 # Set up paths
-SCRIPTPATH <- dirname(rstudioapi::getSourceEditorContext()$path)
+if (interactive()) {
+  # Running inside RStudio
+  library(rstudioapi)
+  SCRIPTPATH <- dirname(rstudioapi::getSourceEditorContext()$path)
+} else {
+  # Running via Rscript (called from tid_psam_run_pipeline.py)
+  args <- commandArgs(trailingOnly = FALSE)
+  script_path <- normalizePath(sub("--file=", "", args[grep("--file=", args)]))
+  SCRIPTPATH <- dirname(script_path)
+}
 if (grepl("psam/analysis_script/R", SCRIPTPATH)) {
-  cat("Path OK\n") 
+  cat("Path OK") 
 } else {
   stop("Path not OK")  
 }
@@ -105,8 +113,8 @@ df_svm %>%
   facet_wrap(df_svm$feature_extraction_window) +
   theme_ggstatsplot()
 
-byf.shapiro(percent_above_chance ~ feature_extraction_window, 
-            data = df_svm)
+##byf.shapiro(percent_above_chance ~ feature_extraction_window, 
+            ## = df_svm)
 
 #------------------------------------------------------------------------------#
 #

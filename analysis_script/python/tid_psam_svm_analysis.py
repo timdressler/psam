@@ -53,15 +53,15 @@ tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)
 tid_psam_clean_up_folder_TD(OUTPATH)
 
 # Variables to edit
-C_RANGE_LOWER = -2
-C_RANGE_UPPER = 10
-GAMMA_RANGE_LOWER = -14
-GAMMA_RANGE_UPPER = -1
-FIXED_GAMMA_VAL = 1e-10 # Used to plot validation accuracy as a function of C (with a fixed value for gamma)
-FIXED_C_VAL = 1e4 # Used to plot validation accuracy as a function of gamma (with a fixed value for C)
-GRID_SIZE = 30 # Number of values used for gamma and C, respectively
+C_RANGE_LOWER = -2 # Set to -2
+C_RANGE_UPPER = 10 # Set to 10
+GAMMA_RANGE_LOWER = -14 # Set to -14
+GAMMA_RANGE_UPPER = -1 # Set to -1
+FIXED_GAMMA_VAL = 1e-10 # Used to plot validation accuracy as a function of C (with a fixed value for gamma) # Set to 1e-10
+FIXED_C_VAL = 1e4 # Used to plot validation accuracy as a function of gamma (with a fixed value for C) # Set to 1e4
+GRID_SIZE = 30 # Number of values used for gamma and C, respectively # Set to 30
 #sig_thresh = 0.55 # Threshold used for determined above-chance-level classification (not further used, individual tresholds used)
-N_SPLITS = 5 # Number splits in k-fold CV
+N_SPLITS = 5 # Number splits in k-fold CV # Set to 5
 
 # Get directory content
 dircont_subj_early = sorted([f for f in Path(INPATH).glob("sub-*early.csv")])
