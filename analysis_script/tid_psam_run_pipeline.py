@@ -12,11 +12,22 @@ tid_psam_run_pipeline.py
 Master script for running the full analysis pipeline for the PSAM project across all languages.
 
 Pipeline overview:
-- Runs initial MATLAB script for setting markers and creating folder structure
-- Executes Praat preprocessing script 
-- Runs a sequence of MATLAB scripts for preprocessing and analysis
-- Runs Python script for SVM classification
-- Executes R scripts for behavioral, ERP and SVM analysis
+- tid_psam_set_markers.m (MATLAB)
+- tid_psam_beh_preprocessing_1.praat (Praat)
+- tid_psam_erp_preprocessing.m (MATLAB)
+- tid_psam_svm_preprocessing.m (MATLAB)
+- tid_psam_beh_preprocessing_2.m (MATLAB)
+- tid_psam_exclude_trials.m (MATLAB)
+- tid_psam_erp_analysis.m (MATLAB)
+- tid_psam_hilbert_preparation.m (MATLAB)
+- tid_psam_svm_preparation.m (MATLAB)
+- tid_psam_beh_analysis.m (MATLAB)
+- tid_psam_feature_analysis.m (MATLAB)
+- tid_psam_svm_analysis.py (Python)
+- tid_psam_beh_analysis.R (R)
+- tid_psam_erp_analysis.R (R)
+- tid_psam_questionnaire_analysis.R (R)
+- tid_psam_scm_analysis.R (R)
 
 Logging:
 - A plain .txt log ("tid_psam_run_pipeline_log.txt") tracks successfully completed scripts (used for skip logic)
@@ -34,9 +45,10 @@ All paths are dynamically resolved relative to the repository root.
 Note:
 - Praat is called with subprocess.call() due to its requirements
 - The Praat script requires hardcoding the location of it
+
 - Execution will stop if any subprocess fails
 
-Tim Dressler, 07.06.2025
+Tim Dressler, 07.04.2025
 """
 
 # Set up paths
