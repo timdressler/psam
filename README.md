@@ -42,7 +42,7 @@ psam/
 ├── .gitattributes.md      
 ├── .gitignore.md     
 ├── README.md                  
-└── requirements.txt                        # Conatins needed libraries for python-based analysis (excludes MATLAB, Praat and R dependencies)
+└── requirements.txt                        # Contains needed libraries for python-based analysis (excludes MATLAB, Praat and R dependencies)
 ```
 
 ---
