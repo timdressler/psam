@@ -15,6 +15,7 @@ from sklearn.svm import SVC
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.metrics import accuracy_score
+from itertools import product
 
 """
 tid_psam_svm_analysis.py
@@ -62,6 +63,7 @@ FIXED_C_VAL = 1e4 # Used to plot validation accuracy as a function of gamma (wit
 GRID_SIZE = 30 # Number of values used for gamma and C, respectively # Set to 30
 #sig_thresh = 0.55 # Threshold used for determined above-chance-level classification (not further used, individual tresholds used)
 N_SPLITS = 5 # Number splits in k-fold CV # Set to 5
+N_COMPS = 100 # Number of components extracted by the PCA # Set to 100
 
 # Get directory content
 dircont_subj_early = sorted([f for f in Path(INPATH).glob("sub-*early.csv")])
@@ -95,7 +97,7 @@ def compute_statistical_threshold(y, alpha=0.05):
         alpha (float): Significance level (e.g., 0.05)
 
     Returns:
-        float: Threshold accuracy (in percentage) that is statistically above chance
+        float: Threshold accuracy (e.g., 0.5 (not 50%!)) that is statistically above chance
 
     Literature
         Combrisson, E., & Jerbi, K. (2015). Exceeding chance level by chance: The caveat
@@ -171,27 +173,25 @@ def process_subject(file, condition):
     skf = StratifiedKFold(n_splits=N_SPLITS, shuffle=True, random_state=123)
 
     # Start grid search
-    for i, gamma_val in enumerate(gamma_range):
-        for j, C_val in enumerate(C_range):
-            fold_accuracies = []
-            for train_idx, test_idx in skf.split(X, y): # Get train and test indices
-                # Scale features (z-standardization)
-                scaler = StandardScaler()
-                X_train_scaled = scaler.fit_transform(X[train_idx])
-                X_test_scaled = scaler.transform(X[test_idx])
-                # Fit PCA (only fitted using the train split)
-                pca = PCA(n_components=100)
-                X_train_pca = pca.fit_transform(X_train_scaled)
-                # Apply PCA weights also to the test split
-                X_test_pca = pca.transform(X_test_scaled)
-                # Fit SVM
-                clf = SVC(C=C_val, kernel='rbf', gamma=gamma_val)
-                clf.fit(X_train_pca, y[train_idx])
-                # Get accuracy based on the test split 
-                acc = accuracy_score(y[test_idx], clf.predict(X_test_pca))
-                fold_accuracies.append(acc)
-            acc_matrix[i, j] = np.mean(fold_accuracies)
-            #print('Fold Accuracy: ' + str(np.mean(fold_accuracies)))
+    grid_iter = list(product(enumerate(gamma_range), enumerate(C_range)))
+    for (i, gamma_val), (j, C_val) in tqdm(grid_iter, desc=f"{subj} - {condition} Grid Search", leave=False):
+        fold_accuracies = []
+        for train_idx, test_idx in skf.split(X, y):
+            # Scale features
+            scaler = StandardScaler()
+            X_train_scaled = scaler.fit_transform(X[train_idx])
+            X_test_scaled = scaler.transform(X[test_idx])
+            # PCA
+            pca = PCA(n_components=N_COMPS)
+            X_train_pca = pca.fit_transform(X_train_scaled)
+            X_test_pca = pca.transform(X_test_scaled)
+            # Train SVM
+            clf = SVC(C=C_val, kernel='rbf', gamma=gamma_val)
+            clf.fit(X_train_pca, y[train_idx])
+            acc = accuracy_score(y[test_idx], clf.predict(X_test_pca))
+            fold_accuracies.append(acc)
+        acc_matrix[i, j] = np.mean(fold_accuracies)
+        #print('Fold Accuracy: ' + str(np.mean(fold_accuracies)))
 
     # Save accuracy grid
     acc_df = pd.DataFrame(acc_matrix,
