@@ -1,12 +1,12 @@
 *.asv
 data/
 *.exe
-*.txt
 *.xlsx
 
 timingtest/
 markertest/
 generaltest/
+*_log.txt
 
 __pycache__/
 *.pyc
