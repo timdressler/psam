@@ -61,11 +61,10 @@ if not re.search(re.escape(expected_subpath) + r'$', SCRIPTPATH):
 
 MAINPATH = os.path.abspath(os.path.join(SCRIPTPATH, '..'))
 
-
-RSCRIPT_EXE = r"C:\Program Files\R\R-4.5.0\bin\Rscript.exe" # Path to Rscript.exe
-
-
 # Variables to edit
+# RSCRIPT_EXE = r"C:\Program Files\R\R-4.5.0\bin\Rscript.exe" # Path to Rscript.exe
+RSCRIPT_EXE = r"C:\Program Files\R\R-4.5.0\bin" # Path to Rscript.exe
+
 SKIP_SCRIPTS = [ # Manually excluded scripts. Example: "tid_psam_erp_analysis.m", "tid_psam_questionnaire_analysis.R", ...
     "tid_psam_ica_preprocessing.m", "tid_psam_questionnaire_analysis.R"
 ]
@@ -138,7 +137,7 @@ run_script(["matlab", "-batch", f"run('{matlab_script}')"], f"Running {script_na
 
 # Praat: tid_psam_beh_preprocessing_1.praat
 script_name = "tid_psam_beh_preprocessing_1.praat"
-praat_exe = os.path.join(MAINPATH, "analysis_script", "praat", "Praat.exe")
+praat_exe = os.path.join(MAINPATH, "analysis_script", "praat", "Praat.exe") # Path to Praat.exe
 praat_script = os.path.join(MAINPATH, "analysis_script", "praat", "tid_psam_beh_preprocessing_1")
 run_script([praat_exe, "--run", praat_script], f"Running {script_name} (Praat)", script_name, use_call=True)
 
