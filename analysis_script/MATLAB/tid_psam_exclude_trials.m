@@ -88,6 +88,7 @@ EVENTS = {'act_early_unalt', 'act_early_alt', 'act_late_unalt', 'act_late_alt', 
 N_TRIALS_THRESH = 25; % More than 25 trials trials per condition required for ERP analysis (excluded)
 N_TRIALS_NO_PROBE_THRESH = 100; % More than 100 trials trials required per condition for SVM analysis (excluded)
 N_TRIALS_BLOCK_THRESH = 60; % More than 60 trials trials required per block (only marked, not excluded)
+SUBJ_TO_EXCLUDE = {};
 
 % Get directory content
 dircont_subj_erp = dir(fullfile(INPATH_ERP, 'sub-*.set'));
@@ -232,6 +233,12 @@ for subj_idx= 1:length(dircont_subj_erp)
         end
     end
 
+    % Exclude subject if manual exclusion was defined
+    if any(strcmp(subj, SUBJ_TO_EXCLUDE))
+        excluded_subj{end+1,1} = subj;
+        excluded_subj{end,2} = 'manually_excluded';
+    end
+
     % Load SVM data and merge to be excluded trials with behavioural data
     % Note. ERP preprocessed excluded and SVM preprocessed excluded trials are not merged
     % Update excluded subjects
@@ -308,11 +315,11 @@ nasatlx_data = readtable(fullfile(INPATH_QUEST, 'nasatlx_data.xlsx')); % Load da
 sam_data = readtable(fullfile(INPATH_QUEST, 'sam_data.xlsx')); % Load data
 
 if ~isempty(excluded_subj)
-    excluded_subj_unique = unique(excluded_subj.subj); % Get IDs of excluded subjects
+    excluded_subj_unique = unique({excluded_subj{:,1}}); % Get IDs of excluded subjects
 
-    fal_data_clean = fal_data(~strcmp(fal_data.subj, excluded_subj_unique ),:); % Remove excluded subjects
-    nasatlx_data_clean = nasatlx_data(~strcmp(nasatlx_data.subj, excluded_subj_unique ),:); % Remove excluded subjects
-    sam_data_clean = sam_data(~strcmp(sam_data.subj, excluded_subj_unique ),:); % Remove excluded subjects
+    fal_data_clean = fal_data(~strcmp(fal_data.subj, excluded_subj_unique' ),:); % Remove excluded subjects
+    nasatlx_data_clean = nasatlx_data(~strcmp(nasatlx_data.subj, excluded_subj_unique' ),:); % Remove excluded subjects
+    sam_data_clean = sam_data(~strcmp(sam_data.subj, excluded_subj_unique' ),:); % Remove excluded subjects
 else
     fal_data_clean = fal_data;
     nasatlx_data_clean = nasatlx_data;
