@@ -279,7 +279,7 @@ SAM17 <- aov_ez(id = "subj",
                dv = "mood",
                data = df_sam_long,
                within = c("break_num"),
-               type = 1)
+               type = 3)
 summary(SAM17)
 
 
@@ -290,7 +290,7 @@ ezPlot(
   , wid = subj  
   , within= .(break_num)
   , x = .(break_num)
-  , type = 1
+  , type = 3
 )
 
 # Descriptive statistics
@@ -349,7 +349,7 @@ ezPlot(
   , wid = subj  
   , within= .(break_num)
   , x = .(break_num)
-  , type = 1
+  , type = 3
 )
 
 # Descriptive statistics
