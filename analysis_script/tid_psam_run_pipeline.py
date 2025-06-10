@@ -63,7 +63,7 @@ MAINPATH = os.path.abspath(os.path.join(SCRIPTPATH, '..'))
 
 # Variables to edit
 # RSCRIPT_EXE = r"C:\Program Files\R\R-4.5.0\bin\Rscript.exe" # Path to Rscript.exe
-RSCRIPT_EXE = r"C:\Program Files\R\R-4.5.0\bin" # Path to Rscript.exe
+RSCRIPT_EXE = r"C:\Program Files\R\R-4.5.0\bin\Rscript.exe" # Path to Rscript.exe
 
 SKIP_SCRIPTS = [ # Manually excluded scripts. Example: "tid_psam_erp_analysis.m", "tid_psam_questionnaire_analysis.R", ...
     "tid_psam_questionnaire_analysis.R"

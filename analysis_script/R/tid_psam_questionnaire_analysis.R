@@ -338,7 +338,7 @@ SAM17 <- aov_ez(id = "subj",
                 dv = "tiredness",
                 data = df_sam_long,
                 within = c("break_num"),
-                type = 1)
+                type = 3)
 summary(SAM17)
 
 
