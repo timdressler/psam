@@ -62,7 +62,10 @@ if not re.search(re.escape(expected_subpath) + r'$', SCRIPTPATH):
 MAINPATH = os.path.abspath(os.path.join(SCRIPTPATH, '..'))
 
 # Variables to edit
+######################################## For Testing ########################################
 # RSCRIPT_EXE = r"C:\Program Files\R\R-4.5.0\bin\Rscript.exe" # Path to Rscript.exe
+######################################## For Testing ########################################
+
 RSCRIPT_EXE = r"C:\Program Files\R\R-4.5.0\bin\Rscript.exe" # Path to Rscript.exe
 
 SKIP_SCRIPTS = [ # Manually excluded scripts. Example: "tid_psam_erp_analysis.m", "tid_psam_questionnaire_analysis.R", ...
