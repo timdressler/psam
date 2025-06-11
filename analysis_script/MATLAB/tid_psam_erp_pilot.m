@@ -75,6 +75,8 @@ EVENTS = {'act_early_unalt', 'act_early_alt', 'act_late_unalt', 'act_late_alt', 
 CHANI = 1;
 ERP_FROM = 75;
 ERP_TILL = 125;
+CB_LIM_LOWER = -4;
+CB_LIM_UPPER = 2;
 
 % Get directory content
 subj = 96;
@@ -142,6 +144,9 @@ for subj_idx= 1:length(dircont_subj)
                     EEG.event(event).type = 'pas_late_alt';
             end
         end
+
+        % Add channel locations
+        EEG.chanlocs = readlocs( fullfile(MAINPATH,'\config\elec_96ch_adapted.elp')); 
 
         % Bandpass-Filter
         EEG = pop_eegfiltnew(EEG, 'locutoff',LCF,'hicutoff',HCF,'plotfreqz',0);
@@ -214,7 +219,7 @@ for subj_idx= 1:length(dircont_subj)
     EEG.setname = [subj '_con_act_all'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
     % Get ERP
-    erp_con_act_all = mean(EEG.data(CHANI,:,:),3);
+    erp_con_act_all = mean(EEG.data,3);
     % Store ERP
     all_ERP_con_act_all(:,:, subj_idx) = erp_con_act_all;
 
@@ -225,7 +230,7 @@ for subj_idx= 1:length(dircont_subj)
     EEG.setname = [subj '_con_pas_all'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
     % Get ERP
-    erp_con_pas_all = mean(EEG.data(CHANI,:,:),3);
+    erp_con_pas_all = mean(EEG.data,3);
     % Store ERP
     all_ERP_con_pas_all(:,:, subj_idx) = erp_con_pas_all;
 
@@ -460,21 +465,46 @@ sgtitle('Active and Passive Condition ERPs (corrected)')
 
 saveas(gcf,fullfile(OUTPATH, 'erp_corrected_pilot.png'))
 
-% Plot 5: ERPs collapsed over 'Active' and 'Passive' Condition (Control)
+% Plot 5: ERPs collapsed over 'Active' and 'Passive' Condition (Control) (incl. Topoplots)
+grandaverage_ERP_con_act = mean(all_ERP_con_act_all,3);
+grandaverage_ERP_con_pas = mean(all_ERP_con_pas_all,3);
+
+[~, win_start] = min(abs(EEG.times - (-200)));
+[~, win_end] = min(abs(EEG.times - 300));
+
+
 figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
-subplot(1,2,1)
+subplot(2,2,1)
 plot(EEG.times, mean(all_ERP_con_act_all(CHANI,:,:),3))
 xlim([-200 500])
 ylabel('Amplitude [μV]')
 xlabel('Time [ms]')
 title('Active (collapsed)')
 
-subplot(1,2,2)
+subplot(2,2,2)
 plot(EEG.times, mean(all_ERP_con_pas_all(CHANI,:,:),3))
 xlim([-200 500])
 ylabel('Amplitude [μV]')
 xlabel('Time [ms]')
 title('Passive (collapsed)')
+
+subplot(2,2,3)
+topoplot(mean(grandaverage_ERP_con_act(:,win_start:win_end),2), EEG.chanlocs, ...
+    'emarker2', {CHANI,'o','r',5,1});
+colormap("parula")
+cb = colorbar;
+title(cb, 'Amplitude [µV]')
+clim([CB_LIM_LOWER CB_LIM_UPPER])
+title('Act')
+
+subplot(2,2,4)
+topoplot(mean(grandaverage_ERP_con_pas(:,win_start:win_end),2), EEG.chanlocs, ...
+    'emarker2', {CHANI,'o','r',5,1});
+colormap("parula")
+cb = colorbar;
+title(cb, 'Amplitude [µV]')
+clim([CB_LIM_LOWER CB_LIM_UPPER])
+title('Pas')
 
 sgtitle('Active and Passive Condition ERPs (collapsed, control)')
 
@@ -517,8 +547,8 @@ sgtitle('Early and Late Condition ERPs (corrected)')
 saveas(gcf,fullfile(OUTPATH, 'erp_corrected_2_pilot.png'))
 
 % % % Plot 7: Topoplots collapsed over 'Active' and 'Passive' Condition
-% % cb_lim_lower = min([mean(all_ERP_act_all(:,ERP_FROM:ERP_TILL),2), mean(all_ERP_pas_all(:,ERP_FROM:ERP_TILL),2)],[],'all');
-% % cb_lim_upper = max([mean(all_ERP_act_all(:,ERP_FROM:ERP_TILL),2), mean(all_ERP_pas_all(:,ERP_FROM:ERP_TILL),2)],[],'all');
+% % CB_LIM_LOWER = min([mean(all_ERP_act_all(:,ERP_FROM:ERP_TILL),2), mean(all_ERP_pas_all(:,ERP_FROM:ERP_TILL),2)],[],'all');
+% % CB_LIM_UPPER = max([mean(all_ERP_act_all(:,ERP_FROM:ERP_TILL),2), mean(all_ERP_pas_all(:,ERP_FROM:ERP_TILL),2)],[],'all');
 % % 
 % % figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
 % % subplot(1,2,1)
@@ -527,14 +557,14 @@ saveas(gcf,fullfile(OUTPATH, 'erp_corrected_2_pilot.png'))
 % % colormap("parula")
 % % cb = colorbar;
 % % title(cb, 'Amplitude [µV]')
-% % clim([cb_lim_lower cb_lim_upper])
+% % clim([CB_LIM_LOWER CB_LIM_UPPER])
 % % subplot(1,2,2)
 % % topoplot(mean(all_ERP_pas_all(:,win_start:win_end),2), EEG.chanlocs, 'emarker2', {CHANI,'o','r',5,1})
 % % title('Passive (collapsed)')
 % % colormap("parula")
 % % cb = colorbar;
 % % title(cb, 'Amplitude [µV]')
-% % clim([cb_lim_lower cb_lim_upper])
+% % clim([CB_LIM_LOWER CB_LIM_UPPER])
 % % 
 % % sgtitle('Active and Passive Condition Topoplots (collapsed and averaged ober 70ms-130ms)')
 % % 
