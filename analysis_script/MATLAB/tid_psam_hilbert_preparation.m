@@ -171,6 +171,9 @@ for subj_idx= 1:length(dircont_subj)
         EEG = pop_interp(EEG, EEG.urchanlocs , 'spherical'); % and interpolate them using urchanlocs
     end
 
+    % Sanity Check: Plot RMS in 10s bins for each electode
+    tid_psam_plot_rms_bins_TD(EEG, [subj ' RMS bins'], 'SavePath', fullfile(OUTPATH, [subj '_channel_rms.png']), 'PlotOn', false)
+
     % Remove EOG channels as they are not used for classification
     EEG = pop_select( EEG, 'rmchannel',EOG_CHAN);
     
