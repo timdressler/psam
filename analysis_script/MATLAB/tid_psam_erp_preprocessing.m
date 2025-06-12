@@ -109,7 +109,11 @@ for subj_idx= 1:length(dircont_subj)
 
     % Load ICA data
     EEG = pop_loadset('filename',[subj '_ica_weights.set'],'filepath',INPATH_ICA);
+
+    % Get flagged components as identified in tid_psam_ica_preprocessing.m
+    flagged_comps = find(EEG.reject.gcompreject);
     EEG.setname = [subj '_ICA_weights'];
+
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
     % Get bad channels as identified in tid_psam_ica_preprocessing.m
@@ -180,6 +184,7 @@ for subj_idx= 1:length(dircont_subj)
     % Sanity Check: Plot flagged ICs
     %%tid_psam_plot_flagged_ICs_TD(EEG,['ICs for ' subj], 'SavePath' ,fullfile(OUTPATH, [subj '_ic_topo.png']), 'PlotOn', false)
     % Remove previously flagged ICs (see tid_psam_ica_preprocessing.m)
+    EEG.reject.gcompreject = flagged_comps;
     EEG = pop_subcomp( EEG, [], 0);
 
     % Interpolate bad channels
