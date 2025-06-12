@@ -177,9 +177,11 @@ for subj_idx= 1:length(dircont_subj)
         EEG = ALLEEG(4);
         CURRENTSET = 4;
 
-        % Apply BP-Filter
-        EEG = pop_eegfiltnew(EEG, 'locutoff',freq_bands{freq_band_num}(1), 'plotfreqz', 1);
-        EEG = pop_eegfiltnew(EEG, 'hicutoff',freq_bands{freq_band_num}(2));
+        % Apply Filter
+        %%EEG = pop_eegfiltnew(EEG, 'locutoff',freq_bands{freq_band_num}(1), 'plotfreqz', 1);
+        %%EEG = pop_eegfiltnew(EEG, 'hicutoff',freq_bands{freq_band_num}(2));
+        EEG = pop_firws(EEG, 'fcutoff', freq_bands{freq_band_num}(1), 'ftype', 'highpass', 'wtype', 'hamming', 'forder', (2 * ceil((3*(EEG.srate/freq_bands{freq_band_num}(1))) / 2)), 'minphase', 0, 'usefftfilt', 0, 'plotfresp', 0, 'causal', 0);
+        EEG = pop_firws(EEG, 'fcutoff', freq_bands{freq_band_num}(2), 'ftype', 'lowpass', 'wtype', 'hamming', 'forder',(2 * ceil((3*(EEG.srate/freq_bands{freq_band_num}(2))) / 2)), 'minphase', 0, 'usefftfilt', 0, 'plotfresp', 0, 'causal', 0);
 
         % Apply Hilbert transformation
         EEG.data = abs(hilbert(EEG.data));
