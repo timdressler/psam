@@ -98,7 +98,7 @@ for subj_idx= 1:length(dircont_subj)
 
     % Highpass-Filter
     %%EEG = pop_eegfiltnew(EEG, 'locutoff',LCF_ICA,'plotfreqz',0);
-        EEG = pop_firws(EEG, 'fcutoff', HCF_ICA, 'ftype', 'lowpass', 'wtype', 'hamming', 'forder',(2 * ceil((3*(EEG.srate/HCF_ICA)) / 2)), 'minphase', 0, 'usefftfilt', 0, 'plotfresp', 0, 'causal', 0);
+    EEG = pop_firws(EEG, 'fcutoff', LCF_ICA, 'ftype', 'highpass', 'wtype', 'hamming', 'forder',(2 * ceil((3*(EEG.srate/LCF_ICA)) / 2)), 'minphase', 0, 'usefftfilt', 0, 'plotfresp', 0, 'causal', 0);
 
     % Remove bad channels
     EEG.badchans = []; 
