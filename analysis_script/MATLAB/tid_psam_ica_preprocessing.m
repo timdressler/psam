@@ -117,6 +117,12 @@ for subj_idx= 1:length(dircont_subj)
  
     % Run ICA
     EEG = pop_runica(EEG, 'icatype', 'runica', 'extended',1,'interrupt','on');
+
+    % Label ICA components with IC Label Plugin (Pion-Tonachini et al., 2019)
+    EEG = pop_iclabel(EEG, 'default');
+    EEG = pop_icflag(EEG, [0 0;0.7 1;0.7 1;0.7 1;0.7 1;0.7 1;0.7 1]);
+    % Sanity Check: Plot flagged ICs
+    tid_psam_plot_flagged_ICs_TD(EEG,['ICs for ' subj], 'SavePath' ,fullfile(OUTPATH, [subj '_ic_topo.png']), 'PlotOn', false)
   
     % Save dataset
     EEG.setname = [subj '__ICA_weights'];
