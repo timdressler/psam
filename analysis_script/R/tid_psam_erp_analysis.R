@@ -270,18 +270,38 @@ performance::check_model(MAIN_ERP3)
 #------------------------------------------------------------------------------#
 
 
+#-------------------------------------Plots-------------------------------------
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Plot: ERP Amplitudes by Probe Type, Task Instruction, and Probe Onset
+ggplot(df_erp, aes(x = probe_type, y = erp_amp, color = task_instruction, group = task_instruction)) +
+  # Line connecting group means
+  stat_summary(fun = mean, geom = "line", size = 1.2) +
+  
+  # Error bars (SE)
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, size = 0.8) +
+  
+  # Mean points
+  stat_summary(fun = mean, geom = "point", size = 3) +
+  
+  # Facet for early/late probe onset
+  facet_wrap(~ probe_onset_cat, nrow = 1) +
+  
+  # Custom colors
+  scale_color_manual(values = c(
+    "Active" = colors$main_blue,
+    "Passive" = colors$main_red
+  )) +
+  
+  # Labels and theme
+  labs(
+    title = "ERP Amplitudes by Probe Type, Task Instruction, and Probe Onset",
+    x = "Probe Type",
+    y = "ERP Amplitude (µV)",
+    color = "Task Instruction"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    strip.text = element_text(face = "bold", size = 13),
+    legend.position = "top"
+  )
 
