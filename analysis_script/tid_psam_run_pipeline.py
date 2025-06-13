@@ -69,7 +69,7 @@ MAINPATH = os.path.abspath(os.path.join(SCRIPTPATH, '..'))
 RSCRIPT_EXE = r"C:\Program Files\R\R-4.5.0\bin\Rscript.exe" # Path to Rscript.exe
 
 SKIP_SCRIPTS = [ # Manually excluded scripts. Example: "tid_psam_erp_analysis.m", "tid_psam_questionnaire_analysis.R", ...
-   
+   "tid_psam_ica_preprocessing.m"
 ]
 SKIP_ALREADY_RUN = True # If True, previously run scripts (based on the log file) are not executed again
 

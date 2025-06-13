@@ -143,7 +143,7 @@ for subj_idx= 1:length(dircont_subj)
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
     % Filter
-    EEG = pop_eegfiltnew(EEG, 'locutoff',LCF,'hicutoff',0);
+    %%EEG = pop_eegfiltnew(EEG, 'locutoff',LCF,'hicutoff',0);
     EEG = pop_eegfiltnew(EEG, 'hicutoff',HCF,'plotfreqz',0);
     %%EEG = pop_firws(EEG, 'fcutoff', LCF, 'ftype', 'highpass', 'wtype', 'hamming', 'forder', (2 * ceil((3*(EEG.srate/LCF)) / 2)), 'minphase', 0, 'usefftfilt', 0, 'plotfresp', 0, 'causal', 0);
     %%EEG = pop_firws(EEG, 'fcutoff', HCF, 'ftype', 'lowpass', 'wtype', 'hamming', 'forder',(2 * ceil((3*(EEG.srate/HCF)) / 2)), 'minphase', 0, 'usefftfilt', 0, 'plotfresp', 0, 'causal', 0);
