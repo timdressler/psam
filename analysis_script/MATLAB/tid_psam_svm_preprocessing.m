@@ -57,7 +57,7 @@ tid_psam_clean_up_folder_TD(OUTPATH)
 EOG_CHAN = {'E29','E30'}; % Labels of EOG electrodes
 EPO_FROM = -1;
 EPO_TILL = 0.1;
-LCF = 1;
+LCF = 0.1;
 HCF = 40;
 BL_FROM = -1000;
 BL_TILL = -800;
@@ -144,8 +144,8 @@ for subj_idx= 1:length(dircont_subj)
 
     % Filter
     % Highpass-Filter
-    LCF_ord = pop_firwsord('hamming', EEG.srate, tid_psam_get_transition_bandwidth(LCF)); % Get filter order (also see pop_firwsord.m, tid_psam_get_transition_bandwidth.m)
-    EEG = pop_firws(EEG, 'fcutoff', LCF, 'ftype', 'highpass', 'wtype', 'hamming', 'forder',LCF_ord, 'minphase', 0, 'usefftfilt', 0, 'plotfresp', 0, 'causal', 0);
+    %%LCF_ord = pop_firwsord('hamming', EEG.srate, tid_psam_get_transition_bandwidth(LCF)); % Get filter order (also see pop_firwsord.m, tid_psam_get_transition_bandwidth.m)
+    %%EEG = pop_firws(EEG, 'fcutoff', LCF, 'ftype', 'highpass', 'wtype', 'hamming', 'forder',LCF_ord, 'minphase', 0, 'usefftfilt', 0, 'plotfresp', 0, 'causal', 0);
     % Lowpass-Filter
     HCF_ord = pop_firwsord('hamming', EEG.srate, tid_psam_get_transition_bandwidth(HCF)); % Get filter order (also see pop_firwsord.m, tid_psam_get_transition_bandwidth.m)
     EEG = pop_firws(EEG, 'fcutoff', HCF, 'ftype', 'lowpass', 'wtype', 'hamming', 'forder',HCF_ord, 'minphase', 0, 'usefftfilt', 0, 'plotfresp', 0, 'causal', 0);
