@@ -4,20 +4,20 @@
 %
 % Processing steps include
 %
-    % Extract ERP and control ERP for each condition
-    %   Control ERPs are extracted from no-probe trials and are thought to
-    %   only reflect non-auditory processes (e.g. cognitive ones). The
-    %   uncorrected ERPs are thought to reflect both auditory and
-    %   non-auditory processes. The corrected ERPs are thought to relfect
-    %   mainly auditory processes (see Daliri & Max, 2016)
-    % Get corrected ERP 
-    % Extract ERP component infortmation
-    % Plot uncorrected, corrected and control ERPs for each condition
-    % Plot corrected ERPs and Topoplots for each condition
+% Extract ERP and control ERP for each condition
+%   Control ERPs are extracted from no-probe trials and are thought to
+%   only reflect non-auditory processes (e.g. cognitive ones). The
+%   uncorrected ERPs are thought to reflect both auditory and
+%   non-auditory processes. The corrected ERPs are thought to relfect
+%   mainly auditory processes (see Daliri & Max, 2016)
+% Get corrected ERP
+% Extract ERP component infortmation
+% Plot uncorrected, corrected and control ERPs for each condition
+% Plot corrected ERPs and Topoplots for each condition
 %
 % Literature
 % Daliri, A., & Max, L. (2016). Modulation of auditory responses to speech vs.
-%   nonspeech stimuli during speech movement planning. 
+%   nonspeech stimuli during speech movement planning.
 %   Frontiers in human neuroscience, 10. https://doi.org/10.3389/fnhum.2016.00234
 %
 % Tim Dressler, 17.04.2025
@@ -67,6 +67,13 @@ light_blue = '#5BC5F2';
 light_blue = sscanf(light_blue(2:end),'%2x%2x%2x',[1 3])/255;
 main_yellow = '#FDC300';
 main_yellow = sscanf(main_yellow(2:end),'%2x%2x%2x',[1 3])/255;
+% Concatinate colors
+colors = {
+    main_yellow;
+    main_red;
+    main_green;
+    main_blue;
+    };
 
 % Get directory content
 dircont_subj = dir(fullfile(INPATH, 'sub-*_clean.set'));
@@ -87,10 +94,6 @@ for subj_idx= 1:length(dircont_subj)
     % Get current ID
     subj = dircont_subj(subj_idx).name;
     subj = regexp(subj, 'sub-\d+', 'match', 'once');
-
-    % Get subject outpath
-    subj_outpath = fullfile(OUTPATH,subj);
-    mkdir(subj_outpath);
 
     % Update progress bar
     waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_erp_analysis.m'])
@@ -207,66 +210,72 @@ for subj_idx= 1:length(dircont_subj)
 
         % Plots
         if INDIVIDUAL_PLOTS
-            % Plot: ERP, control ERP and corrected ERP
-            ylim_max = max([erp; con_erp; cor_erp],[], 'all');
-            ylim_min = min([erp; con_erp; cor_erp],[], 'all');
-            figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
-            subplot(131)
-            plot(EEG.times, erp(CHANI,:))
+            % Precompute limits
+            ylim_upper = 25;
+            ylim_lower = -15;
+            cb_lim_upper = 5;
+            cb_lim_lower = -5;
+
+            % Create figure once
+            if cond == 1
+                individual_plot = figure('Units', 'normalized', 'Position', [0 0 1 1]);
+            end
+
+            % Plot rows
+            r_erp_unc = 1; r_topo_unc = 2;
+            r_erp_con = 3; r_topo_con = 4;
+            r_erp_cor = 5; r_topo_cor = 6;
+
+            % Plot: Uncorrected ERP and Topoplot
+            subplot(6, 8, (r_erp_unc - 1) * 8 + cond)
+            plot(EEG.times, erp(CHANI,:), 'LineWidth', 1.5, 'Color', colors{4});
             hold on
-            scatter(erp_lat, erp_amp)
+            scatter(erp_lat, erp_amp, 'filled')
             hold off
-            ylabel('Amplitude [μV]')
-            xlabel('Time [ms]')
-            ylim([ylim_min ylim_max])
-            title('Uncorrected')
-            subplot(132)
-            plot(EEG.times, con_erp(CHANI,:))
-            ylabel('Amplitude [μV]')
-            xlabel('Time [ms]')
-            ylim([ylim_min ylim_max])
-            title('Control')
-            subplot(133)
-            plot(EEG.times, cor_erp(CHANI,:))
-            hold on
-            scatter(cor_erp_lat, cor_erp_amp)
-            hold off
-            ylabel('Amplitude [μV]')
-            xlabel('Time [ms]')
-            ylim([ylim_min ylim_max])
-            title('Corrected')
-            sgtitle(['ERPs for ' subj ' and Condition ' EVENTS{cond}])
+            title(EVENTS{cond}, 'Interpreter', 'none')
+            ylim([ylim_lower ylim_upper]); xlim([-200 400])
+            if cond == 1, ylabel('Uncorrected'); end
 
-            saveas(gcf,fullfile(subj_outpath, [subj '_erp_' EVENTS{cond} '.png']));
+            subplot(6, 8, (r_topo_unc - 1) * 8 + cond)
+            topoplot(mean(erp(:,win_start:win_end),2), EEG.chanlocs, ...
+                'emarker2', {CHANI,'o','r',2,2},'emarker', {'.','k',0.1,1});            colormap("parula")
+            colorbar;
+            clim([cb_lim_lower cb_lim_upper])
 
-            % Plot: Topography, control topography and corrected topography
-            cb_lim_lower = min([mean(erp(:,win_start:win_end),2); mean(con_erp(:,win_start:win_end),2); mean(con_erp(:,win_start:win_end),2)],[],'all');
-            cb_lim_upper = max([mean(erp(:,win_start:win_end),2); mean(con_erp(:,win_start:win_end),2); mean(con_erp(:,win_start:win_end),2)],[],'all');
-            figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.6, 0.6]);
-            subplot(131)
-            topoplot(mean(erp(:,win_start:win_end),2), EEG.chanlocs, 'emarker2', {CHANI,'o','r',5,1});
-            colormap("parula")
-            cb = colorbar;
-            title(cb, 'Amplitude [µV]')
-            clim([cb_lim_lower cb_lim_upper])
-            title('Uncorrected')
-            subplot(132)
-            topoplot(mean(con_erp(:,win_start:win_end),2), EEG.chanlocs, 'emarker2', {CHANI,'o','r',5,1});
-            colormap("parula")
-            cb = colorbar;
-            title(cb, 'Amplitude [µV]')
-            clim([cb_lim_lower cb_lim_upper])
-            title('Control')
-            subplot(133)
-            topoplot(mean(cor_erp(:,win_start:win_end),2), EEG.chanlocs, 'emarker2', {CHANI,'o','r',5,1});
-            colormap("parula")
-            cb = colorbar;
-            title(cb, 'Amplitude [µV]')
-            clim([cb_lim_lower cb_lim_upper])
-            title('Corrected')
-            sgtitle(['ERPs for ' subj ' and Condition ' EVENTS{cond}])
+            % Plot: Control ERP and Topoplot
+            subplot(6, 8, (r_erp_con - 1) * 8 + cond)
+            plot(EEG.times, con_erp(CHANI,:), 'LineWidth', 1.5, 'Color', colors{4});
+            ylim([ylim_lower ylim_upper]); xlim([-200 400])
+            if cond == 1, ylabel('Control'); end
 
-            saveas(gcf,fullfile(subj_outpath, [subj '_topo_erp_' EVENTS{cond} '.png']));
+            subplot(6, 8, (r_topo_con - 1) * 8 + cond)
+            topoplot(mean(con_erp(:,win_start:win_end),2), EEG.chanlocs, ...
+                'emarker2', {CHANI,'o','r',2,2},'emarker', {'.','k',0.1,1});
+            colormap("parula")
+            colorbar;
+            clim([cb_lim_lower cb_lim_upper])
+
+            % Plot: Corrected ERP and Topoplot
+            subplot(6, 8, (r_erp_cor - 1) * 8 + cond)
+            plot(EEG.times, cor_erp(CHANI,:), 'LineWidth', 1.5, 'Color', colors{4});
+            hold on; scatter(cor_erp_lat, cor_erp_amp, 'filled'); hold off
+            ylim([ylim_lower ylim_upper]); xlim([-200 400])
+            if cond == 1, ylabel('Corrected'); end
+
+            subplot(6, 8, (r_topo_cor - 1) * 8 + cond)
+            topoplot(mean(cor_erp(:,win_start:win_end),2), EEG.chanlocs, ...
+                'emarker2', {CHANI,'o','r',2,2},'emarker', {'.','k',0.1,1});            colormap("parula")
+
+            colorbar;
+            clim([cb_lim_lower cb_lim_upper])
+
+
+            % Save after last condition
+            if cond == length(EVENTS)
+                sgtitle(['ERPs and Topoplots for ' subj], 'Interpreter', 'none');
+                saveas(individual_plot, fullfile(OUTPATH, [subj '_erp_topo.png']));
+                close(individual_plot)
+            end
         end
     end
 
@@ -398,13 +407,6 @@ delete(wb); close all;
 close all
 
 % Plot: ERPs for all conditions with Topoplots
-% Concatinate colors
-colors = {
-    main_yellow;
-    main_red;
-    main_green;
-    main_blue;
-    };
 % Create ERP plot
 figure('Units', 'normalized', 'Position', [0 0.0500 1 0.8771]);
 sgtitle('Corrected ERPs and Topoplots for all Conditions')
