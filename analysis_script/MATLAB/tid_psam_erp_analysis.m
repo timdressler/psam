@@ -272,8 +272,8 @@ for subj_idx= 1:length(dircont_subj)
 
             % Save after last condition
             if cond == length(EVENTS)
-                sgtitle(['ERPs and Topoplots for ' subj], 'Interpreter', 'none');
-                saveas(individual_plot, fullfile(OUTPATH, [subj '_erp_topo.png']));
+                sgtitle(['Sanity Check ERPs and Topoplots for ' subj], 'Interpreter', 'none');
+                saveas(individual_plot, fullfile(OUTPATH, [subj '_sanity_erp_topo.png']));
                 close(individual_plot)
             end
         end
