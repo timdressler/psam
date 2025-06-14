@@ -193,7 +193,7 @@ for subj_idx= 1:length(dircont_subj)
         EEG = pop_firws(EEG, 'fcutoff', LCF, 'ftype', 'highpass', 'wtype', 'hamming', 'forder',LCF_ord, 'minphase', 0, 'usefftfilt', 0, 'plotfresp', 0, 'causal', 0);
         % Lowpass-Filter
         HCF_ord = pop_firwsord('hamming', EEG.srate, tid_psam_get_transition_bandwidth(HCF)); % Get filter order (also see pop_firwsord.m, tid_psam_get_transition_bandwidth.m)
-        EEG = pop_firws(EEG, 'fcutoff', HCF, 'ftype', 'highpass', 'wtype', 'hamming', 'forder',HCF_ord, 'minphase', 0, 'usefftfilt', 0, 'plotfresp', 0, 'causal', 0);
+        EEG = pop_firws(EEG, 'fcutoff', HCF, 'ftype', 'lowpass', 'wtype', 'hamming', 'forder',HCF_ord, 'minphase', 0, 'usefftfilt', 0, 'plotfresp', 0, 'causal', 0);
 
         %%EEG = pop_eegfiltnew(EEG, 'locutoff',freq_bands{freq_band_num}(1), 'plotfreqz', 1);
         %%EEG = pop_eegfiltnew(EEG, 'hicutoff',freq_bands{freq_band_num}(2));
