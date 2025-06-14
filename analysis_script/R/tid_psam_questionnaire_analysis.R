@@ -9,7 +9,7 @@
 # byf.shapiro currently commented out due to small pilot data set not working with it 
 
 #-------------------------------------Set up------------------------------------
-#load packages
+# Load packages
 library(tidyr) 
 library(afex)
 library(emmeans)

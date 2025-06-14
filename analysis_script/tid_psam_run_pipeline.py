@@ -69,7 +69,8 @@ MAINPATH = os.path.abspath(os.path.join(SCRIPTPATH, '..'))
 RSCRIPT_EXE = r"C:\Program Files\R\R-4.5.0\bin\Rscript.exe" # Path to Rscript.exe
 
 SKIP_SCRIPTS = [ # Manually excluded scripts. Example: "tid_psam_erp_analysis.m", "tid_psam_questionnaire_analysis.R", ...
-   "tid_psam_ica_preprocessing.m"
+   "tid_psam_ica_preprocessing.m", "tid_psam_set_markers.m", "tid_psam_beh_preprocessing_2", "tid_psam_beh_analysis.m", "tid_psam_beh_preprocessing_1.praat", "tid_psam_svm_analysis.py", "tid_psam_beh_preprocessing_2.m", "tid_psam_svm_preprocessing", 
+   ""
 ]
 SKIP_ALREADY_RUN = True # If True, previously run scripts (based on the log file) are not executed again
 
@@ -131,7 +132,7 @@ def run_script(command, description, script_name, use_call=False):
         sys.exit(1)
 
 
-# Run pipeline
+# Run pipeline (in order)
 
 # MATLAB: tid_psam_set_markers.m
 script_name = "tid_psam_set_markers.m"
@@ -144,7 +145,7 @@ praat_exe = os.path.join(MAINPATH, "analysis_script", "praat", "Praat.exe") # Pa
 praat_script = os.path.join(MAINPATH, "analysis_script", "praat", "tid_psam_beh_preprocessing_1")
 run_script([praat_exe, "--run", praat_script], f"Running {script_name} (Praat)", script_name, use_call=True)
 
-# MATLAB: Multiple scripts (see below)
+# MATLAB: Multiple scripts (in order, see below)
 matlab_scripts = [
     "tid_psam_ica_preprocessing.m",
     "tid_psam_erp_preprocessing.m",
@@ -167,8 +168,9 @@ script_name = "tid_psam_svm_analysis.py"
 py_script = os.path.join(MAINPATH, "analysis_script", "python", script_name)
 run_script(["python", py_script], f"Running {script_name} (Python)", script_name)
 
-# R: Multiple scripts (see below)
+# R: Multiple scripts (in order, see below)
 r_scripts = [
+    "tid_psam_install_requirements_R.R",
     "tid_psam_beh_analysis.R",
     "tid_psam_erp_analysis.R",
     "tid_psam_questionnaire_analysis.R",

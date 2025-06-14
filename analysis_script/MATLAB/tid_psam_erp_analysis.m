@@ -208,9 +208,9 @@ for subj_idx= 1:length(dircont_subj)
         all_cor_erp_data{cor_counter, 9} = probe_type_label;
         cor_counter = cor_counter+1;
 
-        % Plots
+        % Individual plots
         if INDIVIDUAL_PLOTS
-            % Precompute limits
+            % Define limits
             ylim_upper = 25;
             ylim_lower = -15;
             cb_lim_upper = 5;
@@ -234,11 +234,14 @@ for subj_idx= 1:length(dircont_subj)
             hold off
             title(EVENTS{cond}, 'Interpreter', 'none')
             ylim([ylim_lower ylim_upper]); xlim([-200 400])
-            if cond == 1, ylabel('Uncorrected'); end
+            if cond == 1
+                ylabel('Uncorrected'); 
+            end
 
             subplot(6, 8, (r_topo_unc - 1) * 8 + cond)
             topoplot(mean(erp(:,win_start:win_end),2), EEG.chanlocs, ...
-                'emarker2', {CHANI,'o','r',2,2},'emarker', {'.','k',0.1,1});            colormap("parula")
+                'emarker2', {CHANI,'o','r',2,2},'emarker', {'.','k',0.1,1});            
+            colormap("parula")
             colorbar;
             clim([cb_lim_lower cb_lim_upper])
 
@@ -246,7 +249,9 @@ for subj_idx= 1:length(dircont_subj)
             subplot(6, 8, (r_erp_con - 1) * 8 + cond)
             plot(EEG.times, con_erp(CHANI,:), 'LineWidth', 1.5, 'Color', colors{4});
             ylim([ylim_lower ylim_upper]); xlim([-200 400])
-            if cond == 1, ylabel('Control'); end
+            if cond == 1
+                ylabel('Control'); 
+            end
 
             subplot(6, 8, (r_topo_con - 1) * 8 + cond)
             topoplot(mean(con_erp(:,win_start:win_end),2), EEG.chanlocs, ...
@@ -258,14 +263,18 @@ for subj_idx= 1:length(dircont_subj)
             % Plot: Corrected ERP and Topoplot
             subplot(6, 8, (r_erp_cor - 1) * 8 + cond)
             plot(EEG.times, cor_erp(CHANI,:), 'LineWidth', 1.5, 'Color', colors{4});
-            hold on; scatter(cor_erp_lat, cor_erp_amp, 'filled'); hold off
+            hold on
+            scatter(cor_erp_lat, cor_erp_amp, 'filled')
+            hold off
             ylim([ylim_lower ylim_upper]); xlim([-200 400])
-            if cond == 1, ylabel('Corrected'); end
+            if cond == 1
+                ylabel('Corrected'); 
+            end
 
             subplot(6, 8, (r_topo_cor - 1) * 8 + cond)
             topoplot(mean(cor_erp(:,win_start:win_end),2), EEG.chanlocs, ...
-                'emarker2', {CHANI,'o','r',2,2},'emarker', {'.','k',0.1,1});            colormap("parula")
-
+                'emarker2', {CHANI,'o','r',2,2},'emarker', {'.','k',0.1,1});            
+            colormap("parula")
             colorbar;
             clim([cb_lim_lower cb_lim_upper])
 

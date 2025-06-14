@@ -5,7 +5,7 @@
 # Tim Dressler, 18.04.25
 
 #-------------------------------------Set up------------------------------------
-#load packages
+# Load packages
 library(tidyr) 
 library(afex)
 library(emmeans)
