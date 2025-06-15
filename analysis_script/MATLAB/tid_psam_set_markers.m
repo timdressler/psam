@@ -9,6 +9,9 @@
 % Control - Active - Late - Unaltered; ..., no-probe trial are
 % classified as Control - Active - Early; Control - Active - Late, ...;
 %
+% Skips processing subjects that were manually excluded due to technical
+% problems, that cause the subsequent pipeline to fail. 
+%
 % The following systems was used: While the stimulus file contained the
 %   true audio on the right channel, the left channel contained a 'rectangle'
 %   that was fed in the EEG system. This script detects the onset of the
@@ -59,6 +62,9 @@ MARKER_CHAN = 31;
 EARLY_ONSET = 2.6;
 LATE_ONSET = 2.8;
 
+% Get manually excluded subjects
+MANUALLY_EXCLUDED_SUBJ = {'sub-28', 'sub-24'};
+
 % Get directory content
 dircont_subj = dir(fullfile(INPATH, 'sub*'));
 
@@ -74,6 +80,17 @@ for subj_idx = 1:length(dircont_subj)
 
     % Get subject ID
     subj = dircont_subj(subj_idx).name;
+
+    % Exclude/skip manually excluded subjects
+    if any(strcmp(MANUALLY_EXCLUDED_SUBJ, subj), 'all')
+        continue
+        % Update Protocol
+        subj_time = NaN;
+        protocol{subj_idx,1} = subj;
+        protocol{subj_idx,2} = subj_time;
+        protocol{subj_idx,3} = 'MANUALLY_EXCLUDED';
+    end
+
 
     % Update progress bar
     waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_set_markers.m'])
