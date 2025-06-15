@@ -63,7 +63,7 @@ EARLY_ONSET = 2.6;
 LATE_ONSET = 2.8;
 
 % Get manually excluded subjects
-MANUALLY_EXCLUDED_SUBJ = {'sub-28', 'sub-24'};
+MANUALLY_EXCLUDED_SUBJ = {}; % e.g. {'sub-28', 'sub-24'}
 
 % Get directory content
 dircont_subj = dir(fullfile(INPATH, 'sub*'));
@@ -83,14 +83,18 @@ for subj_idx = 1:length(dircont_subj)
 
     % Exclude/skip manually excluded subjects
     if any(strcmp(MANUALLY_EXCLUDED_SUBJ, subj), 'all')
-        continue
+        % Update marked subjects
+        marked_subj{end+1,1} = subj;
+        marked_subj{end,2} = 'MANUALLY_EXCLUDED';
         % Update Protocol
         subj_time = NaN;
         protocol{subj_idx,1} = subj;
         protocol{subj_idx,2} = subj_time;
         protocol{subj_idx,3} = 'MANUALLY_EXCLUDED';
-    end
 
+        % Skip rest of the loop
+        continue
+    end
 
     % Update progress bar
     waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_set_markers.m'])
