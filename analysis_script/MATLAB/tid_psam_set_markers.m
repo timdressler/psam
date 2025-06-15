@@ -10,7 +10,7 @@
 % classified as Control - Active - Early; Control - Active - Late, ...;
 %
 % Skips processing subjects that were manually excluded due to technical
-% problems, that cause the subsequent pipeline to fail. 
+%   problems, that cause the subsequent pipeline to fail. 
 %
 % The following systems was used: While the stimulus file contained the
 %   true audio on the right channel, the left channel contained a 'rectangle'
