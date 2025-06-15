@@ -154,6 +154,9 @@ for subj_idx= 1:length(dircont_subj_erp)
     % Merge to be excluded trials
     excluded_trials_all = excluded_trials_beh' | EEG.reject.rejglobal;
 
+    % Store to be excluded trials (ERP, BEH)
+    excluded_trials_erp_beh = excluded_trials_all;
+
     % Remove to be excluded trials from vocal data
     beh_clean = beh(~excluded_trials_all',:);
 
@@ -259,6 +262,9 @@ for subj_idx= 1:length(dircont_subj_erp)
         % Merge to be excluded trials
         excluded_trials_all_no_probe = excluded_trials_beh_no_probe' | EEG.reject.rejglobal;
 
+        % Store to be excluded trials (SVM)
+        excluded_trials_svm = excluded_trials_all_no_probe;
+
         % Remove to be excluded trials from SVM data
         EEG.reject.rejglobal = excluded_trials_all_no_probe;
         EEG = pop_rejepoch( EEG, EEG.reject.rejglobal ,0);
@@ -292,7 +298,7 @@ for subj_idx= 1:length(dircont_subj_erp)
         all_subj_beh_clean = vertcat(all_subj_beh_clean, beh_clean);
 
         % Save to-be-exlcuded trials for use in tid_psam_hilbert_preparation
-        save(fullfile(OUTPATH, [subj '_excluded_no_probe_trials.mat']),'excluded_trials_all_no_probe')
+        save(fullfile(OUTPATH, [subj '_excluded_trials.mat']),'excluded_trials_svm', 'excluded_trials_erp_beh');
     end
 
     % Update Protocol

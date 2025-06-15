@@ -10,7 +10,7 @@
     % Apply a 1 Hz HP-Filter
     % Apply a 30 Hz LP-Filter
     % Remove bad channels as identified in tid_psam_ica_preprocessing.m
-    % Attach ICA weights and remove bad components using the ICLabel Plugin
+    % Attach ICA weights and remove bad components previously indentified using the ICLabel Plugin
     %   (Pion-Tonachini et al., 2019)
     % Interpolate bad (and removed) channels
     % Epoch data around 'go-signal'

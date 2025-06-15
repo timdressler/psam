@@ -9,7 +9,7 @@
     %   tid_psam_ica_preprocessing.m)
     % Rename events
     % Remove bad channels as identified in tid_psam_ica_preprocessing.m
-    % Attach ICA weights and remove bad components using the ICLabel Plugin
+    % Attach ICA weights and remove bad components previously indentified using the ICLabel Plugin
     %   (Pion-Tonachini et al., 2019)
     % Interpolate bad (and removed) channels
     % Loop across frequency bands and apply Hilbert transformation
@@ -90,9 +90,9 @@ for subj_idx= 1:length(dircont_subj)
     subj = dircont_subj(subj_idx).name;
     subj = regexp(subj, 'sub-\d+', 'match', 'once');
 
-    % Get file of to-be excluded trials based on tid_psam_exclude_trials 
-    exclusion_filename = fullfile(INPATH_EXCLUDED,[subj '_excluded_no_probe_trials.mat']);
-    load(exclusion_filename) % loads variable 'excluded_trials_all_no_probe'
+    % Get file of to-be excluded trials based on tid_psam_exclude_trials.m 
+    exclusion_filename = fullfile(INPATH_EXCLUDED,[subj '_excluded_trials.mat']);
+    load(exclusion_filename) % loads variables 'excluded_trials_erp_beh' (not used here) and 'excluded_trials_svm' (used here)
 
     % Update progress bar
     waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_hilbert_preparation.m'])
@@ -205,7 +205,7 @@ for subj_idx= 1:length(dircont_subj)
         EEG = pop_epoch( EEG, EVENTS, [EPO_FROM        EPO_TILL], 'epochinfo', 'yes');
     
         % Reject bad epochs based on the ones identified for the SVM analysis in tid_psam_exclude_trials.m
-        EEG.reject.rejglobal = excluded_trials_all_no_probe;
+        EEG.reject.rejglobal = excluded_trials_svm;
         EEG = pop_rejepoch( EEG, EEG.reject.rejglobal ,0);
 
         % Store dataset

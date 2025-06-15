@@ -10,8 +10,14 @@
     % Create regular 1s epochs
     % Remove bad epochs based on probability
     % Calculate ICA weights
+    % Label bad components using the ICLabel Plugin (Pion-Tonachini et al., 2019)
 %
 % Saves data
+%
+% Literature
+% Pion-Tonachini, L., Kreutz-Delgado, K., & Makeig, S. (2019).
+%   ICLabel: An automated electroencephalographic independent component classifier, dataset, and website.
+%   NeuroImage, 198, 181-197.
 %
 % Tim Dressler, 04.04.2025
 
