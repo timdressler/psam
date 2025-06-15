@@ -477,7 +477,7 @@ for subj_idx= 1:length(dircont_subj)
         subplot(6, 8, (r_erp_unc - 1) * 8 + cond_plot_idx)
         plot(EEG_times_for_plotting, erp_filtered(CHANI,:), 'LineWidth', 1.5, 'Color', colors{4}); % Filtered
         hold on
-        plot(EEG_times_for_plotting, erp_unfiltered(CHANI,:), '--', 'LineWidth', 1.5, 'Color', colors{4}); % Unfiltered (dashed)
+        plot(EEG_times_for_plotting, erp_unfiltered(CHANI,:), ':', 'LineWidth', 1.5, 'Color', colors{4}); % Unfiltered (dashed)
         % Removed scatter points for N100
         % scatter(erp_lat_filtered, erp_amp_filtered, 'filled', 'MarkerEdgeColor', colors{4}, 'MarkerFaceColor', colors{4});
         % scatter(erp_lat_unfiltered, erp_amp_unfiltered, 'o', 'MarkerEdgeColor', colors{4}, 'MarkerFaceColor', 'none');
@@ -503,7 +503,7 @@ for subj_idx= 1:length(dircont_subj)
         subplot(6, 8, (r_erp_con - 1) * 8 + cond_plot_idx)
         plot(EEG_times_for_plotting, con_erp_filtered(CHANI,:), 'LineWidth', 1.5, 'Color', colors{4});
         hold on
-        plot(EEG_times_for_plotting, con_erp_unfiltered(CHANI,:), '--', 'LineWidth', 1.5, 'Color', colors{4});
+        plot(EEG_times_for_plotting, con_erp_unfiltered(CHANI,:), ':', 'LineWidth', 1.5, 'Color', colors{4});
         hold off
         ylim([ylim_lower ylim_upper]); xlim([-200 400])
         if cond_plot_idx == 1
@@ -525,7 +525,7 @@ for subj_idx= 1:length(dircont_subj)
         subplot(6, 8, (r_erp_cor - 1) * 8 + cond_plot_idx)
         plot(EEG_times_for_plotting, cor_erp_filtered(CHANI,:), 'LineWidth', 1.5, 'Color', colors{4});
         hold on
-        plot(EEG_times_for_plotting, cor_erp_unfiltered(CHANI,:), '--', 'LineWidth', 1.5, 'Color', colors{4});
+        plot(EEG_times_for_plotting, cor_erp_unfiltered(CHANI,:), ':', 'LineWidth', 1.5, 'Color', colors{4});
         % Removed scatter points for N100
         % scatter(cor_erp_lat_filtered, cor_erp_amp_filtered, 'filled', 'MarkerEdgeColor', colors{4}, 'MarkerFaceColor', colors{4});
         % scatter(cor_erp_lat_unfiltered, cor_erp_amp_unfiltered, 'o', 'MarkerEdgeColor', colors{4}, 'MarkerFaceColor', 'none');
@@ -745,90 +745,69 @@ close all; delete(wb);
 %% Plots
 close all
 
-% Plot: ERPs for all conditions with Topoplots (Combined filtered and unfiltered)
-% Create ERP plot
+% Plot: ERPs for all conditions (Combined filtered and unfiltered) - Now without Topoplots
 figure('Units', 'normalized', 'Position', [0 0.0500 1 0.8771]);
-sgtitle('Corrected ERPs and Topoplots for all Conditions (Filtered vs. Unfiltered)')
-subplot(3,4,5:6)
+sgtitle('Corrected ERPs for all Conditions (Filtered vs. Unfiltered)')
+
+% Subplot for early probes (now occupying full width of the figure)
+subplot(2,1,1)
+hold on; % Keep hold on until all plots are added
+plot_handles_early = gobjects(1, length(grandaverage_erp_cor_early_filtered) * 2); % Preallocate for plot handles
+idx_handle = 1;
 for cond_early_num = 1:length(grandaverage_erp_cor_early_filtered)
     erp_2_plot_filtered = grandaverage_erp_cor_early_filtered{cond_early_num,1};
     erp_2_plot_unfiltered = grandaverage_erp_cor_early_unfiltered{cond_early_num,1};
 
-    plot(EEG_times_for_plotting, erp_2_plot_filtered(chani,:), 'LineWidth', 1.5, ...
+    p1 = plot(EEG_times_for_plotting, erp_2_plot_filtered(chani,:), 'LineWidth', 1.5, ...
         'Color', colors{cond_early_num}, 'DisplayName', [grandaverage_erp_cor_early_filtered{cond_early_num,2} ' (Filtered)']);
-    hold on
-    plot(EEG_times_for_plotting, erp_2_plot_unfiltered(chani,:), '--', 'LineWidth', 1.5, ...
+    p2 = plot(EEG_times_for_plotting, erp_2_plot_unfiltered(chani,:), ':', 'LineWidth', 1.5, ...
         'Color', colors{cond_early_num}, 'DisplayName', [grandaverage_erp_cor_early_unfiltered{cond_early_num,2} ' (Unfiltered)']);
+    
+    plot_handles_early(idx_handle) = p1;
+    plot_handles_early(idx_handle+1) = p2;
+    idx_handle = idx_handle + 2;
 end
 xlim([-200 400])
 ylim([y_lim_lower y_lim_upper])
 xlabel('Time [ms]')
 ylabel('Amplitude [µV]')
 title('ERPs for early probes')
-fill([70 130 130 70], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], light_blue, 'FaceAlpha',0.1, 'EdgeColor','none');
-l = legend('Location', 'northwest'); % legend should dynamically pick up DisplayNames
-fontsize(l,10,'points')
+fill([70 130 130 70], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], light_blue, 'FaceAlpha',0.1, 'EdgeColor','none', 'HandleVisibility', 'off');
+l = legend(plot_handles_early, 'Location', 'EastOutside'); % legend should dynamically pick up DisplayNames
+fontsize(l,8,'points') % Adjusted font size
 hold off
 
-subplot(3,4,7:8)
+% Subplot for late probes 
+subplot(2,1,2)
+hold on; 
+plot_handles_late = gobjects(1, length(grandaverage_erp_cor_late_filtered) * 2); % Preallocate for plot handles
+idx_handle = 1;
 for cond_late_num = 1:length(grandaverage_erp_cor_late_filtered)
     erp_cor_2_plot_filtered = grandaverage_erp_cor_late_filtered{cond_late_num,1};
     erp_cor_2_plot_unfiltered = grandaverage_erp_cor_late_unfiltered{cond_late_num,1};
 
-    plot(EEG_times_for_plotting, erp_cor_2_plot_filtered(chani,:), 'LineWidth', 1.5, ...
+    p1 = plot(EEG_times_for_plotting, erp_cor_2_plot_filtered(chani,:), 'LineWidth', 1.5, ...
         'Color', colors{cond_late_num}, 'DisplayName', [grandaverage_erp_cor_late_filtered{cond_late_num,2} ' (Filtered)']);
-    hold on
-    plot(EEG_times_for_plotting, erp_cor_2_plot_unfiltered(chani,:), '--', 'LineWidth', 1.5, ...
+    p2 = plot(EEG_times_for_plotting, erp_cor_2_plot_unfiltered(chani,:), ':', 'LineWidth', 1.5, ...
         'Color', colors{cond_late_num}, 'DisplayName', [grandaverage_erp_cor_late_unfiltered{cond_late_num,2} ' (Unfiltered)']);
+    
+    plot_handles_late(idx_handle) = p1;
+    plot_handles_late(idx_handle+1) = p2;
+    idx_handle = idx_handle + 2;
 end
 xlim([-200 400])
 ylim([y_lim_lower y_lim_upper])
 xlabel('Time [ms]')
 ylabel('Amplitude [µV]')
 title('ERPs for late probes')
-fill([70 130 130 70], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], light_blue, 'FaceAlpha',0.1, 'EdgeColor','none');
-l = legend('Location', 'northwest');
-fontsize(l,10,'points')
+fill([70 130 130 70], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], light_blue, 'FaceAlpha',0.1, 'EdgeColor','none', 'HandleVisibility', 'off');
+l = legend(plot_handles_late, 'Location', 'EastOutside');
+fontsize(l,8,'points') % Adjusted font size
 hold off
-
-% Create Topoplots (using filtered data for topo, as unfiltered would be difficult to represent comparatively on one topo)
-% Get limit values
-% Combine filtered and unfiltered topo data to get overall min/max for colorbar
-all_topo_2_plot_combined = [];
-% Recalculate win_start and win_end here as well to be safe
-[~,win_start] = min(abs(EEG_times_for_plotting-ERP_FROM));
-[~,win_end] = min(abs(EEG_times_for_plotting-ERP_TILL));
-
-for cond_num = 1:length(grandaverage_erp_cor_filtered)
-    topo_2_plot_filtered = grandaverage_erp_cor_filtered{cond_num,1};
-    all_topo_2_plot_combined(:,end+1) = mean(topo_2_plot_filtered(:,win_start:win_end),2);
-
-    topo_2_plot_unfiltered = grandaverage_erp_cor_unfiltered{cond_num,1};
-    all_topo_2_plot_combined(:,end+1) = mean(topo_2_plot_unfiltered(:,win_start:win_end),2);
-end
-cb_lim_lower = min(all_topo_2_plot_combined, [], 'all');
-cb_lim_upper = max(all_topo_2_plot_combined, [], 'all');
-
-
-% Set up indices for Topoplots in Subplot
-topo_idx = [1 2 3 4 9 10 11 12];
-
-% Create Topoplot (Displaying filtered data, as per original script, no direct way to show both on one topo)
-for cond_num = 1:length(grandaverage_erp_cor_filtered)
-    subplot(3,4,topo_idx(cond_num))
-    topo_2_plot = grandaverage_erp_cor_filtered{cond_num,1}; % Using filtered data for topoplot
-    topoplot(mean(topo_2_plot(:,win_start:win_end),2), EEG_chanlocs_for_plotting, 'emarker2', {chani,'o','r',5,1});
-    title(grandaverage_erp_cor_filtered{cond_num,2})
-    colormap("parula")
-    cb = colorbar;
-    clim([cb_lim_lower cb_lim_upper]);
-    cb.Label.String = 'Amplitude [µV]';
-    cb.Label.Position = [2.2, -1, 0];
-    cb.Label.HorizontalAlignment = 'center';
-end
 
 % Save plot
 saveas(gcf,fullfile(OUTPATH, 'tid_psam_plot_grandaverage_erp_topo_combined.png'))
+
 
 % Plot: ERP, control ERP and correct ERP for each condition (Combined filtered and unfiltered)
 % Concatinate colors for the three ERP types (Uncorrected, Corrected, Control)
@@ -845,6 +824,8 @@ con_cond_num_filtered = 1;
 con_cond_num_unfiltered = 1;
 
 for cond_num = 1:length(grandaverage_erp_cor_filtered) % Loop through conditions
+    subplot(2,4,cond_num)
+    hold on; % Keep hold on until all plots are added
     % Filtered ERPs
     erp_2_plot_filtered = grandaverage_erp_filtered{cond_num,1};
     erp_cor_2_plot_filtered = grandaverage_erp_cor_filtered{cond_num,1};
@@ -855,25 +836,24 @@ for cond_num = 1:length(grandaverage_erp_cor_filtered) % Loop through conditions
     erp_cor_2_plot_unfiltered = grandaverage_erp_cor_unfiltered{cond_num,1};
     erp_con_2_plot_unfiltered = grandaverage_erp_con_unfiltered{con_cond_num_unfiltered,1}; % Using specific counter for controls
 
-    subplot(2,4,cond_num)
     % Plot filtered data
-    plot(EEG_times_for_plotting, erp_2_plot_filtered(chani,:), 'LineWidth', 1.5, 'Color', colors_erp_types{1}, 'DisplayName', 'Uncorrected (Filtered)')
-    hold on
-    plot(EEG_times_for_plotting, erp_cor_2_plot_filtered(chani,:), 'LineWidth', 1.5, 'Color', colors_erp_types{2}, 'DisplayName', 'Corrected (Filtered)')
-    plot(EEG_times_for_plotting, erp_con_2_plot_filtered(chani,:), 'LineWidth', 1.5, 'Color', colors_erp_types{3}, 'DisplayName', 'Control (Filtered)')
+    p1 = plot(EEG_times_for_plotting, erp_2_plot_unfiltered(chani,:), '-', 'LineWidth', 1.5, 'Color', colors_erp_types{1}, 'DisplayName', 'Uncorrected (Filtered)');
+    p2 = plot(EEG_times_for_plotting, erp_cor_2_plot_unfiltered(chani,:), '-', 'LineWidth', 1.5, 'Color', colors_erp_types{2}, 'DisplayName', 'Corrected (Filtered)');
+    p3 = plot(EEG_times_for_plotting, erp_con_2_plot_unfiltered(chani,:), '-', 'LineWidth', 1.5, 'Color', colors_erp_types{3}, 'DisplayName', 'Control (Filtered)');
 
     % Plot unfiltered data (dashed)
-    plot(EEG_times_for_plotting, erp_2_plot_unfiltered(chani,:), '--', 'LineWidth', 1.5, 'Color', colors_erp_types{1}, 'DisplayName', 'Uncorrected (Unfiltered)')
-    plot(EEG_times_for_plotting, erp_cor_2_plot_unfiltered(chani,:), '--', 'LineWidth', 1.5, 'Color', colors_erp_types{2}, 'DisplayName', 'Corrected (Unfiltered)')
-    plot(EEG_times_for_plotting, erp_con_2_plot_unfiltered(chani,:), '--', 'LineWidth', 1.5, 'Color', colors_erp_types{3}, 'DisplayName', 'Control (Unfiltered)')
-
+    p4 = plot(EEG_times_for_plotting, erp_2_plot_filtered(chani,:), ':', 'LineWidth', 1.5, 'Color', colors_erp_types{1}, 'DisplayName', 'Uncorrected (Unfiltered)');
+    p5 = plot(EEG_times_for_plotting, erp_cor_2_plot_filtered(chani,:), ':', 'LineWidth', 1.5, 'Color', colors_erp_types{2}, 'DisplayName', 'Corrected (Unfiltered)');
+    p6 = plot(EEG_times_for_plotting, erp_con_2_plot_filtered(chani,:), ':', 'LineWidth', 1.5, 'Color', colors_erp_types{3}, 'DisplayName', 'Control (Unfiltered)');
+    
     xlim([-200 400])
     ylim([y_lim_lower-1 y_lim_upper+1])
     xlabel('Time [ms]')
     ylabel('Amplitude [µV]')
     title(grandaverage_erp_cor_filtered{cond_num,2}) % Title based on filtered condition name
-    l = legend('Location', 'northwest'); % legend should dynamically pick up DisplayNames
-    fontsize(l,8,'points')
+    % Removed the legend call from this plot
+    % l = legend([p1, p2, p3, p4, p5, p6], 'Location', 'EastOutside');
+    % fontsize(l,6,'points')
     hold off
 
     % Increment control condition counters appropriately
