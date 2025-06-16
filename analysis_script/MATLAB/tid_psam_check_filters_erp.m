@@ -1,6 +1,6 @@
 % tid_psam_check_filters_erp.m
 %
-% Creates plots to investigate the effects of filterimg based on the ERP-specific prerpocessing (see tid_psam_erp_preprocessing.m, tid_psam_erp_analysis.m).
+% Creates plots to investigate the effects of filterimg based on the ERP-specific preprocessing (see tid_psam_erp_preprocessing.m, tid_psam_erp_analysis.m).
 %
 % Conditions
 % S 931 = Active - Early Probe - Unaltered
@@ -17,7 +17,7 @@
 %
 %   Perform preprocesing once with and once without filtering (see tid_psam_erp_preprocessing.m)
 %   Excludes markerd trials based on tid_psam_exclude_trials.m
-%   Create plots to illustarte effects of filtering
+%   Create plots to illustarte effects of filtering.
 %
 % Saves plots
 %
@@ -46,7 +46,7 @@ OUTPATH = fullfile(MAINPATH, 'data\analysis_data\check_filters_erp');
 FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);
 
-tid_psam_check_folder_TD(MAINPATH, INPATH_RAW, INPATH_ICA, OUTPATH)
+tid_psam_check_folder_TD(MAINPATH, INPATH_RAW, INPATH_ICA, INPATH_EXCLUDED, OUTPATH)
 tid_psam_clean_up_folder_TD(OUTPATH)
 
 % Variables to edit
@@ -125,7 +125,6 @@ for subj_idx= 1:length(dircont_subj)
 
     % Update progress bar
     waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_check_filters_erp.m'])
-
     tic;
 
     % Store subject-specific ERP data temporarily for individual plots
@@ -142,7 +141,6 @@ for subj_idx= 1:length(dircont_subj)
         exclusion_filename = fullfile(INPATH_EXCLUDED,[subj '_excluded_trials.mat']);
         load(exclusion_filename) % Loads variables 'excluded_trials_erp_beh' (used here) and 'excluded_trials_svm' (not used here)
 
-        tic;
         % Start eeglab 
         [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
 

@@ -408,7 +408,7 @@ grandaverage_erp_cor_late  = grandaverage_erp_cor(contains(grandaverage_erp_cor(
 % End of processing
 
 protocol = cell2table(protocol, 'VariableNames',{'subj','time', 'status'})
-writetable(protocol,fullfile(OUTPATH, 'erp_analysis_protocol.xlsx'))
+writetable(protocol,fullfile(OUTPATH, 'tid_psam_erp_analysis_protocol.xlsx'))
 
 if ~isempty(marked_subj)
     marked_subj = cell2table(marked_subj, 'VariableNames',{'subj','issue'})

@@ -249,7 +249,7 @@ end
 % End of processing
 
 protocol = cell2table(protocol, 'VariableNames',{'subj','time', 'status'})
-writetable(protocol,fullfile(OUTPATH, 'feature_analysis_protocol.xlsx'))
+writetable(protocol,fullfile(OUTPATH, 'tid_psam_feature_analysis_protocol.xlsx'))
 
 if ~isempty(marked_subj)
     marked_subj = cell2table(marked_subj, 'VariableNames',{'subj','issue'})
