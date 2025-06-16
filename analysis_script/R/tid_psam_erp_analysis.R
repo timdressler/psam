@@ -272,36 +272,146 @@ performance::check_model(MAIN_ERP3)
 
 #-------------------------------------Plots-------------------------------------
 
-# Plot: ERP Amplitudes by Probe Type, Task Instruction, and Probe Onset
-ggplot(df_erp, aes(x = probe_type, y = erp_amp, color = task_instruction, group = task_instruction)) +
-  # Line connecting group means
+# Plot 1: ERP Amplitudes by Probe Type, Task Instruction, and Probe Onset
+P1 <- ggplot(df_erp, aes(x = task_instruction, y = erp_amp, color = probe_type, group = probe_type)) +
   stat_summary(fun = mean, geom = "line", size = 1.2) +
-  
-  # Error bars (SE)
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, size = 0.8) +
-  
-  # Mean points
-  stat_summary(fun = mean, geom = "point", size = 3) +
-  
-  # Facet for early/late probe onset
-  facet_wrap(~ probe_onset_cat, nrow = 1) +
-  
-  # Custom colors
+    stat_summary(fun = mean, geom = "point", size = 3) +
+  facet_wrap(~ probe_onset_cat, nrow = 1,
+             labeller = as_labeller(c("Early" = "Early Probe Onset",
+                                      "Late" = "Late Probe Onset"))) +
   scale_color_manual(values = c(
-    "Active" = colors$main_blue,
-    "Passive" = colors$main_red
+    "Altered" = colors$main_red,
+    "Unaltered" = colors$main_blue
   )) +
-  
-  # Labels and theme
   labs(
-    title = "ERP Amplitudes by Probe Type, Task Instruction, and Probe Onset",
-    x = "Probe Type",
-    y = "ERP Amplitude (µV)",
-    color = "Task Instruction"
+    title = "N100 ERP Amplitudes by Probe Type, Task Instruction, and Probe Onset",
+    y = "N100 ERP Amplitude (µV)",
+    x = NULL,
+    color = "Probe Type"
   ) +
-  theme_minimal(base_size = 14) +
+  theme_minimal(base_size = 10) +
+  theme(
+    strip.text = element_text(face = "bold", size = 9),
+    legend.position = "top"
+  ) + 
+  scale_x_discrete(labels = c("Active" = "Active Task Condition",
+                                  "Passive" = "Passive Task Condition"))
+P1
+
+# Save plot
+ggsave(
+  filename = "tid_psam_erp.png", 
+  plot = P1,
+  width = 8,      
+  height = 6,     
+  dpi = 300,
+  bg = "white"
+)
+
+
+# Plot 2: PSAM Effect Amplitudes by Probe Type and Probe Onset
+P2 <- ggplot(df_psam, aes(x = probe_onset_cat, y = psam_amp, color = probe_type, group = probe_type)) +
+  stat_summary(fun = mean, geom = "line", size = 1.2) +
+    stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, size = 0.8) +
+    stat_summary(fun = mean, geom = "point", size = 3) +
+    scale_color_manual(values = c(
+    "Altered" = colors$main_red,
+    "Unaltered" = colors$main_blue
+  )) +
+    labs(
+    title = "N100 ERP Amplitudes by Probe Type and Probe Onset",
+    y = "PSAM Effect Amplitude (µV)",
+    x = NULL,
+    color = "Probe Type"
+  ) +
+  theme_minimal(base_size = 10) +
   theme(
     strip.text = element_text(face = "bold", size = 13),
     legend.position = "top"
+  ) + 
+  scale_x_discrete(labels = c("Early" = "Early Probe Onset",
+                              "Late" = "Late Probe Onset"))
+P2
+
+# Save plot
+ggsave(
+  filename = "tid_psam_psam_effect.png", 
+  plot = P2,
+  width = 8,      
+  height = 6,     
+  dpi = 300,
+  bg = "white"
+)
+
+# Plot 3: PSAM Effect Amplitudes by Probe Type and Probe Onset (spreaded-out)
+# Preparation
+df_psam$probe_combination <- interaction(df_psam$probe_onset_cat, df_psam$probe_type, sep = "_")
+df_psam$probe_combination <- factor(df_psam$probe_combination,
+                                    levels = c("Early_Altered", "Early_Unaltered", "Late_Altered", "Late_Unaltered"),
+                                    labels = c("Early Onset\nAltered", "Early Onset\nUnaltered", "Late Onset\nAltered", "Late Onset\nUnaltered"))
+
+max_amp <- max(df_psam$psam_amp, na.rm = TRUE)
+y_pos_level1 <- max_amp + 6 
+y_pos_level2 <- max_amp + 7.5 
+y_pos_level3 <- max_amp + 9 
+
+# Plot
+P3 <- ggplot(df_psam, aes(x = probe_combination, y = psam_amp, fill = probe_type)) +
+  geom_violin(trim = FALSE) +
+  geom_boxplot(width = 0.1, fill = "white") +
+  # Comparison 1: Early Onset, Altered vs Unaltered
+  geom_signif(comparisons = list(c("Early Onset\nAltered", "Early Onset\nUnaltered")),
+              annotations = "n.s.",
+              y_position = y_pos_level1,
+              tip_length = 0.02,
+              textsize = 2.75,
+              vjust = 0.1) +
+  # Comparison 2: Late Onset, Altered vs Unaltered
+  geom_signif(comparisons = list(c("Late Onset\nAltered", "Late Onset\nUnaltered")),
+              annotations = "n.s.",
+              y_position = y_pos_level1, 
+              tip_length = 0.02,
+              textsize = 2.75,
+              vjust = 0.1) +
+  # Comparison 3: Early Altered vs Late Altered
+  geom_signif(comparisons = list(c("Early Onset\nAltered", "Late Onset\nAltered")),
+              annotations = "n.s.",
+              y_position = y_pos_level2, 
+              tip_length = 0.02,
+              textsize = 2.75,
+              vjust = 0.1) +
+  # Comparison 4: Early Unaltered vs Late Unaltered
+  geom_signif(comparisons = list(c("Early Onset\nUnaltered", "Late Onset\nUnaltered")),
+              annotations = "n.s.",
+              y_position = y_pos_level3, 
+              tip_length = 0.02,
+              textsize = 2.75,
+              vjust = 0.1) +
+  scale_fill_manual(values = c("Altered" = colors$main_red, "Unaltered" = colors$main_blue)) +
+  labs(
+    title = "PSAM Effect Amplitudes by Probe Type and Probe Onset Combinations",
+    y = "PSAM Effect Amplitude (µV)",
+    x = NULL,
+    fill = "Probe Type"
+  ) +
+  theme_minimal(base_size = 10) +
+  theme(
+    legend.position = "top",
+    axis.text.x = element_text(angle = 0, hjust = 1)
   )
+P3
+
+# Save plot
+ggsave(
+  filename = "tid_psam_psam_effect_violin.png", 
+  plot = P3,
+  width = 8,      
+  height = 6,     
+  dpi = 300,
+  bg = "white"
+)
+
+
+
 
