@@ -17,7 +17,7 @@ function transition_bandwidth = tid_psam_get_transition_bandwidth(cuttoff_freq)
 % Outputs:
 %   transition_bandwidth - calculated transition bandwidth
 %
-% Rule developed by Mareike Daeglau
+% Rule developed by Mareike Daeglau based on https://eeglab.org/others/Firfilt_FAQ.html
 %
 % Tim Dressler, 16.06.2024
 

@@ -272,7 +272,7 @@ for subj_idx= 1:length(dircont_subj)
 
         % Get ERPs for each condition
         for cond = 1:length(EVENTS)
-            EEG_cond = pop_selectevent( ALLEEG(end), 'latency','-2<=2','type',EVENTS(cond), ...
+            EEG_cond = pop_selectevent( ALLEEG(5), 'latency','-2<=2','type',EVENTS(cond), ...
                 'deleteevents','off','deleteepochs','on','invertepochs','off');
 
             % Get ERP
