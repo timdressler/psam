@@ -19,7 +19,7 @@
 %   Excludes markerd trials based on tid_psam_exclude_trials.m
 %   Create plots to illustarte effects of filtering
 %
-% Saves data
+% Saves plots
 %
 % Tim Dressler, 15.06.2025
 
@@ -55,7 +55,6 @@ tid_psam_clean_up_folder_TD(OUTPATH)
 LCF = 0.3;
 HCF = 30;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 EOG_CHAN = {'E29','E30'}; % Labels of EOG electrodes
 EPO_FROM = -0.2;
 EPO_TILL = 0.400;
@@ -65,7 +64,6 @@ SD_PROB_ICA = 3;
 ALL_EVENTS = {'act_early_unalt', 'act_early_alt', 'act_late_unalt', 'act_late_alt', ...
     'pas_early_unalt', 'pas_early_alt', 'pas_late_unalt', 'pas_late_alt', 'con_act_early', 'con_act_late', ...
     'con_pas_early', 'con_pas_late'};
-
 %   Anaylsis/Plots
 EVENTS = {'act_early_unalt', 'act_early_alt', 'act_late_unalt', 'act_late_alt', ... % Real events
     'pas_early_unalt', 'pas_early_alt', 'pas_late_unalt', 'pas_late_alt'};
@@ -103,28 +101,20 @@ else
     error('Number of raw data files, exclusion files and ICA data files does not match')
 end
 
-%initialize sanity check variables
+% Initialize variables
+all_erp_filtered = cell(0,3); 
+all_con_erp_filtered = cell(0,3); 
+all_cor_erp_filtered = cell(0,3); 
+all_erp_unfiltered = cell(0,3); 
+all_con_erp_unfiltered = cell(0,3); 
+all_cor_erp_unfiltered = cell(0,3); 
+
+% Initialize sanity check variables
 marked_subj = {};
 protocol = {};
 
-% Initialize overall data storage for filtered and unfiltered
-all_erp_filtered = cell(0,3); % Initialized as empty cell matrix with 3 columns
-all_con_erp_filtered = cell(0,3); % Initialized as empty cell matrix with 3 columns
-all_cor_erp_filtered = cell(0,3); % Initialized as empty cell matrix with 3 columns
-all_cor_erp_data_filtered = cell(0,9); % Initialized as empty cell matrix with 9 columns
-
-all_erp_unfiltered = cell(0,3); % Initialized as empty cell matrix with 3 columns
-all_con_erp_unfiltered = cell(0,3); % Initialized as empty cell matrix with 3 columns
-all_cor_erp_unfiltered = cell(0,3); % Initialized as empty cell matrix with 3 columns
-all_cor_erp_data_unfiltered = cell(0,9); % Initialized as empty cell matrix with 9 columns
-
 % Setup progress bar
 wb = waitbar(0,'starting tid_psam_check_filters_erp.m');
-
-% Store EEG info for plotting (times and chanlocs from a processed EEG)
-EEG_times_for_plotting = [];
-EEG_chanlocs_for_plotting = [];
-
 
 for subj_idx= 1:length(dircont_subj)
 
@@ -139,21 +129,21 @@ for subj_idx= 1:length(dircont_subj)
     tic;
 
     % Store subject-specific ERP data temporarily for individual plots
-    % This will hold the data for the current subject for all conditions, for both filtered and unfiltered states
-    current_subj_data = struct();
+    current_subj_data = struct(); % Holds the data for the current subject for all conditions, for both filtered and unfiltered states
 
-    % Loop for filtered vs. non-filtered processing
-    filter_settings = {'filtered', 'unfiltered'}; % First iteration: filtered, Second: unfiltered
+    % Loop-Variable for filtered vs. non-filtered processing
+    filter_settings = {'filtered', 'unfiltered'}; 
 
     for f_idx = 1:length(filter_settings)
         current_filter_setting = filter_settings{f_idx};
-        filter_on = strcmp(current_filter_setting, 'filtered'); % true for 'filtered', false for 'unfiltered'
+        use_filters = strcmp(current_filter_setting, 'filtered'); % true for 'filtered', false for 'unfiltered'
 
-        % Get file of to-be excluded trials based on tid_psam_exclude_trials.m
+        % Get to-be excluded trials based on tid_psam_exclude_trials.m
         exclusion_filename = fullfile(INPATH_EXCLUDED,[subj '_excluded_trials.mat']);
-        load(exclusion_filename) % loads variables 'excluded_trials_erp_beh' (used here) and 'excluded_trials_svm' (not used here)
+        load(exclusion_filename) % Loads variables 'excluded_trials_erp_beh' (used here) and 'excluded_trials_svm' (not used here)
 
-        % Start eeglab (clears ALLEEG, EEG, CURRENTSET, ALLCOM)
+        tic;
+        % Start eeglab 
         [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
 
         % Load ICA data
@@ -212,8 +202,8 @@ for subj_idx= 1:length(dircont_subj)
         [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % Apply Filter (Conditional based on filter_on)
-        if filter_on
+        % Apply Filter (Conditional based on use_filters)
+        if use_filters
             % Highpass-Filter
             LCF_ord = pop_firwsord('hamming', EEG.srate, tid_psam_get_transition_bandwidth(LCF)); % Get filter order (also see pop_firwsord.m, tid_psam_get_transition_bandwidth.m)
             EEG = pop_firws(EEG, 'fcutoff', LCF, 'ftype', 'highpass', 'wtype', 'hamming', 'forder',LCF_ord, 'minphase', 0, 'usefftfilt', 0, 'plotfresp', 0, 'causal', 0);
@@ -252,8 +242,8 @@ for subj_idx= 1:length(dircont_subj)
             EEG = pop_interp(EEG, EEG.urchanlocs , 'spherical'); % and interpolate them using urchanlocs
         end
 
-        % Sanity Check: Plot RMS in 10s bins for each electode
-        tid_psam_plot_rms_bins_TD(EEG, [subj ' RMS bins'], 'SavePath', fullfile(OUTPATH, [subj '_channel_rms.png']), 'PlotOn', false)
+        % Sanity Check: Plot RMS in 10s bins for each electode (not used here)
+        %%tid_psam_plot_rms_bins_TD(EEG, [subj ' RMS bins'], 'SavePath', fullfile(OUTPATH, [subj '_channel_rms.png']), 'PlotOn', false)
 
         % Epoching
         EEG = pop_epoch( EEG, ALL_EVENTS, [EPO_FROM         EPO_TILL], 'epochinfo', 'yes');
@@ -270,23 +260,16 @@ for subj_idx= 1:length(dircont_subj)
         % Remove EOG channels
         EEG = pop_select( EEG, 'rmchannel',{'E29','E30'});
 
-        % Store data (final EEG for current filter setting)
+        % Store data 
         EEG.setname = [subj '_' current_filter_setting '_all_conds'];
         [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
-        % Store EEG times and channel locations for plotting (only need to do this once)
-        if isempty(EEG_times_for_plotting)
-            EEG_times_for_plotting = EEG.times;
-            EEG_chanlocs_for_plotting = EEG.chanlocs;
-        end
-
-        %% Analysis/Plots for current filter setting
-        % Corrected initialization for temp_erp_store and temp_cor_erp_store
+        %% Analysis/Plots 
+        % Initialite temporary variables
         temp_erp_store = cell(length(EVENTS), 3); % Holds erp, subj, event
-        temp_con_erp_store = cell(length(CON_EVENTS), 3); % Holds con_erp, subj, event
+        temp_con_erp_store = cell(0, 3); % Changed to dynamic growth
         temp_cor_erp_store = cell(length(EVENTS), 3); % Holds cor_erp, subj, event
-        temp_cor_erp_data_store = cell(length(EVENTS), 9);
-
+        
         temp_con_counter_inner = 1; % For unique control ERPs within this filter setting
 
         % Get ERPs for each condition
@@ -296,6 +279,8 @@ for subj_idx= 1:length(dircont_subj)
 
             % Get ERP
             erp = mean(EEG_cond.data, 3);
+            % Get number of trials (uncorrected)
+            n_trials_uncor = size(EEG_cond.data,3);
 
             % Correct ERP by subtracting the ERP from the equivalent no-probe condition (see Daliri & Max, 2016)
             % Get matching control condition
@@ -304,129 +289,64 @@ for subj_idx= 1:length(dircont_subj)
             EEG_con = pop_selectevent( ALLEEG(end), 'latency','-2<=2','type',CON_EVENTS(con_cond_idx), ...
                 'deleteevents','off','deleteepochs','on','invertepochs','off');
             con_erp = mean(EEG_con.data, 3);
+            % Get number of trials (control)
+            n_trials_con = size(EEG_con.data,3);
+
             % Get corrected ERP
             cor_erp = erp - con_erp;
 
             % Setup ERP analysis
             [~,win_start] = min(abs(EEG.times-ERP_FROM));
             [~,win_end] = min(abs(EEG.times-ERP_TILL));
-            %[~,t_zero] = min(abs(EEG.times)); % not used
-
+            [~,t_zero] = min(abs(EEG.times)); 
+            
             % ERP analysis (control)
             % Store ERP (control)
-            % Only store control ERP once per unique control event per filter setting
-            % Check if this control condition has already been stored for this filter setting and subject
-            is_stored = false;
-            for k = 1:temp_con_counter_inner-1
-                if strcmp(temp_con_erp_store{k,3}, CON_EVENTS{con_cond_idx})
-                    is_stored = true;
-                    break;
-                end
-            end
-
-            if ~is_stored
-                temp_con_erp_store{temp_con_counter_inner,1} = con_erp;
-                temp_con_erp_store{temp_con_counter_inner,2} = subj;
-                temp_con_erp_store{temp_con_counter_inner,3} = CON_EVENTS{con_cond_idx};
-                temp_con_counter_inner = temp_con_counter_inner+1;
-            end
+            temp_con_erp_store{temp_con_counter_inner,1} = con_erp;
+            temp_con_erp_store{temp_con_counter_inner,2} = subj;
+            temp_con_erp_store{temp_con_counter_inner,3} = CON_EVENTS{con_cond_idx};
+            temp_con_counter_inner = temp_con_counter_inner+1;
 
 
             % ERP analysis (uncorrected)
-            % Get N100 amplitude (uncorrected)
-            erp_amp = min(erp(CHANI,win_start:win_end));
-            % Get N100 latency (uncorrected)
-            erp_sam = find(erp(CHANI,:) == erp_amp);
-            erp_lat = EEG.times(erp_sam(1)); % Take first if multiple samples have the same min amp
-            % Store ERP
+            % Store ERP (uncorrected)
             temp_erp_store{cond,1} = erp;
             temp_erp_store{cond,2} = subj;
             temp_erp_store{cond,3} = EVENTS{cond};
 
             % ERP analysis (corrected)
-            % Get N100 amplitude (corrected)
-            cor_erp_amp = min(cor_erp(CHANI,win_start:win_end));
-            % Get N100 latency (corrected)
-            cor_erp_sam = find(cor_erp(CHANI,:) == cor_erp_amp);
-            cor_erp_lat = EEG.times(cor_erp_sam(1)); % Take first if multiple samples have the same min amp
             % Store ERP (corrected)
             temp_cor_erp_store{cond,1} = cor_erp;
             temp_cor_erp_store{cond,2} = subj;
             temp_cor_erp_store{cond,3} = EVENTS{cond};
-            % Store ERP data (corrected)
-            temp_cor_erp_data_store{cond,1} = subj;
-            temp_cor_erp_data_store{cond,2} = ERP_FROM;
-            temp_cor_erp_data_store{cond,3} = ERP_TILL;
-            temp_cor_erp_data_store{cond,4} = cor_erp_amp;
-            temp_cor_erp_data_store{cond,5} = cor_erp_lat;
-            temp_cor_erp_data_store{cond,6} = EVENTS{cond};
-
-            % Split condition labels into multiple columns (corrected)
-            cond_parts = strsplit(EVENTS{cond}, '_');
-            % Map and rename task condition
-            switch cond_parts{1}
-                case 'act'
-                    task_label = 'Active';
-                case 'pas'
-                    task_label = 'Passive';
-                otherwise
-                    error('Invalid label')
-            end
-            % Map and rename probe-onset condition (corrected)
-            switch cond_parts{2}
-                case 'early'
-                    probe_onset_label = 'Early';
-                case 'late'
-                    probe_onset_label = 'Late';
-                otherwise
-                    error('Invalid label')
-            end
-            % Map and rename probe-type condition (corrected)
-            switch cond_parts{3}
-                case 'alt'
-                    probe_type_label = 'Altered';
-                case 'unalt'
-                    probe_type_label = 'Unaltered';
-                otherwise
-                    error('Invalid label')
-            end
-
-            % Store mapped and renamed values (corrected)
-            temp_cor_erp_data_store{cond, 7} = task_label;
-            temp_cor_erp_data_store{cond, 8} = probe_onset_label;
-            temp_cor_erp_data_store{cond, 9} = probe_type_label;
-
-        end % End of cond loop for data extraction
+            
+        end 
 
         % Store the current subject's data for this filter setting
-        if filter_on
+        if use_filters
             current_subj_data.filtered.erp = temp_erp_store;
-            current_subj_data.filtered.con_erp = temp_con_erp_store(1:temp_con_counter_inner-1,:); % Only store actual entries
+            current_subj_data.filtered.con_erp = temp_con_erp_store(1:temp_con_counter_inner-1,:); 
             current_subj_data.filtered.cor_erp = temp_cor_erp_store;
-            current_subj_data.filtered.cor_erp_data = temp_cor_erp_data_store;
-
+            
             % Append to global filtered storage
             all_erp_filtered = [all_erp_filtered; temp_erp_store];
             all_con_erp_filtered = [all_con_erp_filtered; temp_con_erp_store(1:temp_con_counter_inner-1,:)];
             all_cor_erp_filtered = [all_cor_erp_filtered; temp_cor_erp_store];
-            all_cor_erp_data_filtered = [all_cor_erp_data_filtered; temp_cor_erp_data_store];
-
+            
         else
             current_subj_data.unfiltered.erp = temp_erp_store;
             current_subj_data.unfiltered.con_erp = temp_con_erp_store(1:temp_con_counter_inner-1,:);
             current_subj_data.unfiltered.cor_erp = temp_cor_erp_store;
-            current_subj_data.unfiltered.cor_erp_data = temp_cor_erp_data_store;
-
+            
             % Append to global unfiltered storage
             all_erp_unfiltered = [all_erp_unfiltered; temp_erp_store];
             all_con_erp_unfiltered = [all_con_erp_unfiltered; temp_con_erp_store(1:temp_con_counter_inner-1,:)];
             all_cor_erp_unfiltered = [all_cor_erp_unfiltered; temp_cor_erp_store];
-            all_cor_erp_data_unfiltered = [all_cor_erp_data_unfiltered; temp_cor_erp_data_store];
         end
 
-    end % End of filter_settings loop
+    end 
 
-    % Individual plots (moved out of initial conds loop, now using stored subj data)
+    % Individual plots 
     % Define limits
     ylim_upper = 25;
     ylim_lower = -15;
@@ -440,22 +360,16 @@ for subj_idx= 1:length(dircont_subj)
     r_erp_con = 3; r_topo_con = 4;
     r_erp_cor = 5; r_topo_cor = 6;
 
-    % New conds loop for individual plots
     for cond_plot_idx = 1:length(EVENTS)
 
-        % Retrieve data for current subject and condition for both filtered and unfiltered
+        % Get data for current subject and condition for both filtered and unfiltered
         % Filtered data
         erp_filtered = current_subj_data.filtered.erp{cond_plot_idx, 1};
-        % Need to find the correct control ERP based on the condition index
+        % Get the correct control ERP based on the condition index
         con_cond_idx_for_plot = find(strcmp(erase(EVENTS{cond_plot_idx}, {'_alt', '_unalt'}), erase(string(CON_EVENTS), 'con_')));
         con_erp_filtered_row_idx = cellfun(@(x) strcmp(x, CON_EVENTS{con_cond_idx_for_plot}), current_subj_data.filtered.con_erp(:,3));
         con_erp_filtered = current_subj_data.filtered.con_erp{con_erp_filtered_row_idx,1};
         cor_erp_filtered = current_subj_data.filtered.cor_erp{cond_plot_idx, 1};
-
-        erp_amp_filtered = current_subj_data.filtered.cor_erp_data{cond_plot_idx, 4};
-        erp_lat_filtered = current_subj_data.filtered.cor_erp_data{cond_plot_idx, 5};
-        cor_erp_amp_filtered = current_subj_data.filtered.cor_erp_data{cond_plot_idx, 4};
-        cor_erp_lat_filtered = current_subj_data.filtered.cor_erp_data{cond_plot_idx, 5};
 
         % Unfiltered data
         erp_unfiltered = current_subj_data.unfiltered.erp{cond_plot_idx, 1};
@@ -463,87 +377,71 @@ for subj_idx= 1:length(dircont_subj)
         con_erp_unfiltered = current_subj_data.unfiltered.con_erp{con_erp_unfiltered_row_idx,1};
         cor_erp_unfiltered = current_subj_data.unfiltered.cor_erp{cond_plot_idx, 1};
 
-        erp_amp_unfiltered = current_subj_data.unfiltered.cor_erp_data{cond_plot_idx, 4};
-        erp_lat_unfiltered = current_subj_data.unfiltered.cor_erp_data{cond_plot_idx, 5};
-        cor_erp_amp_unfiltered = current_subj_data.unfiltered.cor_erp_data{cond_plot_idx, 4};
-        cor_erp_lat_unfiltered = current_subj_data.unfiltered.cor_erp_data{cond_plot_idx, 5};
-
-        % Recalculate win_start and win_end as EEG might be cleared, but EEG_times_for_plotting is set
-        [~,win_start] = min(abs(EEG_times_for_plotting-ERP_FROM));
-        [~,win_end] = min(abs(EEG_times_for_plotting-ERP_TILL));
-
-
-        % Plot: Uncorrected ERP and Topoplot
+        % Plot: Uncorrected ERP 
         subplot(6, 8, (r_erp_unc - 1) * 8 + cond_plot_idx)
-        plot(EEG_times_for_plotting, erp_filtered(CHANI,:), 'LineWidth', 1.5, 'Color', colors{4}); % Filtered
+        % Plot filtered data (dashed)
+        plot(EEG.times, erp_filtered(CHANI,:), ':', 'LineWidth', 1.5, 'Color', colors{4}); % Filtered data
         hold on
-        plot(EEG_times_for_plotting, erp_unfiltered(CHANI,:), ':', 'LineWidth', 1.5, 'Color', colors{4}); % Unfiltered (dashed)
-        % Removed scatter points for N100
-        % scatter(erp_lat_filtered, erp_amp_filtered, 'filled', 'MarkerEdgeColor', colors{4}, 'MarkerFaceColor', colors{4});
-        % scatter(erp_lat_unfiltered, erp_amp_unfiltered, 'o', 'MarkerEdgeColor', colors{4}, 'MarkerFaceColor', 'none');
+        % Plot unfiltered data 
+        plot(EEG.times, erp_unfiltered(CHANI,:), 'LineWidth', 1.5, 'Color', colors{4}); % Unfiltered data
         hold off
         title(EVENTS{cond_plot_idx}, 'Interpreter', 'none')
         ylim([ylim_lower ylim_upper]); xlim([-200 400])
         if cond_plot_idx == 1
             ylabel('Uncorrected');
-            % Removed the legend for this subplot
         end
 
-
         subplot(6, 8, (r_topo_unc - 1) * 8 + cond_plot_idx)
-        topoplot(mean(erp_filtered(:,win_start:win_end),2), EEG_chanlocs_for_plotting, ...
+        topoplot(mean(erp_filtered(:,win_start:win_end),2), EEG.chanlocs, ... 
             'emarker2', {CHANI,'o','r',2,2},'emarker', {'.','k',0.1,1});
         colormap("parula")
         colorbar;
         clim([cb_lim_lower cb_lim_upper])
 
-        % Plot: Control ERP and Topoplot
+        % Plot: Control ERP 
         subplot(6, 8, (r_erp_con - 1) * 8 + cond_plot_idx)
-        plot(EEG_times_for_plotting, con_erp_filtered(CHANI,:), 'LineWidth', 1.5, 'Color', colors{4});
+        % Plot filtered data (dashed)
+        plot(EEG.times, con_erp_filtered(CHANI,:), ':', 'LineWidth', 1.5, 'Color', colors{4}); 
         hold on
-        plot(EEG_times_for_plotting, con_erp_unfiltered(CHANI,:), ':', 'LineWidth', 1.5, 'Color', colors{4});
+        % Plot unfiltered data 
+        plot(EEG.times, con_erp_unfiltered(CHANI,:), 'LineWidth', 1.5, 'Color', colors{4}); 
         hold off
         ylim([ylim_lower ylim_upper]); xlim([-200 400])
         if cond_plot_idx == 1
             ylabel('Control');
-            % Removed the legend for this subplot
         end
 
-
         subplot(6, 8, (r_topo_con - 1) * 8 + cond_plot_idx)
-        topoplot(mean(con_erp_filtered(:,win_start:win_end),2), EEG_chanlocs_for_plotting, ...
+        topoplot(mean(con_erp_filtered(:,win_start:win_end),2), EEG.chanlocs, ... 
             'emarker2', {CHANI,'o','r',2,2},'emarker', {'.','k',0.1,1});
         colormap("parula")
         colorbar;
         clim([cb_lim_lower cb_lim_upper])
 
-        % Plot: Corrected ERP and Topoplot
+        % Plot: Corrected ERP 
         subplot(6, 8, (r_erp_cor - 1) * 8 + cond_plot_idx)
-        plot(EEG_times_for_plotting, cor_erp_filtered(CHANI,:), 'LineWidth', 1.5, 'Color', colors{4});
+        % Plot filtered data (dashed)
+        plot(EEG.times, cor_erp_filtered(CHANI,:), ':', 'LineWidth', 1.5, 'Color', colors{4}); 
         hold on
-        plot(EEG_times_for_plotting, cor_erp_unfiltered(CHANI,:), ':', 'LineWidth', 1.5, 'Color', colors{4});
-        % Removed scatter points for N100
-        % scatter(cor_erp_lat_filtered, cor_erp_amp_filtered, 'filled', 'MarkerEdgeColor', colors{4}, 'MarkerFaceColor', colors{4});
-        % scatter(cor_erp_lat_unfiltered, cor_erp_amp_unfiltered, 'o', 'MarkerEdgeColor', colors{4}, 'MarkerFaceColor', 'none');
+        % Plot unfiltered data 
+        plot(EEG.times, cor_erp_unfiltered(CHANI,:), 'LineWidth', 1.5, 'Color', colors{4}); 
         hold off
         ylim([ylim_lower ylim_upper]); xlim([-200 400])
         if cond_plot_idx == 1
             ylabel('Corrected');
-            % Removed the legend for this subplot
         end
 
-
         subplot(6, 8, (r_topo_cor - 1) * 8 + cond_plot_idx)
-        topoplot(mean(cor_erp_filtered(:,win_start:win_end),2), EEG_chanlocs_for_plotting, ...
+        topoplot(mean(cor_erp_filtered(:,win_start:win_end),2), EEG.chanlocs, ... 
             'emarker2', {CHANI,'o','r',2,2},'emarker', {'.','k',0.1,1});
         colormap("parula")
         colorbar;
         clim([cb_lim_lower cb_lim_upper])
 
-    end % End of individual plot loop (new conds loop)
+    end 
 
-    sgtitle(['Sanity Check ERPs and Topoplots for ' subj ' (Unfiltered = Dashed Line)'], 'Interpreter', 'none');
-    saveas(individual_plot, fullfile(OUTPATH, [subj '_sanity_erp_topo.png']));
+    sgtitle(['Filter Check ERPs and Topoplots for ' subj ' (Filtered = Dashed Line, Unfiltered = Solid Line) (Topoplots filtered)'], 'Interpreter', 'none');
+    saveas(individual_plot, fullfile(OUTPATH, [subj '_filter_check_erp_topo.png']));
     close(individual_plot)
 
     % Update Protocol
@@ -556,17 +454,16 @@ for subj_idx= 1:length(dircont_subj)
         protocol{subj_idx,3} = 'OK';
     end
 
-end % End of subj_idx loop
+end 
 
-% Get grandaverage ERPs for filtered data
+% Get grandaverage ERPs (filtered)
 erp_data_col = 1;
 cond_col = 3;
-
-% Ensure conditions are character vectors before passing to unique
+% Get condition labels
 conditions_to_check_filtered = all_erp_filtered(:, cond_col);
-is_char_cell_filtered = cellfun(@ischar, conditions_to_check_filtered);
-clean_conditions_filtered = conditions_to_check_filtered(is_char_cell_filtered);
-[unique_conditions_filtered, ~, condition_idx_filtered] = unique(clean_conditions_filtered);
+%%is_char_cell_filtered = cellfun(@ischar, conditions_to_check_filtered);
+%%clean_conditions_filtered = conditions_to_check_filtered(is_char_cell_filtered);
+[unique_conditions_filtered, ~, condition_idx_filtered] = unique(conditions_to_check_filtered);
 
 n_conds_filtered = numel(unique_conditions_filtered);
 grandaverage_erp_filtered = cell(n_conds_filtered, 2);
@@ -579,9 +476,9 @@ end
 
 % Get grandaverage control ERP for each condition (filtered)
 conditions_to_check_con_filtered = all_con_erp_filtered(:, cond_col);
-is_char_cell_con_filtered = cellfun(@ischar, conditions_to_check_con_filtered);
-clean_conditions_con_filtered = conditions_to_check_con_filtered(is_char_cell_con_filtered);
-[unique_conditions_con_filtered, ~, condition_idx_con_filtered] = unique(clean_conditions_con_filtered);
+%%is_char_cell_con_filtered = cellfun(@ischar, conditions_to_check_con_filtered);
+%%clean_conditions_con_filtered = conditions_to_check_con_filtered(is_char_cell_con_filtered);
+[unique_conditions_con_filtered, ~, condition_idx_con_filtered] = unique(conditions_to_check_con_filtered);
 
 n_conds_con_filtered = numel(unique_conditions_con_filtered);
 grandaverage_erp_con_filtered = cell(n_conds_con_filtered, 2);
@@ -594,9 +491,9 @@ end
 
 % Get grandaverage corrected ERP for each condition (filtered)
 conditions_to_check_cor_filtered = all_cor_erp_filtered(:, cond_col);
-is_char_cell_cor_filtered = cellfun(@ischar, conditions_to_check_cor_filtered);
-clean_conditions_cor_filtered = conditions_to_check_cor_filtered(is_char_cell_cor_filtered);
-[unique_conditions_cor_filtered, ~, condition_idx_cor_filtered] = unique(clean_conditions_cor_filtered);
+%%is_char_cell_cor_filtered = cellfun(@ischar, conditions_to_check_cor_filtered);
+%%clean_conditions_cor_filtered = conditions_to_check_cor_filtered(is_char_cell_cor_filtered);
+[unique_conditions_cor_filtered, ~, condition_idx_cor_filtered] = unique(conditions_to_check_cor_filtered);
 
 n_conds_cor_filtered = numel(unique_conditions_cor_filtered);
 grandaverage_erp_cor_filtered = cell(n_conds_cor_filtered, 2);
@@ -610,9 +507,9 @@ end
 % Get grandaverage ERPs for unfiltered data
 % Get grandaverage uncorrected ERP for each condition (unfiltered)
 conditions_to_check_unfiltered = all_erp_unfiltered(:, cond_col);
-is_char_cell_unfiltered = cellfun(@ischar, conditions_to_check_unfiltered);
-clean_conditions_unfiltered = conditions_to_check_unfiltered(is_char_cell_unfiltered);
-[unique_conditions_unfiltered, ~, condition_idx_unfiltered] = unique(clean_conditions_unfiltered);
+%%is_char_cell_unfiltered = cellfun(@ischar, conditions_to_check_unfiltered);
+%%clean_conditions_unfiltered = conditions_to_check_unfiltered(is_char_cell_unfiltered);
+[unique_conditions_unfiltered, ~, condition_idx_unfiltered] = unique(conditions_to_check_unfiltered);
 
 n_conds_unfiltered = numel(unique_conditions_unfiltered);
 grandaverage_erp_unfiltered = cell(n_conds_unfiltered, 2);
@@ -625,9 +522,9 @@ end
 
 % Get grandaverage control ERP for each condition (unfiltered)
 conditions_to_check_con_unfiltered = all_con_erp_unfiltered(:, cond_col);
-is_char_cell_con_unfiltered = cellfun(@ischar, conditions_to_check_con_unfiltered);
-clean_conditions_con_unfiltered = conditions_to_check_con_unfiltered(is_char_cell_con_unfiltered);
-[unique_conditions_con_unfiltered, ~, condition_idx_con_unfiltered] = unique(clean_conditions_con_unfiltered);
+%%is_char_cell_con_unfiltered = cellfun(@ischar, conditions_to_check_con_unfiltered);
+%%clean_conditions_con_unfiltered = conditions_to_check_con_unfiltered(is_char_cell_con_unfiltered);
+[unique_conditions_con_unfiltered, ~, condition_idx_con_unfiltered] = unique(conditions_to_check_con_unfiltered);
 
 n_conds_con_unfiltered = numel(unique_conditions_con_unfiltered);
 grandaverage_erp_con_unfiltered = cell(n_conds_con_unfiltered, 2);
@@ -640,9 +537,9 @@ end
 
 % Get grandaverage corrected ERP for each condition (unfiltered)
 conditions_to_check_cor_unfiltered = all_cor_erp_unfiltered(:, cond_col);
-is_char_cell_cor_unfiltered = cellfun(@ischar, conditions_to_check_cor_unfiltered);
-clean_conditions_cor_unfiltered = conditions_to_check_cor_unfiltered(is_char_cell_cor_unfiltered);
-[unique_conditions_cor_unfiltered, ~, condition_idx_cor_unfiltered] = unique(clean_conditions_cor_unfiltered);
+%%is_char_cell_cor_unfiltered = cellfun(@ischar, conditions_to_check_cor_unfiltered);
+%%clean_conditions_cor_unfiltered = conditions_to_check_cor_unfiltered(is_char_cell_cor_unfiltered);
+[unique_conditions_cor_unfiltered, ~, condition_idx_cor_unfiltered] = unique(conditions_to_check_cor_unfiltered);
 
 n_conds_cor_unfiltered = numel(unique_conditions_cor_unfiltered);
 grandaverage_erp_cor_unfiltered = cell(n_conds_cor_unfiltered, 2);
@@ -652,25 +549,6 @@ for i = 1:n_conds_cor_unfiltered
     grandaverage_erp_cor_unfiltered{i, 1} = mean(erp_stack, 3);
     grandaverage_erp_cor_unfiltered{i, 2} = unique_conditions_cor_unfiltered{i};
 end
-
-
-% Save ERPs (control, uncorrected, corrected)
-% Save filtered and unfiltered separately, or together in a struct
-save(fullfile(OUTPATH, 'all_subj_erp_filtered.mat'),'all_cor_erp_filtered')
-save(fullfile(OUTPATH, 'all_subj_erp_unfiltered.mat'),'all_cor_erp_unfiltered')
-
-
-% Save ERP data
-all_cor_erp_data_filtered = cell2table(all_cor_erp_data_filtered, 'VariableNames',{'subj','erp_from', 'erp_till', 'erp_amp', 'erp_lat', 'condition_full', 'task_instruction', 'probe_onset_cat', 'probe_type'});
-writetable(all_cor_erp_data_filtered, fullfile(OUTPATH, 'all_subj_cor_erp_data_filtered.xlsx'))
-all_cor_erp_data_unfiltered = cell2table(all_cor_erp_data_unfiltered, 'VariableNames',{'subj','erp_from', 'erp_till', 'erp_amp', 'erp_lat', 'condition_full', 'task_instruction', 'probe_onset_cat', 'probe_type'});
-writetable(all_cor_erp_data_unfiltered, fullfile(OUTPATH, 'all_subj_cor_erp_data_unfiltered.xlsx'))
-
-
-% Save grandaverage ERP
-save(fullfile(OUTPATH, 'grandaverage_cor_erp_filtered.mat'),'grandaverage_erp_cor_filtered')
-save(fullfile(OUTPATH, 'grandaverage_cor_erp_unfiltered.mat'),'grandaverage_erp_cor_unfiltered')
-
 
 % Preparation for plots
 % Get channel ID
@@ -691,71 +569,64 @@ rename_conditions_map = {
     'pas_late_alt',    'Passive - Late - Altered';
     };
 
-for i = 1:size(grandaverage_erp_filtered,1) % for uncorrected ERP filtered
+for i = 1:size(grandaverage_erp_filtered,1) % for uncorrected ERP (filtered)
     old_label = grandaverage_erp_filtered{i,2};
     new_label = rename_conditions_map(strcmp(rename_conditions_map(:,1), old_label), 2);
     grandaverage_erp_filtered{i,2} = new_label{1};
 end
-for i = 1:size(grandaverage_erp_cor_filtered,1) % for corrected ERP filtered
+for i = 1:size(grandaverage_erp_cor_filtered,1) % for corrected ERP (filtered)
     old_label = grandaverage_erp_cor_filtered{i,2};
     new_label = rename_conditions_map(strcmp(rename_conditions_map(:,1), old_label), 2);
     grandaverage_erp_cor_filtered{i,2} = new_label{1};
 end
 
-for i = 1:size(grandaverage_erp_unfiltered,1) % for uncorrected ERP unfiltered
+for i = 1:size(grandaverage_erp_unfiltered,1) % for uncorrected ERP (unfiltered)
     old_label = grandaverage_erp_unfiltered{i,2};
     new_label = rename_conditions_map(strcmp(rename_conditions_map(:,1), old_label), 2);
     grandaverage_erp_unfiltered{i,2} = new_label{1};
 end
-for i = 1:size(grandaverage_erp_cor_unfiltered,1) % for corrected ERP unfiltered
+for i = 1:size(grandaverage_erp_cor_unfiltered,1) % for corrected ERP (unfiltered)
     old_label = grandaverage_erp_cor_unfiltered{i,2};
     new_label = rename_conditions_map(strcmp(rename_conditions_map(:,1), old_label), 2);
     grandaverage_erp_cor_unfiltered{i,2} = new_label{1};
 end
 
 
-% Split data into early and late conditions for filtered and unfiltered
+% Split data into early and late conditions for filtered and unfiltered data
 grandaverage_erp_cor_early_filtered = grandaverage_erp_cor_filtered(contains(grandaverage_erp_cor_filtered(:,2), 'Early'), :);
 grandaverage_erp_cor_late_filtered = grandaverage_erp_cor_filtered(contains(grandaverage_erp_cor_filtered(:,2), 'Late'), :);
 
 grandaverage_erp_cor_early_unfiltered = grandaverage_erp_cor_unfiltered(contains(grandaverage_erp_cor_unfiltered(:,2), 'Early'), :);
 grandaverage_erp_cor_late_unfiltered = grandaverage_erp_cor_unfiltered(contains(grandaverage_erp_cor_unfiltered(:,2), 'Late'), :);
 
-
 % End of processing
 
-protocol = cell2table(protocol, 'VariableNames',{'subj','time', 'status'});
-writetable(protocol,fullfile(OUTPATH, 'tid_psam_check_filters_erp_protocol.xlsx'));
-
-if ~isempty(marked_subj)
-    marked_subj = cell2table(marked_subj, 'VariableNames',{'subj','issue'});
-    writetable(marked_subj,fullfile(OUTPATH, 'tid_psam_check_filters_erp_marked_subj.xlsx'));
-end
-
-check_done = 'tid_psam_check_filters_erp_DONE';
+protocol = cell2table(protocol, 'VariableNames',{'subj','time', 'status'})
+writetable(protocol,fullfile(OUTPATH, 'tid_psam_check_filters_erp_protocol.xlsx'))
 
 close all; delete(wb);
 
-%% Plots
+%% Grandaverage plots
 close all
 
-% Plot: ERPs for all conditions (Combined filtered and unfiltered) - Now without Topoplots
+% Plot: ERPs for all conditions (filtered and unfiltered) 
 figure('Units', 'normalized', 'Position', [0 0.0500 1 0.8771]);
-sgtitle('Corrected ERPs for all Conditions (Filtered = Solid Line, Unfiltered = Dashed Line)')
+sgtitle('Corrected ERPs for all Conditions (Filtered = Dashed Line, Unfiltered = Solid Line)')
 
-% Subplot for early probes (now occupying full width of the figure)
+% Plot early probes 
 subplot(2,1,1)
-hold on; % Keep hold on until all plots are added
+hold on; 
 plot_handles_early = gobjects(1, length(grandaverage_erp_cor_early_filtered) * 2); % Preallocate for plot handles
 idx_handle = 1;
 for cond_early_num = 1:length(grandaverage_erp_cor_early_filtered)
     erp_2_plot_filtered = grandaverage_erp_cor_early_filtered{cond_early_num,1};
     erp_2_plot_unfiltered = grandaverage_erp_cor_early_unfiltered{cond_early_num,1};
-
-    p1 = plot(EEG_times_for_plotting, erp_2_plot_filtered(chani,:), 'LineWidth', 1.5, ...
-        'Color', colors{cond_early_num}, 'DisplayName', [grandaverage_erp_cor_early_filtered{cond_early_num,2} ' (Filtered)']);
-    p2 = plot(EEG_times_for_plotting, erp_2_plot_unfiltered(chani,:), '--', 'LineWidth', 1.5, ...
-        'Color', colors{cond_early_num}, 'DisplayName', [grandaverage_erp_cor_early_unfiltered{cond_early_num,2} ' (Unfiltered)']);
+    % Plot filtered data (dashed)
+    p1 = plot(EEG.times, erp_2_plot_filtered(chani,:), ':', 'LineWidth', 1.5, ...
+        'Color', colors{cond_early_num}, 'DisplayName', [grandaverage_erp_cor_early_filtered{cond_early_num,2}], 'HandleVisibility', 'off');
+        % Plot unfiltered data 
+    p2 = plot(EEG.times, erp_2_plot_unfiltered(chani,:), 'LineWidth', 1.5, ...
+        'Color', colors{cond_early_num}, 'DisplayName', [grandaverage_erp_cor_early_unfiltered{cond_early_num,2}]);
     
     plot_handles_early(idx_handle) = p1;
     plot_handles_early(idx_handle+1) = p2;
@@ -766,24 +637,23 @@ ylim([y_lim_lower y_lim_upper])
 xlabel('Time [ms]')
 ylabel('Amplitude [µV]')
 title('ERPs for early probes')
-% Plot fill area after lines so it doesn't cover them, but also not include it in legend
+legend('Location','northwest')
 fill([70 130 130 70], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], light_blue, 'FaceAlpha',0.1, 'EdgeColor','none', 'HandleVisibility', 'off');
-% Removed the legend for this subplot
 hold off
 
-% Subplot for late probes (now occupying full width of the figure)
+% Plot late probes 
 subplot(2,1,2)
-hold on; % Keep hold on until all plots are added
+hold on; 
 plot_handles_late = gobjects(1, length(grandaverage_erp_cor_late_filtered) * 2); % Preallocate for plot handles
 idx_handle = 1;
 for cond_late_num = 1:length(grandaverage_erp_cor_late_filtered)
     erp_cor_2_plot_filtered = grandaverage_erp_cor_late_filtered{cond_late_num,1};
     erp_cor_2_plot_unfiltered = grandaverage_erp_cor_late_unfiltered{cond_late_num,1};
 
-    p1 = plot(EEG_times_for_plotting, erp_cor_2_plot_filtered(chani,:), 'LineWidth', 1.5, ...
-        'Color', colors{cond_late_num}, 'DisplayName', [grandaverage_erp_cor_late_filtered{cond_late_num,2} ' (Filtered)']);
-    p2 = plot(EEG_times_for_plotting, erp_cor_2_plot_unfiltered(chani,:), '--', 'LineWidth', 1.5, ...
-        'Color', colors{cond_late_num}, 'DisplayName', [grandaverage_erp_cor_late_unfiltered{cond_late_num,2} ' (Unfiltered)']);
+    p1 = plot(EEG.times, erp_cor_2_plot_filtered(chani,:), ':', 'LineWidth', 1.5, ...
+        'Color', colors{cond_late_num}, 'DisplayName', [grandaverage_erp_cor_late_filtered{cond_late_num,2}], 'HandleVisibility', 'off');
+    p2 = plot(EEG.times, erp_cor_2_plot_unfiltered(chani,:), 'LineWidth', 1.5, ...
+        'Color', colors{cond_late_num}, 'DisplayName', [grandaverage_erp_cor_late_unfiltered{cond_late_num,2}]);
     
     plot_handles_late(idx_handle) = p1;
     plot_handles_late(idx_handle+1) = p2;
@@ -794,15 +664,15 @@ ylim([y_lim_lower y_lim_upper])
 xlabel('Time [ms]')
 ylabel('Amplitude [µV]')
 title('ERPs for late probes')
+legend('Location','northwest')
 fill([70 130 130 70], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], light_blue, 'FaceAlpha',0.1, 'EdgeColor','none', 'HandleVisibility', 'off');
-% Removed the legend for this subplot
 hold off
 
 % Save plot
-saveas(gcf,fullfile(OUTPATH, 'tid_psam_plot_grandaverage_erp_topo_combined.png'))
+saveas(gcf,fullfile(OUTPATH, 'grandaverage_filter_check_erp.png'))
 
 
-% Plot: ERP, control ERP and correct ERP for each condition (Combined filtered and unfiltered)
+% Plot: ERP, control ERP and correct ERP for each condition (filtered and unfiltered)
 % Concatinate colors for the three ERP types (Uncorrected, Corrected, Control)
 colors_erp_types = {
     main_blue; % Uncorrected (filtered)
@@ -811,45 +681,43 @@ colors_erp_types = {
     };
 
 figure('Units', 'normalized', 'Position', [0 0.0500 1 0.8771]);
-sgtitle('Uncorrected, Corrected and Control ERPs for all Conditions (Filtered = Solid Line, Unfiltered = Dashed Line)')
+sgtitle('Uncorrected, Corrected and Control ERPs for all Conditions (Filtered = Dashed Line, Unfiltered = Solid Line)')
 
 con_cond_num_filtered = 1;
 con_cond_num_unfiltered = 1;
 
-for cond_num = 1:length(grandaverage_erp_cor_filtered) % Loop through conditions
+for cond_num = 1:length(grandaverage_erp_cor_filtered) 
     subplot(2,4,cond_num)
-    hold on; % Keep hold on until all plots are added
+    hold on; 
     % Filtered ERPs
     erp_2_plot_filtered = grandaverage_erp_filtered{cond_num,1};
     erp_cor_2_plot_filtered = grandaverage_erp_cor_filtered{cond_num,1};
-    erp_con_2_plot_filtered = grandaverage_erp_con_filtered{con_cond_num_filtered,1}; % Using specific counter for controls
+    erp_con_2_plot_filtered = grandaverage_erp_con_filtered{con_cond_num_filtered,1}; 
 
     % Unfiltered ERPs
     erp_2_plot_unfiltered = grandaverage_erp_unfiltered{cond_num,1};
     erp_cor_2_plot_unfiltered = grandaverage_erp_cor_unfiltered{cond_num,1};
-    erp_con_2_plot_unfiltered = grandaverage_erp_con_unfiltered{con_cond_num_unfiltered,1}; % Using specific counter for controls
+    erp_con_2_plot_unfiltered = grandaverage_erp_con_unfiltered{con_cond_num_unfiltered,1}; 
 
-    % Plot filtered data
-    p1 = plot(EEG_times_for_plotting, erp_2_plot_filtered(chani,:), '-', 'LineWidth', 1.5, 'Color', colors_erp_types{1}, 'DisplayName', 'Uncorrected (Filtered)');
-    p2 = plot(EEG_times_for_plotting, erp_cor_2_plot_filtered(chani,:), '-', 'LineWidth', 1.5, 'Color', colors_erp_types{2}, 'DisplayName', 'Corrected (Filtered)');
-    p3 = plot(EEG_times_for_plotting, erp_con_2_plot_filtered(chani,:), '-', 'LineWidth', 1.5, 'Color', colors_erp_types{3}, 'DisplayName', 'Control (Filtered)');
+    % Plot filtered data (dashed)
+    p1 = plot(EEG.times, erp_2_plot_filtered(chani,:), ':', 'LineWidth', 1.5, 'Color', colors_erp_types{1}, 'HandleVisibility', 'off');
+    p2 = plot(EEG.times, erp_cor_2_plot_filtered(chani,:), ':', 'LineWidth', 1.5, 'Color', colors_erp_types{2}, 'HandleVisibility', 'off');
+    p3 = plot(EEG.times, erp_con_2_plot_filtered(chani,:), ':', 'LineWidth', 1.5, 'Color', colors_erp_types{3}, 'HandleVisibility', 'off');
 
-    % Plot unfiltered data (dashed)
-    p4 = plot(EEG_times_for_plotting, erp_2_plot_unfiltered(chani,:), ':', 'LineWidth', 1.5, 'Color', colors_erp_types{1}, 'DisplayName', 'Uncorrected (Unfiltered)');
-    p5 = plot(EEG_times_for_plotting, erp_cor_2_plot_unfiltered(chani,:), ':', 'LineWidth', 1.5, 'Color', colors_erp_types{2}, 'DisplayName', 'Corrected (Unfiltered)');
-    p6 = plot(EEG_times_for_plotting, erp_con_2_plot_unfiltered(chani,:), ':', 'LineWidth', 1.5, 'Color', colors_erp_types{3}, 'DisplayName', 'Control (Unfiltered)');
+    % Plot unfiltered data 
+    p4 = plot(EEG.times, erp_2_plot_unfiltered(chani,:), 'LineWidth', 1.5, 'Color', colors_erp_types{1}, 'DisplayName', 'Uncorrected');
+    p5 = plot(EEG.times, erp_cor_2_plot_unfiltered(chani,:), 'LineWidth', 1.5, 'Color', colors_erp_types{2}, 'DisplayName', 'Corrected');
+    p6 = plot(EEG.times, erp_con_2_plot_unfiltered(chani,:),  'LineWidth', 1.5, 'Color', colors_erp_types{3}, 'DisplayName', 'Control');
     
     xlim([-200 400])
     ylim([y_lim_lower-1 y_lim_upper+1])
     xlabel('Time [ms]')
     ylabel('Amplitude [µV]')
-    title(grandaverage_erp_cor_filtered{cond_num,2}) % Title based on filtered condition name
-    % Removed the legend call from this plot
+    title(grandaverage_erp_cor_filtered{cond_num,2})
+    legend('Location','northwest')
     hold off
 
-    % Increment control condition counters appropriately
-    % There are 4 unique control conditions and 8 main conditions (2 main conditions for each control)
-    % So, increment every two main conditions.
+    % Increment control condition counters 
     if mod(cond_num,2) == 0
         con_cond_num_filtered = con_cond_num_filtered +1;
         con_cond_num_unfiltered = con_cond_num_unfiltered +1;
@@ -857,4 +725,6 @@ for cond_num = 1:length(grandaverage_erp_cor_filtered) % Loop through conditions
 end
 
 % Save plot
-saveas(gcf,fullfile(OUTPATH, 'tid_psam_plot_grandaverage_erp_con_cor_combined.png'))
+saveas(gcf,fullfile(OUTPATH, 'grandaverage_filter_check_erp_con_cor.png'))
+
+close all

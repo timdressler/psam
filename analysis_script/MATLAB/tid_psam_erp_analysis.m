@@ -153,7 +153,7 @@ for subj_idx= 1:length(dircont_subj)
         % Get N100 latency (uncorrected)
         erp_sam = find(erp(CHANI,:) == erp_amp);
         erp_lat = EEG.times(erp_sam);
-        % Store ERP
+        % Store ERP (uncorrected)
         all_erp{counter,1} = erp;
         all_erp{counter,2} = subj;
         all_erp{counter,3} = EVENTS{cond};
