@@ -120,6 +120,9 @@ for subj_idx= 1:length(dircont_subj)
         % Get ERP
         erp = mean(EEG.data, 3);
 
+        % Get number of trials (uncorrected)
+        n_trials_uncor = size(EEG.data,3);
+
         % Correct ERP by subtracting the ERP from the equivalent no-probe condition (see Daliri & Max, 2016)
         % Get matching control condition
         con_cond = find(strcmp(erase(EVENTS{cond}, {'_alt', '_unalt'}), erase(string(CON_EVENTS), 'con_')));
@@ -127,6 +130,8 @@ for subj_idx= 1:length(dircont_subj)
         EEG = pop_selectevent( ALLEEG(1), 'latency','-2<=2','type',CON_EVENTS(con_cond), ...
             'deleteevents','off','deleteepochs','on','invertepochs','off');
         con_erp = mean(EEG.data, 3);
+        % Get number of trials (control)
+        n_trials_con = size(EEG.data,3);
         % Get corrected ERP
         cor_erp = erp - con_erp;
 
@@ -171,10 +176,12 @@ for subj_idx= 1:length(dircont_subj)
         all_cor_erp_data{cor_counter,4} = cor_erp_amp;
         all_cor_erp_data{cor_counter,5} = cor_erp_lat;
         all_cor_erp_data{cor_counter,6} = EVENTS{cond};
+        all_cor_erp_data{cor_counter,10} = n_trials_uncor;
+        all_cor_erp_data{cor_counter,11} = n_trials_con;
 
         % Split condition labels into multiple columns (corrected)
         cond_parts = strsplit(EVENTS{cond}, '_');
-        % Map and rename task condition
+        % Map and rename task condition (corrected)
         switch cond_parts{1}
             case 'act'
                 task_label = 'Active';
@@ -361,7 +368,7 @@ end
 save(fullfile(OUTPATH, 'all_subj_erp.mat'),'all_cor_erp')
 
 % Save ERP data
-all_cor_erp_data = cell2table(all_cor_erp_data, 'VariableNames',{'subj','erp_from', 'erp_till', 'erp_amp', 'erp_lat', 'condition_full', 'task_instruction', 'probe_onset_cat', 'probe_type'});
+all_cor_erp_data = cell2table(all_cor_erp_data, 'VariableNames',{'subj','erp_from', 'erp_till', 'erp_amp', 'erp_lat', 'condition_full', 'task_instruction', 'probe_onset_cat', 'probe_type', 'n_trials_uncorrected', 'n_trials_control'});
 writetable(all_cor_erp_data, fullfile(OUTPATH, 'all_subj_cor_erp_data.xlsx'))
 
 % Save grandaverage ERP
