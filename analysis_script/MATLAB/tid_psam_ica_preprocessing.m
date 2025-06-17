@@ -43,7 +43,7 @@ FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);
 
 tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)
-tid_psam_clean_up_folder_TD(OUTPATH)
+%%tid_psam_clean_up_folder_TD(OUTPATH)
 
 % Variables to edit
 EOG_CHAN = {'E29','E30'}; % Labels of EOG electrodes
@@ -78,6 +78,16 @@ for subj_idx= 1:length(dircont_subj)
 
     % Update progress bar
     waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_ica_preprocessing.m'])
+
+    % Check if subject was already processed
+    subj_file = fullfile(OUTPATH, [subj '_ica_weights.set']);
+    if exist(subj_file, 'file')
+        disp(['Skipping ' subj ' (already run)'])
+        protocol{subj_idx,1} = subj;
+        protocol{subj_idx,2} = NaN;
+        protocol{subj_idx,3} = 'SKIPPED';
+        continue
+    end
 
     tic;
     % Start eeglab
