@@ -15,6 +15,8 @@
 clear
 close all
 clc
+
+rng(123)
 set(0,'DefaultTextInterpreter','none')
 
 % Set up paths

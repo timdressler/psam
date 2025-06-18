@@ -2,6 +2,7 @@ import os
 import sys
 import re
 import time
+import random
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -33,6 +34,8 @@ Processing includes:
 
 Tim Dressler, 07.06.2025
 """
+
+random.seed(123)
 
 # Set up paths
 SCRIPTPATH = os.path.dirname(os.path.abspath(__file__))

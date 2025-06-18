@@ -5,6 +5,7 @@ import re
 import time
 import pandas as pd
 import numpy as np
+import random
 
 """
 tid_psam_run_pipeline.py
@@ -53,6 +54,8 @@ Note:
 
 Tim Dressler, 07.04.2025
 """
+
+random.seed(123)
 
 # Set up paths
 SCRIPTPATH = os.path.dirname(os.path.abspath(__file__))

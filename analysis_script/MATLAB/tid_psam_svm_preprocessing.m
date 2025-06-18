@@ -7,7 +7,6 @@
     % Load data and data set containing ICA weights (see
     %   tid_psam_ica_preprocessing.m)
     % Rename events
-    % Apply a 1 Hz HP-Filter
     % Apply a 30 Hz LP-Filter
     % Remove bad channels as identified in tid_psam_ica_preprocessing.m
     % Attach ICA weights and remove bad components previously indentified using the ICLabel Plugin
@@ -32,6 +31,7 @@ clear
 close all
 clc
 
+rng(123)
 set(0,'DefaultTextInterpreter','none')
 
 % Set up paths
@@ -57,8 +57,7 @@ tid_psam_clean_up_folder_TD(OUTPATH)
 EOG_CHAN = {'E29','E30'}; % Labels of EOG electrodes
 EPO_FROM = -1;
 EPO_TILL = 0.1;
-LCF = 0.1;
-HCF = 40;
+HCF = 30;
 BL_FROM = -1000;
 BL_TILL = -800;
 SD_PROB = 3;
@@ -143,17 +142,9 @@ for subj_idx= 1:length(dircont_subj)
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
     % Filter
-    % Highpass-Filter
-    %%LCF_ord = pop_firwsord('hamming', EEG.srate, tid_psam_get_transition_bandwidth(LCF)); % Get filter order (also see pop_firwsord.m, tid_psam_get_transition_bandwidth.m)
-    %%EEG = pop_firws(EEG, 'fcutoff', LCF, 'ftype', 'highpass', 'wtype', 'hamming', 'forder',LCF_ord, 'minphase', 0, 'usefftfilt', 0, 'plotfresp', 0, 'causal', 0);
     % Lowpass-Filter
     HCF_ord = pop_firwsord('hamming', EEG.srate, tid_psam_get_transition_bandwidth(HCF)); % Get filter order (also see pop_firwsord.m, tid_psam_get_transition_bandwidth.m)
     EEG = pop_firws(EEG, 'fcutoff', HCF, 'ftype', 'lowpass', 'wtype', 'hamming', 'forder',HCF_ord, 'minphase', 0, 'usefftfilt', 0, 'plotfresp', 0, 'causal', 0);
-
-    %%EEG = pop_eegfiltnew(EEG, 'locutoff',LCF,'hicutoff',0);
-    %%EEG = pop_eegfiltnew(EEG, 'hicutoff',HCF,'plotfreqz',0);
-
-
 
     % Remove bad channels as identified in tid_psam_ica_preprocessing.m (see above)
     EEG.badchans = chans_to_interp;
@@ -164,18 +155,14 @@ for subj_idx= 1:length(dircont_subj)
 
     % Attach ICA weight to main data
     EEG = pop_editset(EEG,'run', [], 'icaweights','ALLEEG(1).icaweights', 'icasphere','ALLEEG(1).icasphere');
-    % Label ICA components with IC Label Plugin (Pion-Tonachini et al., 2019)
-    %%EEG = pop_iclabel(EEG, 'default');
-    %%EEG = pop_icflag(EEG, [0 0;0.7 1;0.7 1;0.7 1;0.7 1;0.7 1;0.7 1]);
-    % Sanity Check: Plot flagged ICs
-    %%tid_psam_plot_flagged_ICs_TD(EEG,['ICs for ' subj], 'SavePath' ,fullfile(OUTPATH, [subj '_ic_topo.png']), 'PlotOn', false)
+   
     % Remove previously flagged ICs (see tid_psam_ica_preprocessing.m)
     EEG.reject.gcompreject = flagged_comps;
     EEG = pop_subcomp( EEG, [], 0);
 
     % Interpolate bad channels
     if ~isempty(EEG.badchans)
-        EEG = pop_interp(EEG, EEG.urchanlocs , 'spherical'); % and interpolate them using urchanlocs
+        EEG = pop_interp(EEG, EEG.urchanlocs , 'spherical'); 
     end
 
     % Sanity Check: Plot RMS in 10s bins for each electode

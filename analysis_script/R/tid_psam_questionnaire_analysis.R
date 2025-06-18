@@ -29,7 +29,7 @@ library(psych)
 library(RVAideMemoire)
 
 rm(list=ls())
-
+set.seed(123)
 options(scipen = 999)
 
 # Set costum colors

@@ -29,7 +29,7 @@ library(RVAideMemoire)
 library(rstatix)
 
 rm(list=ls())
-
+set.seed(123)
 options(scipen = 999)
 
 # Set costum colors
