@@ -182,6 +182,7 @@ for subj_idx= 1:length(dircont_subj)
 
     % Loop across frequency bands and apply Hilbert transformation
     for freq_band_num = 1:length(freq_bands)
+        disp(['Processing Frequency-Band: ' num2str(freq_bands{freq_band_num})])
         EEG = ALLEEG(4);
         CURRENTSET = 4;
 
