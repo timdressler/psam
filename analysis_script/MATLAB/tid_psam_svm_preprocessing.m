@@ -61,7 +61,6 @@ HCF = 30;
 BL_FROM = -1000;
 BL_TILL = -800;
 SD_PROB = 3;
-SD_PROB_ICA = 3;
 EVENTS = {'go_act', 'go_pas'};
 
 % Get directory content
@@ -143,7 +142,7 @@ for subj_idx= 1:length(dircont_subj)
 
     % Filter
     % Lowpass-Filter
-    HCF_ord = pop_firwsord('hamming', EEG.srate, tid_psam_get_transition_bandwidth(HCF)); % Get filter order (also see pop_firwsord.m, tid_psam_get_transition_bandwidth.m)
+    HCF_ord = pop_firwsord('hamming', EEG.srate, tid_psam_get_transition_bandwidth_TD(HCF)); % Get filter order (also see pop_firwsord.m, tid_psam_get_transition_bandwidth_TD.m)
     EEG = pop_firws(EEG, 'fcutoff', HCF, 'ftype', 'lowpass', 'wtype', 'hamming', 'forder',HCF_ord, 'minphase', 0, 'usefftfilt', 0, 'plotfresp', 0, 'causal', 0);
 
     % Remove bad channels as identified in tid_psam_ica_preprocessing.m (see above)

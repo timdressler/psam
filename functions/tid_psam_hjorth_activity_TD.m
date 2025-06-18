@@ -26,7 +26,7 @@ switch dims
     case 2  % [1-by-Samples] or [Channels-by-Samples]
         activity = var(signal, 1, 2); % Result: [1-by-1] or [Channels-by-1]
     case 3  % [Channels-by-Samples-by-Epochs]
-        activity = squeeze(var(signal, 0, 2));  % Result: [Channels-by-Epochs]
+        activity = squeeze(var(signal, 1, 2));  % Result: [Channels-by-Epochs]
     otherwise
         error('Unsupported signal dimensions. Expected 2D or 3D array.');
 end

@@ -1,4 +1,4 @@
-function transition_bandwidth = tid_psam_get_transition_bandwidth(cuttoff_freq)
+function transition_bandwidth = tid_psam_get_transition_bandwidth_TD(cuttoff_freq)
 % tid_psam_get_transition_bandwidth computes transition bandwidth based on the following rule.
 %
 % Assumes Hamming window!

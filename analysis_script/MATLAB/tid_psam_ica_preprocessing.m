@@ -4,13 +4,13 @@
 %
 % Preprocessing includes the following steps
 %
-    % Apply a 1 Hz HP-Filter
-    % Idenitify and remove bad channels using the
-    %   bemobil_detect_bad_channels() funtion
-    % Create regular 1s epochs
-    % Remove bad epochs based on probability
-    % Calculate ICA weights
-    % Label bad components using the ICLabel Plugin (Pion-Tonachini et al., 2019)
+%   Apply a 1 Hz HP-Filter
+%   Idenitify and remove bad channels using the
+%       bemobil_detect_bad_channels() funtion
+%   Create regular 1s epochs
+%   Remove bad epochs based on probability
+%   Calculate ICA weights
+%   Label bad components using the ICLabel Plugin (Pion-Tonachini et al., 2019)
 %
 % Saves data
 %
@@ -50,8 +50,6 @@ tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)
 EOG_CHAN = {'E29','E30'}; % Labels of EOG electrodes
 EPO_FROM = -0.2;
 EPO_TILL = 0.400;
-LCF = 0.3; 
-HCF = 30; 
 LCF_ICA = 1;
 BL_FROM = -200;
 THRESH = 75;
@@ -94,15 +92,15 @@ for subj_idx= 1:length(dircont_subj)
     % Start eeglab
     [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
 
-    % ICA-specific preprocessing 
+    % ICA-specific preprocessing
     % Load raw data
     EEG = pop_loadset('filename',[subj '_markers_inlcuded.set'],'filepath',INPATH);
-    
+
     % Remove Marker-Channel
     EEG = pop_select( EEG, 'rmchannel',{'M'});
-    
+
     % Add channel locations
-    EEG.chanlocs = readlocs( fullfile(MAINPATH,'\config\elec_96ch_adapted.elp')); 
+    EEG.chanlocs = readlocs( fullfile(MAINPATH,'\config\elec_96ch_adapted.elp'));
     EEG = eeg_checkset( EEG );
 
     % Add type = EOG for EOG electrodes for bemobil_detect_bad_channels to ignore them
@@ -114,26 +112,24 @@ for subj_idx= 1:length(dircont_subj)
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
     % Highpass-Filter
-    LCF_ord = pop_firwsord('hamming', EEG.srate, tid_psam_get_transition_bandwidth(LCF_ICA)); % Get filter order (also see pop_firwsord.m, tid_psam_get_transition_bandwidth.m)
+    LCF_ord = pop_firwsord('hamming', EEG.srate, tid_psam_get_transition_bandwidth_TD(LCF_ICA)); % Get filter order (also see pop_firwsord.m, tid_psam_get_transition_bandwidth_TD.m)
     EEG = pop_firws(EEG, 'fcutoff', LCF_ICA, 'ftype', 'highpass', 'wtype', 'hamming', 'forder',LCF_ord, 'minphase', 0, 'usefftfilt', 0, 'plotfresp', 0, 'causal', 0);
 
-    %%EEG = pop_eegfiltnew(EEG, 'locutoff',LCF_ICA,'plotfreqz',0);
-
     % Remove bad channels
-    EEG.badchans = []; 
+    EEG.badchans = [];
     [chans_to_interp, chan_detected_fraction_threshold, detected_bad_channels] = bemobil_detect_bad_channels(EEG, ALLEEG, 1, [], [], 5);
-    EEG.badchans = chans_to_interp; 
-    EEG = pop_select(EEG,'nochannel', EEG.badchans); 
+    EEG.badchans = chans_to_interp;
+    EEG = pop_select(EEG,'nochannel', EEG.badchans);
 
     % Create 1s epochs & remove bad ones
-    EEG = eeg_regepochs(EEG); 
+    EEG = eeg_regepochs(EEG);
 
     EEG = pop_jointprob(EEG,1,[1:EEG.nbchan] ,SD_PROB_ICA,0,0,0,[],0);
     EEG = pop_rejkurt(EEG,1,[1:EEG.nbchan] ,SD_PROB_ICA,0,0,0,[],0);
     EEG = eeg_rejsuperpose( EEG, 1, 1, 1, 1, 1, 1, 1, 1);
 
     EEG = pop_rejepoch( EEG, EEG.reject.rejglobal ,0);
- 
+
     % Run ICA
     EEG = pop_runica(EEG, 'icatype', 'runica', 'extended',1,'interrupt','on');
 
@@ -142,7 +138,7 @@ for subj_idx= 1:length(dircont_subj)
     EEG = pop_icflag(EEG, [0 0;0.7 1;0.7 1;0.7 1;0.7 1;0.7 1;0.7 1]);
     % Sanity Check: Plot flagged ICs
     tid_psam_plot_flagged_ICs_TD(EEG,['ICs for ' subj], 'SavePath' ,fullfile(OUTPATH, [subj '_ic_topo.png']), 'PlotOn', false)
-  
+
     % Save dataset
     EEG.setname = [subj '__ICA_weights'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
