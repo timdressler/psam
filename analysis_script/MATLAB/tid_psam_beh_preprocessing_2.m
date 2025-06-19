@@ -51,6 +51,9 @@ tid_psam_clean_up_folder_TD(OUTPATH)
 % Variables to edit
 n_trials = 960;
 
+% Get manually excluded subjects
+MANUALLY_EXCLUDED_SUBJ = {'sub-18'}; % e.g. {'sub-28', 'sub-24'}
+
 % Get directory content
 dircont_subj = dir(fullfile(INPATH, 'sub-*'));
 
@@ -67,6 +70,21 @@ for subj_idx= 1:length(dircont_subj)
     % Get current ID
     subj = dircont_subj(subj_idx).name;
     subj = regexp(subj, 'sub-\d+', 'match', 'once');
+
+    % Exclude/skip manually excluded subjects
+    if any(strcmp(MANUALLY_EXCLUDED_SUBJ, subj), 'all')
+        % Update marked subjects
+        marked_subj{end+1,1} = subj;
+        marked_subj{end,2} = 'MANUALLY_EXCLUDED';
+        % Update Protocol
+        subj_time = NaN;
+        protocol{subj_idx,1} = subj;
+        protocol{subj_idx,2} = subj_time;
+        protocol{subj_idx,3} = 'MANUALLY_EXCLUDED';
+
+        % Skip rest of the loop
+        continue
+    end
 
     % Update progress bar
     waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_beh_preprocessing_2.m'])
