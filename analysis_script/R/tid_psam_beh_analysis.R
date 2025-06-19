@@ -61,13 +61,14 @@ if (grepl("psam/analysis_script/R", SCRIPTPATH)) {
 
 MAINPATH <- gsub("/analysis_script/R", "", SCRIPTPATH)
 INPATH <- file.path(MAINPATH, "data", "processed_data", "beh_preprocessed_clean")
+INPATH_FAL <- file.path(MAINPATH, "data", "questionnaire_data_clean")
 OUTPATH <- file.path(MAINPATH, "data", "analysis_data", "stats_beh_analysis")
 
 FUNPATH <- file.path(MAINPATH, "functions")
 source(file.path(FUNPATH, "tid_psam_check_folder_TD.R"))
 source(file.path(FUNPATH, "tid_psam_clean_up_folder_TD.R"))
 
-tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)
+tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH, INPATH_FAL)
 tid_psam_clean_up_folder_TD(OUTPATH)
 
 setwd(OUTPATH)
@@ -78,6 +79,7 @@ setwd(OUTPATH)
 df_beh <- read_excel(file.path(INPATH, "all_subj_beh_preprocessed_clean.xlsx"))
 
 # Load questionnaire data
+df_fal <- read_excel(file.path(INPATH_FAL, "fal_data_clean.xlsx"))
 
 
 #-------------------------------Create needed dfs-------------------------------
@@ -189,6 +191,15 @@ colnames(df_block_vot) <- c("block", "subj", "recording_vot")
 df_block_vot$block <- as.factor(df_block_vot$block)
 
 # Vocal responses F0 values for each sex
+df_subj_f0 <- filter(df_beh, probe == "Yes") %>% 
+  group_by(subj) %>%
+  summarise(mean(recording_f0, na.rm = T))  
+colnames(df_subj_f0) <- c("subj", "recording_f0")
+df_subj_f0 <- merge(df_fal, df_subj_f0, by = "subj", all.x = TRUE)
+df_subj_f0 <- df_subj_f0[c("subj", "var3_sex", "recording_f0")]
+df_subj_f0$var3_sex <- as.factor(df_subj_f0$var3_sex)
+df_subj_f0$var3_sex <- car::recode(df_subj_f0$var3_sex, "1='male';2='female'; 3 = 'diverse'")
+
 
 
 #------------------------------------Analysis-----------------------------------
@@ -553,4 +564,26 @@ ezDesign(df_block_vot, x = block, y = subj)
 # - Sphericity: Not applicable due to only 2 factor levels per factor
 # - Balance of the design: OK
 #------------------------------------------------------------------------------#
+
+# BEH8
+# Descriptive only.
+# Analysis BEH8 concerns how the F0 is influenced by sex.
+psych::describeBy(
+  df_subj_f0$recording_f0,
+  list(df_subj_f0$var3_sex)
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -320,7 +320,7 @@ P2 <- ggplot(df_psam, aes(x = probe_onset_cat, y = psam_amp, color = probe_type,
     "Unaltered" = colors$main_blue
   )) +
     labs(
-    title = "N100 ERP Amplitudes by Probe Type and Probe Onset",
+    title = "PSAM Effect Amplitudes by Probe Type and Probe Onset",
     y = "PSAM Effect Amplitude (µV)",
     x = NULL,
     color = "Probe Type"
@@ -412,6 +412,31 @@ ggsave(
   bg = "white"
 )
 
-
+# Plot 4: ERP Amplitudes by Probe Type, Task Instruction, and Probe Onset
+P4 <- ggplot(df_erp, aes(x = task_instruction, y = erp_lat, color = probe_type, group = probe_type)) +
+  stat_summary(fun = mean, geom = "line", size = 1.2) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, size = 0.8) +
+  stat_summary(fun = mean, geom = "point", size = 3) +
+  facet_wrap(~ probe_onset_cat, nrow = 1,
+             labeller = as_labeller(c("Early" = "Early Probe Onset",
+                                      "Late" = "Late Probe Onset"))) +
+  scale_color_manual(values = c(
+    "Altered" = colors$main_red,
+    "Unaltered" = colors$main_blue
+  )) +
+  labs(
+    title = "N100 ERP Latencies by Probe Type, Task Instruction, and Probe Onset",
+    y = "N100 ERP Latency (ms)",
+    x = NULL,
+    color = "Probe Type"
+  ) +
+  theme_minimal(base_size = 10) +
+  theme(
+    strip.text = element_text(face = "bold", size = 9),
+    legend.position = "top"
+  ) + 
+  scale_x_discrete(labels = c("Active" = "Active Task Condition",
+                              "Passive" = "Passive Task Condition"))
+P4
 
 
