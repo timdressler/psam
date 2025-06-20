@@ -324,9 +324,9 @@ sam_data = readtable(fullfile(INPATH_QUEST, 'sam_data.xlsx')); % Load data
 if ~isempty(excluded_subj)
     excluded_subj_unique = unique({excluded_subj{:,1}}); % Get IDs of excluded subjects
 
-    fal_data_clean = fal_data(~strcmp(fal_data.subj, excluded_subj_unique' ),:); % Remove excluded subjects
-    nasatlx_data_clean = nasatlx_data(~strcmp(nasatlx_data.subj, excluded_subj_unique' ),:); % Remove excluded subjects
-    sam_data_clean = sam_data(~strcmp(sam_data.subj, excluded_subj_unique' ),:); % Remove excluded subjects
+    fal_data_clean = fal_data(~ismember(fal_data.subj, excluded_subj_unique' ),:); % Remove excluded subjects
+    nasatlx_data_clean = nasatlx_data(~ismember(nasatlx_data.subj, excluded_subj_unique' ),:); % Remove excluded subjects
+    sam_data_clean = sam_data(~ismember(sam_data.subj, excluded_subj_unique' ),:); % Remove excluded subjects
 else
     fal_data_clean = fal_data;
     nasatlx_data_clean = nasatlx_data;
