@@ -73,21 +73,10 @@ MAINPATH = os.path.abspath(os.path.join(SCRIPTPATH, '..'))
 RSCRIPT_EXE = r"C:\Program Files\R\R-4.5.0\bin\Rscript.exe" # Path to Rscript.exe
 
 SKIP_SCRIPTS = [ # Manually excluded scripts. Example: "tid_psam_erp_analysis.m", "tid_psam_questionnaire_analysis.R", ...
-   "tid_psam_ica_preprocessing.m", "tid_psam_set_markers.m", "tid_psam_beh_preprocessing_2", "tid_psam_beh_analysis.m", "tid_psam_beh_preprocessing_1.praat", "tid_psam_beh_preprocessing_2.m", 
-    "tid_psam_install_requirements_R.R",
-    "tid_psam_beh_analysis.R",
-    "tid_psam_erp_analysis.R",
-    "tid_psam_questionnaire_analysis.R",
-    "tid_psam_svm_analysis.R"
-    ,"tid_psam_svm_analysis.py",
-    "tid_psam_svm_preprocessing.m",
-    "tid_psam_hilbert_preparation.m",
-    "tid_psam_svm_preparation.m",
-    "tid_psam_feature_analysis.m"
 ]
     
 
-SKIP_ALREADY_RUN = False # If True, previously run scripts (based on the log file) are not executed again
+SKIP_ALREADY_RUN = True # If True, previously run scripts (based on the log file) are not executed again
 
 # Prepare variables
 log_txt_path = os.path.join(SCRIPTPATH, "tid_psam_run_pipeline_log.txt")
