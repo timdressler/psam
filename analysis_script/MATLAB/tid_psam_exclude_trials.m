@@ -64,6 +64,7 @@ INPATH_ERP = fullfile(MAINPATH, 'data\processed_data\erp_preprocessed\');
 INPATH_SVM = fullfile(MAINPATH, 'data\processed_data\svm_preprocessed\');
 INPATH_BEH = fullfile(MAINPATH, 'data\processed_data\beh_preprocessed_2\');
 INPATH_QUEST = fullfile(MAINPATH, 'data\questionnaire_data\');
+INPATH_EXCLUDED_SUBJ = fullfile(MAINPATH, 'data\processed_data\markers_included\');
 OUTPATH_ERP = fullfile(MAINPATH, 'data\processed_data\erp_preprocessed_clean\');
 OUTPATH_SVM = fullfile(MAINPATH, 'data\processed_data\svm_preprocessed_clean\');
 OUTPATH_BEH = fullfile(MAINPATH, 'data\processed_data\beh_preprocessed_clean\');
@@ -72,6 +73,9 @@ OUTPATH = fullfile(MAINPATH, 'data\processed_data\exclude_trials\');
 
 FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);
+
+% Load manually excluded subjects
+load(fullfile(INPATH_EXCLUDED_SUBJ, 'manually_excluded_subj.mat')) % Loads variable MANUALLY_EXCLUDED_SUBJ
 
 tid_psam_check_folder_TD(MAINPATH, INPATH_ERP, INPATH_SVM, INPATH_BEH, OUTPATH_ERP, OUTPATH_SVM,OUTPATH_BEH,OUTPATH_QUEST ,OUTPATH)
 tid_psam_clean_up_folder_TD(OUTPATH_ERP)
@@ -225,7 +229,7 @@ for subj_idx= 1:length(dircont_subj_erp)
     for block_num = 1:8
         if sum([beh_clean.block] == block_num) <= N_TRIALS_BLOCK_THRESH
             marked_subj{end+1,1} = subj;
-            marked_subj{end,2} = ['number_of_trials_block_' num2str(block_num)];
+            marked_subj{end,2} = ['number_of_trials_block_' num2str(block_num) '_' num2str(sum([beh_clean.block] == block_num))];
         end
     end
 
@@ -316,12 +320,16 @@ for subj_idx= 1:length(dircont_subj_erp)
 
 end
 
+% Merge manually and automatically excluded subjects
+excluded_subj{end+1,1} = MANUALLY_EXCLUDED_SUBJ{:};
+excluded_subj{end,2} = 'MANUALLY_EXCLUDED';
+
 % Remove excluded subjects from questionnaire data
 fal_data = readtable(fullfile(INPATH_QUEST, 'fal_data.xlsx')); % Load data
 nasatlx_data = readtable(fullfile(INPATH_QUEST, 'nasatlx_data.xlsx')); % Load data
 sam_data = readtable(fullfile(INPATH_QUEST, 'sam_data.xlsx')); % Load data
 
-if ~isempty(excluded_subj)
+if ~isempty(excluded_subj) && ~isempty(MANUALLY_EXCLUDED_SUBJ)
     excluded_subj_unique = unique({excluded_subj{:,1}}); % Get IDs of excluded subjects
 
     fal_data_clean = fal_data(~ismember(fal_data.subj, excluded_subj_unique' ),:); % Remove excluded subjects
@@ -347,7 +355,7 @@ n_rows_sam = size(sam_data_clean,1);
 if isempty(excluded_subj)
     n_excluded = 0;
 else
-    n_excluded = length(unique({excluded_subj{:,1}}));
+    n_excluded = length(unique({excluded_subj{:,1}})) - length(MANUALLY_EXCLUDED_SUBJ); % length(MANUALLY_EXCLUDED_SUBJ) is subtracted since manually excluded subjects are already not in n_saved_erp
 end
 n_subjects_all = length(dircont_subj_erp);
 
@@ -366,7 +374,8 @@ subj_list_nasatlx = nasatlx_data_clean.subj;
 subj_list_sam = sam_data_clean.subj;
 
 subj_list_all = {subj_list_erp, subj_list_svm, subj_list_beh, subj_list_beh2, subj_list_fal, subj_list_nasatlx, subj_list_sam};
-if ~all(cellfun(@(x) isequal(x, subj_list_all{1}), subj_list_all))
+
+if ~all(cellfun(@(x) isempty(setxor(x, subj_list_all{1})), subj_list_all))
     error('Different subjects included in data')
 end
 

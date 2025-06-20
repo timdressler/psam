@@ -49,6 +49,7 @@ end
 MAINPATH = erase(SCRIPTPATH, '\analysis_script\MATLAB');
 INPATH = fullfile(MAINPATH,'data/BIDS/');
 OUTPATH = fullfile(MAINPATH,'data\processed_data\markers_included\');
+OUTPATH_EXCLUDED_SUBJ = fullfile(MAINPATH, 'data\processed_data\markers_included\');
 
 FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);
@@ -64,7 +65,10 @@ EARLY_ONSET = 2.6;
 LATE_ONSET = 2.8;
 
 % Get manually excluded subjects
-MANUALLY_EXCLUDED_SUBJ = {'sub-18'}; % e.g. {'sub-28', 'sub-24'}
+MANUALLY_EXCLUDED_SUBJ = {'sub-18'}; % e.g. {'sub-28'}
+
+% Save manually excluded subjects
+save(fullfile(OUTPATH_EXCLUDED_SUBJ, 'manually_excluded_subj.mat'), "MANUALLY_EXCLUDED_SUBJ")
 
 % Get directory content
 dircont_subj = dir(fullfile(INPATH, 'sub*'));
