@@ -25,7 +25,6 @@ library(ggeffects)
 library(cowplot) 
 library(tidyverse)
 library(psych)
-library(RVAideMemoire)
 library(rstatix)
 
 rm(list=ls())

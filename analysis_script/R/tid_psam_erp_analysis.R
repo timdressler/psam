@@ -23,7 +23,6 @@ library(ggeffects)
 library(cowplot) 
 library(tidyverse)
 library(psych)
-library(RVAideMemoire)
 library(rstatix)
 library(lme4)
 

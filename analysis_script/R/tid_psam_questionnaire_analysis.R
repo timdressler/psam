@@ -26,7 +26,6 @@ library(ggeffects)
 library(cowplot) 
 library(tidyverse)
 library(psych)
-library(RVAideMemoire)
 
 rm(list=ls())
 set.seed(123)
