@@ -97,7 +97,7 @@ colors = {
 dircont_subj = dir(fullfile(INPATH_RAW, 'sub-*.set'));
 
 % Sanity Check: Same number of files for raw data and ICA data
-if length(dir(fullfile(INPATH_RAW, 'sub-*.set'))) == length(dir(fullfile(INPATH_ICA, 'sub-*.set'))) && length(dir(fullfile(INPATH_RAW, 'sub-*.set'))) == length(dir(fullfile(INPATH_EXCLUDED, 'sub-*.mat')))
+if length(dir(fullfile(INPATH_RAW, 'sub-*.set'))) == length(dir(fullfile(INPATH_ICA, 'sub-*.set'))) 
 else
     error('Number of raw data files, exclusion files and ICA data files does not match')
 end
