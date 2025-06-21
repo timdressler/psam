@@ -29,6 +29,7 @@ end
 
 MAINPATH = erase(SCRIPTPATH, '\analysis_script\MATLAB');
 INPATH_RAW = fullfile(MAINPATH, 'data\processed_data\markers_included\');
+INPATH_CLEAN = fullfile(MAINPATH, 'data\processed_data\erp_preprocessed_clean\');
 INPATH_ICA = fullfile(MAINPATH, 'data\processed_data\ica_preprocessed\');
 INPATH_HILBERT = fullfile(MAINPATH, 'data\processed_data\hilbert_prepared_clean'); % Keep for context, although hilbert processing removed
 INPATH_EXCLUDED = fullfile(MAINPATH, 'data\processed_data\exclude_trials\');
@@ -38,7 +39,7 @@ OUTPATH = fullfile(MAINPATH, 'data\analysis_data\check_filters_svm');
 FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);
 
-tid_psam_check_folder_TD(MAINPATH, INPATH_RAW, INPATH_ICA, INPATH_EXCLUDED, OUTPATH)
+tid_psam_check_folder_TD(MAINPATH, INPATH_RAW, INPATH_ICA, INPATH_EXCLUDED, OUTPATH, INPATH_CLEAN)
 tid_psam_clean_up_folder_TD(OUTPATH)
 
 % Variables to edit
@@ -82,7 +83,7 @@ main_yellow = '#FDC300';
 main_yellow = sscanf(main_yellow(2:end),'%2x%2x%2x',[1 3])/255;
 
 % Get directory content
-dircont_subj = dir(fullfile(INPATH_RAW, 'sub-*.set'));
+dircont_subj = dir(fullfile(INPATH_CLEAN, 'sub-*.set')); % Only runs through non-excluded subjects
 
 % Sanity Check: Same number of files for raw data and ICA data
 if length(dir(fullfile(INPATH_RAW, 'sub-*.set'))) == length(dir(fullfile(INPATH_ICA, 'sub-*.set'))) 

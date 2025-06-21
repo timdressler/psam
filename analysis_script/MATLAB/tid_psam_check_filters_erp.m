@@ -40,6 +40,7 @@ end
 
 MAINPATH = erase(SCRIPTPATH, '\analysis_script\MATLAB');
 INPATH_RAW = fullfile(MAINPATH, 'data\processed_data\markers_included\');
+INPATH_CLEAN = fullfile(MAINPATH, 'data\processed_data\erp_preprocessed_clean\');
 INPATH_ICA = fullfile(MAINPATH, 'data\processed_data\ica_preprocessed\');
 INPATH_EXCLUDED = fullfile(MAINPATH, 'data\processed_data\exclude_trials\');
 OUTPATH = fullfile(MAINPATH, 'data\analysis_data\check_filters_erp');
@@ -47,7 +48,7 @@ OUTPATH = fullfile(MAINPATH, 'data\analysis_data\check_filters_erp');
 FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);
 
-tid_psam_check_folder_TD(MAINPATH, INPATH_RAW, INPATH_ICA, INPATH_EXCLUDED, OUTPATH)
+tid_psam_check_folder_TD(MAINPATH, INPATH_RAW, INPATH_ICA, INPATH_EXCLUDED, OUTPATH, INPATH_CLEAN)
 tid_psam_clean_up_folder_TD(OUTPATH)
 
 % Variables to edit
@@ -94,7 +95,7 @@ colors = {
     };
 
 % Get directory content
-dircont_subj = dir(fullfile(INPATH_RAW, 'sub-*.set'));
+dircont_subj = dir(fullfile(INPATH_CLEAN, 'sub-*.set')); % Only runs through non-excluded subjects
 
 % Sanity Check: Same number of files for raw data and ICA data
 if length(dir(fullfile(INPATH_RAW, 'sub-*.set'))) == length(dir(fullfile(INPATH_ICA, 'sub-*.set'))) 
