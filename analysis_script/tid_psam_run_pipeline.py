@@ -161,7 +161,8 @@ matlab_scripts = [
     "tid_psam_svm_preparation.m",
     "tid_psam_beh_analysis.m",
     "tid_psam_feature_analysis.m",
-    "tid_psam_check_filters_erp.m"
+    "tid_psam_check_filters_erp.m",
+    "tid_psam_check_filters_svm.m"
 ]
 
 for script in matlab_scripts:

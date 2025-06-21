@@ -8,7 +8,7 @@
 required_packages <- unique(c(
   "tidyr", "afex", "emmeans", "readxl", "car", "corrplot", "dplyr", 
   "ez", "ggplot2", "ggstatsplot", "DescTools", "ggpubr", "ggeffects", 
-  "cowplot", "tidyverse", "psych", "rstatix"
+  "cowplot", "tidyverse", "psych", "rstatix", "lmerTest" 
 ))
 
 # Get currently installed packages
