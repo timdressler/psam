@@ -132,11 +132,7 @@ psam
 - ```testing``` contains mutiple files related to testing. Not needed to run any of the code.
 - ```requirements.txt``` contains all the libraries used for the python-based analysis scripts. Use ```pip install -r requirements.txt``` to install all needed dependencies.
 
-Important Note. While the ```requirements.txt``` contains all needed dependencies for running the python-based analysis other dependencies have to be installed manually. This includes:
-- All used R packages
-- All used MATLAB toolboxes
-
-```Praat.exe``` as well as the ```Praat Vocal Processing Toolbox``` are included in the repository. 
+Important Note. While the ```requirements.txt``` contains all needed dependencies for running the python-based analysis and ```tid_psam_install_requirements_R.R``` installs all the requirements needed for the R-based analysis, MATLAB dependencies have to be installed manually (see below). ```Praat.exe``` as well as the ```Praat Vocal Processing Toolbox``` are included in the repository. 
 
 ### Dependecies
 
@@ -145,10 +141,9 @@ Important Note. While the ```requirements.txt``` contains all needed dependencie
 0. Make sure to have R, RStudio, MATLAB and VSCode installed.
 1. Fetch this repository and clone it.
 2. Run ```pip install -r requirements.txt``` while setting ```psam/``` as your current directory.
-3. Open all R scripts in RStudio and install the needed packages.
-4. Adapt the Path to your ```RScript.exe``` file in ```tid_psam_run_pipeline.py```.
-5. Request the data and copy it into ```psam/``` without changing the folder structure.
-6. Run ```tid_psam_run_pipeline.py``` using VSCode.
+3. Adapt the Path to your ```RScript.exe``` file in ```tid_psam_run_pipeline.py```.
+4. Request the data and copy it into ```psam/``` without changing the folder structure.
+5. Run ```tid_psam_run_pipeline.py``` using VSCode.
 
 
 ---
