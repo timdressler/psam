@@ -13,14 +13,16 @@ The repository includes analysis code as well as as code used for running the ex
 ### Structure
 
 ```text
-psam/
+psam
 │
-├── analysis_script/
+├── analysis_script\
 │   │
-│   ├── MATLAB/
+│   ├── MATLAB\
 │   │   ├── tid_psam_MATLAB_TEST.m
 │   │   ├── tid_psam_beh_analysis.m
 │   │   ├── tid_psam_beh_preprocessing_2.m
+│   │   ├── tid_psam_check_filters_erp.m
+│   │   ├── tid_psam_check_filters_svm.m
 │   │   ├── tid_psam_erp_analysis.m
 │   │   ├── tid_psam_erp_pilot.m
 │   │   ├── tid_psam_erp_preprocessing.m
@@ -33,37 +35,52 @@ psam/
 │   │   ├── tid_psam_svm_preparation.m
 │   │   └── tid_psam_svm_preprocessing.m
 │   │
-│   ├── R/
+│   ├── R\
 │   │   ├── tid_psam_beh_analysis.R
 │   │   ├── tid_psam_erp_analysis.R
+│   │   ├── tid_psam_get_package_versions.R
+│   │   ├── tid_psam_install_requirements_R.R
 │   │   ├── tid_psam_questionnaire_analysis.R
 │   │   └── tid_psam_svm_analysis.R
 │   │
-│   ├── praat/
+│   ├── praat\
 │   │   │
-│   │   ├── plugin_VocalToolkit/
+│   │   ├── plugin_VocalToolkit\
 │   │   │
 │   │   ├── Praat.exe
 │   │   ├── tid_psam_beh_preprocessing_1
 │   │   ├── tid_psam_prepare_stimuli
 │   │   └── tid_psam_rectangle.wav
 │   │
-│   ├── python/
-│   │   ├── tid_psam_PYTHON_TEST.py
+│   ├── python\
 │   │   └── tid_psam_svm_analysis.py
 │   │
 │   └── tid_psam_run_pipeline.py
 │
-├── config/
+├── config\
 │   ├── elec_96ch.csd
 │   ├── elec_96ch.elp
 │   ├── elec_96ch_adapted.csd
 │   ├── elec_96ch_adapted.csv
 │   └── elec_96ch_adapted.elp
 │
-├── documents/
+├── data\
+│   │
+│   ├── BIDS\
+│   │
+│   ├── analysis_data\
+│   │
+│   ├── processed_data\
+│   │
+│   ├── questionnaire_data\
+│   │
+│   ├── questionnaire_data_clean\
+│   │
+│   └── tid_psam_variables_markers.xlsx
 │
-├── experiment_script/
+├── documents\
+│
+├── experiment_script\
 │   ├── tid_psam_create_conditions_file.m
 │   ├── tid_psam_determine_loudness.m
 │   ├── tid_psam_main_experiment_ALTERNATIVE_NO_CIRCLE.psyexp
@@ -71,7 +88,7 @@ psam/
 │   ├── tid_psam_select_stimuli.m
 │   └── tid_psam_stimuli_recording_ALTERNATIVE_NO_CIRCLE_adapted.py
 │
-├── functions/
+├── functions\
 │   ├── bemobil_avref.m
 │   ├── bemobil_detect_bad_channels.m
 │   ├── shadedErrorBar.m
@@ -82,13 +99,24 @@ psam/
 │   ├── tid_psam_check_id_TD.m
 │   ├── tid_psam_clean_up_folder_TD.R
 │   ├── tid_psam_clean_up_folder_TD.m
+│   ├── tid_psam_get_transition_bandwidth_TD.m
 │   ├── tid_psam_hjorth_activity_TD.m
 │   ├── tid_psam_hjorth_complexity_TD.m
 │   ├── tid_psam_hjorth_mobility_TD.m
 │   ├── tid_psam_plot_flagged_ICs_TD.m
 │   └── tid_psam_plot_rms_bins_TD.m
 │
-├── testing/
+├── testing\
+│   ├── stereo_sine_wave.wav
+│   ├── test_rect_44100fs_80ms_1ch.wav
+│   ├── test_rect_44100fs_80ms_2ch.wav
+│   ├── test_rect_48000fs_80ms_1ch.wav
+│   ├── test_rect_48000fs_80ms_2ch.wav
+│   ├── tid_psam_200Hz_sine.wav
+│   ├── tid_psam_create_sine.m
+│   ├── tid_psam_markertest.m
+│   ├── tid_psam_rectangle.wav
+│   └── tid_psam_timingtest.m
 │
 ├── .gitattributes
 ├── .gitignore
