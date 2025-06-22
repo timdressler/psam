@@ -244,7 +244,7 @@ for file_early, file_late in tqdm(zip(dircont_subj_early, dircont_subj_late), to
         max_val = acc_matrix.max()
         above_chance_prop = np.mean(acc_matrix > sig_thresh) 
 
-        sns.heatmap(acc_df, ax=axs[i], cmap='magma', vmin=0.5, vmax=0.95,
+        sns.heatmap(acc_df, ax=axs[i], cmap='magma', vmin=0.5, vmax=0.85,
                     cbar=(i == 1), cbar_kws={"label": "Validation Accuracy"}, xticklabels=True, yticklabels=True)
         axs[i].set_title(f"{subj} - {label} - Accuracy Grid\n"
                         f"Min: {min_val:.3f}, Max: {max_val:.3f}, >Chance: {above_chance_prop:.2%}")
@@ -294,7 +294,7 @@ ga_late = np.mean(all_acc_matrix_late, axis=0)
 fig, axs = plt.subplots(1, 2, figsize=(16, 6), constrained_layout=True)
 for i, (ga_matrix, label) in enumerate(zip([ga_early, ga_late], ['early', 'late'])):
     ga_df = pd.DataFrame(ga_matrix, index=[f"{g:.0e}" for g in gamma_range], columns=[f"{c:.5f}" for c in C_range])
-    sns.heatmap(ga_df, ax=axs[i], cmap='magma', vmin=0.5, vmax=0.95,
+    sns.heatmap(ga_df, ax=axs[i], cmap='magma', vmin=0.5, vmax=0.85,
                 cbar=(i == 1), cbar_kws={"label": "Mean Accuracy"}, xticklabels=True, yticklabels=True)
     axs[i].set_title(f"Grand Average - {label.capitalize()}")
     axs[i].set_xlabel("C")
