@@ -26,6 +26,7 @@ library(tidyverse)
 library(psych)
 library(rstatix)
 library(lme4)
+library(RVAideMemoire)
 
 rm(list=ls())
 set.seed(123)
@@ -144,7 +145,7 @@ performance::check_model(MAIN_ERPBASE)
 # MAIN_ERP1
 # Linear Mixed Model (Random Intercepts, Fixed Slopes) (DV = N1 Amplitude, within = Task (active, passive), Probe-type (unaltered, altered), Probe-onset (early, late))
 # Analysis MAIN_ERP1 concerns how N1 ERP amplitudes are influenced by probe-type, probe-onset and task.
-MAIN_ERP1 <- lme4::lmer(erp_amp ~ task_instruction*probe_onset_cat*probe_type + (1|subj), data = df_erp)
+MAIN_ERP1 <- lmer(erp_amp ~ task_instruction*probe_onset_cat*probe_type + (1|subj), data = df_erp)
 summary(MAIN_ERP1)
 
 # Plot: N1 ERP amplitude by probe-onset and probe-type
@@ -186,7 +187,7 @@ performance::check_model(MAIN_ERP1)
 # MAIN_ERP2
 # Linear Mixed Model (Random Intercepts, Fixed Slopes) (DV = PSAM effect, within = Probe-type (unaltered, altered), Probe-onset (early, late))
 # Analysis MAIN_ERP2 concerns how the PSAM effect is influenced by probe-type, probe-onset. 
-MAIN_ERP2 <- lme4::lmer(psam_amp ~ probe_onset_cat*probe_type + (1|subj), data = df_psam)
+MAIN_ERP2 <- lmer(psam_amp ~ probe_onset_cat*probe_type + (1|subj), data = df_psam)
 summary(MAIN_ERP2)
 
 # Plot: PSAM effect by probe-onset and probe-type
@@ -229,7 +230,7 @@ performance::check_model(MAIN_ERP1)
 # MAIN_ERP3
 # Linear Mixed Model (Random Intercepts, Fixed Slopes) (DV = N1 Latency, within = Task (active, passive), Probe-type (unaltered, altered), Probe-onset (early, late))
 # Analysis MAIN_ERP3 concerns how the N1 ERP latency is influenced by probe-type, probe-onset and task. 
-MAIN_ERP3 <- lme4::lmer(erp_lat ~ task_instruction*probe_onset_cat*probe_type + (1|subj), data = df_erp)
+MAIN_ERP3 <- lmer(erp_lat ~ task_instruction*probe_onset_cat*probe_type + (1|subj), data = df_erp)
 summary(MAIN_ERP3)
 
 # Plot: N1 ERP latency by probe-onset and probe-type
@@ -412,7 +413,7 @@ ggsave(
   bg = "white"
 )
 
-# Plot 4: ERP Amplitudes by Probe Type, Task Instruction, and Probe Onset
+# Plot 4: ERP Latencies by Probe Type, Task Instruction, and Probe Onset
 P4 <- ggplot(df_erp, aes(x = task_instruction, y = erp_lat, color = probe_type, group = probe_type)) +
   stat_summary(fun = mean, geom = "line", size = 1.2) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, size = 0.8) +

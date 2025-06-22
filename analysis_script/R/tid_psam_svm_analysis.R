@@ -26,6 +26,7 @@ library(cowplot)
 library(tidyverse)
 library(psych)
 library(rstatix)
+library(RVAideMemoire)
 
 rm(list=ls())
 set.seed(123)
@@ -112,8 +113,8 @@ df_svm %>%
   facet_wrap(df_svm$feature_extraction_window) +
   theme_ggstatsplot()
 
-##byf.shapiro(percent_above_chance ~ feature_extraction_window, 
-            ## = df_svm)
+byf.shapiro(percent_above_chance ~ feature_extraction_window, 
+            data = df_svm)
 
 #------------------------------------------------------------------------------#
 #

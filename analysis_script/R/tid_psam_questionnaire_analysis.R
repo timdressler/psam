@@ -26,6 +26,8 @@ library(ggeffects)
 library(cowplot) 
 library(tidyverse)
 library(psych)
+library(RVAideMemoire)
+
 
 rm(list=ls())
 set.seed(123)
@@ -314,8 +316,8 @@ df_sam_long %>%
   facet_wrap(df_sam_long$break_num) +
   theme_ggstatsplot()
 
-##byf.shapiro(mood ~ break_num, 
-            ##data = df_sam_long)
+byf.shapiro(mood ~ break_num, 
+            data = df_sam_long)
 
 #Balance of the design
 ezDesign(df_sam_long, x = break_num, y = subj) 
@@ -373,8 +375,8 @@ df_sam_long %>%
   facet_wrap(df_sam_long$break_num) +
   theme_ggstatsplot()
 
-##byf.shapiro(tiredness ~ break_num, 
-             ##= df_sam_long)
+byf.shapiro(tiredness ~ break_num, 
+             data = df_sam_long)
 
 #Balance of the design
 ezDesign(df_sam_long, x = break_num, y = subj) 

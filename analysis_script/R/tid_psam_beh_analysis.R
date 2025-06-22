@@ -27,6 +27,7 @@ library(cowplot)
 library(tidyverse)
 library(psych)
 library(rstatix)
+library(RVAideMemoire)
 
 rm(list=ls())
 set.seed(123)
@@ -234,8 +235,8 @@ df_probe_properties_z %>%
   facet_wrap(df_probe_properties_z$probe_type) +
   theme_ggstatsplot()
 
-##byf.shapiro(f0_z ~ probe_type, 
-            ##data = df_probe_properties_z)
+byf.shapiro(f0_z ~ probe_type, 
+            data = df_probe_properties_z)
 
 #------------------------------------------------------------------------------#
 #
@@ -276,8 +277,8 @@ df_probe_f0 %>%
   facet_wrap(df_probe_f0$probe) +
   theme_ggstatsplot()
 
-##byf.shapiro(recording_f0 ~ probe, 
-            ##data = df_probe_f0)
+byf.shapiro(recording_f0 ~ probe, 
+            data = df_probe_f0)
 
 #------------------------------------------------------------------------------#
 #
@@ -296,7 +297,6 @@ BEH3 <- aov_ez(id = "subj",
                 within = c("probe_type", "probe_onset_cat"),
                 type = 3)
 summary(BEH3)
-##anova_test(data = df_probe_type_onset_f0, dv = recording_f0, wid = subj, within = c(probe_type,probe_onset_cat), type = 3, effect.size = "ges") # To get corrected dfs
 
 # Plot: F0 by probe-onset and probe-type
 ezPlot(
@@ -330,8 +330,8 @@ df_probe_type_onset_f0 %>%
   facet_grid(probe_type ~ probe_onset_cat) +
   theme_ggstatsplot()
 
-##byf.shapiro(recording_f0 ~ probe_type * probe_onset_cat, 
-            ##data = df_probe_type_onset_f0)
+byf.shapiro(recording_f0 ~ probe_type * probe_onset_cat, 
+            data = df_probe_type_onset_f0)
 
 #Balance of the design
 ezDesign(df_probe_type_onset_f0, x = probe_type, y = subj, row = probe_onset_cat) 
@@ -377,8 +377,8 @@ df_probe_vot %>%
   facet_wrap(df_probe_vot$probe) +
   theme_ggstatsplot()
 
-##byf.shapiro(recording_vot ~ probe, 
-            ##data = df_probe_vot)
+byf.shapiro(recording_vot ~ probe, 
+            data = df_probe_vot)
 
 #------------------------------------------------------------------------------#
 #
@@ -431,8 +431,8 @@ df_probe_type_onset_vot %>%
   facet_grid(probe_type ~ probe_onset_cat) +
   theme_ggstatsplot()
 
-##byf.shapiro(recording_vot ~ probe_type * probe_onset_cat, 
-            ##data = df_probe_type_onset_vot)
+byf.shapiro(recording_vot ~ probe_type * probe_onset_cat, 
+            data = df_probe_type_onset_vot)
 
 #Balance of the design
 ezDesign(df_probe_type_onset_vot, x = probe_type, y = subj, row = probe_onset_cat) 
@@ -490,8 +490,8 @@ df_block_f0 %>%
   facet_wrap(df_block_f0$block) +
   theme_ggstatsplot()
 
-##byf.shapiro(recording_f0 ~ block, 
-            ##data = df_block_f0)
+byf.shapiro(recording_f0 ~ block, 
+            data = df_block_f0)
 
 #Balance of the design
 ezDesign(df_block_f0, x = block, y = subj) 
@@ -548,8 +548,8 @@ df_block_vot %>%
   facet_wrap(df_block_vot$block) +
   theme_ggstatsplot()
 
-##byf.shapiro(recording_vot ~ block, 
-            ##data = df_block_vot)
+byf.shapiro(recording_vot ~ block, 
+            data = df_block_vot)
 
 #Balance of the design
 ezDesign(df_block_vot, x = block, y = subj) 
