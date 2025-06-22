@@ -349,7 +349,7 @@ for subj_idx= 1:length(dircont_subj)
     fill3([xi, fliplr(xi)], ...
           [y, fliplr(y)], ...
           [density, zeros(size(density))], ...
-          main_blue, 'FaceAlpha', 0.5, 'EdgeColor', main_blue); 
+          main_blue, 'FaceAlpha', 0.1, 'EdgeColor', main_blue); 
     plot3(xi, y, density,'Color' ,main_blue, 'LineWidth', 1.5); 
 
     % Plot probe F0 values
@@ -377,4 +377,6 @@ yticklabels(subj_labels);
 
 % Save plot
 saveas(gcf,fullfile(OUTPATH, 'tid_psam_all_z_f0_distribution.png'))
+saveas(gcf,fullfile(OUTPATH, 'tid_psam_all_z_f0_distribution.fig'))
+
 
