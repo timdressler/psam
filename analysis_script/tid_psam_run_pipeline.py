@@ -15,6 +15,7 @@ Master script for running the full analysis pipeline for the PSAM project across
 Pipeline overview:
 - tid_psam_set_markers.m (MATLAB)
 - tid_psam_beh_preprocessing_1.praat (Praat)
+- tid_psam_ica_preprocessing.m (MATLAB)
 - tid_psam_erp_preprocessing.m (MATLAB)
 - tid_psam_svm_preprocessing.m (MATLAB)
 - tid_psam_beh_preprocessing_2.m (MATLAB)
@@ -73,6 +74,7 @@ MAINPATH = os.path.abspath(os.path.join(SCRIPTPATH, '..'))
 RSCRIPT_EXE = r"C:\Program Files\R\R-4.5.0\bin\Rscript.exe" # Path to Rscript.exe
 
 SKIP_SCRIPTS = [ # Manually excluded scripts. Example: "tid_psam_erp_analysis.m", "tid_psam_questionnaire_analysis.R", ...
+"tid_psam_ica_preprocessing.m", "tid_psam_beh_preprocessing_1.praat"
 ]
     
 
