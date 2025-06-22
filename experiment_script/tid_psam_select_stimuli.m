@@ -1,8 +1,6 @@
 % tid_psam_select_stimuli.m
 %
 % Selects stimuli for main experiment.
-% Has to be executed AFTER tid_psam_create_conditions_file.m,
-%   tid_psam_stimuli_recording_adapted.py and tid_psam_prepare_stimuli.praat.
 %
 % Selection Process:
     % Reads in f0 table 

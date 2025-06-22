@@ -1,9 +1,6 @@
 % tid_psam_determine_loudness.m
 %
 % Plays selected stimuli to determine a pleasant loudness.
-% Has to be executed AFTER tid_psam_create_conditions_file.m,
-%   tid_psam_stimuli_recording_adapted.py, tid_psam_prepare_stimuli.praat
-%   and tid_psam_select_stimuli.m.
 %
 % Tim Dressler, 30.03.2025
 
