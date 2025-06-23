@@ -478,8 +478,8 @@ hold off
 for cond_num = 1:length(grandaverage_erp_cor)
     topo_2_plot = grandaverage_erp_cor{cond_num,1};
     all_topo_2_plot(:,cond_num) = mean(topo_2_plot(:,win_start:win_end),2);
-    cb_lim_lower = min(all_topo_2_plot, [], 'all')-1;
-    cb_lim_upper = max(all_topo_2_plot, [], 'all')+3;
+    cb_lim_lower = min(all_topo_2_plot, [], 'all');
+    cb_lim_upper = max(all_topo_2_plot, [], 'all')+5;
 end
 
 % Set up indices for Topoplots in Subplot
