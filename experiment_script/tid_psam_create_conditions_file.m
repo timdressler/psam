@@ -1,8 +1,6 @@
 % tid_psam_create_conditions_file.m
 %
 % Creates BIDS-inspired folder structure and conditions file.
-% Has to be executed BEFORE tid_psam_create_conditions_file.m,
-%   tid_psam_stimuli_recording_adapted.py and tid_psam_prepare_stimuli.praat.
 %
 % The pseudorandomization ensures that task conditions are shuffled while
 % maintaining constraints on consecutive repetitions.
