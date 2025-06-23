@@ -107,7 +107,7 @@ df_fal$var9_sleep_assessment <- recode(df_fal$var9_sleep_assessment, '1' = "norm
 df_fal$var10_alcohol_yesterday <- recode(df_fal$var10_alcohol_yesterday, '1' = "yes", '2' = "no")
 df_fal$var11_alcohol_today <- recode(df_fal$var11_alcohol_today, '1' = "yes", '2' = "no")
 df_fal$var12_smoking <- recode(df_fal$var12_smoking, '0' = "non-smoker", '1' = "little", '2' = "normal", '3' = "heavy")
-df_fal$var13_coffee_and_other <- recode(df_fal$var13_coffee_and_other, '0' = "little/none", '2' = "normal", '3' = "much")
+df_fal$var13_coffee_and_other <- recode(df_fal$var13_coffee_and_other, '0' = "no coffee",'1' = "little", '2' = "normal", '3' = "much")
 df_fal$var15_currently_neuro_treatment <- recode(df_fal$var15_currently_neuro_treatment, '1' = "yes", '2' = "no")
 df_fal$var16_earlier_neuro_treatment <- recode(df_fal$var16_earlier_neuro_treatment, '1' = "yes", '2' = "no")
 df_fal$var17_other_treatment <- recode(df_fal$var17_other_treatment, '1' = "yes", '2' = "no")
