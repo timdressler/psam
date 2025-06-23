@@ -215,7 +215,7 @@ for subj_idx= 1:length(dircont_subj)
         data_hilbert(freq_band_num).hilbert_transformed_epochs_clean = EEG.data;
 
         % Save data
-        save(fullfile(OUTPATH, [subj '_hilbert_preparation_clean.mat']),'data_hilbert', 'freq_bands')
+        save(fullfile(OUTPATH, [subj '_hilbert_prepared_clean.mat']),'data_hilbert', 'freq_bands')
     end
 
     % Update Protocol
@@ -232,7 +232,7 @@ end
 % End of processing
 
 protocol = cell2table(protocol, 'VariableNames',{'subj','time', 'status'})
-writetable(protocol,fullfile(OUTPATH, 'tid_psam_hilbert_preparation.xlsx'))
+writetable(protocol,fullfile(OUTPATH, 'tid_psam_hilbert_preparation_protocol.xlsx'))
 
 if ~isempty(marked_subj)
     marked_subj = cell2table(marked_subj, 'VariableNames',{'subj','issue'})

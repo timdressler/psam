@@ -68,13 +68,6 @@ light_blue = '#5BC5F2';
 light_blue = sscanf(light_blue(2:end),'%2x%2x%2x',[1 3])/255;
 main_yellow = '#FDC300';
 main_yellow = sscanf(main_yellow(2:end),'%2x%2x%2x',[1 3])/255;
-% Concatinate colors
-colors = {
-    main_yellow;
-    main_red;
-    main_green;
-    main_blue;
-    };
 
 % Get directory content
 dircont_subj = dir(fullfile(INPATH, 'sub-*_clean.set'));
@@ -424,7 +417,15 @@ delete(wb); close all;
 close all
 
 % Plot: ERPs for all conditions with Topoplots
-% Create ERP plot
+% Concatinate colors
+colors = {
+    main_yellow;
+    main_red;
+    main_green;
+    main_blue;
+    };
+
+% Create plot
 figure('Units', 'normalized', 'Position', [0 0.0500 1 0.8771]);
 sgtitle('Corrected ERPs and Topoplots for all Conditions')
 subplot(3,4,5:6)
@@ -501,6 +502,7 @@ colors = {
     main_red;
     main_green;
     };
+
 % Create plot
 figure('Units', 'normalized', 'Position', [0 0.0500 1 0.8771]);
 sgtitle('Uncorrected, Corrected and Control ERPs for all Conditions')

@@ -102,7 +102,7 @@ for subj_idx= 1:length(dircont_subj)
     EEG = pop_loadset('filename',[subj '_svm_preprocessed_clean.set'],'filepath',INPATH);
 
     % Load epoched Hilbert transformed data
-    load(fullfile(INPATH_HILBERT, [subj '_hilbert_preparation_clean.mat'])) % loads variable 'data_hilbert' and 'freq_bands'
+    load(fullfile(INPATH_HILBERT, [subj '_hilbert_prepared_clean.mat'])) % loads variable 'data_hilbert' and 'freq_bands'
 
     % Remove EOG channels as they are not used for classification
     EEG = pop_select( EEG, 'rmchannel',EOG_CHAN);
