@@ -4,9 +4,6 @@
 #
 # Tim Dressler, 18.04.25
 
-# NOTES
-# byf.shapiro currently commented out due to small pilot data set not working with it 
-
 #-------------------------------------Set up------------------------------------
 # Load packages
 library(tidyr) 

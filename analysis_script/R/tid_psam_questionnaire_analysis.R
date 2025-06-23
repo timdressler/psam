@@ -350,7 +350,6 @@ ezPlot(
   , wid = subj  
   , within= .(break_num)
   , x = .(break_num)
-  , type = 3
 )
 
 # Descriptive statistics

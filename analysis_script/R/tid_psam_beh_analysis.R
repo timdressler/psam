@@ -4,10 +4,6 @@
 #
 # Tim Dressler, 18.04.25
 
-# NOTES
-# Check ANOVA Type before running, for some cases I changed the type from III to I in order for it to run with the limited amount of pilot data
-# byf.shapiro currently commented out due to small pilot data set not working with it 
-
 #-------------------------------------Set up------------------------------------
 # Load packages
 library(tidyr) 
@@ -465,7 +461,6 @@ ezPlot(
   , wid = subj  
   , within= .(block)
   , x = .(block)
-  , type = 1
 )
 
 # Descriptive statistics
@@ -523,7 +518,6 @@ ezPlot(
   , wid = subj  
   , within= .(block)
   , x = .(block)
-  , type = 1
 )
 
 # Descriptive statistics

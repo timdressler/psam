@@ -359,7 +359,7 @@ sig_prop_df.to_excel(os.path.join(OUTPATH, 'all_subj_accuracy_proportions.xlsx')
 
 # End of processing
 protocol_df = pd.DataFrame(protocol, columns=['subj', 'time', 'status'])
-protocol_df.to_excel(os.path.join(OUTPATH, 'svm_analysis_protocol.xlsx'), index=False)
+protocol_df.to_excel(os.path.join(OUTPATH, 'tid_psam_svm_analysis_protocol.xlsx'), index=False)
 
 check_done = "tid_psam_svm_analysis_DONE"
 print(check_done)
