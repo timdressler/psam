@@ -302,7 +302,7 @@ P1
 
 # Save plot
 ggsave(
-  filename = "tid_psam_erp.png", 
+  filename = "tid_psam_erp_amp.png", 
   plot = P1,
   width = 8,      
   height = 6,     
@@ -440,4 +440,13 @@ P4 <- ggplot(df_erp, aes(x = task_instruction, y = erp_lat, color = probe_type, 
                               "Passive" = "Passive Task Condition"))
 P4
 
+# Save plot
+ggsave(
+  filename = "tid_psam_erp_lat.png", 
+  plot = P3,
+  width = 8,      
+  height = 6,     
+  dpi = 300,
+  bg = "white"
+)
 

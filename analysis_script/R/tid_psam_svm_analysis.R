@@ -24,6 +24,8 @@ library(tidyverse)
 library(psych)
 library(rstatix)
 library(RVAideMemoire)
+library(effectsize)
+library(smplot2)
 
 rm(list=ls())
 set.seed(123)
@@ -121,6 +123,30 @@ byf.shapiro(percent_above_chance ~ feature_extraction_window,
 # - Normal distribution:  
 #------------------------------------------------------------------------------#
 
+# MAIN_SVM1_ALT
+# Wilcoxon Signed-Rank Test (DV = Percentage of above chance level performing hyperparameter pairs, within = Temporal window (early, late))
+# Analysis MAIN_SVM1_ALT concerns how the percentage of above chance level performing hyperparameter pairs is influenced by the time window used for extracting the features. 
+# Since the assumptions were not met for MAIN_SVM1, a non-parametric alternative is used.
+MAIN_SVM1_ALT <- wilcox.test(df_svm_wide$prop_sig_early, df_svm_wide$prop_sig_late, paired = TRUE)
+MAIN_SVM1_ALT
+
+MAIN_SVM1_ES_ALT <- effectsize::rank_biserial(df_svm_wide$prop_sig_early, df_svm_wide$prop_sig_late, paired = TRUE)
+MAIN_SVM1_ES_ALT
+
+# Plot: Probe F0 by probe-type
+ggplot(df_svm, aes(x = feature_extraction_window, y = percent_above_chance, fill = feature_extraction_window)) +
+  geom_boxplot(show.legend = T) +  
+  theme_ggstatsplot() 
+
+# Descriptive statistics
+psych::describeBy(df_svm$percent_above_chance,
+                  group = df_svm$feature_extraction_window)
+
+#------------------------------------------------------------------------------#
+#
+#
+#------------------------------------------------------------------------------#
+
 # SVM2 # SVM3
 # Descriptive only
 # Analysis SVM2 concerns the chance-level thresholds for each subject.
@@ -133,4 +159,35 @@ describe(df_svm_wide)
 #
 #
 #------------------------------------------------------------------------------#
+
+#-------------------------------------Plots-------------------------------------
+
+# Plot 1: 
+P1 <- df_svm %>%
+  ggplot(aes(x = feature_extraction_window, y = percent_above_chance*100, fill = feature_extraction_window)) + # *100 to convert to percent
+  sm_raincloud(boxplot.params = list(fill = "white", outlier.shape = NA), violin.params = list(alpha = .6)
+               , point.params = list(), legends = F) +
+  scale_fill_manual(values = c(colors$main_yellow, colors$main_blue)) +
+  scale_x_discrete(labels = c('prop_sig_early' = 'Early Window', 'prop_sig_late' = 'Late Window')) +
+  scale_y_continuous(n.breaks = 3) +
+  labs(x = NULL, y = "Percentage of possible Hyperparameter-Pairs leading to an above-chance Classification") +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 12)) +
+  theme(axis.text.y = element_text(size = 12)) +
+  theme(axis.title.x = element_text(size = 12)) +
+  theme(axis.title.y = element_text(size = 12)) +
+  theme(legend.position="none") +
+  geom_signif(comparisons=list(c("prop_sig_early", "prop_sig_late")), annotations="n.s.",
+              y_position = 100, tip_length = 0.02,  vjust=0.4) 
+P1
+
+# Save plot
+ggsave(
+  filename = "tid_psam_hyperparamters_violin.png", 
+  plot = P3,
+  width = 8,      
+  height = 6,     
+  dpi = 300,
+  bg = "white"
+)
 
