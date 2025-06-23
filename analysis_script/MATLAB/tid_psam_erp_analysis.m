@@ -53,8 +53,8 @@ EVENTS = {'act_early_unalt', 'act_early_alt', 'act_late_unalt', 'act_late_alt', 
 CON_EVENTS = {'con_act_early', 'con_act_late', ...
     'con_pas_early', 'con_pas_late'};
 CHANI = 1; % Channel to plot ERP from
-ERP_FROM = 80;
-ERP_TILL = 130;
+ERP_FROM = 90; % was 30
+ERP_TILL = 140; % was 130
 INDIVIDUAL_PLOTS = true; % Whether or not to create individual ERP plots and Topoplots
 
 % Set colors
@@ -68,6 +68,13 @@ light_blue = '#5BC5F2';
 light_blue = sscanf(light_blue(2:end),'%2x%2x%2x',[1 3])/255;
 main_yellow = '#FDC300';
 main_yellow = sscanf(main_yellow(2:end),'%2x%2x%2x',[1 3])/255;
+% Concatinate colors
+colors = {
+    main_yellow;
+    main_red;
+    main_green;
+    main_blue;
+    };
 
 % Get directory content
 dircont_subj = dir(fullfile(INPATH, 'sub-*_clean.set'));
