@@ -316,14 +316,16 @@ psych::describeBy(df_probe_f0$recording_f0,
 # BEH3
 # rmANOVA (DV = F0 value, Within = Probe-type (unaltered, altered), Probe-onset (early, late)) 
 # Analysis BEH3 concerns how the F0 of the vocal responses during the experiment is influenced by probe-type and probe-onset.
-BEH3 <- ezANOVA(
-  data = df_probe_type_onset_f0,
-  dv = .(recording_f0),
-  wid = .(subj),
-  within = .(probe_type, probe_onset_cat),
-  type = 3
-)
+BEH3 <- aov_ez(id = "subj",
+                dv = "recording_f0",
+                data = df_probe_type_onset_f0,
+                within = c("probe_type", "probe_onset_cat"),
+                type = 3)
 summary(BEH3)
+
+
+BEH3_ES <- BEH3$anova_table
+BEH3_ES
 
 # Plot: F0 by probe-onset and probe-type
 ezPlot(
@@ -453,6 +455,9 @@ BEH5 <- aov_ez(id = "subj",
                type = 3)
 summary(BEH5)
 
+BEH5_ES <- BEH5$anova_table
+BEH5_ES
+
 
 # Plot: Vocal onset time by probe-onset and probe-type
 ezPlot(
@@ -512,6 +517,8 @@ BEH6 <- aov_ez(id = "subj",
                type = 3)
 summary(BEH6)
 
+BEH6_ES <- BEH6$anova_table
+BEH6_ES
 
 # Plot: Vocal onset time by probe-onset and probe-type
 ezPlot(
@@ -569,6 +576,9 @@ BEH7 <- aov_ez(id = "subj",
                within = c("block"),
                type = 3)
 summary(BEH7)
+
+BEH7_ES <- BEH7$anova_table
+BEH7_ES
 
 # Plot: Vocal onset time by probe-onset and probe-type
 ezPlot(

@@ -283,6 +283,8 @@ SAM17 <- aov_ez(id = "subj",
                type = 3)
 summary(SAM17)
 
+SAM17_ES <- SAM17$anova_table
+SAM17_ES
 
 # Plot: Vocal onset time by probe-onset and probe-type
 ezPlot(
@@ -335,13 +337,15 @@ ezDesign(df_sam_long, x = break_num, y = subj)
 # SAM18
 # rmANOVA (DV = Mood, Within = Break (1,2,3,4,5,6,7,8)) 
 # Analysis SAM18 concerns how the tiredness dimension of the SAM is influenced by the block/break.
-SAM17 <- aov_ez(id = "subj",
+SAM18 <- aov_ez(id = "subj",
                 dv = "tiredness",
                 data = df_sam_long,
                 within = c("break_num"),
                 type = 3)
-summary(SAM17)
+summary(SAM18)
 
+SAM18_ES <- SAM18$anova_table
+SAM18_ES
 
 # Plot: Vocal onset time by probe-onset and probe-type
 ezPlot(
@@ -359,9 +363,9 @@ psych::describeBy(
 )
 
 # Follow-Up T-Tests
-SAM17_EM <- emmeans(SAM17, ~ break_num)
-SAM17_PWC <- pairs(SAM17_EM, adjust = "bonferroni")
-SAM17_PWC
+SAM18_EM <- emmeans(SAM18, ~ break_num)
+SAM18_PWC <- pairs(SAM18_EM, adjust = "bonferroni")
+SAM18_PWC
 
 # Assupmtions 
 # Sphericity
