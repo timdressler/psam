@@ -172,7 +172,7 @@ for subj_idx= 1:length(dircont_subj)
         colormap("parula")
         cb = colorbar;
         clim([CB_LIM_LOWER CB_LIM_UPPER]);
-        cb.Label.String = 'Correlation (r)';
+        cb.Label.String = 'Correlation [r]';
 
         subplot(122)
         topoplot(cell2mat(feature_late_data(:,1)), EEG.chanlocs);
@@ -180,7 +180,7 @@ for subj_idx= 1:length(dircont_subj)
         colormap("parula")
         cb = colorbar;
         clim([CB_LIM_LOWER CB_LIM_UPPER]);
-        cb.Label.String = 'Correlation (r)';
+        cb.Label.String = 'Correlation [r]';
 
         sgtitle([subj ' - Correlation of ' feature_early_name ' and Outcome'])
 

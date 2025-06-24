@@ -9,7 +9,7 @@ function tid_psam_plot_rms_bins_TD(EEG, titlestr, varargin)
 %
 % Inputs:
 %   EEG - EEG dataset structure from EEGLAB (containing EEG.data and EEG.srate)
-%   titlestr - a string used for the title of the plot.
+%   titlestr - a string used for the title of the plot
 %
 % Optional Inputs:
 %   'BinDuration' - Bin duration in seconds (default: 10 seconds)
@@ -67,6 +67,7 @@ if isfield(EEG, 'chanlocs') && ~isempty([EEG.chanlocs.labels])
     chanLabels = {EEG.chanlocs.labels};
 else
     chanLabels = arrayfun(@num2str, 1:numChannels, 'UniformOutput', false);
+    warning('No channel labels found. Using default numeric labels instead.')
 end
 
 % Plot the RMS matrix if requested

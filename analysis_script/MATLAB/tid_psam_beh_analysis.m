@@ -1,20 +1,22 @@
 % tid_psam_beh_analysis.m
 %
-% Performs analysis of vocal data.
+% Performs analysis of behavioural (vocal) data.
 %
 % Processing includes the following steps
 %
-    % Plots each subjects' z-transformed F0 values of vocal responses relative
-    %   to the F0 values of each subjects' probes
-    % Plots each subjects' z-transformed F0 values of vocal responses relative
-    %   to the F0 values of each subjects' probes for each block (in one plot
-    %   and in a subplot)
-    % Plots each subjects' z-transformed F0 values of vocal responses for
-    %   trials including no probe, an unaltered probe and an altered probe
-    % Plots each subject vocal onset time for no-probe trials and probe
-    %   trials, for trials including early and late probes and for all
-    %   trials
-    % Plots F0 distribution and probe F0 values across all participants
+%   Plots each subjects' z-transformed F0 values of vocal responses relative
+%       to the F0 values of each subjects' probes
+%   Plots each subjects' z-transformed F0 values of vocal responses relative
+%       to the F0 values of each subjects' probes for each block (in one plot
+%       and in a subplot)
+%   Plots each subjects' z-transformed F0 values of vocal responses for
+%       trials including no probe, an unaltered probe and an altered probe
+%   Plots each subject vocal onset time for no-probe trials and probe
+%       trials, for trials including early and late probes and for all
+%       trials
+%   Plots F0 distribution and probe F0 values across all participants
+%
+% Saves plots
 %
 % Tim Dressler, 07.04.2025
 
@@ -177,7 +179,7 @@ for subj_idx= 1:length(dircont_subj)
             xline(beh_clean.probe_f0_unaltered_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
             xline(beh_clean.probe_f0_altered_z(1), 'r--', 'LineWidth', 2); % F0 altered probe
 
-            xlabel('F0 [Z-Transformed]');
+            xlabel('F0 [z]');
             ylabel('Density');
             title(['Z-transformed F0 Distribution for Block ' num2str(block_idx) ' n_trials = ' num2str(length(block_data))]);
             grid on;
@@ -204,7 +206,7 @@ for subj_idx= 1:length(dircont_subj)
         xline(beh_clean.probe_f0_unaltered_z(1), 'k--', 'LineWidth', 2); % F0 unaltered probe
         xline(beh_clean.probe_f0_altered_z(1), 'r--', 'LineWidth', 2); % F0 altered probe
 
-        xlabel('F0 [Z-Transformed]');
+        xlabel('F0 [z]');
         ylabel('Density');
         title(['Z-transformed F0 Distribution of Vocal Responses after different Probe Types and F0 Values for Probes for ' subj]);
 
@@ -340,17 +342,17 @@ for subj_idx= 1:length(dircont_subj)
     f0_data = all_recording_f0_z{subj_idx_f0,2}';
     [density, xi] = ksdensity(f0_data, x);
 
-    % Z-transformed Probe values 
+    % Z-transformed Probe values
     unaltered_probe = all_probe_f0_z{subj_idx_probe,2};
     altered_probe = all_probe_f0_z{subj_idx_probe,3};
 
-    % Plot F0 distribution 
+    % Plot F0 distribution
     y = subj_idx * ones(size(xi)); % Create Y-axis vector (same for whole curve)
     fill3([xi, fliplr(xi)], ...
-          [y, fliplr(y)], ...
-          [density, zeros(size(density))], ...
-          main_blue, 'FaceAlpha', 0.1, 'EdgeColor', main_blue); 
-    plot3(xi, y, density,'Color' ,main_blue, 'LineWidth', 1.5); 
+        [y, fliplr(y)], ...
+        [density, zeros(size(density))], ...
+        main_blue, 'FaceAlpha', 0.1, 'EdgeColor', main_blue);
+    plot3(xi, y, density,'Color' ,main_blue, 'LineWidth', 1.5);
 
     % Plot probe F0 values
     plot3([unaltered_probe unaltered_probe], [subj_idx subj_idx], [0 max(density)], '--', 'Color','k', 'LineWidth', 1.2);
@@ -358,7 +360,7 @@ for subj_idx= 1:length(dircont_subj)
         'LineWidth', 1.2);
 end
 
-xlabel('F0 [Z-Transformed]');
+xlabel('F0 [z]');
 %%ylabel('Subject');
 zlabel('Density');
 title('F0 Distributions and Probe F0s Across Subjects');
