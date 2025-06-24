@@ -210,11 +210,9 @@ psych::describeBy(
 MAIN_ERP2_FUT <- emmeans(MAIN_ERP2, ~ probe_type | probe_onset_cat)
 contrast(MAIN_ERP2_FUT, method = "pairwise", adjust = "bonferroni")
 
-
-
 # Assumptions
-performance::check_convergence(MAIN_ERP1)
-performance::check_model(MAIN_ERP1)
+performance::check_convergence(MAIN_ERP2)
+performance::check_model(MAIN_ERP2)
 
 #------------------------------------------------------------------------------#
 #
@@ -323,7 +321,7 @@ P2 <- ggplot(df_psam, aes(x = probe_onset_cat, y = psam_amp, color = probe_type,
     labs(
     title = "PSAM Effect Amplitudes by Probe Type and Probe Onset",
     y = "PSAM Effect Amplitude (µV)",
-    x = NULL,
+    x = "Probe Onset",
     color = "Probe Type"
   ) +
   theme_minimal(base_size = 10) +
@@ -331,8 +329,8 @@ P2 <- ggplot(df_psam, aes(x = probe_onset_cat, y = psam_amp, color = probe_type,
     strip.text = element_text(face = "bold", size = 13),
     legend.position = "top"
   ) + 
-  scale_x_discrete(labels = c("Early" = "Early Probe Onset",
-                              "Late" = "Late Probe Onset"))
+  scale_x_discrete(labels = c("Early" = "Early",
+                              "Late" = "Late"))
 P2
 
 # Save plot
@@ -443,7 +441,7 @@ P4
 # Save plot
 ggsave(
   filename = "tid_psam_erp_lat.png", 
-  plot = P3,
+  plot = P4,
   width = 8,      
   height = 6,     
   dpi = 300,

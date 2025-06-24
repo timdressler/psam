@@ -636,13 +636,36 @@ psych::describeBy(
 )
 
 
+#-------------------------------------Plots-------------------------------------
 
+# Plot 1: ERP Amplitudes by Probe Type, Task Instruction, and Probe Onset
+P1 <- df_probe_properties_z %>%
+  ggplot(aes(x = probe_type, y = f0_z, fill = probe_type)) +
+  scale_fill_manual(values = c(colors$main_red, colors$main_blue), name = "Probe Type") +
+  geom_boxplot(width=0.5, alpha = 1) +
+  scale_x_discrete(limits=c("probe_f0_unaltered_z","probe_f0_altered_z"), labels = c('probe_f0_unaltered_z' = 'Unaltered', 'probe_f0_altered_z' = 'Altered')) +
+  scale_y_continuous(n.breaks = 8) +
+  labs(x = "Probe Type", y = "F0 [z]") +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 12)) +
+  theme(axis.text.y = element_text(size = 12)) +
+  theme(axis.title.x = element_text(size = 12)) +
+  theme(axis.title.y = element_text(size = 12)) +
+  theme(legend.position = "none") +
+  geom_signif(comparisons=list(c("probe_f0_altered_z", "probe_f0_unaltered_z")), annotations="***",
+              y_position = 5.5, tip_length = 0.02,  vjust=0.4) 
 
+P1
 
-
-
-
-
+# Save plot
+ggsave(
+  filename = "tid_psam_probe_z_f0.png", 
+  plot = P1,
+  width = 8,      
+  height = 6,     
+  dpi = 300,
+  bg = "white"
+)
 
 
 

@@ -1,3 +1,13 @@
+# tid_psam_check_folder_TD - Checks if the specified folder paths exist. If a path does not exist, the function creates it.
+#
+# Usage:
+#   tid_psam_check_folder_TD('Path1', 'Path2', ...)
+#
+# Inputs:
+#   ... - any number of folder paths as strings
+#
+# Tim Dressler, 29.05.2025
+
 tid_psam_check_folder_TD <- function(...) {
   folders <- list(...)
   

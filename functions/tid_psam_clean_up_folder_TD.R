@@ -1,3 +1,20 @@
+# tid_psam_clean_up_folder_TD - Moves files to a timestamped archive subfolder within an "archive" folder
+#
+# Usage:
+#   tid_psam_clean_up_folder_TD('Path')
+#
+# Input:
+#   folderPath - The path of the folder to check and clean up.
+#
+# Description:
+#   This function checks if a specified folder is empty. If the folder
+#   contains any files, it ensures an "archive" folder exists within the
+#   specified folder, creates a new subfolder named archive_DD_MM_YYYY_HH-MM-SS
+#   inside the archive folder, and moves all files from the original folder
+#   to this new archive subfolder.
+#
+# Tim Dressler, 29.05.2025
+
 tid_psam_clean_up_folder_TD <- function(folder_path) {
   if (!dir.exists(folder_path)) {
     stop("Specified folder does not exist.")
