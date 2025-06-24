@@ -284,14 +284,45 @@ byf.shapiro(recording_f0 ~ probe,
 # - Normal distribution:  
 #------------------------------------------------------------------------------#
 
+
+# BEH2_ALT
+# Wilcoxon Signed-Rank Test (DV = F0 value, within = Probe (Yes, No))
+# Analysis BEH2_ALT concerns how the F0 of the vocal responses during the experiment is influenced by a probe being presented.
+# Since the assumptions were not met for BEH2, a non-parametric alternative is used.
+BEH2_ALT <- wilcox.test(df_probe_f0_wide$No,
+                             df_probe_f0_wide$Yes,
+                             paired = TRUE)
+BEH2_ALT
+
+BEH2_ES_ALT <- effectsize::rank_biserial(df_probe_f0_wide$No,
+                                         df_probe_f0_wide$Yes,
+                                         paired = TRUE)
+BEH2_ES_ALT
+
+# Plot: F0 by probe
+ggplot(df_probe_f0, aes(x = probe, y = recording_f0, fill = probe)) +
+  geom_boxplot(show.legend = T) +  
+  theme_ggstatsplot() 
+
+# Descriptive statistics
+psych::describeBy(df_probe_f0$recording_f0,
+                  group = df_probe_f0$probe)
+
+#------------------------------------------------------------------------------#
+#
+#
+#------------------------------------------------------------------------------#
+
 # BEH3
 # rmANOVA (DV = F0 value, Within = Probe-type (unaltered, altered), Probe-onset (early, late)) 
 # Analysis BEH3 concerns how the F0 of the vocal responses during the experiment is influenced by probe-type and probe-onset.
-BEH3 <- aov_ez(id = "subj",
-                dv = "recording_f0",
-                data = df_probe_type_onset_f0,
-                within = c("probe_type", "probe_onset_cat"),
-                type = 3)
+BEH3 <- ezANOVA(
+  data = df_probe_type_onset_f0,
+  dv = .(recording_f0),
+  wid = .(subj),
+  within = .(probe_type, probe_onset_cat),
+  type = 3
+)
 summary(BEH3)
 
 # Plot: F0 by probe-onset and probe-type
@@ -382,6 +413,34 @@ byf.shapiro(recording_vot ~ probe,
 
 # Assumptions
 # - Normal distribution:  
+#------------------------------------------------------------------------------#
+
+# BEH4_ALT
+# Wilcoxon Signed-Rank Test (DV = Vocal onset time, within = Probe (Yes, No))
+# Analysis BEH4_ALT concerns how the vocal onset time is influenced by a probe being presented.
+# Since the assumptions were not met for BEH4, a non-parametric alternative is used.
+BEH4_ALT <- wilcox.test(df_probe_vot_wide$No,
+                        df_probe_vot_wide$Yes,
+                        paired = TRUE)
+BEH4_ALT
+
+BEH4_ES_ALT <- effectsize::rank_biserial(df_probe_vot_wide$No,
+                                         df_probe_vot_wide$Yes,
+                                         paired = TRUE)
+BEH4_ES_ALT
+
+# Plot: vot by probe
+ggplot(df_probe_vot, aes(x = probe, y = recording_vot, fill = probe)) +
+  geom_boxplot(show.legend = T) +  
+  theme_ggstatsplot() 
+
+# Descriptive statistics
+psych::describeBy(df_probe_vot$recording_vot,
+                  group = df_probe_vot$probe)
+
+#------------------------------------------------------------------------------#
+#
+#
 #------------------------------------------------------------------------------#
 
 # BEH5
