@@ -15,17 +15,17 @@
 %
 % Preprocessing includes the following steps
 %
-    % Load data and data set containing ICA weights (see
-    %   tid_psam_ica_preprocessing.m)
-    % Rename events
-    % Apply a 30 Hz LP-Filter
-    % Remove bad channels as identified in tid_psam_ica_preprocessing.m
-    % Attach ICA weights and remove bad components previously indentified using the ICLabel Plugin
-    %   (Pion-Tonachini et al., 2019)
-    % Interpolate bad (and removed) channels
-    % Epoch data around probe events (see above)
-    % Apply baseline correction
-    % Mark bad epochs based on probability
+%   Load data and data set containing ICA weights (see
+%       tid_psam_ica_preprocessing.m)
+%   Rename events
+%   Apply a 30 Hz LP-Filter
+%   Remove bad channels as identified in tid_psam_ica_preprocessing.m
+%   Attach ICA weights and remove bad components previously indentified using the ICLabel Plugin
+%       (Pion-Tonachini et al., 2019)
+%   Interpolate bad (and removed) channels
+%   Epoch data around probe events (see above)
+%   Apply baseline correction
+%   Tag bad epochs based on probability
 %
 % Saves data
 %
@@ -128,7 +128,7 @@ for subj_idx= 1:length(dircont_subj)
     EEG.chanlocs = readlocs( fullfile(MAINPATH,'\config\elec_96ch_adapted.elp'));
     EEG = eeg_checkset( EEG );
 
-    % Add type = EOG for EOG electrodes 
+    % Add type = EOG for EOG electrodes
     eog_chani = find(ismember({EEG.chanlocs.labels}, EOG_CHAN));
     [EEG.chanlocs(eog_chani).type] = deal('EOG');
     EEG = eeg_checkset( EEG );
@@ -197,7 +197,7 @@ for subj_idx= 1:length(dircont_subj)
 
     % Baseline-Removal
     EEG = pop_rmbase( EEG, [BL_FROM 0] ,[]);
-    
+
     % Probability-based removal
     EEG = pop_jointprob(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
     EEG = pop_rejkurt(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);

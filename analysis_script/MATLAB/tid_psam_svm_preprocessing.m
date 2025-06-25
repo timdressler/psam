@@ -4,17 +4,17 @@
 %
 % Preprocessing includes the following steps
 %
-    % Load data and data set containing ICA weights (see
-    %   tid_psam_ica_preprocessing.m)
-    % Rename events
-    % Apply a 30 Hz LP-Filter
-    % Remove bad channels as identified in tid_psam_ica_preprocessing.m
-    % Attach ICA weights and remove bad components previously indentified using the ICLabel Plugin
-    %   (Pion-Tonachini et al., 2019)
-    % Interpolate bad (and removed) channels
-    % Epoch data around 'go-signal'
-    % Apply baseline correction
-    % Mark bad epochs based on probability
+%   Load data and data set containing ICA weights (see
+%       tid_psam_ica_preprocessing.m)
+%   Rename events
+%   Apply a 30 Hz LP-Filter
+%   Remove bad channels as identified in tid_psam_ica_preprocessing.m
+%   Attach ICA weights and remove bad components previously indentified using the ICLabel Plugin
+%       (Pion-Tonachini et al., 2019)
+%   Interpolate bad (and removed) channels
+%   Epoch data around 'go-signal'
+%   Apply baseline correction
+%   Mark bad epochs based on probability
 %
 % Saves data
 %
@@ -154,14 +154,14 @@ for subj_idx= 1:length(dircont_subj)
 
     % Attach ICA weight to main data
     EEG = pop_editset(EEG,'run', [], 'icaweights','ALLEEG(1).icaweights', 'icasphere','ALLEEG(1).icasphere');
-   
+
     % Remove previously flagged ICs (see tid_psam_ica_preprocessing.m)
     EEG.reject.gcompreject = flagged_comps;
     EEG = pop_subcomp( EEG, [], 0);
 
     % Interpolate bad channels
     if ~isempty(EEG.badchans)
-        EEG = pop_interp(EEG, EEG.urchanlocs , 'spherical'); 
+        EEG = pop_interp(EEG, EEG.urchanlocs , 'spherical');
     end
 
     % Sanity Check: Plot RMS in 10s bins for each electode

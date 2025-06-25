@@ -4,12 +4,12 @@
 %
 % Preparation includes the following steps
 %
-    % Removes EOG electrodes
-    % Extracts early and late time windows relative to the 'go-signal'
-    % Extract the following features for each epoch, time window and channel
-    %   Mean amplitude, RMS, standard deviation of the amplitude, maximum and minimum amplitude, kurtosis, skewness, and zero-crossing rate
-    %   Bandpower for alpha (8-13 Hz), beta (14 - 30 Hz) and (low) gamma (31 -37 Hz)
-    %   Hjorth Parameters (Activity, Mobility and Complexity)
+%   Removes EOG electrodes
+%   Extracts early and late time windows relative to the 'go-signal'
+%   Extract the following features for each epoch, time window and channel
+%       Mean amplitude, RMS, standard deviation of the amplitude, maximum and minimum amplitude, kurtosis, skewness, and zero-crossing rate
+%       Bandpower for alpha (8-13 Hz), beta (14 - 30 Hz) and (low) gamma (31 -37 Hz)
+%       Hjorth Parameters (Activity, Mobility and Complexity)
 %
 % Saves data
 %

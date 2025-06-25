@@ -11,7 +11,11 @@ function activity = tid_psam_hjorth_activity_TD(signal)
 %   acitivity - the Hjorth Activity [1-by-1], [Channels-by-1] or [Channels-by-Epochs]
 %
 % The Hjorth Activity is defined as the variance of the signal.
-%   For details, see Alawee et al. (2023)
+%   For details, see Alawee et al. (2023). 
+%   Note: In this implementation, variance is consistently calculated using 'n' as the denominator, 
+%   rather than 'n - 1' as suggested by Alawee et al. (2023). 
+%   Alawee et al. (2023) are inconsistent regarding whether 'n' or 'n - 1' 
+%   should be used. Here, we adopt the use of 'n' throughout for consistency.
 %
 % Literature
     % Alawee, W. H., Basem, A., & Al-Haddad, L. A. (2023). 

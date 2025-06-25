@@ -4,19 +4,18 @@
 %
 % Preprocessing includes the following steps
 %
-    % Loads log file and removes not needed columns
-    % Loads vocal data (preprocessed in Praat, see tid_psam_beh_preproecessing_1.praat)
-    % Merges data
-    % Calculates reaction time relative to the 'go-signal' based on the start
-    %   time of the recording
+%   Loads log file and removes not needed columns
+%   Loads vocal data (preprocessed in Praat, see tid_psam_beh_preproecessing_1.praat)
+%   Merges data
+%   Calculates reaction time relative to the 'go-signal' based on the start
+%       time of the recording
+%   Tags trials for exclusion based on the following criteria
+%       If a trial's onset time differs more than 3 SDs from the mean onset time
+%       If a trial's F0 differs more than 3 SDs from the mean F0
+%       If a 'Passive' trial includes a reponses
+%       If a 'Active' trial includes no response
 %
-    %  Marks trials for exclusion based on the following criteria
-    %   If a trial's onset time differs more than 3 SDs from the mean onset time
-    %   If a trial's F0 differs more than 3 SDs from the mean F0
-    %   If a 'Passive' trial includes a reponses
-    %   If a 'Active' trial includes no response
-%
-    % Saves data
+% Saves data
 %
 % Note. Trials are only marked for exclusion but not excluded yet!
 %
@@ -146,7 +145,7 @@ for subj_idx= 1:length(dircont_subj)
         'task'                        'task_instruction';
         'task_marker'                 'task_marker';
         'trial_started'               'trial_started';
-        'conditions_file'             'block';  
+        'conditions_file'             'block';
         };
 
     old_columns = renamed_column(:, 1);
@@ -157,7 +156,7 @@ for subj_idx= 1:length(dircont_subj)
     % Extract block number
     subj_log_clean.block = cellfun(@(x) str2double(regexp(x, '_([0-9]+)\.xlsx$', 'tokens', 'once')), subj_log_clean.block);
 
-     % Sanity Check: Plausible blocks extracted
+    % Sanity Check: Plausible blocks extracted
     if all(ismember( subj_log_clean.block, [1, 2, 3, 4, 5, 6, 7, 8]))
     else
         marked_subj{end+1,1} = subj;

@@ -4,9 +4,9 @@
 %
 % Processing includes the following steps
 %
-%   Perform preprocesing once with and once without filtering (see tid_psam_svm_preprocessing.m, tid_psam_svm_preparation.m)
+%   Perform preprocesing once with and once without filtering (see tid_psam_svm_preprocessing.m)
 %   Excludes markerd trials based on tid_psam_exclude_trials.m
-%   Create plots to illustarte effects of filtering.
+%   Create plots to illustarte effects of filtering (see tid_psam_svm_preparation.m).
 %
 % Saves plots
 %

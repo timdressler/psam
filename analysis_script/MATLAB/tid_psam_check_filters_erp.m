@@ -17,7 +17,7 @@
 %
 %   Perform preprocesing once with and once without filtering (see tid_psam_erp_preprocessing.m)
 %   Excludes markerd trials based on tid_psam_exclude_trials.m
-%   Create plots to illustarte effects of filtering.
+%   Create plots to illustarte effects of filtering (see tid_psam_erp_analsis.m).
 %
 % Saves plots
 %

@@ -4,17 +4,17 @@
 %
 % Preparation includes the following steps
 %
-    % Removes EOG electrodes
-    % Load data and data set containing ICA weights (see
-    %   tid_psam_ica_preprocessing.m)
-    % Rename events
-    % Remove bad channels as identified in tid_psam_ica_preprocessing.m
-    % Attach ICA weights and remove bad components previously indentified using the ICLabel Plugin
-    %   (Pion-Tonachini et al., 2019)
-    % Interpolate bad (and removed) channels
-    % Loop across frequency bands and apply Hilbert transformation
-    % Epoch and remove bad epoch based on the ones identified for the SVM analysis in tid_psam_exclude_trials.m
-    %
+%   Removes EOG electrodes
+%   Load data and data set containing ICA weights (see
+%       tid_psam_ica_preprocessing.m)
+%   Rename events
+%   Remove bad channels as identified in tid_psam_ica_preprocessing.m
+%   Attach ICA weights and remove bad components previously indentified using the ICLabel Plugin
+%       (Pion-Tonachini et al., 2019)
+%   Interpolate bad (and removed) channels
+%   Loop across frequency bands and apply Hilbert transformation
+%   Epoch and remove bad epoch based on the ones identified for the SVM analysis in tid_psam_exclude_trials.m
+%
 % Saves data
 %
 % Tim Dressler, 14.05.2025
@@ -64,7 +64,7 @@ dircont_subj = dir(fullfile(IDPATH, 'sub-*.set'));
 dircont_subj_exclude_trials = dir(fullfile(INPATH_EXCLUDED, 'sub-*.mat'));
 
 % Sanity Check: Same length of directory contents
-if length(dircont_subj) == length(dircont_subj_exclude_trials) 
+if length(dircont_subj) == length(dircont_subj_exclude_trials)
 else
     error('Different number of files')
 end
@@ -91,7 +91,7 @@ for subj_idx= 1:length(dircont_subj)
     subj = dircont_subj(subj_idx).name;
     subj = regexp(subj, 'sub-\d+', 'match', 'once');
 
-    % Get file of to-be excluded trials based on tid_psam_exclude_trials.m 
+    % Get file of to-be excluded trials based on tid_psam_exclude_trials.m
     exclusion_filename = fullfile(INPATH_EXCLUDED,[subj '_excluded_trials.mat']);
     load(exclusion_filename) % loads variables 'excluded_trials_erp_beh' (not used here) and 'excluded_trials_svm' (used here)
 
@@ -165,7 +165,7 @@ for subj_idx= 1:length(dircont_subj)
 
     % Interpolate bad channels
     if ~isempty(EEG.badchans)
-        EEG = pop_interp(EEG, EEG.urchanlocs , 'spherical'); 
+        EEG = pop_interp(EEG, EEG.urchanlocs , 'spherical');
     end
 
     % Sanity Check: Plot RMS in 10s bins for each electode
@@ -173,7 +173,7 @@ for subj_idx= 1:length(dircont_subj)
 
     % Remove EOG channels as they are not used for classification
     EEG = pop_select( EEG, 'rmchannel',EOG_CHAN);
-    
+
     EEG.setname = [subj '_ready_for_Hilbert_transformation'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
@@ -201,7 +201,7 @@ for subj_idx= 1:length(dircont_subj)
 
         % Epoch
         EEG = pop_epoch( EEG, EVENTS, [EPO_FROM        EPO_TILL], 'epochinfo', 'yes');
-    
+
         % Reject bad epochs based on the ones identified for the SVM analysis in tid_psam_exclude_trials.m
         EEG.reject.rejglobal = excluded_trials_svm;
         EEG = pop_rejepoch( EEG, EEG.reject.rejglobal ,0);
