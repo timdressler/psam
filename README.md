@@ -13,7 +13,7 @@ The repository includes analysis code as well as as code used for running the ex
 ### Structure
 
 ```text
-psam
+psam\
 │
 ├── analysis_script\
 │   │
@@ -48,9 +48,8 @@ psam
 │   │   ├── plugin_VocalToolkit\
 │   │   │
 │   │   ├── Praat.exe
-│   │   ├── tid_psam_beh_preprocessing_1
-│   │   ├── tid_psam_prepare_stimuli
-│   │   └── tid_psam_rectangle.wav
+│   │   ├── tid_psam_beh_preprocessing_1.praat
+│   │   └── tid_psam_prepare_stimuli.praat
 │   │
 │   ├── python\
 │   │   └── tid_psam_svm_analysis.py
@@ -58,25 +57,13 @@ psam
 │   └── tid_psam_run_pipeline.py
 │
 ├── config\
-│   ├── elec_96ch.csd
-│   ├── elec_96ch.elp
-│   ├── elec_96ch_adapted.csd
-│   ├── elec_96ch_adapted.csv
-│   └── elec_96ch_adapted.elp
 │
 ├── data\
 │   │
 │   ├── BIDS\
 │   │
-│   ├── analysis_data\
-│   │
-│   ├── processed_data\
-│   │
-│   ├── questionnaire_data\
-│   │
-│   ├── questionnaire_data_clean\
-│   │
-│   └── tid_psam_variables_markers.xlsx
+│   └── questionnaire_data\
+│
 │
 ├── documents\
 │
@@ -107,16 +94,6 @@ psam
 │   └── tid_psam_plot_rms_bins_TD.m
 │
 ├── testing\
-│   ├── stereo_sine_wave.wav
-│   ├── test_rect_44100fs_80ms_1ch.wav
-│   ├── test_rect_44100fs_80ms_2ch.wav
-│   ├── test_rect_48000fs_80ms_1ch.wav
-│   ├── test_rect_48000fs_80ms_2ch.wav
-│   ├── tid_psam_200Hz_sine.wav
-│   ├── tid_psam_create_sine.m
-│   ├── tid_psam_markertest.m
-│   ├── tid_psam_rectangle.wav
-│   └── tid_psam_timingtest.m
 │
 ├── .gitattributes
 ├── .gitignore
@@ -125,16 +102,20 @@ psam
 ```
 - ```anylsis_code``` contains all code relating to the analysis. Individual scripts can be found in the respective subfolders. To run the entire pipeline (which the raw data is needed for), run ```tid_psam_run_pipeline.py```. 
 - ```config``` contains files related to the EEG system. Needed for the analysis.
-- ```data``` contains the data. It is not included here be can be requested. If the data is available, it has to be placed in the path. Note that merely the raw data (```BIDS/``` folder) and the questionnaire data (```questionnaire_data/``` folder) is needed for running the pipeline, all other folders are create automatically.
+- ```data``` contains the data. It is not included here be can be requested. If the data is available, it has to be placed in the path. Note that the raw data (```BIDS/```) and the questionnaire data (```questionnaire_data/```) is needed for running the pipeline. Processed data will be saved automatically in further subfolders under ```data/```.
 - ```documents``` contains documents used during the data collection such as the participant information. Not needed to run any of the code.
 - ```experiment_script``` contains all code related to running the experiment (mainly PsychoPy-based).
 - ```functions``` contains all code related to any self-created and fetched functions. Some can be used independently of this project. Check them out.
 - ```testing``` contains mutiple files related to testing. Not needed to run any of the code.
-- ```requirements.txt``` contains all the libraries used for the python-based analysis scripts. Use ```pip install -r requirements.txt``` to install all needed dependencies.
+- ```requirements.txt``` contains all the libraries used for the python-based analysis scripts. Use ```pip install -r requirements.txt``` to install all needed python dependencies.
 
-Important Note. While the ```requirements.txt``` contains all needed dependencies for running the python-based analysis and ```tid_psam_install_requirements_R.R``` installs all the requirements needed for the R-based analysis, MATLAB dependencies have to be installed manually (see below). ```Praat.exe``` as well as the ```Praat Vocal Processing Toolbox``` are included in the repository. 
+> [!NOTE]  
+> While the ```requirements.txt``` contains all needed dependencies for running the python-based analysis and ```tid_psam_install_requirements_R.R``` installs all the requirements needed for the R-based
+analysis, MATLAB dependencies have to be installed manually (see below). ```Praat.exe``` as well as the ```Praat Vocal Processing Toolbox``` are included in the repository. 
 
 ### Dependecies
+
+This table includes all needed software to run the analysis pipeline. 
 
 ### Usage
 
@@ -146,25 +127,7 @@ Important Note. While the ```requirements.txt``` contains all needed dependencie
 5. Run ```tid_psam_run_pipeline.py``` using VSCode.
 
 
----
 
-## Details
-
-### Theoretical Background
-
-
-### Methods
-
-
-### Results
-
-
-### Discussion
-
-
-
-
----
 
 
 
