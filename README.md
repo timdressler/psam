@@ -58,7 +58,7 @@ psam\
 │
 ├── config\
 │
-├── data\
+├── data\ (not included in this repository, can be requested)
 │   │
 │   ├── BIDS\
 │   │
@@ -119,13 +119,21 @@ This table includes all needed software to run the analysis pipeline.
 
 ### Usage
 
-0. Make sure to have R, RStudio, MATLAB and VSCode installed.
-1. Fetch this repository and clone it.
-2. Run ```pip install -r requirements.txt``` while setting ```psam/``` as your current directory.
-3. Adapt the Path to your ```RScript.exe``` file in ```tid_psam_run_pipeline.py```.
-4. Request the data and copy it into ```psam/``` without changing the folder structure.
-5. Run ```tid_psam_run_pipeline.py``` using VSCode.
+> [!IMPORTANT]
+> It is assumed that Conda, R and MATLAB (and the MATLAB dependecies) are installed! It is recommended that the Pipeline is run using VSCode.
 
+It is recommended to use a dedicated Python environment (e.g. through conda) to mitigate the risk of potential version conflicts.
+
+```
+conda create -n psam python==3.13.4
+conda activate psam
+pip install -r requirements.txt
+```
+
+> [!WARNING]
+> As all scripts are called from ```tid_psam_run_pipeline.py```, the path the ```RScript.exe``` needs to be adapted manually in the script!
+
+After requesting the data copy it into the folder as specified above and run ```tid_psam_run_pipeline.py```.
 
 
 
