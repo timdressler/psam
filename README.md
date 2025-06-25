@@ -117,6 +117,78 @@ analysis, MATLAB dependencies have to be installed manually (see below). ```Praa
 
 This table includes all needed software to run the analysis pipeline. 
 
+| Software         | Version           | Status                     |
+|------------------|-------------------|----------------------------|
+| MATLAB           | R2024a            | Manual Installation needed |
+| R                | 4.5.0             | Manual Installation needed |
+| Python           | 3.13.4            | Manual Installation needed |
+| Praat            | 6.4.27            | Included in the repository, no installation needed |
+
+This table includes all needed R packages to run the analysis pipeline. 
+
+| R Package        | Version   | Status                |
+|------------------|-----------|-----------------------|
+| tidyr            | 1.3.1     | Automatically installed |
+| afex             | 1.4.1     | Automatically installed |
+| emmeans          | 1.11.1    | Automatically installed |
+| readxl           | 1.4.5     | Automatically installed |
+| car              | 3.1.3     | Automatically installed |
+| corrplot         | 0.95      | Automatically installed |
+| dplyr            | 1.1.4     | Automatically installed |
+| ez               | 4.4.0     | Automatically installed |
+| ggplot2          | 3.5.2     | Automatically installed |
+| ggstatsplot      | 0.13.1    | Automatically installed |
+| DescTools        | 0.99.60   | Automatically installed |
+| ggpubr           | 0.6.0     | Automatically installed |
+| ggeffects        | 2.2.1     | Automatically installed |
+| cowplot          | 1.1.3     | Automatically installed |
+| tidyverse        | 2.0.0     | Automatically installed |
+| psych            | 2.5.3     | Automatically installed |
+| rstatix          | 0.7.2     | Automatically installed |
+| rstudioapi       | 0.17.1    | Automatically installed |
+| stringr          | 1.5.1     | Automatically installed |
+| lme4             | 1.1.37    | Automatically installed |
+| performance      | 0.14.0    | Automatically installed |
+
+This table includes all needed Python packages to run the analysis pipeline. 
+
+| Python Package      | Version        | Status                |
+|---------------------|----------------|-----------------------|
+| colorama            | 0.4.6          | Automatically installed |
+| contourpy           | 1.3.2          | Automatically installed |
+| cycler              | 0.12.1         | Automatically installed |
+| et_xmlfile          | 2.0.0          | Automatically installed |
+| fonttools           | 4.58.2         | Automatically installed |
+| joblib              | 1.5.1          | Automatically installed |
+| kiwisolver          | 1.4.8          | Automatically installed |
+| matplotlib          | 3.10.3         | Automatically installed |
+| numpy               | 2.3.0          | Automatically installed |
+| openpyxl            | 3.1.5          | Automatically installed |
+| packaging           | 25.0           | Automatically installed |
+| pandas              | 2.3.0          | Automatically installed |
+| pillow              | 11.2.1         | Automatically installed |
+| pip                 | 25.1           | Automatically installed |
+| pyparsing           | 3.2.3          | Automatically installed |
+| python-dateutil     | 2.9.0.post0    | Automatically installed |
+| pytz                | 2025.2         | Automatically installed |
+| scikit-learn        | 1.7.0          | Automatically installed |
+| scipy               | 1.15.3         | Automatically installed |
+| seaborn             | 0.13.2         | Automatically installed |
+| setuptools          | 78.1.1         | Automatically installed |
+| six                 | 1.17.0         | Automatically installed |
+| threadpoolctl       | 3.6.0          | Automatically installed |
+| tqdm                | 4.67.1         | Automatically installed |
+| tzdata              | 2025.2         | Automatically installed |
+| wheel               | 0.45.1         | Automatically installed |
+
+This table includes all needed Praat packages to run the analysis pipeline. 
+
+| Praat Tool          | Version        | Status                                      |
+|---------------------|----------------|---------------------------------------------|
+| Praat Vocal Toolkit | 2012–2024      | Included in the repository, no installation needed |
+
+
+
 ### Usage
 
 > [!IMPORTANT]
