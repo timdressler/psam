@@ -233,7 +233,7 @@ for subj_idx= 1:length(dircont_subj)
     y_lim_lower = -8;
     y_lim_upper = 8;
     cb_lim_lower = -5;
-    cb_lim_upper = 2;
+    cb_lim_upper = 5;
 
     figure('Units', 'normalized', 'Position', [0.2, 0.2, 0.7, 0.7]);
     for cond = 1:2
