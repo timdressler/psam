@@ -1,6 +1,6 @@
 # tid_psam_beh_analysis.R
 #
-# Performs analysis of behavioural data.
+# Performs analysis of SVM data.
 #
 # Tim Dressler, 18.04.25
 
@@ -92,7 +92,7 @@ MAIN_SVM1 <- t.test(
 MAIN_SVM1
 
 MAIN_SVM1_ES <- as.data.frame(df_svm) %>% 
-  cohens_d(percent_above_chance ~ feature_extraction_window, paired = TRUE)
+  rstatix::cohens_d(percent_above_chance ~ feature_extraction_window, paired = TRUE)
 MAIN_SVM1_ES
 
 # Plot: Probe F0 by probe-type
@@ -184,7 +184,7 @@ P1
 # Save plot
 ggsave(
   filename = "tid_psam_hyperparamters_violin.png", 
-  plot = P3,
+  plot = P1,
   width = 8,      
   height = 6,     
   dpi = 300,

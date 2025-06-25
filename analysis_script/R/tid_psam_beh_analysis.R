@@ -211,7 +211,7 @@ BEH1 <- t.test(
 BEH1
 
 BEH1_ES <- as.data.frame(df_probe_properties_z) %>% 
-  cohens_d(f0_z ~ probe_type, paired = TRUE)
+  rstatix::cohens_d(f0_z ~ probe_type, paired = TRUE)
 BEH1_ES
 
 # Plot: Probe F0 by probe-type
@@ -253,7 +253,7 @@ BEH2 <- t.test(
 BEH2
 
 BEH2_ES <- as.data.frame(df_probe_f0) %>% 
-  cohens_d(recording_f0 ~ probe, paired = TRUE) 
+  rstatix::cohens_d(recording_f0 ~ probe, paired = TRUE) 
 BEH2_ES
 
 # Plot: F0 by probe
@@ -386,7 +386,7 @@ BEH4 <- t.test(
 BEH4
 
 BEH4_ES <- as.data.frame(df_probe_vot) %>% 
-  cohens_d(recording_vot ~ probe, paired = TRUE) 
+  rstatix::cohens_d(recording_vot ~ probe, paired = TRUE) 
 BEH4_ES
 
 # Plot: vot by probe
@@ -520,7 +520,7 @@ summary(BEH6)
 BEH6_ES <- BEH6$anova_table
 BEH6_ES
 
-# Plot: Vocal onset time by probe-onset and probe-type
+# Plot: F0 by probe-onset and probe-type
 ezPlot(
   data = df_block_f0 
   , dv = recording_f0 

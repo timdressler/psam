@@ -1,6 +1,6 @@
 # tid_psam_erp_analysis.R
 #
-# Performs analysis of behavioural data.
+# Performs analysis of ERP data.
 #
 # Tim Dressler, 18.04.25
 
