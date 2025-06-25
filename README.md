@@ -113,6 +113,24 @@ psam\
 > While the ```requirements.txt``` contains all needed dependencies for running the python-based analysis and ```tid_psam_install_requirements_R.R``` installs all the requirements needed for the R-based
 analysis, MATLAB dependencies have to be installed manually (see below). ```Praat.exe``` as well as the ```Praat Vocal Processing Toolbox``` are included in the repository. 
 
+### Usage
+
+> [!IMPORTANT]
+> It is assumed that Conda, R and MATLAB (and the MATLAB dependecies) are installed! It is recommended that the Pipeline is run using VSCode.
+
+It is recommended to use a dedicated Python environment (e.g. through conda) to mitigate the risk of potential version conflicts.
+
+```
+conda create -n psam python==3.13.4
+conda activate psam
+pip install -r requirements.txt
+```
+
+> [!WARNING]
+> As all scripts are called from ```tid_psam_run_pipeline.py```, the path the ```RScript.exe``` needs to be adapted manually in the script!
+
+After requesting the data copy it into the folder as specified above and run ```tid_psam_run_pipeline.py```.
+
 ### Dependecies
 
 This table includes all needed software to run the analysis pipeline. 
@@ -186,26 +204,6 @@ This table includes all needed software to run the analysis pipeline.
 | Python Package  | tzdata                       | 2025.2           | Automatically installed                          |
 | Python Package  | wheel                        | 0.45.1           | Automatically installed                          |
 | Praat Tool      | Praat Vocal Toolkit          | 2012–2024        | Included in the repository, no installation needed |
-
-### Usage
-
-> [!IMPORTANT]
-> It is assumed that Conda, R and MATLAB (and the MATLAB dependecies) are installed! It is recommended that the Pipeline is run using VSCode.
-
-It is recommended to use a dedicated Python environment (e.g. through conda) to mitigate the risk of potential version conflicts.
-
-```
-conda create -n psam python==3.13.4
-conda activate psam
-pip install -r requirements.txt
-```
-
-> [!WARNING]
-> As all scripts are called from ```tid_psam_run_pipeline.py```, the path the ```RScript.exe``` needs to be adapted manually in the script!
-
-After requesting the data copy it into the folder as specified above and run ```tid_psam_run_pipeline.py```.
-
-
 
 
 
