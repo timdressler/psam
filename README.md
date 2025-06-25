@@ -116,7 +116,7 @@ analysis, MATLAB dependencies have to be installed manually (see below). ```Praa
 ### Usage
 
 > [!IMPORTANT]
-> It is assumed that Conda, R and MATLAB (and the MATLAB dependecies, see below) are installed! It is recommended that the Pipeline is run using VSCode.
+> It is assumed that Conda, R and MATLAB (and the MATLAB dependecies, see below) are installed! It is recommended that the pipeline is run using VSCode.
 
 It is recommended to use a dedicated Python environment (e.g. through conda) to mitigate the risk of potential version conflicts.
 
