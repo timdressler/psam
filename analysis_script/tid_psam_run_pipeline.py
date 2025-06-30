@@ -74,7 +74,6 @@ MAINPATH = os.path.abspath(os.path.join(SCRIPTPATH, '..'))
 RSCRIPT_EXE = r"C:\Program Files\R\R-4.5.0\bin\Rscript.exe" # Path to Rscript.exe
 
 SKIP_SCRIPTS = [ # Manually excluded scripts. Example: "tid_psam_erp_analysis.m", "tid_psam_questionnaire_analysis.R", ...
-"tid_psam_ica_preprocessing.m", "tid_psam_beh_preprocessing_1.praat"
 ]
     
 
@@ -84,6 +83,19 @@ SKIP_ALREADY_RUN = True # If True, previously run scripts (based on the log file
 log_txt_path = os.path.join(SCRIPTPATH, "tid_psam_run_pipeline_log.txt")
 log_xlsx_path = os.path.join(SCRIPTPATH, "tid_psam_run_pipeline_last_run_protocol.xlsx")
 protocol_df = pd.DataFrame(columns=["script", "status", "runtime_sec"])
+
+# Load previous protocol if it exists
+if os.path.exists(log_xlsx_path):
+    prev_protocol_df = pd.read_excel(log_xlsx_path)
+else:
+    prev_protocol_df = pd.DataFrame(columns=["script", "status", "runtime_sec"])
+
+# Function: Get previous status and runtime from protocol
+def get_previous_status_and_runtime(script_name):
+    if script_name in prev_protocol_df["script"].values:
+        row = prev_protocol_df.loc[prev_protocol_df["script"] == script_name].iloc[-1]
+        return row["status"], row["runtime_sec"]
+    return None, None
 
 # Load log file of previously run scripts
 if SKIP_ALREADY_RUN and os.path.exists(log_txt_path):
@@ -112,11 +124,18 @@ def update_protocol(script_name, status, runtime=None):
 def run_script(command, description, script_name, use_call=False):
     if script_name in SKIP_SCRIPTS:
         print(f"\n ====================== Skipping {script_name} (manually excluded) ======================")
+        # Manual exclusion: Status: SKIPPED; Runtime: NaN 
         update_protocol(script_name, "SKIPPED")
         return
+
     if SKIP_ALREADY_RUN and script_name in already_run_scripts:
         print(f"\n ====================== Skipping {script_name} (already run) ======================")
-        update_protocol(script_name, "SKIPPED")
+        # Automatic exclusion due to the script already being run: Status: SKIPPED_<previous_status>; Runtime: <previous_runtime> 
+        prev_status, prev_runtime = get_previous_status_and_runtime(script_name)
+        if prev_status in {"OK", "ERROR"}:
+            update_protocol(script_name, f"SKIPPED_{prev_status}", prev_runtime)
+        else:
+            update_protocol(script_name, "SKIPPED_UNKNOWN")
         return
 
     print(f"\n ====================== {description} ======================")
@@ -136,7 +155,6 @@ def run_script(command, description, script_name, use_call=False):
         print(f"Error during: {description}")
         print(e)
         sys.exit(1)
-
 
 # Run pipeline (in order)
 
