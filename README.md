@@ -115,9 +115,6 @@ analysis, MATLAB dependencies have to be installed manually (see below). ```Praa
 
 ### Usage
 
-> [!IMPORTANT]
-> It is assumed that Conda, R and MATLAB (and the MATLAB dependecies, see below) are installed! It is recommended that the pipeline is run using VSCode.
-
 It is recommended to use a dedicated Python environment (e.g. through conda) to mitigate the risk of potential version conflicts.
 
 ```
@@ -126,10 +123,16 @@ conda activate psam
 pip install -r requirements.txt
 ```
 
+To install Python dependencies run the following line.
+
+```
+pip install -r requirements.txt
+```
+
 To install R dependencies, run ```tid_psam_install_requirements_R.R``` in RStudio.
 
-> [!WARNING]
-> As all scripts are called from ```tid_psam_run_pipeline.py```, the path the ```RScript.exe``` needs to be adapted manually in the script!
+> [!IMPORTANT]
+> It is assumed that Conda, R and MATLAB (and the MATLAB dependecies, see below) are installed! It is recommended that the pipeline is run using VSCode. As all scripts are called from ```tid_psam_run_pipeline.py```, the path the ```RScript.exe``` needs to be adapted manually in the script!
 
 After requesting the data copy it into the folder as specified above and run ```tid_psam_run_pipeline.py```.
 
