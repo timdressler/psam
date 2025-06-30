@@ -196,7 +196,7 @@ run_script(["python", py_script], f"Running {script_name} (Python)", script_name
 
 # R: Multiple scripts (in order, see below)
 r_scripts = [
-    "tid_psam_install_requirements_R.R",
+    #"tid_psam_install_requirements_R.R",
     "tid_psam_beh_analysis.R",
     "tid_psam_erp_analysis.R",
     "tid_psam_questionnaire_analysis.R",
