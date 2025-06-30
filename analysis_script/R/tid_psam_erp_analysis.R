@@ -242,7 +242,7 @@ ezPlot(
   , split   = .(task_instruction)
 )
 
-# Descriptive statistics# Descriptive statiprobe_onset_catstics
+# Descriptive statistics
 psych::describeBy(
   df_erp$erp_lat,
   list(df_erp$task_instruction,df_erp$probe_type)

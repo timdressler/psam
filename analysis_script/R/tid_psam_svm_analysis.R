@@ -170,7 +170,7 @@ P1 <- df_svm %>%
   scale_fill_manual(values = c(colors$main_yellow, colors$main_blue)) +
   scale_x_discrete(labels = c('prop_sig_early' = 'Early Window', 'prop_sig_late' = 'Late Window')) +
   scale_y_continuous(n.breaks = 3) +
-  labs(x = NULL, y = "Percentage of possible Hyperparameter-Pairs leading to an above-chance Classification") +
+  labs(x = NULL, y = "Percentage of possible Hyperparameter-Pairs \n leading to an above-chance Classification") +
   theme_classic() +
   theme(axis.text.x = element_text(size = 12)) +
   theme(axis.text.y = element_text(size = 12)) +
@@ -178,7 +178,7 @@ P1 <- df_svm %>%
   theme(axis.title.y = element_text(size = 12)) +
   theme(legend.position="none") +
   geom_signif(comparisons=list(c("prop_sig_early", "prop_sig_late")), annotations="n.s.",
-              y_position = 100, tip_length = 0.02,  vjust=0.4) 
+              y_position = 100, tip_length = 0.02,  vjust=0.1) 
 P1
 
 # Save plot
