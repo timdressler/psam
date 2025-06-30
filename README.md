@@ -120,7 +120,6 @@ It is recommended to use a dedicated Python environment (e.g. through conda) to 
 ```
 conda create -n psam python==3.13.4
 conda activate psam
-pip install -r requirements.txt
 ```
 
 To install Python dependencies run the following line.
