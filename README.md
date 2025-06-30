@@ -130,10 +130,12 @@ pip install -r requirements.txt
 
 To install R dependencies, run ```tid_psam_install_requirements_R.R``` in RStudio.
 
-> [!IMPORTANT]
-> It is assumed that Conda, R and MATLAB (and the MATLAB dependecies, see below) are installed! It is recommended that the pipeline is run using VSCode. As all scripts are called from ```tid_psam_run_pipeline.py```, the path the ```RScript.exe``` needs to be adapted manually in the script!
+It is assumed that Conda, R and MATLAB (and the MATLAB dependecies, see below) are installed! It is recommended that the pipeline is run using VSCode.
 
-After requesting the data copy it into the folder as specified above and run ```tid_psam_run_pipeline.py```.
+> [!IMPORTANT]
+> As all scripts are called from ```tid_psam_run_pipeline.py```, the path the ```RScript.exe``` needs to be adapted manually in the script!
+
+After requesting the data copy it into the folder as specified above and run ```tid_psam_run_pipeline.py``` in VSCode.
 
 ### Dependecies
 
