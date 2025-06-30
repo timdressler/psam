@@ -126,6 +126,8 @@ conda activate psam
 pip install -r requirements.txt
 ```
 
+To install R dependencies, run ```tid_psam_install_requirements_R.R``` in RStudio.
+
 > [!WARNING]
 > As all scripts are called from ```tid_psam_run_pipeline.py```, the path the ```RScript.exe``` needs to be adapted manually in the script!
 
