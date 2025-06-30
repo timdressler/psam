@@ -123,8 +123,8 @@ def update_protocol(script_name, status, runtime=None):
 def run_script(command, description, script_name, use_call=False):
     if script_name in SKIP_SCRIPTS:
         print(f"\n ====================== Skipping {script_name} (manually excluded) ======================")
-        # Manual exclusion: Status: SKIPPED; Runtime: NaN 
-        update_protocol(script_name, "SKIPPED")
+        # Manual exclusion: Status: SKIPPED_MANUAL; Runtime: NaN 
+        update_protocol(script_name, "SKIPPED_MANUAL")
         return
 
     if SKIP_ALREADY_RUN and script_name in already_run_scripts:
