@@ -503,6 +503,7 @@ end
 
 % Save plot
 saveas(gcf,fullfile(OUTPATH, 'tid_psam_plot_grandaverage_erp_topo.png'))
+saveas(gcf,fullfile(OUTPATH, 'tid_psam_plot_grandaverage_erp_topo.pdf')) % Also save as pdf
 
 % Plot: ERP, control ERP and correct ERP for each condition
 % Concatinate colors
@@ -544,7 +545,8 @@ end
 
 % Save plot
 saveas(gcf,fullfile(OUTPATH, 'tid_psam_plot_grandaverage_erp_con_cor.png'))
-
+saveas(gcf,fullfile(OUTPATH, 'tid_psam_plot_grandaverage_erp_con_cor.pdf')) % Also save as pdf
+ 
 
 
 
