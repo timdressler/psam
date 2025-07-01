@@ -670,7 +670,7 @@ hold off
 
 % Save plot
 saveas(gcf,fullfile(OUTPATH, 'grandaverage_filter_check_erp.png'))
-saveas(gcf,fullfile(OUTPATH, 'grandaverage_filter_check_erp.pdf')) % Also save a pdf
+print(gcf, fullfile(OUTPATH, 'grandaverage_filter_check_erp_HQ.png'), '-dpng', '-r900')
 
 
 % Plot: ERP, control ERP and correct ERP for each condition (filtered and unfiltered)
@@ -727,6 +727,7 @@ end
 
 % Save plot
 saveas(gcf,fullfile(OUTPATH, 'grandaverage_filter_check_erp_con_cor.png'))
-saveas(gcf,fullfile(OUTPATH, 'grandaverage_filter_check_erp_con_cor.pdf')) % Also save a pdf
+print(gcf, fullfile(OUTPATH, 'grandaverage_filter_check_erp_con_cor_HQ.png'), '-dpng', '-r900')
+
 
 close all
