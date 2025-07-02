@@ -210,7 +210,7 @@ P1v2 <- df_svm %>%
   geom_boxplot(position = position_nudge(c(.07, -.07)), 
                alpha = .5,
                width = .04, 
-               outlier.shape = " ") + # Hide outliers in boxplot as they are shown as individual data points anyway
+               outlier.shape = " ") + # Hide outliers in boxplot as they are shown as individual data points 
   scale_fill_manual(values = c('prop_sig_early' = colors$main_yellow,
                                'prop_sig_late' = colors$main_blue)) +
   scale_x_discrete(labels = c('prop_sig_early' = 'Early Window',
