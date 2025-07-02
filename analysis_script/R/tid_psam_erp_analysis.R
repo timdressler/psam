@@ -132,14 +132,11 @@ performance::check_convergence(MAIN_ERPBASE)
 performance::check_model(MAIN_ERPBASE)
 
 #------------------------------------------------------------------------------#
-#
-#
-
 # Assumptions
-# (- Convergence: )
-# - Normally distributed random effects:
-# - Normally distributed residuals:  
-# - Homogeneity of variance of the residuals: 
+# (- Convergence: OK)
+# - Normally distributed random effects: OK
+# - Normally distributed residuals: OK
+# - Homogeneity of variance of the residuals: OK
 #------------------------------------------------------------------------------#
 
 # MAIN_ERP1
@@ -174,14 +171,13 @@ performance::check_convergence(MAIN_ERP1)
 performance::check_model(MAIN_ERP1)
 
 #------------------------------------------------------------------------------#
-#
-#
+# task_instruction sig.; all other n.s.
 
 # Assumptions
-# (- Convergence: )
-# - Normally distributed random effects:
-# - Normally distributed residuals:  
-# - Homogeneity of variance of the residuals: 
+# (- Convergence: OK)
+# - Normally distributed random effects: OK
+# - Normally distributed residuals: OK
+# - Homogeneity of variance of the residuals: OK 
 #------------------------------------------------------------------------------#
 
 # MAIN_ERP2
@@ -196,8 +192,8 @@ ezPlot(
   , dv = psam_amp 
   , wid = subj  
   , within= .(probe_type, probe_onset_cat)
-  , x = .(probe_type)
-  , split   = .(probe_onset_cat)
+  , x = .(probe_onset_cat)
+  , split   = .(probe_type)
 )
 
 # Descriptive statistics
@@ -215,14 +211,13 @@ performance::check_convergence(MAIN_ERP2)
 performance::check_model(MAIN_ERP2)
 
 #------------------------------------------------------------------------------#
-#
-#
+# All n.s.
 
 # Assumptions
-# (- Convergence: )
-# - Normally distributed random effects:
-# - Normally distributed residuals:  
-# - Homogeneity of variance of the residuals: 
+# (- Convergence: OK)
+# - Normally distributed random effects: OK
+# - Normally distributed residuals: OK
+# - Homogeneity of variance of the residuals: OK
 #------------------------------------------------------------------------------#
 
 # MAIN_ERP3
@@ -258,14 +253,13 @@ performance::check_convergence(MAIN_ERP3)
 performance::check_model(MAIN_ERP3)
 
 #------------------------------------------------------------------------------#
-#
-#
+# task_instruction x probe_type sig.; all other n.s.
 
 # Assumptions
-# (- Convergence: )
-# - Normally distributed random effects:
-# - Normally distributed residuals:  
-# - Homogeneity of variance of the residuals: 
+# (- Convergence: OK)
+# - Normally distributed random effects: OK
+# - Normally distributed residuals: OK
+# - Homogeneity of variance of the residuals: OK 
 #------------------------------------------------------------------------------#
 
 
@@ -304,7 +298,7 @@ ggsave(
   plot = P1,
   width = 8,      
   height = 6,     
-  dpi = 300,
+  dpi = 900,
   bg = "white"
 )
 
@@ -339,7 +333,7 @@ ggsave(
   plot = P2,
   width = 8,      
   height = 6,     
-  dpi = 300,
+  dpi = 900,
   bg = "white"
 )
 
@@ -373,20 +367,6 @@ P3 <- ggplot(df_psam, aes(x = probe_combination, y = psam_amp, fill = probe_type
               tip_length = 0.02,
               textsize = 2.75,
               vjust = 0.1) +
-  # Comparison 3: Early Altered vs Late Altered
-  geom_signif(comparisons = list(c("Early Onset\nAltered", "Late Onset\nAltered")),
-              annotations = "n.s.",
-              y_position = y_pos_level2, 
-              tip_length = 0.02,
-              textsize = 2.75,
-              vjust = 0.1) +
-  # Comparison 4: Early Unaltered vs Late Unaltered
-  geom_signif(comparisons = list(c("Early Onset\nUnaltered", "Late Onset\nUnaltered")),
-              annotations = "n.s.",
-              y_position = y_pos_level3, 
-              tip_length = 0.02,
-              textsize = 2.75,
-              vjust = 0.1) +
   scale_fill_manual(values = c("Altered" = colors$main_red, "Unaltered" = colors$main_blue)) +
   labs(
     title = "PSAM Effect Amplitudes by Probe Type and Probe Onset Combinations",
@@ -407,7 +387,7 @@ ggsave(
   plot = P3,
   width = 8,      
   height = 6,     
-  dpi = 300,
+  dpi = 900,
   bg = "white"
 )
 
@@ -444,7 +424,7 @@ ggsave(
   plot = P4,
   width = 8,      
   height = 6,     
-  dpi = 300,
+  dpi = 900,
   bg = "white"
 )
 

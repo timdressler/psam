@@ -235,11 +235,10 @@ byf.shapiro(f0_z ~ probe_type,
             data = df_probe_properties_z)
 
 #------------------------------------------------------------------------------#
-#
-#
+# sig.
 
 # Assumptions
-# - Normal distribution:  
+# - Normal distribution: OK  
 #------------------------------------------------------------------------------#
 
 # BEH2
@@ -277,13 +276,11 @@ byf.shapiro(recording_f0 ~ probe,
             data = df_probe_f0)
 
 #------------------------------------------------------------------------------#
-#
-#
+# See BEH2_ALT
 
 # Assumptions
-# - Normal distribution:  
+# - Normal distribution: not OK  
 #------------------------------------------------------------------------------#
-
 
 # BEH2_ALT
 # Wilcoxon Signed-Rank Test (DV = F0 value, within = Probe (Yes, No))
@@ -309,8 +306,7 @@ psych::describeBy(df_probe_f0$recording_f0,
                   group = df_probe_f0$probe)
 
 #------------------------------------------------------------------------------#
-#
-#
+# n.s.
 #------------------------------------------------------------------------------#
 
 # BEH3
@@ -367,10 +363,9 @@ ezDesign(df_probe_type_onset_f0, x = probe_type, y = subj, row = probe_onset_cat
 
 #------------------------------------------------------------------------------#
 #
-#
 
 # Assumptions
-# - Normal distribution:  
+# - Normal distribution: not OK
 # - Sphericity: Not applicable due to only 2 factor levels per factor
 # - Balance of the design: OK
 #------------------------------------------------------------------------------#
@@ -410,11 +405,10 @@ byf.shapiro(recording_vot ~ probe,
             data = df_probe_vot)
 
 #------------------------------------------------------------------------------#
-#
-#
+# See BEH4_ALT
 
 # Assumptions
-# - Normal distribution:  
+# - Normal distribution: not OK
 #------------------------------------------------------------------------------#
 
 # BEH4_ALT
@@ -441,8 +435,7 @@ psych::describeBy(df_probe_vot$recording_vot,
                   group = df_probe_vot$probe)
 
 #------------------------------------------------------------------------------#
-#
-#
+# sig.
 #------------------------------------------------------------------------------#
 
 # BEH5
@@ -498,11 +491,10 @@ byf.shapiro(recording_vot ~ probe_type * probe_onset_cat,
 ezDesign(df_probe_type_onset_vot, x = probe_type, y = subj, row = probe_onset_cat) 
 
 #------------------------------------------------------------------------------#
-#
-#
+# probe_type n.s.; probe_onset_cat sig.; probe_type x probe_onset_cat sig.
 
 # Assumptions
-# - Normal distribution:  
+# - Normal distribution: Shapiro-Wilk sig. but due to visual inspection OK  
 # - Sphericity: Not applicable due to only 2 factor levels per factor
 # - Balance of the design: OK
 #------------------------------------------------------------------------------#
@@ -559,11 +551,10 @@ ezDesign(df_block_f0, x = block, y = subj)
 
 #------------------------------------------------------------------------------#
 #
-#
 
 # Assumptions
-# - Normal distribution:  
-# - Sphericity: Not applicable due to only 2 factor levels per factor
+# - Normal distribution: not OK
+# - Sphericity: not OK, GG correction used
 # - Balance of the design: OK
 #------------------------------------------------------------------------------#
 
@@ -618,12 +609,11 @@ byf.shapiro(recording_vot ~ block,
 ezDesign(df_block_vot, x = block, y = subj) 
 
 #------------------------------------------------------------------------------#
-#
-#
+# block n.s.
 
 # Assumptions
-# - Normal distribution:  
-# - Sphericity: Not applicable due to only 2 factor levels per factor
+# - Normal distribution: Shapiro-Wilk sig. but due to visual inspection OK  
+# - Sphericity: not OK, GG correction used
 # - Balance of the design: OK
 #------------------------------------------------------------------------------#
 
@@ -663,7 +653,7 @@ ggsave(
   plot = P1,
   width = 8,      
   height = 6,     
-  dpi = 300,
+  dpi = 900,
   bg = "white"
 )
 

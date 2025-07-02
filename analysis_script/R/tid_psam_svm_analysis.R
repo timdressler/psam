@@ -116,11 +116,10 @@ byf.shapiro(percent_above_chance ~ feature_extraction_window,
             data = df_svm)
 
 #------------------------------------------------------------------------------#
-#
-#
+# See MAIN_SVM1_ALT
 
 # Assumptions
-# - Normal distribution:  
+# - Normal distribution: not OK
 #------------------------------------------------------------------------------#
 
 # MAIN_SVM1_ALT
@@ -143,8 +142,7 @@ psych::describeBy(df_svm$percent_above_chance,
                   group = df_svm$feature_extraction_window)
 
 #------------------------------------------------------------------------------#
-#
-#
+# n.s.
 #------------------------------------------------------------------------------#
 
 # SVM2 # SVM3
@@ -162,7 +160,7 @@ describe(df_svm_wide)
 
 #-------------------------------------Plots-------------------------------------
 
-# Plot 1: 
+# Plot 1: Percentage of possible Hyperparameter-Pairs leading to an above-chance Classification by Window Type
 P1 <- df_svm %>%
   ggplot(aes(x = feature_extraction_window, y = percent_above_chance*100, fill = feature_extraction_window)) + # *100 to convert to percent
   sm_raincloud(boxplot.params = list(fill = "white", outlier.shape = NA), violin.params = list(alpha = .6)
@@ -187,7 +185,56 @@ ggsave(
   plot = P1,
   width = 8,      
   height = 6,     
-  dpi = 300,
+  dpi = 900,
   bg = "white"
 )
 
+
+# Plot 1 v2: Percentage of possible Hyperparameter-Pairs leading to an above-chance Classification by Window Type
+devtools::source_url("https://raw.githubusercontent.com/yjunechoe/geom_paired_raincloud/master/geom_paired_raincloud.R")
+
+P1v2 <- df_svm %>%
+  ggplot(aes(x = feature_extraction_window, y = percent_above_chance * 100, fill = feature_extraction_window)) +
+  geom_paired_raincloud(alpha = .5) +
+  geom_point(aes(group = subj),
+             position = position_nudge(c(.15, -.15)), 
+             alpha = .5,
+             shape = 16, 
+             color = "black", 
+             size = 2) +
+  geom_line(aes(group = subj),
+            position = position_nudge(c(.15, -.15)), 
+            linetype = "dotted",
+            color = "black", 
+            alpha = .5) +
+  geom_boxplot(position = position_nudge(c(.07, -.07)), 
+               alpha = .5,
+               width = .04, 
+               outlier.shape = " ") + # Hide outliers in boxplot as they are shown as individual data points anyway
+  scale_fill_manual(values = c('prop_sig_early' = colors$main_yellow,
+                               'prop_sig_late' = colors$main_blue)) +
+  scale_x_discrete(labels = c('prop_sig_early' = 'Early Window',
+                              'prop_sig_late' = 'Late Window')) +
+  scale_y_continuous(n.breaks = 3) +
+  labs(x = NULL, y = "Percentage of possible Hyperparameter-Pairs \n leading to an above-chance Classification") +
+  theme_classic() +
+  theme(
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12),
+    legend.position = "none"
+  ) +
+  geom_signif(comparisons = list(c("prop_sig_early", "prop_sig_late")), annotations = "n.s.",
+               y_position = 100, tip_length = 0.02, vjust = 0.1)
+P1v2
+
+# Save plot
+ggsave(
+  filename = "tid_psam_hyperparamters_violin_v2.png", 
+  plot = P1v2,
+  width = 8,      
+  height = 6,     
+  dpi = 900,
+  bg = "white"
+)

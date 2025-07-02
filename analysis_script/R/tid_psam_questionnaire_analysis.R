@@ -321,17 +321,16 @@ byf.shapiro(mood ~ break_num,
 ezDesign(df_sam_long, x = break_num, y = subj) 
 
 #------------------------------------------------------------------------------#
-#
-#
+# break_num n.s.
 
 # Assumptions
-# - Normal distribution:  
-# - Sphericity: 
+# - Normal distribution: Shapiro-Wilk sig. but due to visual inspection OK  
+# - Sphericity: not OK, GG correction used
 # - Balance of the design: OK
 #------------------------------------------------------------------------------#
 
 # SAM18
-# rmANOVA (DV = Mood, Within = Break (1,2,3,4,5,6,7,8)) 
+# rmANOVA (DV = Tiredness, Within = Break (1,2,3,4,5,6,7,8)) 
 # Analysis SAM18 concerns how the tiredness dimension of the SAM is influenced by the block/break.
 SAM18 <- aov_ez(id = "subj",
                 dv = "tiredness",
@@ -381,12 +380,11 @@ byf.shapiro(tiredness ~ break_num,
 ezDesign(df_sam_long, x = break_num, y = subj) 
 
 #------------------------------------------------------------------------------#
-#
-#
+# break_num n.s.
 
 # Assumptions
-# - Normal distribution:  
-# - Sphericity: 
+# - Normal distribution: OK
+# - Sphericity: not OK, GG correction used
 # - Balance of the design: OK
 #------------------------------------------------------------------------------#
 
