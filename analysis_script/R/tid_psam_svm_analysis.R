@@ -64,6 +64,7 @@ OUTPATH <- file.path(MAINPATH, "data", "analysis_data", "stats_svm_analysis")
 FUNPATH <- file.path(MAINPATH, "functions")
 source(file.path(FUNPATH, "tid_psam_check_folder_TD.R"))
 source(file.path(FUNPATH, "tid_psam_clean_up_folder_TD.R"))
+load(file.path(FUNPATH, "GeomPairedRaincloud.RData")) # Loads geom_paired_raincloud() (see https://yjunechoe.github.io/posts/2020-07-13-geom-paired-raincloud/)
 
 tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)
 tid_psam_clean_up_folder_TD(OUTPATH)
@@ -191,8 +192,6 @@ ggsave(
 
 
 # Plot 1 v2: Percentage of possible Hyperparameter-Pairs leading to an above-chance Classification by Window Type
-devtools::source_url("https://raw.githubusercontent.com/yjunechoe/geom_paired_raincloud/master/geom_paired_raincloud.R")
-
 P1v2 <- df_svm %>%
   ggplot(aes(x = feature_extraction_window, y = percent_above_chance * 100, fill = feature_extraction_window)) +
   geom_paired_raincloud(alpha = .5) +

@@ -395,7 +395,7 @@ BEH3_ALT <- nparLD(
 BEH3_ALT$Wald.test
 BEH3_ALT$ANOVA.test
 
-BEH3_ALT_ES <- round(diff(range(BEH3_ALT$RTE[, "RTE"])), 3)
+BEH3_ALT_ES <- round(mean(BEH3_ALT$RTE[, "RTE"]), 3)
 BEH3_ALT_ES
 
 # Plot: F0 by probe-onset and probe-type
@@ -623,7 +623,7 @@ BEH6_ALT <- nparLD(
 BEH6_ALT$Wald.test
 BEH6_ALT$ANOVA.test
 
-BEH6_ALT_ES <- round(diff(range(BEH6_ALT$RTE[, "RTE"])), 3)
+BEH6_ALT_ES <- round(mean(BEH6_ALT$RTE[, "RTE"]), 3)
 BEH6_ALT_ES
 
 # Plot: F0 by Block
