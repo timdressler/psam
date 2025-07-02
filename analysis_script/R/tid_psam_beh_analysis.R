@@ -22,6 +22,7 @@ library(ggeffects)
 library(cowplot) 
 library(tidyverse)
 library(psych)
+library(nparLD)
 library(rstatix)
 library(RVAideMemoire)
 
@@ -126,6 +127,11 @@ df_probe_type_onset_f0 <- filter(df_beh, probe == "Yes") %>%
   summarise(mean(recording_f0, na.rm = T))  
 colnames(df_probe_type_onset_f0) <- c("probe_type", "probe_onset_cat", "subj", "recording_f0")
 
+df_probe_type_onset_f0 <- df_probe_type_onset_f0 %>%
+  ungroup() %>%                   
+  mutate(subj = as.factor(subj)) %>% 
+  as.data.frame()  
+
 # Z-standardized VOTs for probe and no-probe trials for each subject
 df_probe_vot_z <- df_beh %>% 
   group_by(probe, subj) %>%
@@ -171,6 +177,11 @@ df_block_f0 <- df_beh %>%
   summarise(mean(recording_f0, na.rm = T))  
 colnames(df_block_f0) <- c("block", "subj", "recording_f0")
 df_block_f0$block <- as.factor(df_block_f0$block)
+
+df_block_f0 <- df_block_f0 %>%
+  ungroup() %>%                   
+  mutate(subj = as.factor(subj)) %>% 
+  as.data.frame()  
 
 # Z-standardized VOTs for each block and subject
 df_block_vot_z <- df_beh %>% 
@@ -362,12 +373,52 @@ byf.shapiro(recording_f0 ~ probe_type * probe_onset_cat,
 ezDesign(df_probe_type_onset_f0, x = probe_type, y = subj, row = probe_onset_cat) 
 
 #------------------------------------------------------------------------------#
-#
+# See BEH3_ALT
 
 # Assumptions
 # - Normal distribution: not OK
 # - Sphericity: Not applicable due to only 2 factor levels per factor
 # - Balance of the design: OK
+#------------------------------------------------------------------------------#
+
+# BEH3_ALT
+# nparLD ANOVA (DV = F0 value, Within = Probe-type (unaltered, altered), Probe-onset (early, late)) 
+# Analysis BEH3_ALT concerns how the F0 of the vocal responses during the experiment is influenced by probe-type and probe-onset.
+# Since the assumptions were not met for BEH2, a non-parametric alternative is used.
+
+BEH3_ALT <- nparLD(
+  recording_f0 ~ probe_type * probe_onset_cat,
+  data = df_probe_type_onset_f0,
+  subject = "subj",
+  description = FALSE
+)
+BEH3_ALT$Wald.test
+BEH3_ALT$ANOVA.test
+
+BEH3_ALT_ES <- round(diff(range(BEH3_ALT$RTE[, "RTE"])), 3)
+BEH3_ALT_ES
+
+# Plot: F0 by probe-onset and probe-type
+ggplot(df_probe_type_onset_f0, aes(x = probe_onset_cat, y = recording_f0, color = probe_type)) +
+  stat_summary(fun = median, geom = "line", aes(group = probe_type)) +
+  stat_summary(fun.data = median_hilow, geom = "errorbar", width = 0.2) +
+  labs(title = "Median F0 by Probe Type and Onset Category") +
+  theme_minimal()
+
+# Descriptive statistics
+psych::describeBy(
+  df_probe_type_onset_f0$recording_f0,
+  list(df_probe_type_onset_f0$probe_type, df_probe_type_onset_f0$probe_onset_cat)
+)
+
+# Follow-Up T-Tests
+BEH3_ALT_PWC <- df_probe_type_onset_f0 %>%
+  group_by(probe_onset_cat) %>%
+  wilcox_test(recording_f0 ~ probe_type, paired = TRUE, p.adjust.method = "bonferroni")
+BEH3_ALT_PWC
+
+#------------------------------------------------------------------------------#
+# probe_type sig.; all other n.s.
 #------------------------------------------------------------------------------#
 
 # BEH4
@@ -512,7 +563,7 @@ summary(BEH6)
 BEH6_ES <- BEH6$anova_table
 BEH6_ES
 
-# Plot: F0 by probe-onset and probe-type
+# Plot: F0 by Block
 ezPlot(
   data = df_block_f0 
   , dv = recording_f0 
@@ -550,12 +601,55 @@ byf.shapiro(recording_f0 ~ block,
 ezDesign(df_block_f0, x = block, y = subj) 
 
 #------------------------------------------------------------------------------#
-#
+# See BEH6_ALT
 
 # Assumptions
 # - Normal distribution: not OK
 # - Sphericity: not OK, GG correction used
 # - Balance of the design: OK
+#------------------------------------------------------------------------------#
+
+# BEH6_ALT
+# nparLD ANOVA (DV = F0 value, Within = Block (1,2,3,4,5,6,7,8))
+# Analysis BEH6_ALT concerns how the F0 of the vocal responses during the experiment is influenced by the block of the experiment.
+# Since the assumptions were not met for BEH6, a non-parametric alternative is used.
+
+BEH6_ALT <- nparLD(
+  recording_f0 ~ block,
+  data = df_block_f0,
+  subject = "subj",
+  description = FALSE
+)
+BEH6_ALT$Wald.test
+BEH6_ALT$ANOVA.test
+
+BEH6_ALT_ES <- round(diff(range(BEH6_ALT$RTE[, "RTE"])), 3)
+BEH6_ALT_ES
+
+# Plot: F0 by Block
+ggplot(df_block_f0, aes(x = block, y = recording_f0)) +
+  stat_summary(fun = median, geom = "line", group = 1, color = "black") +
+  stat_summary(fun.data = median_hilow, geom = "errorbar", width = 0.2, color = "black") +
+  labs(
+    title = "Median F0 by Block",
+    x = "Block",
+    y = "Median"
+  ) +
+  theme_minimal(base_size = 14)
+
+# Descriptive statistics
+psych::describeBy(
+  df_block_f0$recording_f0,
+  df_block_f0$block
+)
+
+# Follow-Up T-Tests
+BEH6_ALT_PWC <- df_block_f0 %>%
+  wilcox_test(recording_f0 ~ block, paired = TRUE, p.adjust.method = "bonferroni")
+BEH6_ALT_PWC
+
+#------------------------------------------------------------------------------#
+# block n.s.
 #------------------------------------------------------------------------------#
 
 # BEH7
@@ -571,7 +665,7 @@ summary(BEH7)
 BEH7_ES <- BEH7$anova_table
 BEH7_ES
 
-# Plot: Vocal onset time by probe-onset and probe-type
+# Plot: Vocal onset time by Block
 ezPlot(
   data = df_block_vot 
   , dv = recording_vot 
@@ -624,7 +718,6 @@ psych::describeBy(
   df_subj_f0$recording_f0,
   list(df_subj_f0$var3_sex)
 )
-
 
 #-------------------------------------Plots-------------------------------------
 
