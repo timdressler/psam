@@ -502,8 +502,7 @@ for cond_num = 1:length(grandaverage_erp_cor)
 end
 
 % Save plot
-saveas(gcf,fullfile(OUTPATH, 'tid_psam_plot_grandaverage_erp_topo.png'))
-print(gcf, fullfile(OUTPATH, 'tid_psam_plot_grandaverage_erp_topo_HQ.png'), '-dpng', '-r900')
+print(gcf, fullfile(OUTPATH, 'tid_psam_plot_grandaverage_erp_topo.png'), '-dpng', '-r900')
 
 
 % Plot: ERP, control ERP and correct ERP for each condition
@@ -545,8 +544,7 @@ for cond_num = 1:length(grandaverage_erp_cor)
 end
 
 % Save plot
-saveas(gcf,fullfile(OUTPATH, 'tid_psam_plot_grandaverage_erp_con_cor.png'))
-print(gcf, fullfile(OUTPATH, 'tid_psam_plot_grandaverage_erp_con_cor_HQ.png'), '-dpng', '-r900')
+print(gcf, fullfile(OUTPATH, 'tid_psam_plot_grandaverage_erp_con_cor.png'), '-dpng', '-r900')
 
 
 

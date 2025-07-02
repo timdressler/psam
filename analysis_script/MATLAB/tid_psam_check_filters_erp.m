@@ -669,8 +669,7 @@ fill([70 130 130 70], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], light_b
 hold off
 
 % Save plot
-saveas(gcf,fullfile(OUTPATH, 'grandaverage_filter_check_erp.png'))
-print(gcf, fullfile(OUTPATH, 'grandaverage_filter_check_erp_HQ.png'), '-dpng', '-r900')
+print(gcf, fullfile(OUTPATH, 'grandaverage_filter_check_erp.png'), '-dpng', '-r900')
 
 
 % Plot: ERP, control ERP and correct ERP for each condition (filtered and unfiltered)
@@ -726,8 +725,7 @@ for cond_num = 1:length(grandaverage_erp_cor_filtered)
 end
 
 % Save plot
-saveas(gcf,fullfile(OUTPATH, 'grandaverage_filter_check_erp_con_cor.png'))
-print(gcf, fullfile(OUTPATH, 'grandaverage_filter_check_erp_con_cor_HQ.png'), '-dpng', '-r900')
+print(gcf, fullfile(OUTPATH, 'grandaverage_filter_check_erp_con_cor.png'), '-dpng', '-r900')
 
 
 close all
