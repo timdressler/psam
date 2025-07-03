@@ -411,6 +411,11 @@ psych::describeBy(
   list(df_probe_type_onset_f0$probe_type, df_probe_type_onset_f0$probe_onset_cat)
 )
 
+psych::describeBy(
+  df_probe_type_onset_f0$recording_f0,
+  df_probe_type_onset_f0$probe_type
+)
+
 # Follow-Up T-Tests
 BEH3_ALT_PWC <- df_probe_type_onset_f0 %>%
   group_by(probe_onset_cat) %>%
@@ -520,7 +525,7 @@ psych::describeBy(
 )
 
 # Follow-Up T-Tests
-BEH5_EM <- emmeans(BEH5, ~ probe_onset_cat| probe_type)
+BEH5_EM <- emmeans(BEH5, ~ probe_type | probe_onset_cat)
 BEH5_PWC <- pairs(BEH5_EM, adjust = "bonferroni")
 BEH5_PWC
 
