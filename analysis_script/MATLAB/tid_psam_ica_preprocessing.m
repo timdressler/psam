@@ -131,6 +131,7 @@ for subj_idx= 1:length(dircont_subj)
     EEG = pop_rejepoch( EEG, EEG.reject.rejglobal ,0);
 
     % Run ICA
+    rng(123) % Set seed again
     EEG = pop_runica(EEG, 'icatype', 'runica', 'extended',1,'interrupt','on');
 
     % Label ICA components with IC Label Plugin (Pion-Tonachini et al., 2019)
