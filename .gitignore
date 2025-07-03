@@ -1,6 +1,5 @@
 *.asv
 data/
-*.exe
 *.xlsx
 
 timingtest/
