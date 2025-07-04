@@ -363,7 +363,7 @@ end
 xlabel('F0 [z]');
 %%ylabel('Subject');
 zlabel('Density');
-title('F0 Distributions and Probe F0s Across Subjects');
+%%title('F0 Distributions and Probe F0s Across Subjects');
 grid on;
 view(-12.6193,77.8152) % for fixed 3D view
 
@@ -378,7 +378,7 @@ end
 yticklabels(subj_labels);
 
 % Save plot
-saveas(gcf,fullfile(OUTPATH, 'tid_psam_all_z_f0_distribution.png'))
+print(gcf, fullfile(OUTPATH, 'tid_psam_all_z_f0_distribution.png'), '-dpng', '-r900')
 saveas(gcf,fullfile(OUTPATH, 'tid_psam_all_z_f0_distribution.fig'))
 
 

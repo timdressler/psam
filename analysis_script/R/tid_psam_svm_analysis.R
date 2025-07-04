@@ -194,7 +194,7 @@ ggsave(
 # Plot 1 v2: Percentage of possible Hyperparameter-Pairs leading to an above-chance Classification by Window Type
 P1v2 <- df_svm %>%
   ggplot(aes(x = feature_extraction_window, y = percent_above_chance * 100, fill = feature_extraction_window)) +
-  geom_paired_raincloud(alpha = .5) +
+  geom_paired_raincloud(alpha = 1) +
   geom_point(aes(group = subj),
              position = position_nudge(c(.15, -.15)), 
              alpha = .5,
@@ -207,7 +207,7 @@ P1v2 <- df_svm %>%
             color = "black", 
             alpha = .5) +
   geom_boxplot(position = position_nudge(c(.07, -.07)), 
-               alpha = .5,
+               alpha = 1,
                width = .04, 
                outlier.shape = " ") + # Hide outliers in boxplot as they are shown as individual data points 
   scale_fill_manual(values = c('prop_sig_early' = colors$main_yellow,

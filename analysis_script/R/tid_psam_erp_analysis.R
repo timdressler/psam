@@ -278,7 +278,7 @@ P1 <- ggplot(df_erp, aes(x = task_instruction, y = erp_amp, color = probe_type, 
     "Unaltered" = colors$main_blue
   )) +
   labs(
-    title = "N100 ERP Amplitudes by Probe Type, Task Instruction, and Probe Onset",
+    #title = "N100 ERP Amplitudes by Probe Type, Task Instruction, and Probe Onset",
     y = "N100 ERP Amplitude (µV)",
     x = NULL,
     color = "Probe Type"
@@ -313,7 +313,7 @@ P2 <- ggplot(df_psam, aes(x = probe_onset_cat, y = psam_amp, color = probe_type,
     "Unaltered" = colors$main_blue
   )) +
     labs(
-    title = "PSAM Effect Amplitudes by Probe Type and Probe Onset",
+    #title = "PSAM Effect Amplitudes by Probe Type and Probe Onset",
     y = "PSAM Effect Amplitude (µV)",
     x = "Probe Onset",
     color = "Probe Type"
@@ -369,9 +369,9 @@ P3 <- ggplot(df_psam, aes(x = probe_combination, y = psam_amp, fill = probe_type
               vjust = 0.1) +
   scale_fill_manual(values = c("Altered" = colors$main_red, "Unaltered" = colors$main_blue)) +
   labs(
-    title = "PSAM Effect Amplitudes by Probe Type and Probe Onset Combinations",
+    #title = "PSAM Effect Amplitudes by Probe Type and Probe Onset Combinations",
     y = "PSAM Effect Amplitude (µV)",
-    x = NULL,
+    x = "Condition",
     fill = "Probe Type"
   ) +
   theme_minimal(base_size = 10) +
@@ -404,7 +404,7 @@ P4 <- ggplot(df_erp, aes(x = task_instruction, y = erp_lat, color = probe_type, 
     "Unaltered" = colors$main_blue
   )) +
   labs(
-    title = "N100 ERP Latencies by Probe Type, Task Instruction, and Probe Onset",
+    #title = "N100 ERP Latencies by Probe Type, Task Instruction, and Probe Onset",
     y = "N100 ERP Latency (ms)",
     x = NULL,
     color = "Probe Type"
@@ -422,6 +422,23 @@ P4
 ggsave(
   filename = "tid_psam_erp_lat.png", 
   plot = P4,
+  width = 8,      
+  height = 6,     
+  dpi = 900,
+  bg = "white"
+)
+
+# Combine Plot 2 and Plot 3:
+P2_P3 <- ggdraw() +
+  draw_plot(P2, x = 0, y = 0, width = .5, height = 1) +
+  draw_plot(P3, x = .5, y = 0, width = .5, height = 1) +
+  draw_plot_label(label = c("A", "B"), size = 15,
+                  x = c(0, 0.5), y = c(1, 1))
+P2_P3
+
+ggsave(
+  filename = "tid_psam_psam_effect_combined.png", 
+  plot = P2_P3,
   width = 8,      
   height = 6,     
   dpi = 900,

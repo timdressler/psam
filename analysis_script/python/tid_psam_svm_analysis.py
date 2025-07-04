@@ -301,7 +301,7 @@ for i, (ga_matrix, label) in enumerate(zip([ga_early, ga_late], ['early', 'late'
     axs[i].set_ylabel("Gamma")
     axs[i].tick_params(axis='x', rotation=90, labelsize=8)
     axs[i].tick_params(axis='y', labelsize=8)
-plt.savefig(os.path.join(OUTPATH, "grandaverage_accuracy_heatmaps.png"), dpi=300)
+plt.savefig(os.path.join(OUTPATH, "tid_psam_grandaverage_accuracy_heatmaps.png"), dpi=1200)
 plt.close()
 
 # Plot: Grandaverage accuracy as a function of C (with fixed Gamma)
@@ -317,7 +317,7 @@ plt.tick_params(axis='both', labelsize=8)
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
-plt.savefig(os.path.join(OUTPATH, "grandaverage_c_accuracy.png"), dpi=300)
+plt.savefig(os.path.join(OUTPATH, "tid_psam_grandaverage_c_accuracy.png"), dpi=900)
 plt.close()
 
 # Plot: Grandaverage accuracy as a function of Gamma (with fixed C)
@@ -333,7 +333,7 @@ plt.tick_params(axis='both', labelsize=8)
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
-plt.savefig(os.path.join(OUTPATH, "grandaverage_gamma_accuracy.png"), dpi=300)
+plt.savefig(os.path.join(OUTPATH, "tid_psam_grandaverage_gamma_accuracy.png"), dpi=900)
 plt.close()
 
 # Save accuracy data

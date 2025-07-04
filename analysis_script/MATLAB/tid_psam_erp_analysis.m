@@ -436,7 +436,7 @@ colors = {
 
 % Create plot
 figure('Units', 'normalized', 'Position', [0 0.0500 1 0.8771]);
-sgtitle('Corrected ERPs and Topoplots for all Conditions')
+%%sgtitle('Corrected ERPs and Topoplots for all Conditions')
 subplot(3,4,5:6)
 for cond_early_num = 1:length(grandaverage_erp_cor_early)
     erp_2_plot = grandaverage_erp_cor_early{cond_early_num,1};
@@ -515,7 +515,7 @@ colors = {
 
 % Create plot
 figure('Units', 'normalized', 'Position', [0 0.0500 1 0.8771]);
-sgtitle('Uncorrected, Corrected and Control ERPs for all Conditions')
+%%sgtitle('Uncorrected, Corrected and Control ERPs for all Conditions')
 
 con_cond_num = 1;
 for cond_num = 1:length(grandaverage_erp_cor)
