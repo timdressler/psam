@@ -278,8 +278,8 @@ P1 <- ggplot(df_erp, aes(x = task_instruction, y = erp_amp, color = probe_type, 
     "Unaltered" = colors$main_blue
   )) +
   labs(
-    #title = "N100 ERP Amplitudes by Probe Type, Task Instruction, and Probe Onset",
-    y = "N100 ERP Amplitude (µV)",
+    #title = "N1 ERP Amplitudes by Probe Type, Task Instruction, and Probe Onset",
+    y = "N1 ERP Amplitude (µV)",
     x = NULL,
     color = "Probe Type"
   ) +
@@ -404,8 +404,8 @@ P4 <- ggplot(df_erp, aes(x = task_instruction, y = erp_lat, color = probe_type, 
     "Unaltered" = colors$main_blue
   )) +
   labs(
-    #title = "N100 ERP Latencies by Probe Type, Task Instruction, and Probe Onset",
-    y = "N100 ERP Latency (ms)",
+    #title = "N1 ERP Latencies by Probe Type, Task Instruction, and Probe Onset",
+    y = "N1 ERP Latency (ms)",
     x = NULL,
     color = "Probe Type"
   ) +
