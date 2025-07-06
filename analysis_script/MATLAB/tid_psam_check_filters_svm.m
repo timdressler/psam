@@ -21,22 +21,24 @@ set(0,'DefaultTextInterpreter','none')
 
 % Set up paths
 SCRIPTPATH = cd;
-if regexp(SCRIPTPATH, regexptranslate('wildcard','*psam\analysis_script\MATLAB')) == 1
+normalizedPath = strrep(SCRIPTPATH, filesep, '/');
+expectedSubpath = 'psam/analysis_script/MATLAB';
+
+if contains(normalizedPath, expectedSubpath)
     disp('Path OK')
 else
     error('Path not OK')
 end
 
-MAINPATH = erase(SCRIPTPATH, '\analysis_script\MATLAB');
-INPATH_RAW = fullfile(MAINPATH, 'data\processed_data\markers_included\');
-INPATH_CLEAN = fullfile(MAINPATH, 'data\processed_data\erp_preprocessed_clean\');
-INPATH_ICA = fullfile(MAINPATH, 'data\processed_data\ica_preprocessed\');
-INPATH_HILBERT = fullfile(MAINPATH, 'data\processed_data\hilbert_prepared_clean'); % Keep for context, although hilbert processing removed
-INPATH_EXCLUDED = fullfile(MAINPATH, 'data\processed_data\exclude_trials\');
+MAINPATH = strrep(SCRIPTPATH, fullfile('analysis_script', 'MATLAB'), '');
+INPATH_RAW = fullfile(MAINPATH, 'data', 'processed_data', 'markers_included');
+INPATH_CLEAN = fullfile(MAINPATH, 'data', 'processed_data', 'erp_preprocessed_clean');
+INPATH_ICA = fullfile(MAINPATH, 'data', 'processed_data', 'ica_preprocessed');
+INPATH_HILBERT = fullfile(MAINPATH, 'data', 'processed_data', 'hilbert_prepared_clean');
+INPATH_EXCLUDED = fullfile(MAINPATH, 'data', 'processed_data', 'exclude_trials');
+OUTPATH = fullfile(MAINPATH, 'data', 'analysis_data', 'check_filters_svm');
+FUNPATH = fullfile(MAINPATH, 'functions');
 
-OUTPATH = fullfile(MAINPATH, 'data\analysis_data\check_filters_svm');
-
-FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);
 
 tid_psam_check_folder_TD(MAINPATH, INPATH_RAW, INPATH_ICA, INPATH_EXCLUDED, OUTPATH, INPATH_CLEAN)

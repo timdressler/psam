@@ -52,17 +52,22 @@ if (interactive()) {
   script_path <- normalizePath(sub("--file=", "", args[grep("--file=", args)]))
   SCRIPTPATH <- dirname(script_path)
 }
-if (grepl("psam/analysis_script/R", SCRIPTPATH)) {
-  cat("Path OK") 
+
+# Normalize path separators for consistent matching
+normalized_path <- gsub("[\\]", "/", SCRIPTPATH)
+
+# Check if path is correct
+if (grepl("psam/analysis_script/R", normalized_path)) {
+  cat("Path OK\n") 
 } else {
   stop("Path not OK")  
 }
 
-MAINPATH <- gsub("/analysis_script/R", "", SCRIPTPATH)
+MAINPATH <- sub("/analysis_script/R$", "", normalized_path)
 INPATH <- file.path(MAINPATH, "data", "analysis_data", "erp_analysis")
 OUTPATH <- file.path(MAINPATH, "data", "analysis_data", "stats_erp_analysis")
-
 FUNPATH <- file.path(MAINPATH, "functions")
+
 source(file.path(FUNPATH, "tid_psam_check_folder_TD.R"))
 source(file.path(FUNPATH, "tid_psam_clean_up_folder_TD.R"))
 

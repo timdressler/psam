@@ -61,7 +61,8 @@ random.seed(123)
 # Set up paths
 SCRIPTPATH = os.path.dirname(os.path.abspath(__file__))
 expected_subpath = os.path.join('psam', 'analysis_script')
-if not re.search(re.escape(expected_subpath) + r'$', SCRIPTPATH):
+
+if not SCRIPTPATH.endswith(expected_subpath):
     raise EnvironmentError('Path not OK')
 
 MAINPATH = os.path.abspath(os.path.join(SCRIPTPATH, '..'))

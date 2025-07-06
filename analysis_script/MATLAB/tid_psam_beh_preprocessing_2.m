@@ -30,18 +30,21 @@ set(0,'DefaultTextInterpreter','none')
 
 % Set up paths
 SCRIPTPATH = cd;
-if regexp(SCRIPTPATH, regexptranslate('wildcard','*psam\analysis_script\MATLAB')) == 1
+normalizedPath = strrep(SCRIPTPATH, filesep, '/');
+expectedSubpath = 'psam/analysis_script/MATLAB';
+
+if contains(normalizedPath, expectedSubpath)
     disp('Path OK')
 else
     error('Path not OK')
 end
 
-MAINPATH = erase(SCRIPTPATH, '\analysis_script\MATLAB');
-INPATH = fullfile(MAINPATH, 'data\BIDS\');
-INPATH_PRAAT = fullfile(MAINPATH, 'data\processed_data\beh_preprocessed_1\');
-OUTPATH = fullfile(MAINPATH, 'data\processed_data\beh_preprocessed_2\');
+MAINPATH = strrep(SCRIPTPATH, fullfile('analysis_script', 'MATLAB'), '');
+INPATH = fullfile(MAINPATH, 'data', 'BIDS');
+INPATH_PRAAT = fullfile(MAINPATH, 'data', 'processed_data', 'beh_preprocessed_1');
+OUTPATH = fullfile(MAINPATH, 'data', 'processed_data', 'beh_preprocessed_2');
+FUNPATH = fullfile(MAINPATH, 'functions');
 
-FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);
 
 tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)

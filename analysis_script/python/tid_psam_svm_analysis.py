@@ -40,14 +40,15 @@ random.seed(123)
 # Set up paths
 SCRIPTPATH = os.path.dirname(os.path.abspath(__file__))
 expected_subpath = os.path.join('psam', 'analysis_script', 'python')
-if not re.search(re.escape(expected_subpath) + r'$', SCRIPTPATH):
+
+if not SCRIPTPATH.endswith(expected_subpath):
     raise EnvironmentError('Path not OK')
 
 MAINPATH = os.path.abspath(os.path.join(SCRIPTPATH, '..', '..'))
 INPATH = os.path.join(MAINPATH, 'data', 'processed_data', 'svm_prepared_clean')
 OUTPATH = os.path.join(MAINPATH, 'data', 'analysis_data', 'svm_analysis')
-
 FUNPATH = os.path.join(MAINPATH, 'functions')
+
 sys.path.append(FUNPATH)
 
 # Load costum functions

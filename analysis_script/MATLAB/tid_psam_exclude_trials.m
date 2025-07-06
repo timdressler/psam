@@ -53,25 +53,28 @@ set(0,'DefaultTextInterpreter','none')
 
 % Set up paths
 SCRIPTPATH = cd;
-if regexp(SCRIPTPATH, regexptranslate('wildcard','*psam\analysis_script\MATLAB')) == 1
+normalizedPath = strrep(SCRIPTPATH, filesep, '/');
+expectedSubpath = 'psam/analysis_script/MATLAB';
+
+if contains(normalizedPath, expectedSubpath)
     disp('Path OK')
 else
     error('Path not OK')
 end
 
-MAINPATH = erase(SCRIPTPATH, '\analysis_script\MATLAB');
-INPATH_ERP = fullfile(MAINPATH, 'data\processed_data\erp_preprocessed\');
-INPATH_SVM = fullfile(MAINPATH, 'data\processed_data\svm_preprocessed\');
-INPATH_BEH = fullfile(MAINPATH, 'data\processed_data\beh_preprocessed_2\');
-INPATH_QUEST = fullfile(MAINPATH, 'data\questionnaire_data\');
-INPATH_EXCLUDED_SUBJ = fullfile(MAINPATH, 'data\processed_data\markers_included\');
-OUTPATH_ERP = fullfile(MAINPATH, 'data\processed_data\erp_preprocessed_clean\');
-OUTPATH_SVM = fullfile(MAINPATH, 'data\processed_data\svm_preprocessed_clean\');
-OUTPATH_BEH = fullfile(MAINPATH, 'data\processed_data\beh_preprocessed_clean\');
-OUTPATH_QUEST = fullfile(MAINPATH, 'data\questionnaire_data_clean\');
-OUTPATH = fullfile(MAINPATH, 'data\processed_data\exclude_trials\');
+MAINPATH = strrep(SCRIPTPATH, fullfile('analysis_script', 'MATLAB'), '');
+INPATH_ERP = fullfile(MAINPATH, 'data', 'processed_data', 'erp_preprocessed');
+INPATH_SVM = fullfile(MAINPATH, 'data', 'processed_data', 'svm_preprocessed');
+INPATH_BEH = fullfile(MAINPATH, 'data', 'processed_data', 'beh_preprocessed_2');
+INPATH_QUEST = fullfile(MAINPATH, 'data', 'questionnaire_data');
+INPATH_EXCLUDED_SUBJ = fullfile(MAINPATH, 'data', 'processed_data', 'markers_included');
+OUTPATH_ERP = fullfile(MAINPATH, 'data', 'processed_data', 'erp_preprocessed_clean');
+OUTPATH_SVM = fullfile(MAINPATH, 'data', 'processed_data', 'svm_preprocessed_clean');
+OUTPATH_BEH = fullfile(MAINPATH, 'data', 'processed_data', 'beh_preprocessed_clean');
+OUTPATH_QUEST = fullfile(MAINPATH, 'data', 'questionnaire_data_clean');
+OUTPATH = fullfile(MAINPATH, 'data', 'processed_data', 'exclude_trials');
+FUNPATH = fullfile(MAINPATH, 'functions');
 
-FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);
 
 % Load manually excluded subjects

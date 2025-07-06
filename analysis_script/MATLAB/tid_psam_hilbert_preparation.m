@@ -28,20 +28,23 @@ set(0,'DefaultTextInterpreter','none')
 
 % Set up paths
 SCRIPTPATH = cd;
-if regexp(SCRIPTPATH, regexptranslate('wildcard','*psam\analysis_script\MATLAB')) == 1
+normalizedPath = strrep(SCRIPTPATH, filesep, '/');
+expectedSubpath = 'psam/analysis_script/MATLAB';
+
+if contains(normalizedPath, expectedSubpath)
     disp('Path OK')
 else
     error('Path not OK')
 end
 
-MAINPATH = erase(SCRIPTPATH, '\analysis_script\MATLAB');
-IDPATH = fullfile(MAINPATH, 'data\processed_data\svm_preprocessed_clean\'); % Only used to get subject IDs of non-excluded participants, data is loaded from INPATH
-INPATH_RAW = fullfile(MAINPATH, 'data\processed_data\markers_included\');
-INPATH_ICA = fullfile(MAINPATH, 'data\processed_data\ica_preprocessed\');
-INPATH_EXCLUDED = fullfile(MAINPATH, 'data\processed_data\exclude_trials\');
-OUTPATH = fullfile(MAINPATH, 'data\processed_data\hilbert_prepared_clean');
+MAINPATH = strrep(SCRIPTPATH, fullfile('analysis_script', 'MATLAB'), '');
+IDPATH = fullfile(MAINPATH, 'data', 'processed_data', 'svm_preprocessed_clean');
+INPATH_RAW = fullfile(MAINPATH, 'data', 'processed_data', 'markers_included');
+INPATH_ICA = fullfile(MAINPATH, 'data', 'processed_data', 'ica_preprocessed');
+INPATH_EXCLUDED = fullfile(MAINPATH, 'data', 'processed_data', 'exclude_trials');
+OUTPATH = fullfile(MAINPATH, 'data', 'processed_data', 'hilbert_prepared_clean');
+FUNPATH = fullfile(MAINPATH, 'functions');
 
-FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);
 
 tid_psam_check_folder_TD(MAINPATH, IDPATH, OUTPATH, INPATH_RAW, INPATH_ICA)
