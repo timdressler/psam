@@ -131,6 +131,20 @@ df_sam_long <- df_sam %>%
   mutate(break_num = as.integer(break_num))
 df_sam_long$break_num <- as.factor(df_sam_long$break_num)
 
+df_nasatlx_long <- df_nasatlx %>%
+  pivot_longer(
+    cols = starts_with("var"),
+    names_to = "dimension",
+    values_to = "rating"
+  ) %>%
+  mutate(
+    dimension = factor(dimension,
+                       levels = c("var1_mental_demand", "var2_physical_demand", "var3_performance",
+                                  "var4_effort", "var5_frustration"),
+                       labels = c("Mental Demand", "Physical Demand", "Performance", "Effort", "Frustration")
+    )
+  )
+
 
 #------------------------------------Analysis-----------------------------------
 
@@ -393,19 +407,128 @@ ezDesign(df_sam_long, x = break_num, y = subj)
 # - Balance of the design: OK
 #------------------------------------------------------------------------------#
 
+#-------------------------------------Plots-------------------------------------
 
+# Plot 1: Mood by Block
 
+P1 <- ggplot(df_sam_long, aes(x = break_num, y = mood)) +
+  geom_boxplot(width = 0.3, fill = colors$main_blue, color = "black", alpha = 1) +
+  scale_y_continuous(
+    limits = c(1, 9),
+    breaks = 1:9,
+    labels = c(
+      "1\nVery Negative", "2", "3", "4", "5", "6", "7", "8", "9\nVery Positive"
+    )
+  ) +
+  labs(
+    x = 'Break Number',
+    y = 'Mood'
+  ) +
+  theme_classic() +
+  theme(
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12)
+  )
+P1
 
+ggsave(
+  filename = "tid_psam_SAM_mood.png", 
+  plot = P1,
+  width = 8,      
+  height = 6,     
+  dpi = 900,
+  bg = "white"
+)
 
+# Plot 2: Tiredness by Block
 
+P2 <- ggplot(df_sam_long, aes(x = break_num, y = tiredness)) +
+  geom_boxplot(width = 0.3, fill = colors$main_green, color = "black", alpha = 1) +
+  scale_y_continuous(
+    limits = c(1, 9),
+    breaks = 1:9,
+    labels = c(
+      "1\nVery Awake", "2", "3", "4", "5", "6", "7", "8", "9\nVery Tired"
+    )
+  ) +
+  labs(
+    x = 'Break Number',
+    y = 'Tiredness'
+  ) +
+  theme_classic() +
+  theme(
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12)
+  )
+P2
 
+ggsave(
+  filename = "tid_psam_SAM_tiredness.png", 
+  plot = P2,
+  width = 8,      
+  height = 6,     
+  dpi = 900,
+  bg = "white"
+)
 
+# Combine Plot 1 and Plot 2
+P1_P2 <- ggdraw() +
+  draw_plot(P1, x = 0, y = 0, width = .5, height = 1) +
+  draw_plot(P2, x = .5, y = 0, width = .5, height = 1) +
+  draw_plot_label(label = c("A", "B"), size = 15,
+                  x = c(0, 0.5), y = c(1, 1))
+P1_P2
 
+ggsave(
+  filename = "tid_psam_SAM_combined.png", 
+  plot = P1_P2,
+  width = 8,      
+  height = 6,     
+  dpi = 900,
+  bg = "white"
+)
 
+# Plot 3: NASA-TLX
 
+P3 <- ggplot(df_nasatlx_long, aes(x = dimension, y = rating)) +
+  geom_boxplot(fill = colors$main_blue, color = "black", width = 0.5) +
+  scale_x_discrete(labels = c(
+    "Mental Demand" = "Mental Demand",
+    "Physical Demand" = "Physical Demand",
+    "Effort" = "Effort",
+    "Frustration" = "Frustration",
+    "Performance" = "Performance*"
+  )) +
+  scale_y_continuous(
+    limits = c(0, 10),
+    breaks = seq(0, 10, 2),
+    labels = c("0\nLow/\nGood*", "2", "4", "6", "8", "10\nHigh/\nBad*")
+  ) +
+  labs(
+    x = "Dimension",
+    y = "Rating"
+  ) +
+  theme_classic() +
+  theme(
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12)
+  )
+P3
 
-
-
+ggsave(
+  filename = "tid_psam_NASATLX.png", 
+  plot = P3,
+  width = 8,      
+  height = 6,     
+  dpi = 900,
+  bg = "white"
+)
 
 
 

@@ -258,7 +258,7 @@ performance::check_convergence(MAIN_ERP3)
 performance::check_model(MAIN_ERP3)
 
 #------------------------------------------------------------------------------#
-# task_instruction x probe_type sig.; all other n.s.
+# all n.s.
 
 # Assumptions
 # (- Convergence: OK)
@@ -433,7 +433,7 @@ ggsave(
   bg = "white"
 )
 
-# Combine Plot 2 and Plot 3:
+# Combine Plot 2 and Plot 3
 P2_P3 <- ggdraw() +
   draw_plot(P2, x = 0, y = 0, width = .5, height = 1) +
   draw_plot(P3, x = .5, y = 0, width = .5, height = 1) +
