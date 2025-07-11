@@ -284,7 +284,7 @@ P1 <- ggplot(df_erp, aes(x = task_instruction, y = erp_amp, color = probe_type, 
   )) +
   labs(
     #title = "N1 ERP Amplitudes by Probe Type, Task Instruction, and Probe Onset",
-    y = "N1 ERP Amplitude (µV)",
+    y = "N1 ERP Amplitude [µV]",
     x = NULL,
     color = "Probe Type"
   ) +
@@ -319,7 +319,7 @@ P2 <- ggplot(df_psam, aes(x = probe_onset_cat, y = psam_amp, color = probe_type,
   )) +
     labs(
     #title = "PSAM Effect Amplitudes by Probe Type and Probe Onset",
-    y = "PSAM Effect Amplitude (µV)",
+    y = "PSAM Effect Amplitude [µV]",
     x = "Probe Onset",
     color = "Probe Type"
   ) +
@@ -375,7 +375,7 @@ P3 <- ggplot(df_psam, aes(x = probe_combination, y = psam_amp, fill = probe_type
   scale_fill_manual(values = c("Altered" = colors$main_red, "Unaltered" = colors$main_blue)) +
   labs(
     #title = "PSAM Effect Amplitudes by Probe Type and Probe Onset Combinations",
-    y = "PSAM Effect Amplitude (µV)",
+    y = "PSAM Effect Amplitude [µV]",
     x = "Condition",
     fill = "Probe Type"
   ) +
@@ -410,7 +410,7 @@ P4 <- ggplot(df_erp, aes(x = task_instruction, y = erp_lat, color = probe_type, 
   )) +
   labs(
     #title = "N1 ERP Latencies by Probe Type, Task Instruction, and Probe Onset",
-    y = "N1 ERP Latency (ms)",
+    y = "N1 ERP Latency [ms]",
     x = NULL,
     color = "Probe Type"
   ) +
