@@ -376,7 +376,7 @@ P3 <- ggplot(df_psam, aes(x = probe_combination, y = psam_amp, fill = probe_type
   labs(
     #title = "PSAM Effect Amplitudes by Probe Type and Probe Onset Combinations",
     y = "PSAM Effect Amplitude [µV]",
-    x = "Condition",
+    x = NULL,
     fill = "Probe Type"
   ) +
   theme_minimal(base_size = 10) +
