@@ -9,8 +9,7 @@ generaltest/
 
 __pycache__/
 *.pyc
+*.Rhistory
+.RData
 
-*TEST.R
-*TEST.m
-*TEST.py
 analysis_script/R/R_TEST.R
