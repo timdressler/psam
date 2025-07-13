@@ -6,6 +6,7 @@
 
 #-------------------------------------Set up------------------------------------
 # Load packages
+library(Rmisc)
 library(tidyr) 
 library(afex)
 library(emmeans)
@@ -213,7 +214,15 @@ df_subj_f0 <- df_subj_f0[c("subj", "var3_sex", "recording_f0")]
 df_subj_f0$var3_sex <- as.factor(df_subj_f0$var3_sex)
 df_subj_f0$var3_sex <- car::recode(df_subj_f0$var3_sex, "1='male';2='female'; 3 = 'diverse'")
 
-
+# Within SEs for plots
+df_probe_type_onset_f0_withinSE <- summarySEwithin(
+  data = df_probe_type_onset_f0,
+  measurevar = "recording_f0",
+  withinvars = c("probe_type", "probe_onset_cat"),
+  idvar = "subj",
+  conf.interval = 0.95,
+  .drop = TRUE
+)
 
 #------------------------------------Analysis-----------------------------------
 
@@ -739,12 +748,8 @@ P1 <- df_probe_properties_z %>%
   geom_boxplot(width=0.5, alpha = 1) +
   scale_x_discrete(limits=c("probe_f0_unaltered_z","probe_f0_altered_z"), labels = c('probe_f0_unaltered_z' = 'Unaltered', 'probe_f0_altered_z' = 'Altered')) +
   scale_y_continuous(n.breaks = 8) +
-  labs(x = "Probe Type", y = "F0 [z]") +
-  theme_classic() +
-  theme(axis.text.x = element_text(size = 12)) +
-  theme(axis.text.y = element_text(size = 12)) +
-  theme(axis.title.x = element_text(size = 12)) +
-  theme(axis.title.y = element_text(size = 12)) +
+  labs(x = "Probe Type", y = "Probe F0 [z]") +
+  theme_minimal(base_size = 10) +
   theme(legend.position = "none") +
   geom_signif(comparisons=list(c("probe_f0_altered_z", "probe_f0_unaltered_z")), annotations="***",
               y_position = 5.5, tip_length = 0.02,  vjust=0.4) 
@@ -761,8 +766,53 @@ ggsave(
   bg = "white"
 )
 
+# Plot 2: F0 by Probe Type and Probe Onset
+P2 <- ggplot(df_probe_type_onset_f0_withinSE, aes(x = probe_onset_cat, y = recording_f0, color = probe_type, group = probe_type)) +
+  geom_line(aes(y = recording_f0), size = 1.2) +
+  geom_errorbar(aes(ymin = recording_f0 - se, ymax = recording_f0 + se), width = 0.2, size = 0.8) +
+  geom_point(size = 3) +
+  scale_color_manual(values = c(
+    "Altered" = colors$main_red,
+    "Unaltered" = colors$main_blue
+  )) +
+  labs(
+    #title = "F0 by Probe Type and Probe Onset",
+    y = "Mean F0 [Hz]",
+    x = "Probe Onset",
+    color = "Probe Type"
+  ) +
+  theme_minimal(base_size = 10) +
+  theme(
+    strip.text = element_text(face = "bold", size = 9),
+    legend.position = "top"
+  ) + 
+  scale_x_discrete(labels = c("Early" = "Early",
+                              "Late" = "Late"))
+P2
 
+# Save plot
+ggsave(
+  filename = "tid_psam_f0.png", 
+  plot = P2,
+  width = 8,      
+  height = 6,     
+  dpi = 900,
+  bg = "white"
+)
 
+# Combine Plot 1 and Plot 2
+P1_P2 <- ggdraw() +
+  draw_plot(P1, x = 0, y = 0, width = .5, height = 1) +
+  draw_plot(P2, x = .5, y = 0, width = .5, height = 1) +
+  draw_plot_label(label = c("A", "B"), size = 15,
+                  x = c(0, 0.5), y = c(1, 1))
+P1_P2
 
-
-
+ggsave(
+  filename = "tid_psam_probe_f0_z_f0_combined.png", 
+  plot = P1_P2,
+  width = 8,      
+  height = 6,     
+  dpi = 900,
+  bg = "white"
+)

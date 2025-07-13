@@ -223,10 +223,10 @@ P1v2 <- df_svm %>%
   labs(x = NULL, y = "Percentage of possible Hyperparameter-Pairs \n leading to an above-chance Classification") +
   theme_classic() +
   theme(
-    axis.text.x = element_text(size = 12),
-    axis.text.y = element_text(size = 12),
-    axis.title.x = element_text(size = 12),
-    axis.title.y = element_text(size = 12),
+    axis.text.x = element_text(size = 10),
+    axis.text.y = element_text(size = 10),
+    axis.title.x = element_text(size = 10),
+    axis.title.y = element_text(size = 10),
     legend.position = "none"
   ) +
   geom_signif(comparisons = list(c("prop_sig_early", "prop_sig_late")), annotations = "n.s.",

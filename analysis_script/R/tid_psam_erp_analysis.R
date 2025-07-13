@@ -6,6 +6,7 @@
 
 #-------------------------------------Set up------------------------------------
 # Load packages
+library(Rmisc)
 library(tidyr) 
 library(afex)
 library(emmeans)
@@ -122,6 +123,27 @@ df_psam <- left_join(temp_df_active, temp_df_passive,
 df_erp <- df_erp %>% select(-temp_matching_condition) # Delete the temporary matching variable
 rm(temp_df_active, temp_df_passive) # Delete the temporary dfs
 
+# Within SEs for plots
+df_erp_withinSE <- summarySEwithin(
+  df_erp,
+  measurevar = "erp_amp",
+  withinvars = c("task_instruction", "probe_type", "probe_onset_cat"),
+  idvar = "subj"
+)
+
+df_psam_withinSE <- summarySEwithin(
+  df_psam,
+  measurevar = "psam_amp",
+  withinvars = c("probe_type", "probe_onset_cat"),
+  idvar = "subj"
+)
+
+df_erp_lat_withinSE <- summarySEwithin(
+  df_erp,
+  measurevar = "erp_lat",
+  withinvars = c("task_instruction", "probe_type", "probe_onset_cat"),
+  idvar = "subj"
+)
 
 #------------------------------------Analysis-----------------------------------
 
@@ -271,10 +293,10 @@ performance::check_model(MAIN_ERP3)
 #-------------------------------------Plots-------------------------------------
 
 # Plot 1: ERP Amplitudes by Probe Type, Task Instruction, and Probe Onset
-P1 <- ggplot(df_erp, aes(x = task_instruction, y = erp_amp, color = probe_type, group = probe_type)) +
-  stat_summary(fun = mean, geom = "line", size = 1.2) +
-  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, size = 0.8) +
-    stat_summary(fun = mean, geom = "point", size = 3) +
+P1 <- ggplot(df_erp_withinSE, aes(x = task_instruction, y = erp_amp, color = probe_type, group = probe_type)) +
+  geom_line(aes(y = erp_amp), size = 1.2) +
+  geom_errorbar(aes(ymin = erp_amp - se, ymax = erp_amp + se), width = 0.2, size = 0.8) +
+  geom_point(size = 3) +
   facet_wrap(~ probe_onset_cat, nrow = 1,
              labeller = as_labeller(c("Early" = "Early Probe Onset",
                                       "Late" = "Late Probe Onset"))) +
@@ -294,7 +316,7 @@ P1 <- ggplot(df_erp, aes(x = task_instruction, y = erp_amp, color = probe_type, 
     legend.position = "top"
   ) + 
   scale_x_discrete(labels = c("Active" = "Active Task Condition",
-                                  "Passive" = "Passive Task Condition"))
+                              "Passive" = "Passive Task Condition"))
 P1
 
 # Save plot
@@ -307,17 +329,16 @@ ggsave(
   bg = "white"
 )
 
-
 # Plot 2: PSAM Effect Amplitudes by Probe Type and Probe Onset
-P2 <- ggplot(df_psam, aes(x = probe_onset_cat, y = psam_amp, color = probe_type, group = probe_type)) +
-  stat_summary(fun = mean, geom = "line", size = 1.2) +
-    stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, size = 0.8) +
-    stat_summary(fun = mean, geom = "point", size = 3) +
-    scale_color_manual(values = c(
+P2 <- ggplot(df_psam_withinSE, aes(x = probe_onset_cat, y = psam_amp, color = probe_type, group = probe_type)) +
+  geom_line(aes(y = psam_amp), size = 1.2) +
+  geom_errorbar(aes(ymin = psam_amp - se, ymax = psam_amp + se), width = 0.2, size = 0.8) +
+  geom_point(size = 3) +
+  scale_color_manual(values = c(
     "Altered" = colors$main_red,
     "Unaltered" = colors$main_blue
   )) +
-    labs(
+  labs(
     #title = "PSAM Effect Amplitudes by Probe Type and Probe Onset",
     y = "PSAM Effect Amplitude [µV]",
     x = "Probe Onset",
@@ -325,7 +346,7 @@ P2 <- ggplot(df_psam, aes(x = probe_onset_cat, y = psam_amp, color = probe_type,
   ) +
   theme_minimal(base_size = 10) +
   theme(
-    strip.text = element_text(face = "bold", size = 13),
+    strip.text = element_text(face = "bold", size = 9),
     legend.position = "top"
   ) + 
   scale_x_discrete(labels = c("Early" = "Early",
@@ -397,10 +418,10 @@ ggsave(
 )
 
 # Plot 4: ERP Latencies by Probe Type, Task Instruction, and Probe Onset
-P4 <- ggplot(df_erp, aes(x = task_instruction, y = erp_lat, color = probe_type, group = probe_type)) +
-  stat_summary(fun = mean, geom = "line", size = 1.2) +
-  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, size = 0.8) +
-  stat_summary(fun = mean, geom = "point", size = 3) +
+P4 <- ggplot(df_erp_lat_withinSE, aes(x = task_instruction, y = erp_lat, color = probe_type, group = probe_type)) +
+  geom_line(aes(y = erp_lat), size = 1.2) +
+  geom_errorbar(aes(ymin = erp_lat - se, ymax = erp_lat + se), width = 0.2, size = 0.8) +
+  geom_point(size = 3) +
   facet_wrap(~ probe_onset_cat, nrow = 1,
              labeller = as_labeller(c("Early" = "Early Probe Onset",
                                       "Late" = "Late Probe Onset"))) +
@@ -449,4 +470,5 @@ ggsave(
   dpi = 900,
   bg = "white"
 )
+
 
