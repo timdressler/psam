@@ -10,4 +10,6 @@ generaltest/
 __pycache__/
 *.pyc
 
-*_TEST*
+*_TEST.R
+*_TEST.m
+*_TEST.py
