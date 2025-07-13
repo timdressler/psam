@@ -9,3 +9,5 @@ generaltest/
 
 __pycache__/
 *.pyc
+
+*_TEST*
