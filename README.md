@@ -105,7 +105,7 @@ psam\
 - ```documents``` contains documents used during the data collection such as the participant information and the used questionnaires. Not needed to run any of the code.
 - ```experiment_script``` contains all code related to running the experiment (mainly PsychoPy-based).
 - ```functions``` contains all code related to any self-created and fetched functions. Some can be used independently of this project. Check them out.
-- ```poster``` contains the pdfs of posters associated with this research project.
+- ```poster``` contains the pdfs of posters (and corresponding abstracts) associated with this research project.
 - ```testing``` contains mutiple files related to testing. Not needed to run any of the code.
 - ```requirements.txt``` contains all the libraries used for the python-based analysis scripts. Use ```pip install -r requirements.txt``` to install all needed python dependencies.
 
