@@ -102,7 +102,7 @@ psam\
 - ```anylsis_script``` contains all code relating to the analysis. Individual scripts can be found in the respective subfolders. To run the entire pipeline (which (only) the raw data is needed for), run ```tid_psam_run_pipeline.py```. 
 - ```config``` contains files related to the EEG system. Needed for the analysis.
 - ```data``` contains the data. It is not included here be can be requested. If the data is available, it has to be placed in the path. Note that the raw data (```BIDS/```) and the questionnaire data (```questionnaire_data/```) is needed for running the pipeline. Processed data will be saved automatically in further subfolders under ```data/```.
-- ```documents``` contains documents used during the data collection such as the participant information and the used questionnaires. Not needed to run any of the code.
+- ```documents``` contains documents used during the data collection such as the participant information, instructions and the used questionnaires. Not needed to run any of the code.
 - ```experiment_script``` contains all code related to running the experiment (mainly PsychoPy-based).
 - ```functions``` contains all code related to any self-created and fetched functions. Some can be used independently of this project. Check them out.
 - ```poster``` contains the pdfs of posters (and corresponding abstracts) associated with this research project.
