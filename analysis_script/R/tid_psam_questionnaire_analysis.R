@@ -6,6 +6,8 @@
 
 #-------------------------------------Set up------------------------------------
 # Load packages
+library(devtools)
+library(renv)
 library(tidyr) 
 library(afex)
 library(emmeans)

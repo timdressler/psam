@@ -2,8 +2,6 @@
 
 # Investigating the Specificity of Pre-Speech Auditory Modulation - From Global Gating to Selective Silence?
 
-## In Brief
-
 ## This Repository
 
 This repository includes all code related to the 'Investigating the Specificity of Pre-Speech Auditory Modulation - From Global Gating to Selective Silence?' project conducted by Tim Dressler at the University of Oldenburg. The project was supervised by Prof. Dr. Stefan Debener and Prof. Dr. Andrea Hildebrandt.
@@ -18,7 +16,6 @@ psam\
 ├── analysis_script\
 │   │
 │   ├── MATLAB\
-│   │   ├── tid_psam_MATLAB_TEST.m
 │   │   ├── tid_psam_beh_analysis.m
 │   │   ├── tid_psam_beh_preprocessing_2.m
 │   │   ├── tid_psam_check_filters_erp.m
@@ -103,7 +100,7 @@ psam\
 - ```anylsis_script``` contains all code relating to the analysis. Individual scripts can be found in the respective subfolders. To run the entire pipeline (which (only) the raw data is needed for), run ```tid_psam_run_pipeline.py```. 
 - ```config``` contains files related to the EEG system. Needed for the analysis.
 - ```data``` contains the data. It is not included here be can be requested. If the data is available, it has to be placed in the path. Note that the raw data (```BIDS/```) and the questionnaire data (```questionnaire_data/```) is needed for running the pipeline. Processed data will be saved automatically in further subfolders under ```data/```.
-- ```documents``` contains documents used during the data collection such as the participant information. Not needed to run any of the code.
+- ```documents``` contains documents used during the data collection such as the participant information and the used questionnaires. Not needed to run any of the code.
 - ```experiment_script``` contains all code related to running the experiment (mainly PsychoPy-based).
 - ```functions``` contains all code related to any self-created and fetched functions. Some can be used independently of this project. Check them out.
 - ```testing``` contains mutiple files related to testing. Not needed to run any of the code.
@@ -183,6 +180,14 @@ This table includes all needed software to run the analysis pipeline.
 | R Package       | stringr                      | 1.5.1            | Automatically installed                          |
 | R Package       | lme4                         | 1.1.37           | Automatically installed                          |
 | R Package       | performance                  | 0.14.0           | Automatically installed                          |
+| R Package       | Rmisc                        | 1.5.1            | Automatically installed                          |
+| R Package       | nparLD                       | 2.2              | Automatically installed                          |
+| R Package       | RVAideMemoire                | 0.9.83.11        | Automatically installed                          |
+| R Package       | effectsize                   | 1.0.1            | Automatically installed                          |
+| R Package       | lmerTest                     | 3.1.3            | Automatically installed                          |
+| R Package       | smplot2                      | 0.2.5            | Automatically installed                          |
+| R Package       | devtools                     | 2.4.5            | Automatically installed                          |
+| R Package       | renv                         | 1.1.4            | Automatically installed                          |
 | Python Package  | colorama                     | 0.4.6            | Automatically installed                          |
 | Python Package  | contourpy                    | 1.3.2            | Automatically installed                          |
 | Python Package  | cycler                       | 0.12.1           | Automatically installed                          |
@@ -210,6 +215,7 @@ This table includes all needed software to run the analysis pipeline.
 | Python Package  | tzdata                       | 2025.2           | Automatically installed                          |
 | Python Package  | wheel                        | 0.45.1           | Automatically installed                          |
 | Praat Tool      | Praat Vocal Toolkit          | 2012–2024        | Included in the repository, no installation needed |
+
 
 
 
