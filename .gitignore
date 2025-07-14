@@ -13,5 +13,5 @@ __pycache__/
 .RData
 
 analysis_script/R/tid_psam_R_TEST.R
-analysis_script/pythion/tid_psam_python_TEST.py
-analysis_script/Matlab/tid_psam_matlab_TEST.m
+analysis_script/python/tid_psam_python_TEST.py
+analysis_script/MATLAB/tid_psam_matlab_TEST.m
