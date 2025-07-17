@@ -59,7 +59,7 @@ psam\
 │
 ├── config\
 │
-├── data\ (not included in this repository, can be requested)
+├── data\ (NOT INCLUDED IN THIS REPOSITORY, CAN BE REQUESTED)
 │   │
 │   ├── BIDS\
 │   │
