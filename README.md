@@ -1,4 +1,4 @@
-# WORK IN PROGRESS!!!
+# WORK IN PROGRESS!
 
 # Investigating the Specificity of Pre-Speech Auditory Modulation - From Global Gating to Selective Silence?
 
