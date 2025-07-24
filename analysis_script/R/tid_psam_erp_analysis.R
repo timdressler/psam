@@ -258,10 +258,10 @@ ezPlot(
   data = df_erp 
   , dv = erp_lat 
   , wid = subj  
-  , within= .(task_instruction,probe_type)
-  , within_full= .(task_instruction,probe_type, probe_onset_cat)
+  , within= .(task_instruction,probe_type, probe_onset_cat)
   , x = .(probe_type)
   , split   = .(task_instruction)
+  , row = .(probe_onset_cat)
 )
 
 # Descriptive statistics
