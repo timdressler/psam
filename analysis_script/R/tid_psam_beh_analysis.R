@@ -539,6 +539,11 @@ psych::describeBy(
   list(df_probe_type_onset_vot$probe_type, df_probe_type_onset_vot$probe_onset_cat)
 )
 
+psych::describeBy(
+  df_probe_type_onset_vot$recording_vot,
+  list(df_probe_type_onset_vot$probe_onset_cat)
+)
+
 # Follow-Up T-Tests
 BEH5_EM <- emmeans(BEH5, ~ probe_type | probe_onset_cat)
 BEH5_PWC <- pairs(BEH5_EM, adjust = "bonferroni")
