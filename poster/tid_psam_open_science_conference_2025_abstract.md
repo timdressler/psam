@@ -1,4 +1,4 @@
-# Open Science Concerence 2025, Oldenburg
+# Open Science Conference 2025, Oldenburg
 
 ## Investigating the Specificity of Pre-Speech Auditory Modulation - From Global Gating to Selective Silence?
 #### Tim Dreßler, Andrea Hildebrant, Stefan Debener
