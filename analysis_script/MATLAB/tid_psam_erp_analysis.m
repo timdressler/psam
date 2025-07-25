@@ -452,7 +452,7 @@ xlim([-200 400])
 ylim([y_lim_lower y_lim_upper])
 xlabel('Time [ms]')
 ylabel('Amplitude [µV]')
-title('ERPs for early probes')
+title('Early Probe Onset')
 fill([70 130 130 70], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], light_blue, 'FaceAlpha',0.1, 'EdgeColor','none');
 l = legend([grandaverage_erp_cor_early(:,2)]', 'Interpreter','none');
 l.Location = 'northwest';
@@ -471,7 +471,7 @@ xlim([-200 400])
 ylim([y_lim_lower y_lim_upper])
 xlabel('Time [ms]')
 ylabel('Amplitude [µV]')
-title('ERPs for late probes')
+title('Late Probe Onset')
 fill([70 130 130 70], [y_lim_upper y_lim_upper y_lim_lower y_lim_lower], light_blue, 'FaceAlpha',0.1, 'EdgeColor','none');
 l = legend([grandaverage_erp_cor_late(:,2)]', 'Interpreter','none');
 l.Location = 'northwest';
