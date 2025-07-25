@@ -247,7 +247,7 @@ for file_early, file_late in tqdm(zip(dircont_subj_early, dircont_subj_late), to
 
         sns.heatmap(acc_df, ax=axs[i], cmap='magma', vmin=0.5, vmax=0.85,
                     cbar=(i == 1), cbar_kws={"label": "Validation Accuracy"}, xticklabels=True, yticklabels=True)
-        axs[i].set_title(f"{subj} - {label} - Accuracy Grid\n"
+        axs[i].set_title(f"{subj} - {label.capitalize()}\n"
                         f"Min: {min_val:.3f}, Max: {max_val:.3f}, >Chance: {above_chance_prop:.2%}")
         axs[i].set_xlabel("C")
         axs[i].set_ylabel("Gamma")
@@ -296,7 +296,7 @@ fig, axs = plt.subplots(1, 2, figsize=(16, 6), constrained_layout=True)
 for i, (ga_matrix, label) in enumerate(zip([ga_early, ga_late], ['early', 'late'])):
     ga_df = pd.DataFrame(ga_matrix, index=[f"{g:.0e}" for g in gamma_range], columns=[f"{c:.5f}" for c in C_range])
     sns.heatmap(ga_df, ax=axs[i], cmap='magma', vmin=0.5, vmax=0.85,
-                cbar=(i == 1), cbar_kws={"label": "Mean Accuracy"}, xticklabels=True, yticklabels=True)
+                cbar=(i == 1), cbar_kws={"label": "Validation Accuracy"}, xticklabels=True, yticklabels=True)
     axs[i].set_title(f"Grand Average - {label.capitalize()}")
     axs[i].set_xlabel("C")
     axs[i].set_ylabel("Gamma")
@@ -311,7 +311,7 @@ plt.plot(C_range, ga_early[fixed_gamma_idx, :], label='Early', marker='o')
 plt.plot(C_range, ga_late[fixed_gamma_idx, :], label='Late', marker='s')
 plt.xscale('log')
 plt.xlabel("C")
-plt.ylabel("Accuracy")
+plt.ylabel("Validation Accuracy")
 plt.title(f"GA - Accuracy vs C (Fixed Gamma: {gamma_range[fixed_gamma_idx]:.5e})")
 plt.xticks(C_range, [f"{c:.5f}" for c in C_range], rotation=90)
 plt.tick_params(axis='both', labelsize=8)
@@ -327,7 +327,7 @@ plt.plot(gamma_range, ga_early[:, fixed_C_idx], label='Early', marker='o')
 plt.plot(gamma_range, ga_late[:, fixed_C_idx], label='Late', marker='s')
 plt.xscale('log')
 plt.xlabel("Gamma")
-plt.ylabel("Accuracy")
+plt.ylabel("Validation Accuracy")
 plt.title(f"GA - Accuracy vs Gamma (Fixed C: {C_range[fixed_C_idx]:.2f})")
 plt.xticks(gamma_range, [f"{g:.0e}" for g in gamma_range], rotation=90)
 plt.tick_params(axis='both', labelsize=8)
