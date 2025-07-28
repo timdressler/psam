@@ -253,7 +253,7 @@ for file_early, file_late in tqdm(zip(dircont_subj_early, dircont_subj_late), to
         axs[i].set_ylabel("Gamma")
         axs[i].tick_params(axis='x', rotation=90, labelsize=8)
         axs[i].tick_params(axis='y', labelsize=8)
-    plt.savefig(os.path.join(outpath, f"{subj}_accuracy_heatmaps.png"), dpi=300)
+    plt.savefig(os.path.join(outpath, f"{subj}_accuracy_heatmaps.png"), dpi=1200)
     plt.close()
 
 
