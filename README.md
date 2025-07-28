@@ -21,6 +21,7 @@ psam\
 │   │   ├── tid_psam_erp_preprocessing.m
 │   │   ├── tid_psam_exclude_trials.m
 │   │   ├── tid_psam_feature_analysis.m
+│   │   ├── tid_psam_helper.m
 │   │   ├── tid_psam_hilbert_preparation.m
 │   │   ├── tid_psam_ica_preprocessing.m
 │   │   ├── tid_psam_questionnaire_input.m
@@ -79,6 +80,7 @@ psam\
 │   ├── tid_psam_check_id_TD.m
 │   ├── tid_psam_clean_up_folder_TD.R
 │   ├── tid_psam_clean_up_folder_TD.m
+│   ├── tid_psam_copy_files_from_subfolders_TD.m
 │   ├── tid_psam_get_transition_bandwidth_TD.m
 │   ├── tid_psam_hjorth_activity_TD.m
 │   ├── tid_psam_hjorth_complexity_TD.m
