@@ -343,19 +343,55 @@ pd.DataFrame(ga_early, index=[f"{g:.0e}" for g in gamma_range], columns=[f"{c:.5
 pd.DataFrame(ga_late, index=[f"{g:.0e}" for g in gamma_range], columns=[f"{c:.5f}" for c in C_range]) \
     .to_excel(os.path.join(OUTPATH, 'grandaverage_accuracy_grid_late.xlsx'))
 
-# Get proportion of the possible hyperparameter pairs that resulted in a above-chance-level classification for both early and late conditions
 sig_props = []
 for subj_idx, subj in enumerate([re.search(r'sub-\d+', f.name).group(0) for f in dircont_subj_early]):
     sig_thresh = all_sig_thresh[subj_idx]
     acc_early = all_acc_matrix_early[subj_idx]
     acc_late = all_acc_matrix_late[subj_idx]
+    
+    # Proportion above threshold
     prop_early = np.mean(acc_early > sig_thresh)
     prop_late = np.mean(acc_late > sig_thresh)
+
+    # Early min/max + indices
+    min_acc_early = np.min(acc_early)
+    max_acc_early = np.max(acc_early)
+    min_idx_early = np.unravel_index(np.argmin(acc_early), acc_early.shape)
+    max_idx_early = np.unravel_index(np.argmax(acc_early), acc_early.shape)
+    min_gamma_early = gamma_range[min_idx_early[0]]
+    min_C_early = C_range[min_idx_early[1]]
+    max_gamma_early = gamma_range[max_idx_early[0]]
+    max_C_early = C_range[max_idx_early[1]]
+
+    # Late min/max + indices
+    min_acc_late = np.min(acc_late)
+    max_acc_late = np.max(acc_late)
+    min_idx_late = np.unravel_index(np.argmin(acc_late), acc_late.shape)
+    max_idx_late = np.unravel_index(np.argmax(acc_late), acc_late.shape)
+    min_gamma_late = gamma_range[min_idx_late[0]]
+    min_C_late = C_range[min_idx_late[1]]
+    max_gamma_late = gamma_range[max_idx_late[0]]
+    max_C_late = C_range[max_idx_late[1]]
+
     n_trials = all_n_trials[subj_idx]
-    sig_props.append([subj, prop_early, prop_late, sig_thresh, n_trials])
+
+    sig_props.append([
+        subj, prop_early, prop_late, sig_thresh, n_trials,
+        min_acc_early, min_gamma_early, min_C_early,
+        max_acc_early, max_gamma_early, max_C_early,
+        min_acc_late, min_gamma_late, min_C_late,
+        max_acc_late, max_gamma_late, max_C_late
+    ])
+
 
 # Save proportion data
-sig_prop_df = pd.DataFrame(sig_props, columns=['subj', 'prop_sig_early', 'prop_sig_late', 'sig_thresh', 'n_trials'])
+sig_prop_df = pd.DataFrame(sig_props, columns=[
+    'subj',
+    'prop_sig_early', 'prop_sig_late',
+    'sig_thresh', 'n_trials',
+    'min_acc_early', 'max_acc_early',
+    'min_acc_late', 'max_acc_late'
+])
 sig_prop_df.to_excel(os.path.join(OUTPATH, 'all_subj_accuracy_proportions.xlsx'), index=False)
 
 # End of processing
