@@ -2,7 +2,7 @@
 
 ## This Repository
 
-This repository includes all code related to the **Investigating the Specificity of Pre-Speech Auditory Modulation - From Global Gating to Selective Silence?** project conducted by Tim Dressler at the University of Oldenburg (supervised by Prof. Dr. Stefan Debener and Prof. Dr. Andrea Hildebrandt). The study was preregistered under https://doi.org/10.17605/OSF.IO/23EYF. Any deviations from the preregistration are noted under https://osf.io/9quhn. The repository includes analysis code as well as as code used for running the experiment. No data is included, but can by requested. Next to code, the repository also includes documents documents such as instructions and questionnaires. Furthermore, publications in any form (e.g., posters) associated with this project are uploaded here (once they exist).
+This repository includes all code related to the **Investigating the Specificity of Pre-Speech Auditory Modulation - From Global Gating to Selective Silence?** project conducted by Tim Dressler at the University of Oldenburg (supervised by Prof. Dr. Stefan Debener and Prof. Dr. Andrea Hildebrandt). The study was preregistered under https://doi.org/10.17605/OSF.IO/23EYF. Any deviations from the preregistration are noted under https://osf.io/9quhn. The repository includes analysis code as well as code used for running the experiment. No data is included, but can by requested. Next to code, the repository also includes documents such as instructions and questionnaires. Furthermore, publications in any form (e.g., posters) associated with this project are uploaded here (once they exist).
 
 > [!NOTE]
 >  While this repository might be subject to further changes and optimizations, the repository was further published as a time-stamped, immutable, and permanent version under the following link which can be used for exact replication attemps.
@@ -116,7 +116,7 @@ analysis, MATLAB dependencies have to be installed manually (see below). ```Praa
 
 ### Usage
 
-It is recommended to use a dedicated Python environment (e.g. through conda) to mitigate the risk of potential version conflicts.
+It is recommended to use a dedicated Python environment (e.g. through Conda) to mitigate the risk of potential version conflicts.
 
 ```
 conda create -n psam python==3.13.4
