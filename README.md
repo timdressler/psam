@@ -97,6 +97,7 @@ psam\
 │
 ├── .gitattributes
 ├── .gitignore
+├── LICENSE
 ├── README.md
 └── requirements.txt
 ```
