@@ -2,6 +2,7 @@
 data/
 *.xlsx
 .vscode/
+archive/
 
 timingtest/
 markertest/
