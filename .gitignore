@@ -1,6 +1,7 @@
 *.asv
 data/
 *.xlsx
+.vscode/
 
 timingtest/
 markertest/
