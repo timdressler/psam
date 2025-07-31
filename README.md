@@ -119,7 +119,7 @@ analysis, MATLAB dependencies have to be installed manually (see below). ```Praa
 
 ### Usage
 
-It is recommended to use a dedicated Python environment (e.g. through Conda) to mitigate the risk of potential version conflicts.
+It is recommended to use a dedicated Python environment (e.g., through Conda) to mitigate the risk of potential version conflicts.
 
 ```
 conda create -n psam python==3.13.4
