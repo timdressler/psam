@@ -5,7 +5,7 @@
 This repository includes all code related to the **Investigating the Specificity of Pre-Speech Auditory Modulation - From Global Gating to Selective Silence?** project conducted by Tim Dressler at the University of Oldenburg (supervised by Prof. Dr. Stefan Debener and Prof. Dr. Andrea Hildebrandt). The study was preregistered under https://doi.org/10.17605/OSF.IO/23EYF. Any deviations from the preregistration are noted under https://osf.io/9quhn. The repository includes analysis code as well as code used for running the experiment. No data is included, but can by requested. Next to code, the repository also includes documents such as instructions and questionnaires. Furthermore, publications in any form (e.g., posters) associated with this project are uploaded here (once they exist).
 
 > [!NOTE]
->  While this repository might be subject to further changes and optimizations, the repository was further published as a time-stamped, immutable, and permanent version under the following link which can be used for exact replication attemps.
+>  While this repository might be subject to further changes and optimizations, the repository was further published as a time-stamped, immutable, and permanent version under the DOI above which can be used for exact replication attemps.
 
 ### Structure
 
