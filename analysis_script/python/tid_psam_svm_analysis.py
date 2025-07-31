@@ -389,8 +389,10 @@ sig_prop_df = pd.DataFrame(sig_props, columns=[
     'subj',
     'prop_sig_early', 'prop_sig_late',
     'sig_thresh', 'n_trials',
-    'min_acc_early', 'max_acc_early',
-    'min_acc_late', 'max_acc_late'
+    'min_acc_early', 'min_gamma_early', 'min_C_early',
+    'max_acc_early', 'max_gamma_early', 'max_C_early',
+    'min_acc_late', 'min_gamma_late', 'min_C_late',
+    'max_acc_late', 'max_gamma_late', 'max_C_late'
 ])
 sig_prop_df.to_excel(os.path.join(OUTPATH, 'all_subj_accuracy_proportions.xlsx'), index=False)
 
