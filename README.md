@@ -1,6 +1,6 @@
 # Investigating the Specificity of Pre-Speech Auditory Modulation - From Global Gating to Selective Silence?
 
-[![DOI](https://zenodo.org/badge/936619418.svg)](https://doi.org/10.5281/zenodo.16632078)
+[![DOI](https://zenodo.org/badge/936619418.svg)](10.5281/zenodo.16632078)
 
 ## This Repository
 
