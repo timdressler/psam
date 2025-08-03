@@ -307,7 +307,7 @@ P1 <- ggplot(df_erp_withinSE, aes(x = task_instruction, y = erp_amp, color = pro
   labs(
     #title = "N1 ERP Amplitudes by Probe Type, Task Instruction, and Probe Onset",
     y = "N1 ERP Amplitude [µV]",
-    x = NULL,
+    x = "Task Condition",
     color = "Probe Type"
   ) +
   theme_minimal(base_size = 10) +
@@ -315,8 +315,8 @@ P1 <- ggplot(df_erp_withinSE, aes(x = task_instruction, y = erp_amp, color = pro
     strip.text = element_text(face = "bold", size = 9),
     legend.position = "top"
   ) + 
-  scale_x_discrete(labels = c("Active" = "Active Task Condition",
-                              "Passive" = "Passive Task Condition"))
+  scale_x_discrete(labels = c("Active" = "Active",
+                              "Passive" = "Passive"))
 P1
 
 # Save plot
@@ -432,7 +432,7 @@ P4 <- ggplot(df_erp_lat_withinSE, aes(x = task_instruction, y = erp_lat, color =
   labs(
     #title = "N1 ERP Latencies by Probe Type, Task Instruction, and Probe Onset",
     y = "N1 ERP Latency [ms]",
-    x = NULL,
+    x = "Task Condition",
     color = "Probe Type"
   ) +
   theme_minimal(base_size = 10) +
@@ -440,8 +440,8 @@ P4 <- ggplot(df_erp_lat_withinSE, aes(x = task_instruction, y = erp_lat, color =
     strip.text = element_text(face = "bold", size = 9),
     legend.position = "top"
   ) + 
-  scale_x_discrete(labels = c("Active" = "Active Task Condition",
-                              "Passive" = "Passive Task Condition"))
+  scale_x_discrete(labels = c("Active" = "Active",
+                              "Passive" = "Passive"))
 P4
 
 # Save plot
