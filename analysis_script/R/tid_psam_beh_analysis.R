@@ -746,7 +746,7 @@ psych::describeBy(
 
 #-------------------------------------Plots-------------------------------------
 
-# Plot 1: ERP Amplitudes by Probe Type, Task Instruction, and Probe Onset
+# Plot 1: Probe F0s for unaltered and altered probes
 P1 <- df_probe_properties_z %>%
   ggplot(aes(x = probe_type, y = f0_z, fill = probe_type)) +
   scale_fill_manual(values = c(colors$main_red, colors$main_blue), name = "Probe Type") +
