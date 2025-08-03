@@ -438,7 +438,7 @@ colors = {
     };
 
 % Create plot
-figure('Units', 'normalized', 'Position', [0 0.0500 1 0.8771]);
+figure('Units', 'normalized', 'Position', [0 0.0500 1 0.8771], 'Color', 'w');
 %%sgtitle('Corrected ERPs and Topoplots for all Conditions')
 subplot(3,4,5:6)
 for cond_early_num = 1:length(grandaverage_erp_cor_early)
@@ -504,6 +504,9 @@ for cond_num = 1:length(grandaverage_erp_cor)
     cb.Label.HorizontalAlignment = 'center';
 end
 
+% Change Background-Color
+set(gcf, 'Color', [1 1 1])
+
 % Save plot
 print(gcf, fullfile(OUTPATH, 'tid_psam_plot_grandaverage_erp_topo.png'), '-dpng', '-r900')
 
@@ -517,7 +520,7 @@ colors = {
     };
 
 % Create plot
-figure('Units', 'normalized', 'Position', [0 0.0500 1 0.8771]);
+figure('Units', 'normalized', 'Position', [0 0.0500 1 0.8771], 'Color', 'w');
 %%sgtitle('Uncorrected, Corrected and Control ERPs for all Conditions')
 
 con_cond_num = 1;
@@ -545,6 +548,9 @@ for cond_num = 1:length(grandaverage_erp_cor)
         con_cond_num = con_cond_num +1;
     end
 end
+
+% Change Background-Color
+set(gcf, 'Color', [1 1 1])
 
 % Save plot
 print(gcf, fullfile(OUTPATH, 'tid_psam_plot_grandaverage_erp_con_cor.png'), '-dpng', '-r900')
