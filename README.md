@@ -2,6 +2,9 @@
 
 [![DOI](https://zenodo.org/badge/936619418.svg)](https://doi.org/10.5281/zenodo.16632078) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+> [!NOTE]
+>  While this repository might be subject to further changes and optimizations, the repository was further published as a time-stamped, immutable, and permanent version under the DOI above which can be used for exact replication attemps.
+
 ## This Repository
 
 This repository contains all code related to the research project *Investigating the Specificity of Pre-Speech Auditory Modulation – From Global Gating to Selective Silence?*, conducted by **Tim Dressler** at the **University of Oldenburg**, under the supervision of **Prof. Dr. Stefan Debener** and **Prof. Dr. Andrea Hildebrandt**.
@@ -17,9 +20,6 @@ The repository includes:
 - **Publications** (e.g., posters, papers) – added as they become available  
 
 > **Note**: No raw data is included in this repository but may be made available upon request.
-
-> [!NOTE]
->  While this repository might be subject to further changes and optimizations, the repository was further published as a time-stamped, immutable, and permanent version under the DOI above which can be used for exact replication attemps.
 
 ### Structure
 
