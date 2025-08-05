@@ -1,6 +1,7 @@
 # Investigating the Specificity of Pre-Speech Auditory Modulation - From Global Gating to Selective Silence?
 
-[![DOI](https://zenodo.org/badge/936619418.svg)](https://doi.org/10.5281/zenodo.16632078) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![DOI](https://zenodo.org/badge/936619418.svg)](https://doi.org/10.5281/zenodo.16632078) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![Lines of Code](https://img.shields.io/tokei/lines/github/timdressler/psam)
+
 
 > [!NOTE]
 >  While this repository might be subject to further changes and optimizations, the repository was further published as a time-stamped, immutable, and permanent version under the DOI above which can be used for exact replication attemps.
