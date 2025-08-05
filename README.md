@@ -18,7 +18,7 @@ The repository includes:
 - **Supporting documents**: participant instructions, questionnaires, etc.  
 - **Publications** (e.g., posters, papers) – added as they become available  
 
-> **Note**: No raw data is included in this repository but may be made available upon request.
+> **Note**: No data is included in this repository but may be made available upon request.
 
 ### Structure
 
