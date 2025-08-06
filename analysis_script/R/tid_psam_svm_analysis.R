@@ -235,7 +235,7 @@ P1v2
 
 # Save plot
 ggsave(
-  filename = "tid_psam_hyperparamters_violin_v2.png", 
+  filename = "tid_psam_hyperparamters_violin_v2.pdf", 
   plot = P1v2,
   width = 8,      
   height = 6,     

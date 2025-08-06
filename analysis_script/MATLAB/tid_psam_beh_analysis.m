@@ -50,7 +50,7 @@ tid_psam_clean_up_folder_TD(OUTPATH)
 
 % Variables to edit
 N_BLOCKS = 8; % Shoud be left at 8
-INDIVIDUAL_PLOTS = true; % Whether or not to create individual ERP plots and Topoplots
+INDIVIDUAL_PLOTS = false; % Whether or not to create individual plots 
 
 % Set colors
 main_blue = '#004F9F';
@@ -383,5 +383,6 @@ yticklabels(subj_labels);
 % Save plot
 print(gcf, fullfile(OUTPATH, 'tid_psam_all_z_f0_distribution.png'), '-dpng', '-r900')
 saveas(gcf,fullfile(OUTPATH, 'tid_psam_all_z_f0_distribution.fig'))
+
 
 

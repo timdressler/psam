@@ -321,7 +321,7 @@ P1
 
 # Save plot
 ggsave(
-  filename = "tid_psam_erp_amp.png", 
+  filename = "tid_psam_erp_amp.pdf", 
   plot = P1,
   width = 8,      
   height = 6,     
@@ -355,7 +355,7 @@ P2
 
 # Save plot
 ggsave(
-  filename = "tid_psam_psam_effect.png", 
+  filename = "tid_psam_psam_effect.pdf", 
   plot = P2,
   width = 8,      
   height = 6,     
@@ -409,7 +409,7 @@ P3
 
 # Save plot
 ggsave(
-  filename = "tid_psam_psam_effect_violin.png", 
+  filename = "tid_psam_psam_effect_violin.pdf", 
   plot = P3,
   width = 8,      
   height = 6,     
@@ -446,7 +446,7 @@ P4
 
 # Save plot
 ggsave(
-  filename = "tid_psam_erp_lat.png", 
+  filename = "tid_psam_erp_lat.pdf", 
   plot = P4,
   width = 8,      
   height = 6,     
@@ -463,7 +463,7 @@ P2_P3 <- ggdraw() +
 P2_P3
 
 ggsave(
-  filename = "tid_psam_psam_effect_combined.png", 
+  filename = "tid_psam_psam_effect_combined.pdf", 
   plot = P2_P3,
   width = 8,      
   height = 6,     

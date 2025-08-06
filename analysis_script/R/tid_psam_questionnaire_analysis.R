@@ -436,7 +436,7 @@ P1 <- ggplot(df_sam_long, aes(x = break_num, y = mood)) +
 P1
 
 ggsave(
-  filename = "tid_psam_SAM_mood.png", 
+  filename = "tid_psam_SAM_mood.pdf", 
   plot = P1,
   width = 8,      
   height = 6,     
@@ -469,7 +469,7 @@ P2 <- ggplot(df_sam_long, aes(x = break_num, y = tiredness)) +
 P2
 
 ggsave(
-  filename = "tid_psam_SAM_tiredness.png", 
+  filename = "tid_psam_SAM_tiredness.pdf", 
   plot = P2,
   width = 8,      
   height = 6,     
@@ -486,7 +486,7 @@ P1_P2 <- ggdraw() +
 P1_P2
 
 ggsave(
-  filename = "tid_psam_SAM_combined.png", 
+  filename = "tid_psam_SAM_combined.pdf", 
   plot = P1_P2,
   width = 8,      
   height = 6,     
@@ -524,7 +524,7 @@ P3 <- ggplot(df_nasatlx_long, aes(x = dimension, y = rating)) +
 P3
 
 ggsave(
-  filename = "tid_psam_NASATLX.png", 
+  filename = "tid_psam_NASATLX.pdf", 
   plot = P3,
   width = 8,      
   height = 6,     

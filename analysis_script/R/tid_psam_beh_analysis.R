@@ -763,7 +763,7 @@ P1
 
 # Save plot
 ggsave(
-  filename = "tid_psam_probe_z_f0.png", 
+  filename = "tid_psam_probe_z_f0.pdf", 
   plot = P1,
   width = 8,      
   height = 6,     
@@ -797,7 +797,7 @@ P2
 
 # Save plot
 ggsave(
-  filename = "tid_psam_f0.png", 
+  filename = "tid_psam_f0.pdf", 
   plot = P2,
   width = 8,      
   height = 6,     
@@ -814,7 +814,7 @@ P1_P2 <- ggdraw() +
 P1_P2
 
 ggsave(
-  filename = "tid_psam_probe_f0_z_f0_combined.png", 
+  filename = "tid_psam_probe_f0_z_f0_combined.pdf", 
   plot = P1_P2,
   width = 8,      
   height = 6,     
