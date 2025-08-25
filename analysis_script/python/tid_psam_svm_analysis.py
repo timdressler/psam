@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from matplotlib.ticker import FuncFormatter
+from matplotlib.ticker import FuncFormatter  # noqa: F401
 from pathlib import Path
 from tqdm import tqdm
 from scipy.stats import binom
@@ -52,7 +52,7 @@ FUNPATH = os.path.join(MAINPATH, 'functions')
 sys.path.append(FUNPATH)
 
 # Load costum functions
-from tid_psam_check_folder_clean_up_folder_TD import tid_psam_check_folder_TD, tid_psam_clean_up_folder_TD # type: ignore
+from tid_psam_check_folder_clean_up_folder_TD import tid_psam_check_folder_TD, tid_psam_clean_up_folder_TD # type: ignore  # noqa: E402
 
 tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)
 tid_psam_clean_up_folder_TD(OUTPATH)
