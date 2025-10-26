@@ -1,5 +1,7 @@
 function tid_psam_copy_files_from_subfolders_TD(baseFolder, folderPattern, filePattern, destinationFolder)
-% tid_psam_copy_files_from_subfolders_TD - Copies specific files from subfolders to a destination folder
+% tid_psam_copy_files_from_subfolders_TD.m
+% 
+% Copies specific files from subfolders to a destination folder.
 %
 % Usage:
 %   tid_psam_copy_files_from_subfolders_TD(baseFolder, folderPattern, filePattern, destinationFolder)

@@ -1,5 +1,7 @@
 function activity = tid_psam_hjorth_activity_TD(signal)
-% tid_psam_hjorth_activity_TD - Computes the Hjorth Activity.
+% tid_psam_hjorth_activity_TD.m
+% 
+% Computes the Hjorth Activity.
 %
 % Usage:
 %   tid_psam_hjorth_activity_TD(data)

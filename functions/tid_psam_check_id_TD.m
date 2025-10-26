@@ -1,5 +1,7 @@
 function tid_psam_check_id_TD(varargin)
-% tid_psam_check_folder_TD checks if the specified subject ID path already exist.
+% tid_psam_check_id_TD.m
+% 
+% Checks if the specified subject ID path already exist.
 %
 % If a subject ID path is already present, the function warns the user and gives 
 % the option to either ignore the warning (which potentially leads to files being

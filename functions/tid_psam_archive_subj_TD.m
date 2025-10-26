@@ -1,5 +1,7 @@
 function tid_psam_archive_subj_TD(subj_number)
-% tid_psam_archive_subj_TD - Archive all files for a given subject ID
+% tid_psam_archive_subj_TD.m
+% 
+% Archive all files for a given subject ID.
 %
 % Usage:
 %   tid_psam_archive_subj_TD(subjectID)

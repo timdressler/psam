@@ -1,5 +1,7 @@
 function complexity = tid_psam_hjorth_complexity_TD(signal)
-% tid_psam_hjorth_complexity_TD - Computes the Hjorth Complexicty.
+% tid_psam_hjorth_complexity_TD.m
+% 
+% Computes the Hjorth Complexicty.
 %
 % Usage:
 %   tid_psam_hjorth_complexity_TD(data)

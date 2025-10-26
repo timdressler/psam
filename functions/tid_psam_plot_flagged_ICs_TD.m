@@ -1,5 +1,7 @@
 function tid_psam_plot_flagged_ICs_TD(EEG, sgtitlestr, varargin)
-% tid_psam_plot_flagged_ICs_TD - Plots flagged ICs
+% tid_psam_plot_flagged_ICs_TD.m
+% 
+% Plots flagged ICs.
 %
 % Usage:
 %   tid_psam_plot_flagged_ICs_TD(EEG, sgtitlestr)

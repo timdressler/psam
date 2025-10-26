@@ -1,5 +1,7 @@
 function mobility = tid_psam_hjorth_mobility_TD(signal)
-% tid_psam_hjorth_mobility_TD - Computes the Hjorth Mobility.
+% tid_psam_hjorth_mobility_TD.m
+% 
+% Computes the Hjorth Mobility.
 %
 % Usage:
 %   tid_psam_hjorth_mobility_TD(data)

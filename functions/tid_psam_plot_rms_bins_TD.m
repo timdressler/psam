@@ -1,5 +1,7 @@
 function tid_psam_plot_rms_bins_TD(EEG, titlestr, varargin)
-% tid_psam_plot_rms_bins_TD - Plots RMS of each EEG channel in specified time bins
+% tid_psam_plot_rms_bins_TD.m
+% 
+% Plots RMS of each EEG channel in specified time bins.
 %
 % Usage:
 %   tid_psam_plot_rms_bins_TD(EEG, titlestr)

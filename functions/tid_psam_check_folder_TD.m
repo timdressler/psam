@@ -1,5 +1,7 @@
 function tid_psam_check_folder_TD(varargin)
-% tid_psam_check_folder_TD - Checks if the specified folder paths exist. If a path does not exist, the function creates it.
+% tid_psam_check_folder_TD.m
+% 
+% Checks if the specified folder paths exist. If a path does not exist, the function creates it.
 %
 % Usage:
 %   tid_psam_check_folder_TD('Path1', 'Path2', ...)

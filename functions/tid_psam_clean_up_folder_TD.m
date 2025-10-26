@@ -1,5 +1,7 @@
 function tid_psam_clean_up_folder_TD(folderPath)
-% tid_psam_clean_up_folder_TD - Moves files to a timestamped archive subfolder within an "archive" folder
+% tid_psam_clean_up_folder_TD.m
+% 
+% Moves files to a timestamped archive subfolder within an "archive" folder
 %
 % Usage:
 %   tid_psam_clean_up_folder_TD('Path')
