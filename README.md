@@ -148,7 +148,7 @@ To install R dependencies, run ```tid_psam_install_requirements_R.R``` in RStudi
 It is assumed that Conda, R and MATLAB (and the MATLAB dependecies, see below) are installed! It is recommended that the pipeline is run using VSCode.
 
 > [!WARNING]
-> As all scripts are called from ```tid_psam_run_pipeline.py```, the path the ```RScript.exe``` needs to be adapted manually in the script!
+> As all scripts are called from ```tid_psam_run_pipeline.py```, the path the ```RScript.exe``` needs to be adapted manually in the script! Also, paths in the Praat scripts need to be adapted manually!
 
 After requesting the data copy it into the folder as specified above and run ```tid_psam_run_pipeline.py``` in VSCode.
 
