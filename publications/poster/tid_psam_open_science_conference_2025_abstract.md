@@ -1,9 +1,0 @@
-# Open Science Conference 2025, Oldenburg
-
-## Investigating the Specificity of Pre-Speech Auditory Modulation - From Global Gating to Selective Silence?
-#### Tim Dreßler, Andrea Hildebrant, Stefan Debener
-
-## Abstract
-
-The theory of internal forward models suggests that self-generated motor actions are accompanied by an efference copy used to predict the sensory consequences of actions, leading to a corollary discharge in the corresponding sensory areas. As a result, neural responses to self-generated stimuli are suppressed. In the speech-auditory domain this phenomenon is known as speaking-induced suppression (SIS). Crucially, SIS depends on a match between expected and actual auditory feedback. Recent findings suggest that similar suppression can occur even during speech preparation, termed pre-speech auditory modulation (PSAM). The current study investigated whether PSAM reflects a general gating mechanism or is specific to expected vocal outcomes. Participants (n = 28) were presented with individually recorded vocal probes that were either unaltered or altered (pitch-shifted) and delivered during earlier or later stages of speech preparation while their neural responses were captured using a 30 channel EEG system. In constrast to the hypothesized positive PSAM effect (i.e. suppressed N1 amplitudes during speech preparation), ERP results revealed enhanced (more negative) N1 amplitudes during active preparation compared to passive listening - a negative PSAM effect. This negative PSAM effect was not significantly influenced by probe onset or probe type, suggesting that, unlike SIS, PSAM does not reflect prediction-specific suppression. The findings contradict our hypotheses and previous evidence and suggest that the mechanisms underlying motor-induced auditory modulation are more complex than initially proposed.
-
