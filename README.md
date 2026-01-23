@@ -104,8 +104,6 @@ psam\
 │   ├── tid_psam_plot_flagged_ICs_TD.m
 │   └── tid_psam_plot_rms_bins_TD.m
 │
-├── publications\
-│
 ├── testing\
 │
 ├── .gitattributes
