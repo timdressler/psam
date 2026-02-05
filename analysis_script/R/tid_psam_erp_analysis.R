@@ -239,7 +239,7 @@ performance::check_convergence(MAIN_ERP2)
 performance::check_model(MAIN_ERP2)
 
 #------------------------------------------------------------------------------#
-# probe_type sig., all other n.s.
+# probe_type sig.; all other n.s.
 
 # Assumptions
 # (- Convergence: OK)
