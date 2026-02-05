@@ -32,6 +32,7 @@ library(RVAideMemoire)
 rm(list=ls())
 set.seed(123)
 options(scipen = 999)
+options(contrasts = c("contr.sum", "contr.poly"))
 
 # Set costum colors
 colors <- list()
@@ -198,7 +199,7 @@ performance::check_convergence(MAIN_ERP1)
 performance::check_model(MAIN_ERP1)
 
 #------------------------------------------------------------------------------#
-# task_instruction sig.; all other n.s.
+# task_instruction, probe_type sig.; all other n.s.
 
 # Assumptions
 # (- Convergence: OK)
@@ -238,7 +239,7 @@ performance::check_convergence(MAIN_ERP2)
 performance::check_model(MAIN_ERP2)
 
 #------------------------------------------------------------------------------#
-# All n.s.
+# probe_type sig., all other n.s.
 
 # Assumptions
 # (- Convergence: OK)
