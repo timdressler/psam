@@ -16,7 +16,6 @@ The repository includes:
 - **Analysis code** used for data evaluation  
 - **Experimental code** used for stimulus presentation and data collection  
 - **Supporting documents**: participant instructions, questionnaires, etc.  
-- **Publications** (e.g., posters, papers) – added as they become available  
 
 > **Note**: No data is included in this repository but may be made available upon request.
 
