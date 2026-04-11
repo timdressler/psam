@@ -7,7 +7,7 @@ function mobility = tid_psam_hjorth_mobility_TD(signal)
 %   tid_psam_hjorth_mobility_TD(data)
 %
 % Inputs:
-%   data - a numerical array [1-by-1], [Channels-by-1] or [Channels-by-Epochs]
+%   data - a numerical array [1-by-Samples], [Channels-by-1] or [Channels-by-Epochs]
 %
 % Outputs:
 %   mobility - the Hjorth Mobility [1-by-1], [Channels-by-1] or [Channels-by-Epochs]
