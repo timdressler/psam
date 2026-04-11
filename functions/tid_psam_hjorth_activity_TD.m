@@ -7,7 +7,7 @@ function activity = tid_psam_hjorth_activity_TD(signal)
 %   tid_psam_hjorth_activity_TD(data)
 %
 % Inputs:
-%   data - a numerical array [1-by-Samples], [Channels-by-1] or [Channels-by-Epochs]
+%   data - a numerical array [1-by-Samples], [Channels-by-Samples] or [Channels-by-Samples-by-Epochs]
 %
 % Outputs:
 %   acitivity - the Hjorth Activity [1-by-1], [Channels-by-1] or [Channels-by-Epochs]
