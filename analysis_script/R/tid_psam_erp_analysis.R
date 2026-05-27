@@ -72,6 +72,8 @@ FUNPATH <- file.path(MAINPATH, "functions")
 
 source(file.path(FUNPATH, "tid_psam_check_folder_TD.R"))
 source(file.path(FUNPATH, "tid_psam_clean_up_folder_TD.R"))
+load(file.path(FUNPATH, "GeomPairedRaincloud.RData")) # Loads geom_paired_raincloud() (see https://yjunechoe.github.io/posts/2020-07-13-geom-paired-raincloud/)
+
 
 tid_psam_check_folder_TD(MAINPATH, INPATH, OUTPATH)
 tid_psam_clean_up_folder_TD(OUTPATH)
@@ -172,6 +174,7 @@ performance::check_model(MAIN_ERPBASE)
 # Analysis MAIN_ERP1 concerns how N1 ERP amplitudes are influenced by probe-type, probe-onset and task.
 MAIN_ERP1 <- lmer(erp_amp ~ task_instruction*probe_onset_cat*probe_type + (1|subj), data = df_erp)
 summary(MAIN_ERP1)
+anova(MAIN_ERP1)
 
 # Plot: N1 ERP amplitude by probe-onset and probe-type
 ezPlot(
@@ -213,6 +216,7 @@ performance::check_model(MAIN_ERP1)
 # Analysis MAIN_ERP2 concerns how the PSAM effect is influenced by probe-type, probe-onset. 
 MAIN_ERP2 <- lmer(psam_amp ~ probe_onset_cat*probe_type + (1|subj), data = df_psam)
 summary(MAIN_ERP2)
+anova(MAIN_ERP2)
 
 # Plot: PSAM effect by probe-onset and probe-type
 ezPlot(
@@ -253,6 +257,7 @@ performance::check_model(MAIN_ERP2)
 # Analysis MAIN_ERP3 concerns how the N1 ERP latency is influenced by probe-type, probe-onset and task. 
 MAIN_ERP3 <- lmer(erp_lat ~ task_instruction*probe_onset_cat*probe_type + (1|subj), data = df_erp)
 summary(MAIN_ERP3)
+anova(MAIN_ERP3)
 
 # Plot: N1 ERP latency by probe-onset and probe-type
 ezPlot(
@@ -472,4 +477,220 @@ ggsave(
   bg = "white"
 )
 
+# Combine P1, P2, P3, and P4 
+P_combined_all <- plot_grid(
+  P1, P2, P3, P4,
+  labels = c("A", "B", "C", "D"),
+  label_size = 15,
+  ncol = 2,
+  nrow = 2,
+  align = "hv",     
+  axis = "tblr"     
+)
 
+P_combined_all
+
+ggsave(
+  filename = "tid_psam_all_erp_plots_combined.pdf", 
+  plot = P_combined_all,
+  width = 16,      
+  height = 12,      
+  dpi = 900,
+  bg = "white"
+)
+
+
+# Paper figures
+# Setup
+custom_erp_theme <- function(base_size = 14) {
+  theme_classic(base_size = base_size) +
+    theme(
+      text = element_text(color = "black"),
+      axis.text.x = element_text(size = 13, face = "bold"),
+      axis.text.y = element_text(size = 13),
+      axis.title.x = element_text(size = 15, face = "bold", margin = margin(t = 10)),
+      axis.title.y = element_text(size = 15, face = "bold", margin = margin(r = 10)),
+      strip.text = element_text(face = "bold", size = 15, margin = margin(t = 8, b = 8)),
+      strip.background = element_rect(fill = colors$UI, color = "transparent"),
+      legend.position = "none",
+      plot.margin = margin(15, 15, 15, 15)
+    )
+}
+
+P1_paper <- df_erp %>%
+  mutate(
+    task_num = as.numeric(task_instruction),
+    x_points = task_num + ifelse(probe_type == "Altered", -0.22, 0.22),
+    x_box = task_num + ifelse(probe_type == "Altered", -0.05, 0.05)
+  ) %>%
+  ggplot(aes(y = erp_amp)) +
+  geom_line(
+    aes(x = x_points, group = interaction(subj, task_instruction)),
+    color = "black", linetype = "dashed", alpha = 0
+  ) +
+  ggdist::stat_halfeye(
+    data = function(df) filter(df, probe_type == "Altered"),
+    aes(x = task_num, fill = probe_type),
+    side = "left", justification = 1, 
+    adjust = 0.5, width = 0.35, .width = 0, point_colour = NA, 
+    alpha = 1, color = "black", linewidth = 0.5,
+    position = position_nudge(x = -0.03)
+  ) +
+  ggdist::stat_halfeye(
+    data = function(df) filter(df, probe_type == "Unaltered"),
+    aes(x = task_num, fill = probe_type),
+    side = "right", justification = 0, 
+    adjust = 0.5, width = 0.35, .width = 0, point_colour = NA, 
+    alpha = 1, color = "black", linewidth = 0.5,
+    position = position_nudge(x = 0.03)
+  ) +
+  geom_boxplot(
+    aes(x = x_box, group = interaction(task_num, probe_type), fill = probe_type),
+    width = 0.08, outlier.shape = NA, alpha = 1, color = "black"
+  ) +
+  geom_point(
+    aes(x = x_points, fill = probe_type),
+    shape = 21, color = "black", size = 1.8, alpha = 1
+  ) +
+  facet_wrap(~ probe_onset_cat, 
+             labeller = as_labeller(c("Early" = "Early Onset", "Late" = "Late Onset"))) +
+  scale_x_continuous(breaks = c(1, 2), labels = c("Active", "Passive"), limits = c(0.5, 2.5)) +
+  scale_fill_manual(values = c('Altered' = colors$main_red, 'Unaltered' = colors$main_blue)) +
+  labs(x = "Task Condition", y = "N1 ERP Amplitude [µV]", fill = "Probe Type") +
+  custom_erp_theme() +
+  theme(
+    strip.background = element_blank(), 
+    strip.text = element_text(face = "bold", size = 15) # Increased from 12
+  )
+
+P2_paper <- df_psam %>%
+  mutate(
+    onset_num = as.numeric(probe_onset_cat),
+    x_points = onset_num + ifelse(probe_type == "Altered", -0.22, 0.22),
+    x_box = onset_num + ifelse(probe_type == "Altered", -0.05, 0.05)
+  ) %>%
+  ggplot(aes(y = psam_amp)) +
+  geom_line(
+    aes(x = x_points, group = subj),
+    color = "black", linetype = "dashed", alpha = 0
+  ) +
+  ggdist::stat_halfeye(
+    data = function(df) filter(df, probe_type == "Altered"),
+    aes(x = onset_num, fill = probe_type),
+    side = "left", justification = 1, 
+    adjust = 0.5, width = 0.35, .width = 0, point_colour = NA, 
+    alpha = 1, color = "black", linewidth = 0.5,
+    position = position_nudge(x = -0.03)
+  ) +
+  ggdist::stat_halfeye(
+    data = function(df) filter(df, probe_type == "Unaltered"),
+    aes(x = onset_num, fill = probe_type),
+    side = "right", justification = 0, 
+    adjust = 0.5, width = 0.35, .width = 0, point_colour = NA, 
+    alpha = 1, color = "black", linewidth = 0.5,
+    position = position_nudge(x = 0.03)
+  ) +
+  geom_boxplot(
+    aes(x = x_box, group = interaction(onset_num, probe_type), fill = probe_type),
+    width = 0.08, outlier.shape = NA, alpha = 1, color = "black"
+  ) +
+  geom_point(
+    aes(x = x_points, fill = probe_type),
+    shape = 21, color = "black", size = 1.8, alpha = 1
+  ) +
+  scale_x_continuous(breaks = c(1, 2), labels = c("Early", "Late"), limits = c(0.5, 2.5)) +
+  scale_fill_manual(values = c('Altered' = colors$main_red, 'Unaltered' = colors$main_blue)) +
+  labs(x = "Probe Onset", y = "PSAM Effect Amplitude [µV]", fill = "Probe Type") +
+  custom_erp_theme() +
+  guides(fill = "none", color = "none")
+
+df_psam$probe_combination <- interaction(df_psam$probe_onset_cat, df_psam$probe_type, sep = "_")
+df_psam$probe_combination <- factor(df_psam$probe_combination,
+                                    levels = c("Early_Altered", "Early_Unaltered", "Late_Altered", "Late_Unaltered"),
+                                    labels = c("Early Onset\nAltered", "Early Onset\nUnaltered", "Late Onset\nAltered", "Late Onset\nUnaltered"))
+
+max_amp <- max(df_psam$psam_amp, na.rm = TRUE)
+y_pos_level1 <- max_amp + 6 
+
+P3_paper <- ggplot(df_psam, aes(x = probe_combination, y = psam_amp, fill = probe_type)) +
+  geom_violin(trim = FALSE) +
+  geom_boxplot(width = 0.1, fill = "white") +
+  geom_signif(comparisons = list(c("Early Onset\nAltered", "Early Onset\nUnaltered")),
+              annotations = "n.s.", y_position = y_pos_level1, tip_length = 0.02, textsize = 3.5, vjust = 0.1) + # Increased textsize
+  geom_signif(comparisons = list(c("Late Onset\nAltered", "Late Onset\nUnaltered")),
+              annotations = "n.s.", y_position = y_pos_level1, tip_length = 0.02, textsize = 3.5, vjust = 0.1) + # Increased textsize
+  scale_fill_manual(values = c("Altered" = colors$main_red, "Unaltered" = colors$main_blue)) +
+  labs(y = "PSAM Effect Amplitude [µV]", x = NULL, fill = "Probe Type") +
+  custom_erp_theme() +
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, size = 13)) + # Increased from default
+  guides(fill = "none", color = "none")
+
+P4_paper <- df_erp %>%
+  mutate(
+    task_num = as.numeric(task_instruction),
+    x_points = task_num + ifelse(probe_type == "Altered", -0.22, 0.22),
+    x_box = task_num + ifelse(probe_type == "Altered", -0.05, 0.05)
+  ) %>%
+  ggplot(aes(y = erp_lat)) +
+  geom_line(
+    aes(x = x_points, group = interaction(subj, task_instruction)),
+    color = "black", linetype = "dashed", alpha = 0
+  ) +
+  ggdist::stat_halfeye(
+    data = function(df) filter(df, probe_type == "Altered"),
+    aes(x = task_num, fill = probe_type),
+    side = "left", justification = 1, 
+    adjust = 0.5, width = 0.35, .width = 0, point_colour = NA, 
+    alpha = 1, color = "black", linewidth = 0.5,
+    position = position_nudge(x = -0.03)
+  ) +
+  ggdist::stat_halfeye(
+    data = function(df) filter(df, probe_type == "Unaltered"),
+    aes(x = task_num, fill = probe_type),
+    side = "right", justification = 0, 
+    adjust = 0.5, width = 0.35, .width = 0, point_colour = NA, 
+    alpha = 1, color = "black", linewidth = 0.5,
+    position = position_nudge(x = 0.03)
+  ) +
+  geom_boxplot(
+    aes(x = x_box, group = interaction(task_num, probe_type), fill = probe_type),
+    width = 0.08, outlier.shape = NA, alpha = 1, color = "black"
+  ) +
+  geom_point(
+    aes(x = x_points, fill = probe_type),
+    shape = 21, color = "black", size = 1.8, alpha = 1
+  ) +
+  facet_wrap(~ probe_onset_cat, 
+             labeller = as_labeller(c("Early" = "Early Onset", "Late" = "Late Onset"))) +
+  scale_x_continuous(breaks = c(1, 2), labels = c("Active", "Passive"), limits = c(0.5, 2.5)) +
+  scale_fill_manual(values = c('Altered' = colors$main_red, 'Unaltered' = colors$main_blue)) +
+  labs(x = "Task Condition", y = "N1 ERP Latency [ms]", fill = "Probe Type") +
+  custom_erp_theme() +
+  theme(
+    strip.background = element_blank(), 
+    strip.text = element_text(face = "bold", size = 15) # Increased from 12
+  ) +
+  guides(fill = "none", color = "none")
+
+P_combined_paper <- (P1_paper | P4_paper) / (P3_paper | P2_paper) +
+  plot_annotation(
+    theme = theme(plot.title = element_text(size = 22, face = "bold", hjust = 0.5)), # Increased from 18
+    tag_levels = list(c('A', 'B', 'C', 'D'))
+  ) +
+  plot_layout(guides = "collect") & 
+  theme(
+    legend.position = "right",
+    legend.title = element_text(size = 16, face = "bold"), # Increased
+    legend.text = element_text(size = 14) # Increased
+  )
+
+P_combined_paper
+
+ggsave(
+  filename = "tid_psam_all_erp_plots_combined_paper.pdf", 
+  plot = P_combined_paper,
+  width = 16,     
+  height = 12,      
+  dpi = 900,
+  bg = "white"
+)
