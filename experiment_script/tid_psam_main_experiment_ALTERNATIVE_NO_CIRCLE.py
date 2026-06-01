@@ -117,7 +117,7 @@ def setupData(expInfo, dataDir=None):
     # data file name stem = absolute path + name; later add .psyexp, .csv, .log, etc
     if dataDir is None:
         dataDir = _thisDir
-    filename = u'../data/BIDS/%s/beh/%s_%s_%s' % (f"sub-{int(expInfo['participant']):02d}", f"sub-{int(expInfo['participant']):02d}", "tid_psam_main_experiment", expInfo['date'])
+    filename = u'../data/sourcedata/task_data/%s/beh/%s_%s_%s' % (f"sub-{int(expInfo['participant']):02d}", f"sub-{int(expInfo['participant']):02d}", "tid_psam_main_experiment", expInfo['date'])
     # make sure filename is relative to dataDir
     if os.path.isabs(filename):
         dataDir = os.path.commonprefix([dataDir, filename])
@@ -408,7 +408,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     
     _thisDir2 = os.path.dirname(_thisDir)
     
-    filename_cond = u'data\\BIDS\\stimuli\\%s\\%s_conditions_meta.xlsx' % (subject_id, subject_id) # CHANGED
+    filename_cond = u'data\\sourcedata\\task_data\\stimuli\\%s\\%s_conditions_meta.xlsx' % (subject_id, subject_id) # CHANGED
     conditionsFileName = _thisDir2 + os.sep + filename_cond
     thisExp.addData("conditions", conditionsFileName)
     

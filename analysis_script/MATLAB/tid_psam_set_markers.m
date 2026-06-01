@@ -50,9 +50,9 @@ else
 end
 
 MAINPATH = strrep(SCRIPTPATH, fullfile('analysis_script', 'MATLAB'), '');
-INPATH = fullfile(MAINPATH, 'data', 'BIDS');
-OUTPATH = fullfile(MAINPATH, 'data', 'processed_data', 'markers_included');
-OUTPATH_EXCLUDED_SUBJ = fullfile(MAINPATH, 'data', 'processed_data', 'markers_included');
+INPATH = fullfile(MAINPATH, 'data', 'sourcedata', 'task_data');
+OUTPATH = fullfile(MAINPATH, 'data', 'sourcedata', 'processed_data', 'markers_included');
+OUTPATH_EXCLUDED_SUBJ = fullfile(MAINPATH, 'data', 'sourcedata', 'processed_data', 'markers_included');
 FUNPATH = fullfile(MAINPATH, 'functions');
 
 addpath(FUNPATH);

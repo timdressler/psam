@@ -47,7 +47,7 @@ else
 end
 
 MAINPATH = erase(SCRIPTPATH, '\experiment_script');
-STIMULIPATH = fullfile(MAINPATH, ['data/BIDS/stimuli/' subj]);
+STIMULIPATH = fullfile(MAINPATH, ['data/sourcedata/task_data/stimuli/' subj]);
 STIMULIPATH_Normal = fullfile(STIMULIPATH,'/all_normal');
 STIMULIPATH_Pitch = fullfile(STIMULIPATH,'/all_pitch');
 STIMULIPATH_Raw = fullfile(STIMULIPATH,'/all_raw');

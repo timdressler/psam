@@ -19,7 +19,7 @@ else
 end
 
 MAINPATH = erase(SCRIPTPATH, '\experiment_script');
-STIMULIPATH = fullfile(MAINPATH,'data/BIDS/stimuli');
+STIMULIPATH = fullfile(MAINPATH,'data/sourcedata/task_data/stimuli');
 
 FUNPATH = fullfile(MAINPATH, '\functions\');
 addpath(FUNPATH);
