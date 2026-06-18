@@ -261,6 +261,9 @@ participants_json = jsonencode(participants_json, 'PrettyPrint', true);
 participants_json = strrep(participants_json, '"val_0"', '"0"');
 participants_json = strrep(participants_json, '"val_1"', '"1"');
 participants_json = strrep(participants_json, '"val_2"', '"2"');
+participants_json = strrep(participants_json, '"val_3"', '"3"');
+participants_json = strrep(participants_json, '"val_9"', '"9"');
+participants_json = strrep(participants_json, '"val_10"', '"10"');
 
 fid = fopen(fullfile(OUTPATH, 'participants.json'), 'w');
 fprintf(fid, '%s', participants_json);
