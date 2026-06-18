@@ -39,7 +39,8 @@ else
 end
 MAINPATH = strrep(SCRIPTPATH, fullfile('analysis_script', 'MATLAB'), '');
 INPATH_SOURCEDATA = fullfile(MAINPATH, 'data', 'sourcedata');
-INPATH_TASK_SRC = fullfile(PATH_SOURCEDATA, 'task_data');
+INPATH_QUESTIONNAIRE_SRC = fullfile(INPATH_SOURCEDATA, 'questionnaire_data');
+INPATH_TASK_SRC = fullfile(INPATH_SOURCEDATA, 'task_data');
 OUTPATH = fullfile(MAINPATH, 'data');
 
 FUNPATH = fullfile(MAINPATH, 'functions');
@@ -72,53 +73,98 @@ fclose(fid);
 
 disp('--- [OK] dataset_description.json created successfully! ---');
 
-% --- Create participants.tsv --- % TO DO: here
+% --- Create participants.tsv --- 
 % Load and merge questionnaires
+fal_data = readtable(fullfile(INPATH_QUESTIONNAIRE_SRC, 'fal_data.xlsx'));
+nasatlx_data = readtable(fullfile(INPATH_QUESTIONNAIRE_SRC, 'nasatlx_data.xlsx'));
+sam_data = readtable(fullfile(INPATH_QUESTIONNAIRE_SRC, 'sam_data.xlsx'));
 
+participants = innerjoin(fal_data, nasatlx_data, 'Keys', 'subj');
+participants = innerjoin(participants, sam_data, 'Keys', 'subj');
 
-% Remove not needed columns
-keepvars = {'participant_id', 'internal_participant_id', 'stress_condition', 'screening_age', 'screening_sex', 'screening_education', 'screening_contraceptive', 'screening_smoke', ...
-    'screening_cape_status', 'caarms_status'};
-participants_src_filtered = participants_src_filtered(:, keepvars);
+% Drop not needed variables
+varsToDrop = {'var5_hearing_problems_detail', 'var10_alcohol_yesterday_detail', 'var11_alcohol_today_detail', 'var15_currently_neuro_treatment_detail', ...
+    'var16_earlier_neuro_treatment_detail', 'var17_other_treatment_detail', 'var18_medication_detail', 'var19_drugs_detail', ...
+    'var10_alcohol_yesterday', 'var11_alcohol_today', 'var12_smoking', 'var13_coffee_and_other', 'var14_last_eating', ...
+    'var15_currently_neuro_treatment', 'var16_earlier_neuro_treatment', 'var17_other_treatment', 'var18_medication', ...
+    'var19_drugs'};
+participants = removevars(participants, varsToDrop);
+
 
 % Rename existing columns
 renameMap = [
-    "participant_id",          "participant_id" ;
-    "internal_participant_id", "internal_participant_id" ;
-    "stress_condition",        "treatment" ;
-    "screening_age",           "age" ;
-    "screening_sex",           "sex" ;
-    "screening_education",     "eduction_years" ;
-    "screening_contraceptive", "contraceptive_use" ;
-    "screening_smoke",         "smoker_status" ;
-    "screening_cape_status",   "population" ;
-    "caarms_status",           "caarms_status"
-    ];
+    "subj",                            "participant_id" ;
+    "var1_age",                        "age" ;
+    "var2_handedness",                 "handedness" ;
+    "var3_sex",                        "sex" ;
+    "var4_education",                  "education" ;
+    "var5_occupation",                 "occupation" ;
+    "var5_hearing_problems",           "hearing_problems" ;
+    "var7_ringing_ears",               "ringing_ears" ;
+    "var8_sleep",                      "sleep_duration" ;
+    "var9_sleep_assessment",           "sleep_assessment" ;
+    "var1_mental_demand",              "mental_demand" ;
+    "var2_physical_demand",            "physical_demand" ;
+    "var3_performance",                "performance" ;
+    "var4_effort",                     "effort" ;
+    "var5_frustration",                "frustration" ;
+    "var1_mood_break1",                "mood_break1" ;
+    "var2_tiredness_break1",           "tiredness_break1" ;
+    "var3_mood_break2",                "mood_break2" ;
+    "var4_tiredness_break2",           "tiredness_break2" ;
+    "var5_mood_break3",                "mood_break3" ;
+    "var6_tiredness_break3",           "tiredness_break3" ;
+    "var7_mood_break4",                "mood_break4" ;
+    "var8_tiredness_break4",           "tiredness_break4" ;
+    "var9_mood_break5",                "mood_break5" ;
+    "var10_tiredness_break5",          "tiredness_break5" ;
+    "var11_mood_break6",               "mood_break6" ;
+    "var12_tiredness_break6",          "tiredness_break6" ;
+    "var13_mood_break7",               "mood_break7" ;
+    "var14_tiredness_break7",          "tiredness_break7" ;
+    "var15_mood_break8",               "mood_break8" ;
+    "var16_tiredness_break8",          "tiredness_break8"
+];
+
+% Extract old and new names
 oldNames = renameMap(:, 1);
 newNames = renameMap(:, 2);
 
-participants_src_filtered = renamevars(participants_src_filtered, oldNames, newNames);
-
+% Apply to your table (assuming your table is named 'participants')
+participants = renamevars(participants, oldNames, newNames);
 
 % Add additional columns
 % Species
-participants_src_filtered.species = repmat("homo sapiens", height(participants_src_filtered), 1); % Everyone is a human here :)
+participants.species = repmat("homo sapiens", height(participants), 1); % Everyone is a human here :)
 
 % Reorder table
 order = { ...
-    'participant_id', ...
-    'internal_participant_id', ...
-    'population', ...
-    'treatment', ...
-    'caarms_status' ...
-    'age', ...
-    'sex', ...
-    'handedness', ...
-    'eduction_years', ...
-    'contraceptive_use', ...
-    'smoker_status', ...
-    'species'};
-participants = participants_src_filtered(:, order);
+    'participant_id', ...    
+    'age', ...             
+    'sex', ...             
+    'handedness', ...  
+    'species', ...       
+    'education', ...       
+    'occupation', ...      
+    'hearing_problems', ...
+    'ringing_ears', ...    
+    'sleep_duration', ...  
+    'sleep_assessment', ...
+    'mental_demand', ...   
+    'physical_demand', ... 
+    'performance', ...     
+    'effort', ...          
+    'frustration', ...     
+    'mood_break1', 'tiredness_break1', ...
+    'mood_break2', 'tiredness_break2', ...
+    'mood_break3', 'tiredness_break3', ...
+    'mood_break4', 'tiredness_break4', ...
+    'mood_break5', 'tiredness_break5', ...
+    'mood_break6', 'tiredness_break6', ...
+    'mood_break7', 'tiredness_break7', ...
+    'mood_break8', 'tiredness_break8' ...
+};
+participants = participants(:, order);
 
 % Write file
 writetable(participants, fullfile(OUTPATH,'participants.tsv'), 'FileType', 'text', ...
@@ -132,20 +178,81 @@ participants_json = struct();
 
 % Create fields
 participants_json.participant_id.Description = 'participant identifier';
-participants_json.internal_participant_id.Description = 'additional identifier for the participants';
+
+participants_json.species.Description = 'species of the participant';
 
 participants_json.age.Description = 'age of the participant';
 participants_json.age.Units = 'year';
 
-participants_json.sex.Description = 'biological sex of the participant';
-participants_json.sex.Levels.f = 'female';
-participants_json.sex.Levels.m = 'male';
+participants_json.sex.Description = 'gender of the participant';
+participants_json.sex.Levels.val_1 = 'male';
+participants_json.sex.Levels.val_2 = 'female';
+participants_json.sex.Levels.val_3 = 'diverse';
 
 participants_json.handedness.Description = 'self-reported handedness';
-participants_json.handedness.Levels.right = 'right-handed';
-participants_json.handedness.Levels.left = 'left-handed';
+participants_json.handedness.Levels.val_1 = 'right-handed';
+participants_json.handedness.Levels.val_2 = 'left-handed';
+participants_json.handedness.Levels.val_3 = 'two-handed';
 
-participants_json.species.Description = 'species of the participant';
+participants_json.education.Description = 'Highest education achieved (German education system)';
+participants_json.education.Levels.val_0 = 'no degree';
+participants_json.education.Levels.val_1 = 'Hauptschule';
+participants_json.education.Levels.val_2 = 'Mittlere-Reife';
+participants_json.education.Levels.val_3 = 'Abitur';
+
+participants_json.occupation.Description = 'Occupation of the participant';
+participants_json.occupation.Levels.val_1 = 'student';
+participants_json.occupation.Levels.val_2 = 'employed';
+participants_json.occupation.Levels.val_3 = 'unemployed';
+
+participants_json.hearing_problems.Description = 'Hearing problems';
+participants_json.hearing_problems.Levels.val_1 = 'yes';
+participants_json.hearing_problems.Levels.val_2 = 'no';
+
+participants_json.ringing_ears.Description = 'Ringing in the ears';
+participants_json.ringing_ears.Levels.val_1 = 'yes';
+participants_json.ringing_ears.Levels.val_2 = 'no';
+
+participants_json.sleep_duration.Description = 'Sleep of last night';
+participants_json.sleep_duration.Units = 'hours';
+
+participants_json.sleep_assessment.Description = 'Self-assessed sleep duration';
+participants_json.sleep_assessment.Levels.val_1 = 'normal';
+participants_json.sleep_assessment.Levels.val_2 = 'rather long';
+participants_json.sleep_assessment.Levels.val_3 = 'way too short';
+
+participants_json.mental_demand.Description = 'Cognitive demand required for processing information and decision-making';
+participants_json.mental_demand.Levels.val_0 = 'low';
+participants_json.mental_demand.Levels.val_10 = 'high';
+
+participants_json.physical_demand.Description = 'Physical activity required (e.g., pulling, pushing, steering)';
+participants_json.physical_demand.Levels.val_0 = 'low';
+participants_json.physical_demand.Levels.val_10 = 'high';
+
+participants_json.performance.Description = 'Perceived success and satisfaction with task performance';
+participants_json.performance.Levels.val_0 = 'good';
+participants_json.performance.Levels.val_10 = 'bad';
+
+participants_json.effort.Description = 'Effort needed to meet task demands';
+participants_json.effort.Levels.val_0 = 'low';
+participants_json.effort.Levels.val_10 = 'high';
+
+participants_json.frustration.Description = 'Feelings of stress, irritation, or frustration during the task';
+participants_json.frustration.Levels.val_0 = 'low';
+participants_json.frustration.Levels.val_10 = 'high';
+
+for i = 1:8
+    mood_var = sprintf('mood_break%d', i);
+    tired_var = sprintf('tiredness_break%d', i);
+    
+    participants_json.(mood_var).Description = sprintf('Mood assessed at break %d', i);
+    participants_json.(mood_var).Levels.val_1 = 'very negative';
+    participants_json.(mood_var).Levels.val_9 = 'very positive';
+    
+    participants_json.(tired_var).Description = sprintf('Tiredness assessed at break %d', i);
+    participants_json.(tired_var).Levels.val_1 = 'very awake';
+    participants_json.(tired_var).Levels.val_9 = 'very tired';
+end
 
 % Convert to json and write file
 participants_json = jsonencode(participants_json, 'PrettyPrint', true);
@@ -153,6 +260,7 @@ participants_json = jsonencode(participants_json, 'PrettyPrint', true);
 % Fix the MATLAB numeric key issue so the JSON outputs "0" and "1" instead of "val_0"
 participants_json = strrep(participants_json, '"val_0"', '"0"');
 participants_json = strrep(participants_json, '"val_1"', '"1"');
+participants_json = strrep(participants_json, '"val_2"', '"2"');
 
 fid = fopen(fullfile(OUTPATH, 'participants.json'), 'w');
 fprintf(fid, '%s', participants_json);
