@@ -12,7 +12,8 @@
 % electrodes.tsv DONE
 % channels.tsv DONE
 % eeg.vhdr DONE
-% events.json DONE
+% eeg.json DONE
+% events.json 
 % events.tsv /includes vocal data + stimuli data
 
 
@@ -49,11 +50,13 @@ addpath(FUNPATH);
 
 % Variables to edit
 TASKNAME = 'delayedArticulation';
-EXPECTED_SRATE = 2048;
+EXPECTED_SRATE = 1000;
 POWERLINE_FREQ = 50;
 EEG_NCHANS = 30;
 EOG_CHANS = 2;
 TRIGGER_NCHANS = 1;
+HARDWARE_HP = 0.0159;
+HARDWARE_LP = 250;
 
 %% Create root-level files (e.g., participants.tsv, dataset_description_json.json, ...)
 h_main_waitbar = waitbar(0, 'Initializing Main BIDS pipeline...', 'Name', 'PSAM BIDS Conversion');
@@ -557,7 +560,48 @@ for subj = 1:length(dircont_subj)
     fprintf('--- [OK] %s created successfully! ---\n', file_name);
 end
 
+% --- Create _eeg.json ---
+for subj = 1:length(dircont_subj)
+    % Get subject ID (e.g., 'sub-95')
+    subjID = dircont_subj(subj).name;
+    dest_eeg_dir = fullfile(OUTPATH, subjID, 'eeg');    
+    eeg_json = struct();    
+    % Core fields
+    eeg_json.EEGReference = 'nose-tip'; 
+    eeg_json.SamplingFrequency = EXPECTED_SRATE;
+    eeg_json.PowerLineFrequency = POWERLINE_FREQ;    
+    % Hardware and Software filters
+    eeg_json.HardwareFilters = struct('HighpassRC', HARDWARDE_HP, 'Lowpass', HARDWARE_LP); 
+    eeg_json.SoftwareFilters = 'n/a';    
+    eeg_json.TaskName = TASKNAME;
+    eeg_json.TaskDescription = 'Delayed articulation paradigm (Active vs. Passive) utilizing unaltered and altered (-4 semitones) auditory probes presented either early or late during the preparatory delay period to investigate Pre-Speech Auditory Modulation (PSAM).';
+    % Hardware information
+    eeg_json.Manufacturer = 'Brain Products';
+    eeg_json.ManufacturersModelName = 'BrainAmp';
+    eeg_json.CapManufacturer = 'Easycap';
+    eeg_json.EEGPlacementScheme = 'custom equidistant';
+    % Institutional information
+    eeg_json.InstitutionName = 'University of Oldenburg';
+    eeg_json.InstitutionalDepartmentName = 'Department of Psychology, Neuropsychology Lab';
+    % Channel counts (using variables defined in your Setup section)
+    eeg_json.EEGChannelCount = EEG_NCHANS;
+    eeg_json.EOGChannelCount = EOG_CHANS;
+    eeg_json.TriggerChannelCount = TRIGGER_NCHANS;
+    eeg_json.RecordingType = 'continuous';    
+    % Convert to JSON format
+    eeg_json_text = jsonencode(eeg_json, 'PrettyPrint', true);    
+    % Define file name and path 
+    file_name = sprintf('%s_task-%s_eeg.json', subjID, TASKNAME);    
+    % Write file
+    fid = fopen(fullfile(dest_eeg_dir, file_name), 'w');
+    fprintf(fid, '%s', eeg_json_text);
+    fclose(fid);    
+    fprintf('--- [OK] %s created successfully! ---\n', file_name);
+end
 
+
+%% EEG Events table
+waitbar(5/7, h_main_waitbar, 'Step 5/7: Creating EEG events table...');
 
 
 disp('--- FULL BIDS CONVERSION COMPLETE! ---');
