@@ -43,6 +43,8 @@ MAINPATH = strrep(SCRIPTPATH, fullfile('analysis_script', 'MATLAB'), '');
 INPATH_SOURCEDATA = fullfile(MAINPATH, 'data', 'sourcedata');
 INPATH_QUESTIONNAIRE_SRC = fullfile(INPATH_SOURCEDATA, 'questionnaire_data');
 INPATH_TASK_SRC = fullfile(INPATH_SOURCEDATA, 'task_data');
+INPATH_VOCAL_SRC = fullfile(MAINPATH, 'data', 'sourcedata', 'processed_data', 'beh_preprocessed_1');
+
 OUTPATH = fullfile(MAINPATH, 'data');
 
 FUNPATH = fullfile(MAINPATH, 'functions');
@@ -571,7 +573,7 @@ for subj = 1:length(dircont_subj)
     eeg_json.SamplingFrequency = EXPECTED_SRATE;
     eeg_json.PowerLineFrequency = POWERLINE_FREQ;    
     % Hardware and Software filters
-    eeg_json.HardwareFilters = struct('HighpassRC', HARDWARDE_HP, 'Lowpass', HARDWARE_LP); 
+    eeg_json.HardwareFilters = struct('HighpassRC', HARDWARE_HP, 'Lowpass', HARDWARE_LP); 
     eeg_json.SoftwareFilters = 'n/a';    
     eeg_json.TaskName = TASKNAME;
     eeg_json.TaskDescription = 'Delayed articulation paradigm (Active vs. Passive) utilizing unaltered and altered (-4 semitones) auditory probes presented either early or late during the preparatory delay period to investigate Pre-Speech Auditory Modulation (PSAM).';
@@ -600,8 +602,10 @@ for subj = 1:length(dircont_subj)
 end
 
 
-%% EEG Events table
-waitbar(5/7, h_main_waitbar, 'Step 5/7: Creating EEG events table...');
+%% Create _events.tsv and _events.json files (Merge EEG + Beh + Vocal)
+waitbar(5/7, h_main_waitbar, 'Step 5/7: Merging behavioral, vocal, and EEG events...');
+
+
 
 
 disp('--- FULL BIDS CONVERSION COMPLETE! ---');
