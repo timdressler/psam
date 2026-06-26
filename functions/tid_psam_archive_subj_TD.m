@@ -34,8 +34,8 @@ end
 MAINPATH = erase(SCRIPTPATH, '\functions');
 
 % Set up subject paths
-STIMULIPATH = fullfile(MAINPATH, ['data/BIDS/stimuli/' subj]);
-SUBJPATH = fullfile(MAINPATH, ['data/BIDS/' subj]);
+STIMULIPATH = fullfile(MAINPATH, ['data/sourcedata/task_data/stimuli/' subj]);
+SUBJPATH = fullfile(MAINPATH, ['data/sourcedata/task_data/' subj]);
 
 % Checks whetehr folders exist
 if ~isfolder(STIMULIPATH) ||  ~isfolder(SUBJPATH)
