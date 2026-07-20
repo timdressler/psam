@@ -6,14 +6,14 @@
 
 % task-delayedArticulation DONE
 
-% subj DONE
+% subj DONE, NEED UPDATE
 % eeg DONE
 % coordsystem.json DONE
 % electrodes.tsv DONE
 % channels.tsv DONE
 % eeg.vhdr DONE
 % eeg.json DONE
-% events.json 
+% events.json
 % events.tsv /includes vocal data + stimuli data
 
 
@@ -44,6 +44,7 @@ INPATH_SOURCEDATA = fullfile(MAINPATH, 'data', 'sourcedata');
 INPATH_QUESTIONNAIRE_SRC = fullfile(INPATH_SOURCEDATA, 'questionnaire_data');
 INPATH_TASK_SRC = fullfile(INPATH_SOURCEDATA, 'task_data');
 INPATH_VOCAL_SRC = fullfile(MAINPATH, 'data', 'sourcedata', 'processed_data', 'beh_preprocessed_1');
+INPATH_EEG_SRC = fullfile(MAINPATH, 'data', 'sourcedata', 'processed_data', 'markers_included');
 
 OUTPATH = fullfile(MAINPATH, 'data');
 
@@ -59,6 +60,9 @@ EOG_CHANS = 2;
 TRIGGER_NCHANS = 1;
 HARDWARE_HP = 0.0159;
 HARDWARE_LP = 250;
+
+% Load MANUALLY_EXCLUDED_SUBJ
+load(fullfile(INPATH_EEG_SRC, 'manually_excluded_subj.mat')); % loads MANUALLY_EXCLUDED_SUBJ
 
 %% Create root-level files (e.g., participants.tsv, dataset_description_json.json, ...)
 h_main_waitbar = waitbar(0, 'Initializing Main BIDS pipeline...', 'Name', 'PSAM BIDS Conversion');
@@ -95,6 +99,9 @@ sam_data = readtable(fullfile(INPATH_QUESTIONNAIRE_SRC, 'sam_data.xlsx'));
 
 participants = innerjoin(fal_data, nasatlx_data, 'Keys', 'subj');
 participants = innerjoin(participants, sam_data, 'Keys', 'subj');
+
+% Drop manually excluded subjects
+participants = participants(~ismember(participants.subj, MANUALLY_EXCLUDED_SUBJ), :);
 
 % Drop not needed variables
 varsToDrop = {'var5_hearing_problems_detail', 'var10_alcohol_yesterday_detail', 'var11_alcohol_today_detail', 'var15_currently_neuro_treatment_detail', ...
@@ -386,7 +393,11 @@ disp('--- [OK] README.md created successfully! ---');
 %% Setup subject-wise folder structure
 waitbar(2/7, h_main_waitbar, 'Step 2/7: Creating subject folder structures...');
 % Get subjects in sourcedata/task
-dircont_subj = dir(fullfile(INPATH_TASK_SRC, 'sub-*'));
+dircont_subj = dir(fullfile(INPATH_EEG_SRC, 'sub-*.set'));
+
+for subj = 1:length(dircont_subj)
+    dircont_subj(subj).name = extractBefore(dircont_subj(subj).name, '_');
+end
 
 % Loop over subjects and create folders
 for subj = 1:length(dircont_subj)
@@ -407,12 +418,12 @@ for subj = 1:length(dircont_subj)
     % Get subject ID (e.g., 'sub-95')
     subjID = dircont_subj(subj).name;
     % Define source and destination paths
-    src_eeg_dir = fullfile(INPATH_TASK_SRC, subjID, 'eeg');
+    src_eeg_dir = INPATH_EEG_SRC;
     dest_eeg_dir = fullfile(OUTPATH, subjID, 'eeg');
     % Base name for BIDS conformity (e.g., 'sub-95_task-delayedArticulation_eeg')
     bids_basename = sprintf('%s_task-%s_eeg', subjID, TASKNAME);
-    % BrainVision file extensions
-    extensions = {'.vhdr', '.vmrk', '.eeg'};
+    % File extensions
+    extensions = {'.set', '.fdt'};
     for ext_idx = 1:length(extensions)
         ext = extensions{ext_idx};
         % Find the source file with this extension in the subject's sourcedata
@@ -445,120 +456,128 @@ for subj = 1:length(dircont_subj)
     end
     fprintf('--- [OK] Copied and renamed EEG files for %s ---\n', subjID);
 end
-disp('--- EEG files copied and renamed! ---');
+
 
 %% EEG Meta data
 waitbar(4/7, h_main_waitbar, 'Step 4/7: Creating EEG metadata...');
 
-% --- Create _electrodes.tsv ---
-% Load channel locations 
-elp_file = fullfile(MAINPATH, 'config', 'elec_96ch_adapted.elp');
-chanlocs = readlocs(elp_file);
-% Extract labels and coordinates into arrays
-names = {chanlocs.labels}';
-% Check if readlocs successfully generated Cartesian coordinates
-if isfield(chanlocs, 'X') && ~isempty(chanlocs(1).X)
-    x = [chanlocs.X]';
-    y = [chanlocs.Y]';
-    z = [chanlocs.Z]';
-else
-    % Fallback to NaNs if coordinate conversion fails
-    x = nan(length(names), 1);
-    y = nan(length(names), 1);
-    z = nan(length(names), 1);
-end
-% Create the initial table
-electrodes_tsv = table(string(names), x, y, z, 'VariableNames', {'name', 'x', 'y', 'z'});
-% Convert NaN to n/a to conform with BIDS standard
-colsToConvert = {'x', 'y', 'z'};
-for i = 1:length(colsToConvert)
-    colName = colsToConvert{i};
-    data = electrodes_tsv.(colName);    
-    % Initialize a cell array of strings
-    strCol = cell(size(data));
-    for j = 1:length(data)
-        if isnan(data(j))
-            strCol{j} = 'n/a';
-        else
-            strCol{j} = num2str(data(j), '%.10g');
-        end
+for subj = 1:length(dircont_subj)
+    % Get subject ID (e.g., 'sub-95')
+    subjID = dircont_subj(subj).name;
+    % --- Create _electrodes.tsv ---
+    % Load channel locations
+    elp_file = fullfile(MAINPATH, 'config', 'elec_96ch_adapted.elp');
+    chanlocs = readlocs(elp_file);
+    % Extract labels and coordinates into arrays
+    names = {chanlocs.labels}';
+    % Check if readlocs successfully generated Cartesian coordinates
+    if isfield(chanlocs, 'X') && ~isempty(chanlocs(1).X)
+        x = [chanlocs.X]';
+        y = [chanlocs.Y]';
+        z = [chanlocs.Z]';
+    else
+        % Fallback to NaNs if coordinate conversion fails
+        x = nan(length(names), 1);
+        y = nan(length(names), 1);
+        z = nan(length(names), 1);
     end
-    % Reassign back to the table as a string array
-    electrodes_tsv.(colName) = string(strCol);
+    % Create the initial table
+    electrodes_tsv = table(string(names), x, y, z, 'VariableNames', {'name', 'x', 'y', 'z'});
+    % Convert NaN to n/a to conform with BIDS standard
+    colsToConvert = {'x', 'y', 'z'};
+    for i = 1:length(colsToConvert)
+        colName = colsToConvert{i};
+        data = electrodes_tsv.(colName);
+        % Initialize a cell array of strings
+        strCol = cell(size(data));
+        for j = 1:length(data)
+            if isnan(data(j))
+                strCol{j} = 'n/a';
+            else
+                strCol{j} = num2str(data(j), '%.10g');
+            end
+        end
+        % Reassign back to the table as a string array
+        electrodes_tsv.(colName) = string(strCol);
+    end
+    % Write file to the BIDS subject's EEG folder
+    dest_eeg_dir = fullfile(OUTPATH, subjID, 'eeg');
+    file_name = sprintf('%s_electrodes.tsv', subjID);
+    writetable(electrodes_tsv, fullfile(dest_eeg_dir, file_name), 'FileType', 'text', ...
+        'Delimiter', '\t', ...
+        'QuoteStrings', false);
+    fprintf('--- [OK] %s created successfully! ---\n', file_name);
 end
-% Write file to the BIDS subject's EEG folder
-dest_eeg_dir = fullfile(OUTPATH, subjID, 'eeg');
-file_name = sprintf('%s_electrodes.tsv', subjID);
-writetable(electrodes_tsv, fullfile(dest_eeg_dir, file_name), 'FileType', 'text', ...
-    'Delimiter', '\t', ...
-    'QuoteStrings', false);
-fprintf('--- [OK] %s created successfully! ---\n', file_name);
 
-% --- Create _coordsystem.json ---
-coordsystem_json = struct();
-% Create fields
-coordsystem_json.EEGCoordinateSystem = 'Other'; 
-coordsystem_json.EEGCoordinateUnits = 'mm'; 
-coordsystem_json.EEGCoordinateSystemDescription = 'Lab-specific custom template coordinates applied to all subjects via a custom .elp file. No subject-specific 3D digitization was performed.';
-% Convert to json
-coordsystem_json_text = jsonencode(coordsystem_json, 'PrettyPrint', true);
-% Define destination path and filename (session-less)
-dest_eeg_dir = fullfile(OUTPATH, subjID, 'eeg');
-file_name = sprintf('%s_coordsystem.json', subjID);
-% Write file
-fid = fopen(fullfile(dest_eeg_dir, file_name), 'w');
-fprintf(fid, '%s', coordsystem_json_text);
-fclose(fid);
-fprintf('--- [OK] %s created successfully! ---\n', file_name);
+for subj = 1:length(dircont_subj)
+    % Get subject ID (e.g., 'sub-95')
+    subjID = dircont_subj(subj).name;
+    % --- Create _coordsystem.json ---
+    coordsystem_json = struct();
+    % Create fields
+    coordsystem_json.EEGCoordinateSystem = 'Other';
+    coordsystem_json.EEGCoordinateUnits = 'mm';
+    coordsystem_json.EEGCoordinateSystemDescription = 'Lab-specific custom template coordinates applied to all subjects via a custom .elp file. No subject-specific 3D digitization was performed.';
+    % Convert to json
+    coordsystem_json_text = jsonencode(coordsystem_json, 'PrettyPrint', true);
+    % Define destination path and filename (session-less)
+    dest_eeg_dir = fullfile(OUTPATH, subjID, 'eeg');
+    file_name = sprintf('%s_coordsystem.json', subjID);
+    % Write file
+    fid = fopen(fullfile(dest_eeg_dir, file_name), 'w');
+    fprintf(fid, '%s', coordsystem_json_text);
+    fclose(fid);
+    fprintf('--- [OK] %s created successfully! ---\n', file_name);
+end
 
 % --- Create _channels.tsv ---
 for subj = 1:length(dircont_subj)
     % Get subject ID (e.g., 'sub-95')
-    subjID = dircont_subj(subj).name;    
+    subjID = dircont_subj(subj).name;
     % Define BIDS EEG directory and basename
     dest_eeg_dir = fullfile(OUTPATH, subjID, 'eeg');
     bids_basename = sprintf('%s_task-%s_eeg', subjID, TASKNAME);
-    vhdr_file = [bids_basename '.vhdr'];    
+    set_file = [bids_basename '.set'];
     % Load the EEG data from the BIDS location
-    fprintf('Loading %s for channels.tsv extraction...\n', vhdr_file);
+    fprintf('Loading %s for channels.tsv extraction...\n', set_file);
     try
-        EEG = pop_loadbv(dest_eeg_dir, vhdr_file);
+        EEG = pop_loadset('filepath', dest_eeg_dir, 'filename', set_file);
     catch ME
         warning('PSAM:LoadError', 'Could not load EEG data for %s: %s', subjID, ME.message);
         continue; % Skip to the next subject if loading fails
     end
     % Convert EEG.chanlocs to a table
     channels_tsv = struct2table(EEG.chanlocs, 'AsArray', true);
-    % Ensure 'type' column exists 
+    % Ensure 'type' column exists
     if ~ismember('type', channels_tsv.Properties.VariableNames)
         channels_tsv.type = repmat({''}, height(channels_tsv), 1);
     end
     % Filter to only keep 'labels' and 'type'
-    channels_tsv = channels_tsv(:, {'labels', 'type'});    
+    channels_tsv = channels_tsv(:, {'labels', 'type'});
     % Rename 'labels' to 'name'
-    channels_tsv.Properties.VariableNames{'labels'} = 'name';    
+    channels_tsv.Properties.VariableNames{'labels'} = 'name';
     % Convert cell arrays to string arrays for easier text manipulation
     channels_tsv.name = string(channels_tsv.name);
-    channels_tsv.type = string(channels_tsv.type);    
+    channels_tsv.type = string(channels_tsv.type);
     % Default everything to EEG first
-    channels_tsv.type(:) = "EEG";    
-    channels_tsv.type(channels_tsv.name == "E29" | channels_tsv.name == "E30") = "VEOG";  
+    channels_tsv.type(:) = "EEG";
+    channels_tsv.type(channels_tsv.name == "E29" | channels_tsv.name == "E30") = "VEOG";
     channels_tsv.type(channels_tsv.name == "M") = "TRIG";
     % Add the 'units' column
-    channels_tsv.units = repmat("uV", height(channels_tsv), 1);    
+    channels_tsv.units = repmat("uV", height(channels_tsv), 1);
     % Add the 'description' column
-    channels_tsv.description = repmat("n/a", height(channels_tsv), 1);    
+    channels_tsv.description = repmat("n/a", height(channels_tsv), 1);
     % Add specific descriptions if needed
     channels_tsv.description(channels_tsv.name == "E01") = "Cz equivalent";
     channels_tsv.description(channels_tsv.name == "E29") = "VEOG under left eye";
     channels_tsv.description(channels_tsv.name == "E30") = "VEOG under right eye";
     channels_tsv.description(channels_tsv.name == "M") = "Trigger channel for audio stimuli";
-    % Define file name and path 
-    file_name = sprintf('%s_task-%s_channels.tsv', subjID, TASKNAME);    
+    % Define file name and path
+    file_name = sprintf('%s_task-%s_channels.tsv', subjID, TASKNAME);
     % Write file
     writetable(channels_tsv, fullfile(dest_eeg_dir, file_name), 'FileType', 'text', ...
         'Delimiter', '\t', ...
-        'QuoteStrings', false);        
+        'QuoteStrings', false);
     fprintf('--- [OK] %s created successfully! ---\n', file_name);
 end
 
@@ -566,15 +585,15 @@ end
 for subj = 1:length(dircont_subj)
     % Get subject ID (e.g., 'sub-95')
     subjID = dircont_subj(subj).name;
-    dest_eeg_dir = fullfile(OUTPATH, subjID, 'eeg');    
-    eeg_json = struct();    
+    dest_eeg_dir = fullfile(OUTPATH, subjID, 'eeg');
+    eeg_json = struct();
     % Core fields
-    eeg_json.EEGReference = 'nose-tip'; 
+    eeg_json.EEGReference = 'nose-tip';
     eeg_json.SamplingFrequency = EXPECTED_SRATE;
-    eeg_json.PowerLineFrequency = POWERLINE_FREQ;    
+    eeg_json.PowerLineFrequency = POWERLINE_FREQ;
     % Hardware and Software filters
-    eeg_json.HardwareFilters = struct('HighpassRC', HARDWARE_HP, 'Lowpass', HARDWARE_LP); 
-    eeg_json.SoftwareFilters = 'n/a';    
+    eeg_json.HardwareFilters = struct('HighpassRC', HARDWARE_HP, 'Lowpass', HARDWARE_LP);
+    eeg_json.SoftwareFilters = 'n/a';
     eeg_json.TaskName = TASKNAME;
     eeg_json.TaskDescription = 'Delayed articulation paradigm (Active vs. Passive) utilizing unaltered and altered (-4 semitones) auditory probes presented either early or late during the preparatory delay period to investigate Pre-Speech Auditory Modulation (PSAM).';
     % Hardware information
@@ -589,21 +608,49 @@ for subj = 1:length(dircont_subj)
     eeg_json.EEGChannelCount = EEG_NCHANS;
     eeg_json.EOGChannelCount = EOG_CHANS;
     eeg_json.TriggerChannelCount = TRIGGER_NCHANS;
-    eeg_json.RecordingType = 'continuous';    
+    eeg_json.RecordingType = 'continuous';
     % Convert to JSON format
-    eeg_json_text = jsonencode(eeg_json, 'PrettyPrint', true);    
-    % Define file name and path 
-    file_name = sprintf('%s_task-%s_eeg.json', subjID, TASKNAME);    
+    eeg_json_text = jsonencode(eeg_json, 'PrettyPrint', true);
+    % Define file name and path
+    file_name = sprintf('%s_task-%s_eeg.json', subjID, TASKNAME);
     % Write file
     fid = fopen(fullfile(dest_eeg_dir, file_name), 'w');
     fprintf(fid, '%s', eeg_json_text);
-    fclose(fid);    
+    fclose(fid);
     fprintf('--- [OK] %s created successfully! ---\n', file_name);
 end
 
 
 %% Create _events.tsv and _events.json files (Merge EEG + Beh + Vocal)
 waitbar(5/7, h_main_waitbar, 'Step 5/7: Merging behavioral, vocal, and EEG events...');
+
+for subj = 1:length(dircont_subj)
+    % Get subject ID (e.g., 'sub-95')
+    subjID = dircont_subj(subj).name;
+    % Define BIDS EEG directory and basename
+    dest_eeg_dir = fullfile(OUTPATH, subjID, 'eeg');
+    bids_basename = sprintf('%s_task-%s_eeg', subjID, TASKNAME);
+    set_file = [bids_basename '.set'];
+    % Load the EEG data from the BIDS location
+    fprintf('Loading %s for channels.tsv extraction...\n', set_file);
+    try
+        EEG = pop_loadset('filepath', dest_eeg_dir, 'filename', set_file);
+    catch ME
+        warning('PSAM:LoadError', 'Could not load EEG data for %s: %s', subjID, ME.message);
+        continue; % Skip to the next subject if loading fails
+    end
+    % Get EEG.event struct
+    events_table = struct2table(EEG.event);
+
+
+    % Load vocal data
+
+    % Load log data
+
+
+
+    fprintf('--- [OK] %s created successfully! ---\n', file_name);
+end
 
 
 
