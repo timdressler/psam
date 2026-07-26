@@ -55,7 +55,7 @@ addpath(FUNPATH);
 TASKNAME = 'delayedArticulation';
 EXPECTED_SRATE = 1000;
 POWERLINE_FREQ = 50;
-EEG_NCHANS = 30;
+EEG_NCHANS = 28;
 EOG_CHANS = 2;
 TRIGGER_NCHANS = 1;
 HARDWARE_HP = 0.0159;
@@ -616,7 +616,7 @@ for subj = 1:length(dircont_subj)
     channels_tsv.type = string(channels_tsv.type);
     % Default everything to EEG first
     channels_tsv.type(:) = "EEG";
-    channels_tsv.type(channels_tsv.name == "E29" | channels_tsv.name == "E30") = "VEOG";
+    channels_tsv.type(channels_tsv.name == "E29" | channels_tsv.name == "E30") = "EOG";
     channels_tsv.type(channels_tsv.name == "M") = "TRIG";
     % Add the 'units' column
     channels_tsv.units = repmat("uV", height(channels_tsv), 1);
@@ -666,6 +666,17 @@ for subj = 1:length(dircont_subj)
     eeg_json.EOGChannelCount = EOG_CHANS;
     eeg_json.TriggerChannelCount = TRIGGER_NCHANS;
     eeg_json.RecordingType = 'continuous';
+    % Further information
+    eeg_json.ECGChannelCount = 0;
+    eeg_json.EMGChannelCount = 0;
+    eeg_json.MISCChannelCount = 0;    
+    eeg_json.CapManufacturersModelName = 'EasyCap';
+    eeg_json.InstitutionAddress = 'n/a';
+    eeg_json.DeviceSerialNumber = 'n/a';
+    eeg_json.SoftwareVersions = 'n/a';
+    eeg_json.Instructions = 'n/a';
+    eeg_json.EEGGround = 'n/a';
+    eeg_json.SubjectArtefactDescription = 'n/a';
     % Convert to JSON format
     eeg_json_text = jsonencode(eeg_json, 'PrettyPrint', true);
     % Define file name and path
@@ -703,16 +714,17 @@ for subj = 1:length(dircont_subj)
     events_table = struct2table(EEG.event);
     events_table = events_table(:, {'latency', 'type'});
     
-    % Recalculate latency to onset (in seconds)
-    events_table.onset = (events_table.latency - 1) / EEG.srate;
-    events_table.duration = zeros(height(events_table), 1); % BIDS standard for instantaneous events
+    % Recalculate latency to onset (in seconds) with high-precision formatting
+    bids_onset = cellstr(compose('%.11f', (events_table.latency - 1) / EEG.srate));
+    % Duration is 0 for all instantaneous EEG events
+    bids_duration = cellstr(compose('%.11f', zeros(height(events_table), 1)));
     
-    % 2. Load vocal data (Praat)
+    % 2. Load vocal data 
     vocal_table = readtable(fullfile(INPATH_VOCAL_SRC, [subjID '_f0_rt_table.csv']), 'FileType','text', 'Delimiter', ',');
     vocal_table.Properties.VariableNames{'filename_tab'} = 'recording_file'; % Rename for joining
     vocal_table = standardizeMissing(vocal_table, 9999); % Replace 9999 with NaN
     
-    % 3. Load log data (PsychoPy)
+    % 3. Load log data 
     subj_log_filename = dir(fullfile(INPATH_TASK_SRC, subjID, 'beh', 's*.csv'));
     if numel(subj_log_filename) == 1
         subj_log = readtable(fullfile(subj_log_filename.folder, subj_log_filename.name));
@@ -743,7 +755,6 @@ for subj = 1:length(dircont_subj)
     merged_beh.correct_resp = pas_correct | act_correct;
     
     % 5. Add subject-wise probe properties
-    % Note: Adjust the path if stimuli is stored somewhere else in your sourcedata folder
     subj_probe_file = fullfile(MAINPATH, 'data', 'sourcedata', 'task_data', 'stimuli', subjID, [subjID '_probe_properties.xlsx']);
     subj_probe_properties = readtable(subj_probe_file);
     sub_unaltered_f0 = num2str(subj_probe_properties.f0_tab_normal(1), '%.2f');
@@ -753,11 +764,11 @@ for subj = 1:length(dircont_subj)
     num_events = height(events_table);
     
     % Initialize columns
-    bids_onset = num2cell(events_table.onset);
-    bids_duration = num2cell(events_table.duration);
     bids_trial = cell(num_events, 1);
     bids_event_type = cell(num_events, 1);
     bids_marker_label = events_table.type;
+    
+    bids_instruction = cell(num_events, 1); 
     
     bids_vocal_f0 = cell(num_events, 1);
     bids_vocal_rt = cell(num_events, 1);
@@ -790,15 +801,27 @@ for subj = 1:length(dircont_subj)
         % Extract trial-level context (shared for both lines within the trial)
         cur_trial = merged_beh(trial_idx, :);
         
+        % Set instruction for both rows in the trial
+        if strcmp(cur_trial.task, 'act')
+            bids_instruction{e} = 'active';
+        else
+            bids_instruction{e} = 'passive';
+        end
+        
         bids_probe_onset{e} = cur_trial.probe_onset_cat{1};
         bids_probe_type{e} = cur_trial.probe_type{1};
         bids_probe{e} = cur_trial.probe{1};
         
-        % Clean up "None" values for BIDS standard "n/a"
-        if strcmp(bids_probe_onset{e}, 'None'), bids_probe_onset{e} = 'n/a'; end
-        if strcmp(bids_probe_type{e}, 'None'), bids_probe_type{e} = 'n/a'; end
-        if strcmp(bids_probe{e}, 'None'), bids_probe{e} = 'no'; end
-        if strcmp(bids_probe{e}, 'Yes'), bids_probe{e} = 'yes'; end
+        % Clean up values for BIDS standard "n/a"
+        if strcmpi(bids_probe_onset{e}, 'None'), bids_probe_onset{e} = 'n/a'; end
+        if strcmpi(bids_probe_type{e}, 'None'), bids_probe_type{e} = 'n/a'; end
+        
+        % Force probe to strict lowercase to match the events.json levels exactly
+        if strcmpi(bids_probe{e}, 'None') || strcmpi(bids_probe{e}, 'no')
+            bids_probe{e} = 'no'; 
+        elseif strcmpi(bids_probe{e}, 'yes')
+            bids_probe{e} = 'yes'; 
+        end
         
         % Boolean logic for correctness
         if cur_trial.correct_resp
@@ -831,19 +854,91 @@ for subj = 1:length(dircont_subj)
     
     % Assemble Final Table
     final_events_tsv = table(bids_onset, bids_duration, bids_trial, bids_event_type, ...
-        bids_marker_label, bids_vocal_f0, bids_vocal_rt, bids_vocal_resp, bids_correct_resp, ...
+        bids_marker_label, bids_instruction, bids_vocal_f0, bids_vocal_rt, bids_vocal_resp, bids_correct_resp, ...
         bids_probe_onset, bids_probe_type, bids_probe, bids_probe_unalt_f0, bids_probe_alt_f0, ...
         'VariableNames', {'onset', 'duration', 'trial', 'event_type', 'marker_label', ...
-        'vocal_f0', 'vocal_rt', 'vocal_resp', 'correct_resp', 'probe_onset', 'probe_type', ...
+        'task_condition', 'vocal_f0', 'vocal_rt', 'vocal_resp', 'correct_resp', 'probe_onset', 'probe_type', ...
         'probe', 'subj_probe_unaltered_f0', 'subj_probe_altered_f0'});
     
-    % Convert cell arrays of numbers/strings directly to standard BIDS format strings
     % Save _events.tsv
     tsv_filename = sprintf('%s_task-%s_events.tsv', subjID, TASKNAME);
     writetable(final_events_tsv, fullfile(dest_eeg_dir, tsv_filename), ...
         'FileType', 'text', 'Delimiter', '\t', 'QuoteStrings', false);
     
     fprintf('--- [OK] %s created successfully! ---\n', tsv_filename);
+
+
+
+    % --- Create _events.json ---
+    events_json = struct();
+    
+    % Create fields
+    events_json.onset.Description = 'Onset time of the event relative to the start of the EEG recording';
+    events_json.onset.Units = 's';
+    
+    events_json.duration.Description = 'Duration of the event';
+    events_json.duration.Units = 's';
+    
+    events_json.trial.Description = 'Chronological trial number within the experiment';
+    
+    events_json.event_type.Description = 'General category of the experimental event';
+    events_json.event_type.Levels.audio = 'Auditory probe presentation';
+    events_json.event_type.Levels.go_signal = 'Visual go-signal prompting the vocal response (or silence)';
+    events_json.event_type.Levels.control = 'Control/sham auditory marker (no sound presented, timepoint when a marker would have been presented)';
+    
+    events_json.marker_label.Description = 'Specific condition marker derived from EEG hardware triggers';
+    
+    events_json.task_condition.Description = 'Task condition (instruction) for the current trial';
+    events_json.task_condition.Levels.active = 'Active trial (participant prepares to vocalize /ga/)';
+    events_json.task_condition.Levels.passive = 'Passive trial (participant observes without vocalizing)';
+    
+    events_json.vocal_f0.Description = 'Fundamental frequency (F0) of the vocal response extracted via Praat. Only applicalble if a vocal response was made.';
+    events_json.vocal_f0.Units = 'Hz';
+    
+    events_json.vocal_rt.Description = 'Vocal reaction time calculated relative to the visual go-signal. Only applicalble if a vocal response was made.';
+    events_json.vocal_rt.Units = 's';
+    
+    events_json.vocal_resp.Description = 'Indicates if a vocal response was physically detected during the trial';
+    events_json.vocal_resp.Levels.yes = 'Vocal response detected';
+    events_json.vocal_resp.Levels.no = 'No vocal response detected';
+    
+    events_json.correct_resp.Description = 'Whether the participant correctly followed the task instructions';
+    events_json.correct_resp.Levels.yes = 'Correct (vocalized during active, or stayed silent during passive)';
+    events_json.correct_resp.Levels.no = 'Incorrect (vocalized during passive, or stayed silent during active)';
+    
+    events_json.probe_onset.Description = 'Timing of the auditory probe relative to the go-signal';
+    events_json.probe_onset.Levels.Early = '-400 ms relative to go-signal';
+    events_json.probe_onset.Levels.Late = '-200 ms relative to go-signal';
+    
+    events_json.probe_type.Description = 'Acoustic manipulation of the auditory probe';
+    events_json.probe_type.Levels.Unaltered = 'Probe unaltered';
+    events_json.probe_type.Levels.Altered = 'Probe pitch-shifted down by -4 semitones';
+    
+    events_json.probe.Description = 'Indicates whether an auditory probe was actually presented during the trial';
+    events_json.probe.Levels.yes = 'Probe presented';
+    events_json.probe.Levels.no = 'No probe presented (control/baseline trial)';
+    
+    events_json.subj_probe_unaltered_f0.Description = 'Baseline F0 of the subject-specific unaltered auditory probe';
+    events_json.subj_probe_unaltered_f0.Units = 'Hz';
+    
+    events_json.subj_probe_altered_f0.Description = 'Pitch-shifted F0 of the subject-specific altered auditory probe (-4 semitones)';
+    events_json.subj_probe_altered_f0.Units = 'Hz';
+
+    events_json.StimulusPresentation.OperatingSystem = 'Windows';
+    events_json.StimulusPresentation.SoftwareName = 'PsychoPy';
+    events_json.StimulusPresentation.SoftwareVersion = '2024.2.4';
+    
+    % Convert to json
+    events_json_text = jsonencode(events_json, 'PrettyPrint', true);
+    
+    % Write file
+    json_filename = sprintf('%s_task-%s_events.json', subjID, TASKNAME);
+    fid = fopen(fullfile(dest_eeg_dir, json_filename), 'w');
+    fprintf(fid, '%s', events_json_text);
+    fclose(fid);
+    
+    fprintf('--- [OK] %s created successfully! ---\n', json_filename);
+
 end
 
 
