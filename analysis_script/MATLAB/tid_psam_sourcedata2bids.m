@@ -1,22 +1,3 @@
-% participants.tsv DONE
-
-% README DONE
-
-% dataset_description DONE
-
-% task-delayedArticulation DONE
-
-% subj DONE, NEED UPDATE
-% eeg DONE
-% coordsystem.json DONE
-% electrodes.tsv DONE
-% channels.tsv DONE
-% eeg.vhdr DONE
-% eeg.json DONE
-% events.json
-% events.tsv /includes vocal data + stimuli data
-
-
 % tid_psam_sourcedata2bids.m
 %
 % Master-Script that onverts sourcedata (EEG, questionnaire data) to BIDS-conform structure.
@@ -766,6 +747,7 @@ for subj = 1:length(dircont_subj)
     % Initialize columns
     bids_trial = cell(num_events, 1);
     bids_event_type = cell(num_events, 1);
+    bids_block = cell(num_events, 1); 
     bids_marker_label = events_table.type;
     
     bids_instruction = cell(num_events, 1); 
@@ -788,6 +770,7 @@ for subj = 1:length(dircont_subj)
     for e = 1:num_events
         marker = events_table.type{e};
         bids_trial{e} = trial_idx;
+        bids_block{e} = ceil(trial_idx / 120);
         
         % Identify Event Type
         if startsWith(marker, 'go_signal')
@@ -853,10 +836,10 @@ for subj = 1:length(dircont_subj)
     end
     
     % Assemble Final Table
-    final_events_tsv = table(bids_onset, bids_duration, bids_trial, bids_event_type, ...
+    final_events_tsv = table(bids_onset, bids_duration, bids_trial, bids_block, bids_event_type, ...
         bids_marker_label, bids_instruction, bids_vocal_f0, bids_vocal_rt, bids_vocal_resp, bids_correct_resp, ...
         bids_probe_onset, bids_probe_type, bids_probe, bids_probe_unalt_f0, bids_probe_alt_f0, ...
-        'VariableNames', {'onset', 'duration', 'trial', 'event_type', 'marker_label', ...
+        'VariableNames', {'onset', 'duration', 'trial', 'block', 'event_type', 'marker_label', ...
         'task_condition', 'vocal_f0', 'vocal_rt', 'vocal_resp', 'correct_resp', 'probe_onset', 'probe_type', ...
         'probe', 'subj_probe_unaltered_f0', 'subj_probe_altered_f0'});
     
@@ -880,6 +863,8 @@ for subj = 1:length(dircont_subj)
     events_json.duration.Units = 's';
     
     events_json.trial.Description = 'Chronological trial number within the experiment';
+
+    events_json.block.Description = 'Experimental block number (1 to 8, with 120 trials per block)';
     
     events_json.event_type.Description = 'General category of the experimental event';
     events_json.event_type.Levels.audio = 'Auditory probe presentation';
