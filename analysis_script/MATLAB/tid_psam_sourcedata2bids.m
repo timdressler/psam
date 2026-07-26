@@ -242,37 +242,17 @@ participants_json.sleep_assessment.Levels.val_1 = 'normal';
 participants_json.sleep_assessment.Levels.val_2 = 'rather long';
 participants_json.sleep_assessment.Levels.val_3 = 'way too short';
 
-participants_json.mental_demand.Description = 'Cognitive demand required for processing information and decision-making';
-participants_json.mental_demand.Levels.val_0 = 'low';
-participants_json.mental_demand.Levels.val_10 = 'high';
-
-participants_json.physical_demand.Description = 'Physical activity required (e.g., pulling, pushing, steering)';
-participants_json.physical_demand.Levels.val_0 = 'low';
-participants_json.physical_demand.Levels.val_10 = 'high';
-
-participants_json.performance.Description = 'Perceived success and satisfaction with task performance';
-participants_json.performance.Levels.val_0 = 'good';
-participants_json.performance.Levels.val_10 = 'bad';
-
-participants_json.effort.Description = 'Effort needed to meet task demands';
-participants_json.effort.Levels.val_0 = 'low';
-participants_json.effort.Levels.val_10 = 'high';
-
-participants_json.frustration.Description = 'Feelings of stress, irritation, or frustration during the task';
-participants_json.frustration.Levels.val_0 = 'low';
-participants_json.frustration.Levels.val_10 = 'high';
+participants_json.mental_demand.Description = 'Cognitive demand required for processing information and decision-making (0 = low, 10 = high)';
+participants_json.physical_demand.Description = 'Physical activity required (e.g., pulling, pushing, steering) (0 = low, 10 = high)';
+participants_json.performance.Description = 'Perceived success and satisfaction with task performance (0 = good, 10 = bad)';
+participants_json.effort.Description = 'Effort needed to meet task demands (0 = low, 10 = high)';
+participants_json.frustration.Description = 'Feelings of stress, irritation, or frustration during the task (0 = low, 10 = high)';
 
 for i = 1:8
     mood_var = sprintf('mood_break%d', i);
     tired_var = sprintf('tiredness_break%d', i);
-
-    participants_json.(mood_var).Description = sprintf('Mood assessed at break %d', i);
-    participants_json.(mood_var).Levels.val_1 = 'very negative';
-    participants_json.(mood_var).Levels.val_9 = 'very positive';
-
-    participants_json.(tired_var).Description = sprintf('Tiredness assessed at break %d', i);
-    participants_json.(tired_var).Levels.val_1 = 'very awake';
-    participants_json.(tired_var).Levels.val_9 = 'very tired';
+    participants_json.(mood_var).Description = sprintf('Mood assessed at break %d (1 = very negative, 9 = very positive)', i);
+    participants_json.(tired_var).Description = sprintf('Tiredness assessed at break %d (1 = very awake, 9 = very tired)', i);
 end
 
 % Convert to json and write file
@@ -457,6 +437,81 @@ for subj = 1:length(dircont_subj)
     fprintf('--- [OK] Copied and renamed EEG files for %s ---\n', subjID);
 end
 
+% Load EEG data and rename event markers and remove not needed ones
+for subj = 1:length(dircont_subj)
+    % Clean up memory for the next subject
+    ALLEEG = [];
+    EEG = [];
+    CURRENTSET = 0;    
+    % Get subject ID (e.g., 'sub-95')
+    subjID = dircont_subj(subj).name;    
+    % Load EEG file
+    subj_eeg_dir = fullfile(OUTPATH, subjID, 'eeg');
+    bids_basename = sprintf('%s_task-%s_eeg', subjID, TASKNAME);
+    EEG = pop_loadset('filename', [bids_basename '.set'], 'filepath', subj_eeg_dir);    
+    % 1. Setup tracking variables
+    current_task = ''; % Will hold 'act' or 'pas' based on instruction cues
+    events_to_keep = false(1, length(EEG.event)); % Logical index to filter events    
+    % 2. Loop through events to rename and flag the ones to keep
+    for e = 1:length(EEG.event)        
+        % Track the task instruction so we can identify the upcoming Go-Signal
+        if strcmp(EEG.event(e).type, 'S 21')
+            current_task = 'act';
+        elseif strcmp(EEG.event(e).type, 'S 22')
+            current_task = 'pas';
+        end        
+        % Evaluate and rename events
+        switch EEG.event(e).type
+            % --- AUDIO PROBES (Keep and Rename) ---
+            case 'S 931'
+                EEG.event(e).type = 'act_early_unalt';
+                events_to_keep(e) = true;
+            case 'S 932'
+                EEG.event(e).type = 'act_early_alt';
+                events_to_keep(e) = true;
+            case 'S 933'
+                EEG.event(e).type = 'act_late_unalt';
+                events_to_keep(e) = true;
+            case 'S 934'
+                EEG.event(e).type = 'act_late_alt';
+                events_to_keep(e) = true;
+            case 'S 941'
+                EEG.event(e).type = 'pas_early_unalt';
+                events_to_keep(e) = true;
+            case 'S 942'
+                EEG.event(e).type = 'pas_early_alt';
+                events_to_keep(e) = true;
+            case 'S 943'
+                EEG.event(e).type = 'pas_late_unalt';
+                events_to_keep(e) = true;
+            case 'S 944'
+                EEG.event(e).type = 'pas_late_alt';
+                events_to_keep(e) = true;                
+            % --- CONTROL PROBES ---
+            case {'con_act_early', 'con_act_late', 'con_pas_early', 'con_pas_late'}
+                events_to_keep(e) = true;                
+            % --- GO SIGNALS (Keep and Rename based on look-back) ---
+            case 'S  5'
+                if strcmp(current_task, 'act')
+                    EEG.event(e).type = 'go_signal_act';
+                elseif strcmp(current_task, 'pas')
+                    EEG.event(e).type = 'go_signal_pas';
+                end
+                events_to_keep(e) = true;                
+            % Any other marker (including S 21, S 22, boundary events, etc.) falls through the switch statement and remains events_to_keep = false
+        end
+    end    
+    % 3. Remove all events that were not flagged to be kept
+    EEG.event = EEG.event(events_to_keep);    
+    % 4. Check dataset 
+    EEG = eeg_checkset(EEG);
+    pop_saveset(EEG, 'filename', [bids_basename '.set'], 'filepath', subj_eeg_dir);
+    
+    fprintf('--- [OK] Cleaned and renamed EEG triggers for %s ---\n', subjID);
+end
+
+
+
 
 %% EEG Meta data
 waitbar(4/7, h_main_waitbar, 'Step 4/7: Creating EEG metadata...');
@@ -592,8 +647,10 @@ for subj = 1:length(dircont_subj)
     eeg_json.SamplingFrequency = EXPECTED_SRATE;
     eeg_json.PowerLineFrequency = POWERLINE_FREQ;
     % Hardware and Software filters
-    eeg_json.HardwareFilters = struct('HighpassRC', HARDWARE_HP, 'Lowpass', HARDWARE_LP);
-    eeg_json.SoftwareFilters = 'n/a';
+    eeg_json.HardwareFilters = struct();
+    eeg_json.HardwareFilters.HighpassRC = struct('HalfAmplitudeCutoffHz', HARDWARE_HP);
+    eeg_json.HardwareFilters.Lowpass = struct('HalfAmplitudeCutoffHz', HARDWARE_LP);
+    eeg_json.SoftwareFilters = 'n/a';    
     eeg_json.TaskName = TASKNAME;
     eeg_json.TaskDescription = 'Delayed articulation paradigm (Active vs. Passive) utilizing unaltered and altered (-4 semitones) auditory probes presented either early or late during the preparatory delay period to investigate Pre-Speech Auditory Modulation (PSAM).';
     % Hardware information
@@ -627,32 +684,169 @@ waitbar(5/7, h_main_waitbar, 'Step 5/7: Merging behavioral, vocal, and EEG event
 for subj = 1:length(dircont_subj)
     % Get subject ID (e.g., 'sub-95')
     subjID = dircont_subj(subj).name;
+    
     % Define BIDS EEG directory and basename
     dest_eeg_dir = fullfile(OUTPATH, subjID, 'eeg');
     bids_basename = sprintf('%s_task-%s_eeg', subjID, TASKNAME);
     set_file = [bids_basename '.set'];
+    
     % Load the EEG data from the BIDS location
-    fprintf('Loading %s for channels.tsv extraction...\n', set_file);
+    fprintf('Loading %s for events.tsv extraction...\n', set_file);
     try
         EEG = pop_loadset('filepath', dest_eeg_dir, 'filename', set_file);
     catch ME
         warning('PSAM:LoadError', 'Could not load EEG data for %s: %s', subjID, ME.message);
         continue; % Skip to the next subject if loading fails
     end
-    % Get EEG.event struct
+    
+    % 1. Clean up events_table keeping only latency and type
     events_table = struct2table(EEG.event);
+    events_table = events_table(:, {'latency', 'type'});
+    
+    % Recalculate latency to onset (in seconds)
+    events_table.onset = (events_table.latency - 1) / EEG.srate;
+    events_table.duration = zeros(height(events_table), 1); % BIDS standard for instantaneous events
+    
+    % 2. Load vocal data (Praat)
+    vocal_table = readtable(fullfile(INPATH_VOCAL_SRC, [subjID '_f0_rt_table.csv']), 'FileType','text', 'Delimiter', ',');
+    vocal_table.Properties.VariableNames{'filename_tab'} = 'recording_file'; % Rename for joining
+    vocal_table = standardizeMissing(vocal_table, 9999); % Replace 9999 with NaN
+    
+    % 3. Load log data (PsychoPy)
+    subj_log_filename = dir(fullfile(INPATH_TASK_SRC, subjID, 'beh', 's*.csv'));
+    if numel(subj_log_filename) == 1
+        subj_log = readtable(fullfile(subj_log_filename.folder, subj_log_filename.name));
+    else
+        error('Incorrect number log files for %s!', subjID);
+    end
+    
+    % Clean and format log data (remove instructions, rename conditions)
+    subj_log_clean = subj_log(~isnan(subj_log.mic_started), :);
+    subj_log_clean.probe_type(strcmp(subj_log_clean.probe_type, 'Normal')) = {'Unaltered'};
+    subj_log_clean.probe_type(strcmp(subj_log_clean.probe_type, 'Pitch')) = {'Altered'};
+    subj_log_clean.task(strcmp(subj_log_clean.task, '/ga/')) = {'act'};
+    subj_log_clean.task(strcmp(subj_log_clean.task, '/xx/')) = {'pas'};
+    
+    % Extract recording file name from the mic_clip path to match Praat
+    subj_log_clean.recording_file = cellfun(@(x) strrep(regexp(x, 'recording_mic_.*(?=\.wav)', 'match', 'once'), '.', '_'), subj_log_clean.mic_clip, 'UniformOutput', false);
+    
+    % 4. Merge behavioural logfile and vocal data
+    merged_beh = innerjoin(subj_log_clean, vocal_table, 'Keys', 'recording_file');
+    
+    % Recalculate true vocal onset relative to go_signal
+    merged_beh.go_stim_started_trial_start = merged_beh.go_stim_started - merged_beh.trial_started;
+    merged_beh.recording_vot = merged_beh.rt_tab - (merged_beh.go_stim_started_trial_start - merged_beh.mic_started);
+    
+    % Add correct_resp column (1 if correct, 0 if incorrect)
+    pas_correct = strcmp(merged_beh.task, 'pas') & merged_beh.vocal_response_tab == 0;
+    act_correct = strcmp(merged_beh.task, 'act') & merged_beh.vocal_response_tab == 1;
+    merged_beh.correct_resp = pas_correct | act_correct;
+    
+    % 5. Add subject-wise probe properties
+    % Note: Adjust the path if stimuli is stored somewhere else in your sourcedata folder
+    subj_probe_file = fullfile(MAINPATH, 'data', 'sourcedata', 'task_data', 'stimuli', subjID, [subjID '_probe_properties.xlsx']);
+    subj_probe_properties = readtable(subj_probe_file);
+    sub_unaltered_f0 = num2str(subj_probe_properties.f0_tab_normal(1), '%.2f');
+    sub_altered_f0 = num2str(subj_probe_properties.f0_tab_pitched(1), '%.2f');
+    
+    % 6. Build final BIDS events table
+    num_events = height(events_table);
+    
+    % Initialize columns
+    bids_onset = num2cell(events_table.onset);
+    bids_duration = num2cell(events_table.duration);
+    bids_trial = cell(num_events, 1);
+    bids_event_type = cell(num_events, 1);
+    bids_marker_label = events_table.type;
+    
+    bids_vocal_f0 = cell(num_events, 1);
+    bids_vocal_rt = cell(num_events, 1);
+    bids_vocal_resp = cell(num_events, 1);
+    bids_correct_resp = cell(num_events, 1);
+    
+    bids_probe_onset = cell(num_events, 1);
+    bids_probe_type = cell(num_events, 1);
+    bids_probe = cell(num_events, 1);
+    
+    bids_probe_unalt_f0 = repmat({sub_unaltered_f0}, num_events, 1);
+    bids_probe_alt_f0 = repmat({sub_altered_f0}, num_events, 1);
 
-
-    % Load vocal data
-
-    % Load log data
-
-
-
-    fprintf('--- [OK] %s created successfully! ---\n', file_name);
+    % Loop through chronologically to map trials to triggers
+    trial_idx = 1; 
+    
+    for e = 1:num_events
+        marker = events_table.type{e};
+        bids_trial{e} = trial_idx;
+        
+        % Identify Event Type
+        if startsWith(marker, 'go_signal')
+            bids_event_type{e} = 'go_signal';
+        elseif startsWith(marker, 'con_')
+            bids_event_type{e} = 'control';
+        else
+            bids_event_type{e} = 'audio';
+        end
+        
+        % Extract trial-level context (shared for both lines within the trial)
+        cur_trial = merged_beh(trial_idx, :);
+        
+        bids_probe_onset{e} = cur_trial.probe_onset_cat{1};
+        bids_probe_type{e} = cur_trial.probe_type{1};
+        bids_probe{e} = cur_trial.probe{1};
+        
+        % Clean up "None" values for BIDS standard "n/a"
+        if strcmp(bids_probe_onset{e}, 'None'), bids_probe_onset{e} = 'n/a'; end
+        if strcmp(bids_probe_type{e}, 'None'), bids_probe_type{e} = 'n/a'; end
+        if strcmp(bids_probe{e}, 'None'), bids_probe{e} = 'no'; end
+        if strcmp(bids_probe{e}, 'Yes'), bids_probe{e} = 'yes'; end
+        
+        % Boolean logic for correctness
+        if cur_trial.correct_resp
+            bids_correct_resp{e} = 'yes';
+        else
+            bids_correct_resp{e} = 'no';
+        end
+        
+        % Vocal metrics logic
+        if strcmp(bids_event_type{e}, 'go_signal')
+            if cur_trial.vocal_response_tab == 1
+                bids_vocal_resp{e} = 'yes';
+                bids_vocal_f0{e} = num2str(cur_trial.f0_tab, '%.2f');
+                bids_vocal_rt{e} = num2str(cur_trial.recording_vot, '%.4f');
+            else
+                bids_vocal_resp{e} = 'no';
+                bids_vocal_f0{e} = 'n/a';
+                bids_vocal_rt{e} = 'n/a';
+            end
+            
+            % Go-signal is the final event of the trial; move to next trial
+            trial_idx = min(trial_idx + 1, height(merged_beh));
+        else
+            % For audio or control triggers, vocal metrics are purely n/a
+            bids_vocal_resp{e} = 'n/a';
+            bids_vocal_f0{e} = 'n/a';
+            bids_vocal_rt{e} = 'n/a';
+        end
+    end
+    
+    % Assemble Final Table
+    final_events_tsv = table(bids_onset, bids_duration, bids_trial, bids_event_type, ...
+        bids_marker_label, bids_vocal_f0, bids_vocal_rt, bids_vocal_resp, bids_correct_resp, ...
+        bids_probe_onset, bids_probe_type, bids_probe, bids_probe_unalt_f0, bids_probe_alt_f0, ...
+        'VariableNames', {'onset', 'duration', 'trial', 'event_type', 'marker_label', ...
+        'vocal_f0', 'vocal_rt', 'vocal_resp', 'correct_resp', 'probe_onset', 'probe_type', ...
+        'probe', 'subj_probe_unaltered_f0', 'subj_probe_altered_f0'});
+    
+    % Convert cell arrays of numbers/strings directly to standard BIDS format strings
+    % Save _events.tsv
+    tsv_filename = sprintf('%s_task-%s_events.tsv', subjID, TASKNAME);
+    writetable(final_events_tsv, fullfile(dest_eeg_dir, tsv_filename), ...
+        'FileType', 'text', 'Delimiter', '\t', 'QuoteStrings', false);
+    
+    fprintf('--- [OK] %s created successfully! ---\n', tsv_filename);
 end
 
 
 
-
+close(h_main_waitbar)
 disp('--- FULL BIDS CONVERSION COMPLETE! ---');
