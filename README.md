@@ -1,5 +1,7 @@
 # Investigating the Specificity of Pre-Speech Auditory Modulation - From Global Gating to Selective Silence?
 
+## THIS BRANCH IS CURRENTLY UNDER CONSTRUCTION TO MAKE THE ANALYSIS PIPELINE WORK ON THE BIDS-CONFORM DATASET!
+
 [![DOI](https://zenodo.org/badge/936619418.svg)](https://doi.org/10.5281/zenodo.16632078) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![Lines of Code](https://tokei.rs/b1/github/timdressler/psam)
 
 > [!NOTE]
