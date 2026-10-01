@@ -40,8 +40,8 @@ else
 end
 
 MAINPATH = strrep(SCRIPTPATH, fullfile('analysis_script', 'MATLAB'), '');
-INPATH = fullfile(MAINPATH, 'data', 'processed_data', 'markers_included');
-OUTPATH = fullfile(MAINPATH, 'data', 'processed_data', 'ica_preprocessed');
+INPATH = fullfile(MAINPATH, 'data');
+OUTPATH = fullfile(MAINPATH, 'data', 'derivatives', 'preprocessing', 'ica_preprocessing');
 FUNPATH = fullfile(MAINPATH, 'functions');
 
 addpath(FUNPATH);
@@ -62,7 +62,11 @@ EVENTS = {'act_early_unalt', 'act_early_alt', 'act_late_unalt', 'act_late_alt', 
     'con_pas_early', 'con_pas_late'};
 
 % Get directory content
-dircont_subj = dir(fullfile(INPATH, 'sub-*.set'));
+dircont_subj = dir(fullfile(INPATH, 'sub-*'));
+num_subj = length(dircont_subj);
+
+% Load subject overview
+participants = readtable(fullfile(INPATH, 'participants.tsv'), "FileType","text", "Delimiter","\t");
 
 %initialize sanity check variables
 marked_subj = {};
@@ -74,15 +78,16 @@ wb = waitbar(0,'starting tid_psam_ica_preprocessing.m');
 clear subj_idx
 for subj_idx= 1:length(dircont_subj)
 
-    % Get current ID
-    subj = dircont_subj(subj_idx).name;
-    subj = regexp(subj, 'sub-\d+', 'match', 'once');
+    % Get current ID and subject path
+    subj = extractAfter(dircont_subj(subj_idx).name, 'sub-');
+    subj_path = fullfile(INPATH, ['sub-' subj]);
+    subj_eeg_path = fullfile(subj_path, 'eeg');
 
     % Update progress bar
     waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_ica_preprocessing.m'])
 
     % Check if subject was already processed
-    subj_file = fullfile(OUTPATH, [subj '_ica_weights.set']);
+    subj_file = fullfile(OUTPATH, ['sub-' subj '_ica_weights.set']);
     if exist(subj_file, 'file')
         disp(['Skipping ' subj ' (already run)'])
         protocol{subj_idx,1} = subj;
@@ -97,20 +102,33 @@ for subj_idx= 1:length(dircont_subj)
 
     % ICA-specific preprocessing
     % Load raw data
-    EEG = pop_loadset('filename',[subj '_markers_inlcuded.set'],'filepath',INPATH);
+    EEG = pop_loadset('filename',['sub-' subj '_task-delayedArticulation_eeg.set'],'filepath',subj_eeg_path);
 
     % Remove Marker-Channel
     EEG = pop_select( EEG, 'rmchannel',{'M'});
 
     % Add channel locations
-    EEG.chanlocs = readlocs( fullfile(MAINPATH,'\config\elec_96ch_adapted.elp'));
-    EEG = eeg_checkset( EEG );
+    chanlocs_file = ['sub-' subj '_electrodes.tsv'];
+    chanlocs_path = subj_eeg_path;
+    EEG=pop_chanedit(EEG, 'load',{fullfile(chanlocs_path, chanlocs_file),'filetype','tsv'});
 
-    % Add type = EOG for EOG electrodes for bemobil_detect_bad_channels to ignore them
-    eog_chani = find(ismember({EEG.chanlocs.labels}, EOG_CHAN));
-    [EEG.chanlocs(eog_chani).type] = deal('EOG');
-    EEG = eeg_checkset( EEG );
+    % Add channel type
+    chantype_file = ['sub-' subj  '_task-delayedArticulation'  '_channels.tsv'];
+    chantype_path = subj_eeg_path;
+    chantype = readtable(fullfile(chantype_path, chantype_file), 'FileType','text', 'Delimiter','\t');
 
+    for i = 1:length(EEG.chanlocs)
+            current_label = EEG.chanlocs(i).labels;
+            row_idx = find(strcmp(chantype.name, current_label));
+            if ~isempty(row_idx)
+                EEG.chanlocs(i).type = chantype.type{row_idx};
+            else
+                warning('Channel %s not found. Labeling as UNKNOWN.', current_label);
+                EEG.chanlocs(i).type = 'UNKNOWN';
+            end
+    end
+
+    % Store dataset
     EEG.setname = [subj '_ready_for_ICA_preprocessing'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
@@ -144,9 +162,9 @@ for subj_idx= 1:length(dircont_subj)
     tid_psam_plot_flagged_ICs_TD(EEG,['ICs for ' subj], 'SavePath' ,fullfile(OUTPATH, [subj '_ic_topo.png']), 'PlotOn', false)
 
     % Save dataset
-    EEG.setname = [subj '__ICA_weights'];
+    EEG.setname = ['sub-' subj '__ICA_weights'];
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
-    EEG = pop_saveset(EEG, 'filename',[subj '_ica_weights.set'],'filepath', OUTPATH);
+    EEG = pop_saveset(EEG, 'filename',['sub-' subj '_ica_weights.set'],'filepath', OUTPATH);
 
     % Update Protocol
     subj_time = toc;
