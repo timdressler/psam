@@ -38,7 +38,7 @@ EXPECTED_SRATE = 1000;
 POWERLINE_FREQ = 50;
 EEG_NCHANS = 28;
 EOG_CHANS = 2;
-TRIGGER_NCHANS = 1;
+TRIGGER_NCHANS = 0;
 HARDWARE_HP = 0.0159;
 HARDWARE_LP = 250;
 
@@ -330,7 +330,7 @@ readme_lines = {
     'This dataset is formatted according to the Brain Imaging Data Structure (BIDS) standard.'
     ''
     '### Data Protection Notice'
-    'Due to strict legal regulations regarding biometric human data protection, the raw vocal audio data (both the initial stimuli recordings and the vocal responses captured during the execution task) **cannot be included** in this public repository.'
+    'Due to strict legal regulations regarding biometric human data protection, the raw vocal audio data (both the initial stimuli recordings and the vocal responses captured during the execution task) **cannot be included** in this public repository. The `_events.tsv` files contain extracted data (F0 for stimuli and F0 + onset for responses) for both stimuli recordings and vocal recording made during the main task.'
     ''
     '### Structure Overview'
     '- `/phenotype`: Contains questionnaire data (`.tsv`) and structural schemas (`.json`) for block-by-block SAM entries, and post-task NASA-TLX indices.'
@@ -369,7 +369,7 @@ for subj = 1:length(dircont_subj)
     path_subject = fullfile(OUTPATH, subjID);
     tid_psam_check_folder_TD(path_subject);
     % Create subfolder for EEG
-    psylink_check_folder_TD(fullfile(path_subject, 'eeg'));
+    tid_psam_check_folder_TD(fullfile(path_subject, 'eeg'));
 end
 
 %% Get and rename EEG files
@@ -598,7 +598,6 @@ for subj = 1:length(dircont_subj)
     % Default everything to EEG first
     channels_tsv.type(:) = "EEG";
     channels_tsv.type(channels_tsv.name == "E29" | channels_tsv.name == "E30") = "EOG";
-    channels_tsv.type(channels_tsv.name == "M") = "TRIG";
     % Add the 'units' column
     channels_tsv.units = repmat("uV", height(channels_tsv), 1);
     % Add the 'description' column
@@ -607,7 +606,6 @@ for subj = 1:length(dircont_subj)
     channels_tsv.description(channels_tsv.name == "E01") = "Cz equivalent";
     channels_tsv.description(channels_tsv.name == "E29") = "VEOG under left eye";
     channels_tsv.description(channels_tsv.name == "E30") = "VEOG under right eye";
-    channels_tsv.description(channels_tsv.name == "M") = "Trigger channel for audio stimuli";
     % Define file name and path
     file_name = sprintf('%s_task-%s_channels.tsv', subjID, TASKNAME);
     % Write file
@@ -715,8 +713,10 @@ for subj = 1:length(dircont_subj)
     
     % Clean and format log data (remove instructions, rename conditions)
     subj_log_clean = subj_log(~isnan(subj_log.mic_started), :);
-    subj_log_clean.probe_type(strcmp(subj_log_clean.probe_type, 'Normal')) = {'Unaltered'};
-    subj_log_clean.probe_type(strcmp(subj_log_clean.probe_type, 'Pitch')) = {'Altered'};
+    subj_log_clean.probe_onset_cat(strcmp(subj_log_clean.probe_onset_cat, 'Early')) = {'early'};
+    subj_log_clean.probe_onset_cat(strcmp(subj_log_clean.probe_onset_cat, 'Late')) = {'late'};
+    subj_log_clean.probe_type(strcmp(subj_log_clean.probe_type, 'Normal')) = {'unaltered'};
+    subj_log_clean.probe_type(strcmp(subj_log_clean.probe_type, 'Pitch')) = {'altered'};
     subj_log_clean.task(strcmp(subj_log_clean.task, '/ga/')) = {'act'};
     subj_log_clean.task(strcmp(subj_log_clean.task, '/xx/')) = {'pas'};
     
@@ -892,12 +892,12 @@ for subj = 1:length(dircont_subj)
     events_json.correct_resp.Levels.no = 'Incorrect (vocalized during passive, or stayed silent during active)';
     
     events_json.probe_onset.Description = 'Timing of the auditory probe relative to the go-signal';
-    events_json.probe_onset.Levels.Early = '-400 ms relative to go-signal';
-    events_json.probe_onset.Levels.Late = '-200 ms relative to go-signal';
+    events_json.probe_onset.Levels.early = '-400 ms relative to go-signal';
+    events_json.probe_onset.Levels.late = '-200 ms relative to go-signal';
     
     events_json.probe_type.Description = 'Acoustic manipulation of the auditory probe';
-    events_json.probe_type.Levels.Unaltered = 'Probe unaltered';
-    events_json.probe_type.Levels.Altered = 'Probe pitch-shifted down by -4 semitones';
+    events_json.probe_type.Levels.unaltered = 'Probe unaltered';
+    events_json.probe_type.Levels.altered = 'Probe pitch-shifted down by -4 semitones';
     
     events_json.probe.Description = 'Indicates whether an auditory probe was actually presented during the trial';
     events_json.probe.Levels.yes = 'Probe presented';

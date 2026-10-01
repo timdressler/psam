@@ -273,6 +273,10 @@ for subj_idx = 1:length(dircont_subj)
     EEG.event = EEG.event(sortIdx);
     EEG = eeg_checkset(EEG);
 
+    % Remove the trigger channel 'M' before saving
+    EEG = pop_select(EEG, 'nochannel', {'M'});
+    EEG = eeg_checkset(EEG);
+
     % Save updated dataset
     pop_saveset(EEG, 'filename', [subj '_markers_inlcuded.set'], 'filepath', OUTPATH);
 
