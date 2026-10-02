@@ -17,7 +17,7 @@
 %   ICLabel: An automated electroencephalographic independent component classifier.
 %   NeuroImage, 198, 181-197.
 %
-% Tim Dressler, [Current Date]
+% Tim Dressler, 02.10.26
 clear
 close all
 clc
@@ -60,7 +60,7 @@ pipeline_params.BADCHAN_FRAC_THRESH = 0.3;
 pipeline_params.FLATLINE_CRIT_BADCHAN = 3;
 pipeline_params.LINENOISE_CRIT_BADCHAN = 'off';
 pipeline_params.ICLABEL_THRESHOLDS = [0 0.1; 0.8 1; 0.7 1; 0.8 1; 0.8 1; 0.8 1; NaN NaN];
-pipeline_params.NUM_WORKERS = 1; % Set to 1 for laptop/serial mode, increase for HPC
+pipeline_params.NUM_WORKERS = 40; % Set to 1 for laptop/serial mode, increase for HPC
 
 % Check resources
 if ismac
@@ -165,6 +165,7 @@ parfor subj_idx = 1:num_subj
         task_has_issue = false;
 
         subj_file = fullfile(OUTPATH, ['sub-' subj '_task-' task '_ica_preprocessing.set']);
+        
         if exist(subj_file, 'file')
             fprintf('Skipping sub-%s task-%s (already run)\n', subj, task);
             
@@ -264,7 +265,7 @@ parfor subj_idx = 1:num_subj
             
         % Save the sanity check plot
         if ~isempty(rejected_chan_plot_handle) && isgraphics(rejected_chan_plot_handle)
-            out_file_rej = fullfile(REJECT_OUTPATH, ['sub-' subj '_task-' task '_rejected_chans.png']);           
+            out_file_rej = fullfile(REJECT_OUTPATH, ['sub-' subj '_task-' task '_rejected_chans.png']);            
             exportgraphics(rejected_chan_plot_handle, out_file_rej, 'Resolution', 150);            
             close(rejected_chan_plot_handle);
         end
@@ -296,7 +297,7 @@ parfor subj_idx = 1:num_subj
         EEG = pop_rejepoch(EEG, EEG.reject.rejglobal ,0);
 
         % Run ICA
-        EEG = pop_runica(EEG, 'icatype', 'runica', 'extended',1,'interrupt','on');
+        EEG = pop_runica(EEG, 'icatype', 'runica', 'extended',1,'interrupt','on', 'chanind', {'EEG'});
         
         % Label ICA components with IC Label Plugin (Pion-Tonachini et al., 2019)
         EEG = pop_iclabel(EEG, 'default');
@@ -314,9 +315,9 @@ parfor subj_idx = 1:num_subj
         % Sanity Check: Plot flagged ICs
         tid_psam_plot_flagged_ICs_TD(EEG,['sub-' subj '_task-' task '_ic_topos'], 'SavePath' ,fullfile(TOPO_OUTPATH, ['sub-' subj '_task-' task '_ic_topos.png']), 'PlotOn', false)
 
-        % Save dataset
-        EEG.setname = ['sub-' subj '_task-' task '_ica_weights'];
-        EEG = pop_saveset(EEG, 'filename',['sub-' subj '_task-' task '_ica_weights.set'],'filepath', OUTPATH);
+        % Save data
+        EEG.setname = ['sub-' subj '_task-' task '_ica_preprocessing'];
+        EEG = pop_saveset(EEG, 'filename',['sub-' subj '_task-' task '_ica_preprocessing.set'],'filepath', OUTPATH);
 
         % Update Protocol
         file_time = toc(file_tic);
