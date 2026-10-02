@@ -387,8 +387,9 @@ for subj = 1:length(dircont_subj)
     extensions = {'.set', '.fdt'};
     for ext_idx = 1:length(extensions)
         ext = extensions{ext_idx};
-        % Find the source file with this extension in the subject's sourcedata
-        src_file_struct = dir(fullfile(src_eeg_dir, ['*' ext]));
+        % FIXED: Include subjID in the search wildcard
+        src_file_struct = dir(fullfile(src_eeg_dir, [subjID, '*', ext]));
+
         if ~isempty(src_file_struct)
             % Define full paths
             src_file = fullfile(src_file_struct(1).folder, src_file_struct(1).name);
@@ -423,24 +424,24 @@ for subj = 1:length(dircont_subj)
     % Clean up memory for the next subject
     ALLEEG = [];
     EEG = [];
-    CURRENTSET = 0;    
+    CURRENTSET = 0;
     % Get subject ID (e.g., 'sub-95')
-    subjID = dircont_subj(subj).name;    
+    subjID = dircont_subj(subj).name;
     % Load EEG file
     subj_eeg_dir = fullfile(OUTPATH, subjID, 'eeg');
     bids_basename = sprintf('%s_task-%s_eeg', subjID, TASKNAME);
-    EEG = pop_loadset('filename', [bids_basename '.set'], 'filepath', subj_eeg_dir);    
+    EEG = pop_loadset('filename', [bids_basename '.set'], 'filepath', subj_eeg_dir);
     % 1. Setup tracking variables
     current_task = ''; % Will hold 'act' or 'pas' based on instruction cues
-    events_to_keep = false(1, length(EEG.event)); % Logical index to filter events    
+    events_to_keep = false(1, length(EEG.event)); % Logical index to filter events
     % 2. Loop through events to rename and flag the ones to keep
-    for e = 1:length(EEG.event)        
+    for e = 1:length(EEG.event)
         % Track the task instruction so we can identify the upcoming Go-Signal
         if strcmp(EEG.event(e).type, 'S 21')
             current_task = 'act';
         elseif strcmp(EEG.event(e).type, 'S 22')
             current_task = 'pas';
-        end        
+        end
         % Evaluate and rename events
         switch EEG.event(e).type
             % --- AUDIO PROBES (Keep and Rename) ---
@@ -467,27 +468,27 @@ for subj = 1:length(dircont_subj)
                 events_to_keep(e) = true;
             case 'S 944'
                 EEG.event(e).type = 'pas_late_alt';
-                events_to_keep(e) = true;                
-            % --- CONTROL PROBES ---
+                events_to_keep(e) = true;
+                % --- CONTROL PROBES ---
             case {'con_act_early', 'con_act_late', 'con_pas_early', 'con_pas_late'}
-                events_to_keep(e) = true;                
-            % --- GO SIGNALS (Keep and Rename based on look-back) ---
+                events_to_keep(e) = true;
+                % --- GO SIGNALS (Keep and Rename based on look-back) ---
             case 'S  5'
                 if strcmp(current_task, 'act')
                     EEG.event(e).type = 'go_signal_act';
                 elseif strcmp(current_task, 'pas')
                     EEG.event(e).type = 'go_signal_pas';
                 end
-                events_to_keep(e) = true;                
-            % Any other marker (including S 21, S 22, boundary events, etc.) falls through the switch statement and remains events_to_keep = false
+                events_to_keep(e) = true;
+                % Any other marker (including S 21, S 22, boundary events, etc.) falls through the switch statement and remains events_to_keep = false
         end
-    end    
+    end
     % 3. Remove all events that were not flagged to be kept
-    EEG.event = EEG.event(events_to_keep);    
-    % 4. Check dataset 
+    EEG.event = EEG.event(events_to_keep);
+    % 4. Check dataset
     EEG = eeg_checkset(EEG);
     pop_saveset(EEG, 'filename', [bids_basename '.set'], 'filepath', subj_eeg_dir);
-    
+
     fprintf('--- [OK] Cleaned and renamed EEG triggers for %s ---\n', subjID);
 end
 
@@ -629,7 +630,7 @@ for subj = 1:length(dircont_subj)
     eeg_json.HardwareFilters = struct();
     eeg_json.HardwareFilters.HighpassRC = struct('HalfAmplitudeCutoffHz', HARDWARE_HP);
     eeg_json.HardwareFilters.Lowpass = struct('HalfAmplitudeCutoffHz', HARDWARE_LP);
-    eeg_json.SoftwareFilters = 'n/a';    
+    eeg_json.SoftwareFilters = 'n/a';
     eeg_json.TaskName = TASKNAME;
     eeg_json.TaskDescription = 'Delayed articulation paradigm (Active vs. Passive) utilizing unaltered and altered (-4 semitones) auditory probes presented either early or late during the preparatory delay period to investigate Pre-Speech Auditory Modulation (PSAM).';
     % Hardware information
@@ -648,7 +649,7 @@ for subj = 1:length(dircont_subj)
     % Further information
     eeg_json.ECGChannelCount = 0;
     eeg_json.EMGChannelCount = 0;
-    eeg_json.MISCChannelCount = 0;    
+    eeg_json.MISCChannelCount = 0;
     eeg_json.CapManufacturersModelName = 'EasyCap';
     eeg_json.InstitutionAddress = 'n/a';
     eeg_json.DeviceSerialNumber = 'n/a';
@@ -674,12 +675,12 @@ waitbar(5/7, h_main_waitbar, 'Step 5/7: Merging behavioral, vocal, and EEG event
 for subj = 1:length(dircont_subj)
     % Get subject ID (e.g., 'sub-95')
     subjID = dircont_subj(subj).name;
-    
+
     % Define BIDS EEG directory and basename
     dest_eeg_dir = fullfile(OUTPATH, subjID, 'eeg');
     bids_basename = sprintf('%s_task-%s_eeg', subjID, TASKNAME);
     set_file = [bids_basename '.set'];
-    
+
     % Load the EEG data from the BIDS location
     fprintf('Loading %s for events.tsv extraction...\n', set_file);
     try
@@ -688,29 +689,29 @@ for subj = 1:length(dircont_subj)
         warning('PSAM:LoadError', 'Could not load EEG data for %s: %s', subjID, ME.message);
         continue; % Skip to the next subject if loading fails
     end
-    
+
     % 1. Clean up events_table keeping only latency and type
     events_table = struct2table(EEG.event);
     events_table = events_table(:, {'latency', 'type'});
-    
+
     % Recalculate latency to onset (in seconds) with high-precision formatting
     bids_onset = cellstr(compose('%.11f', (events_table.latency - 1) / EEG.srate));
     % Duration is 0 for all instantaneous EEG events
     bids_duration = cellstr(compose('%.11f', zeros(height(events_table), 1)));
-    
-    % 2. Load vocal data 
+
+    % 2. Load vocal data
     vocal_table = readtable(fullfile(INPATH_VOCAL_SRC, [subjID '_f0_rt_table.csv']), 'FileType','text', 'Delimiter', ',');
     vocal_table.Properties.VariableNames{'filename_tab'} = 'recording_file'; % Rename for joining
     vocal_table = standardizeMissing(vocal_table, 9999); % Replace 9999 with NaN
-    
-    % 3. Load log data 
+
+    % 3. Load log data
     subj_log_filename = dir(fullfile(INPATH_TASK_SRC, subjID, 'beh', 's*.csv'));
     if numel(subj_log_filename) == 1
         subj_log = readtable(fullfile(subj_log_filename.folder, subj_log_filename.name));
     else
         error('Incorrect number log files for %s!', subjID);
     end
-    
+
     % Clean and format log data (remove instructions, rename conditions)
     subj_log_clean = subj_log(~isnan(subj_log.mic_started), :);
     subj_log_clean.probe_onset_cat(strcmp(subj_log_clean.probe_onset_cat, 'Early')) = {'early'};
@@ -719,59 +720,59 @@ for subj = 1:length(dircont_subj)
     subj_log_clean.probe_type(strcmp(subj_log_clean.probe_type, 'Pitch')) = {'altered'};
     subj_log_clean.task(strcmp(subj_log_clean.task, '/ga/')) = {'act'};
     subj_log_clean.task(strcmp(subj_log_clean.task, '/xx/')) = {'pas'};
-    
+
     % Extract recording file name from the mic_clip path to match Praat
     subj_log_clean.recording_file = cellfun(@(x) strrep(regexp(x, 'recording_mic_.*(?=\.wav)', 'match', 'once'), '.', '_'), subj_log_clean.mic_clip, 'UniformOutput', false);
-    
+
     % 4. Merge behavioural logfile and vocal data
     merged_beh = innerjoin(subj_log_clean, vocal_table, 'Keys', 'recording_file');
-    
+
     % Recalculate true vocal onset relative to go_signal
     merged_beh.go_stim_started_trial_start = merged_beh.go_stim_started - merged_beh.trial_started;
     merged_beh.recording_vot = merged_beh.rt_tab - (merged_beh.go_stim_started_trial_start - merged_beh.mic_started);
-    
+
     % Add correct_resp column (1 if correct, 0 if incorrect)
     pas_correct = strcmp(merged_beh.task, 'pas') & merged_beh.vocal_response_tab == 0;
     act_correct = strcmp(merged_beh.task, 'act') & merged_beh.vocal_response_tab == 1;
     merged_beh.correct_resp = pas_correct | act_correct;
-    
+
     % 5. Add subject-wise probe properties
     subj_probe_file = fullfile(MAINPATH, 'data', 'sourcedata', 'task_data', 'stimuli', subjID, [subjID '_probe_properties.xlsx']);
     subj_probe_properties = readtable(subj_probe_file);
     sub_unaltered_f0 = num2str(subj_probe_properties.f0_tab_normal(1), '%.2f');
     sub_altered_f0 = num2str(subj_probe_properties.f0_tab_pitched(1), '%.2f');
-    
+
     % 6. Build final BIDS events table
     num_events = height(events_table);
-    
+
     % Initialize columns
     bids_trial = cell(num_events, 1);
     bids_event_type = cell(num_events, 1);
-    bids_block = cell(num_events, 1); 
+    bids_block = cell(num_events, 1);
     bids_marker_label = events_table.type;
-    
-    bids_instruction = cell(num_events, 1); 
-    
+
+    bids_instruction = cell(num_events, 1);
+
     bids_vocal_f0 = cell(num_events, 1);
     bids_vocal_rt = cell(num_events, 1);
     bids_vocal_resp = cell(num_events, 1);
     bids_correct_resp = cell(num_events, 1);
-    
+
     bids_probe_onset = cell(num_events, 1);
     bids_probe_type = cell(num_events, 1);
     bids_probe = cell(num_events, 1);
-    
+
     bids_probe_unalt_f0 = repmat({sub_unaltered_f0}, num_events, 1);
     bids_probe_alt_f0 = repmat({sub_altered_f0}, num_events, 1);
 
     % Loop through chronologically to map trials to triggers
-    trial_idx = 1; 
-    
+    trial_idx = 1;
+
     for e = 1:num_events
         marker = events_table.type{e};
         bids_trial{e} = trial_idx;
         bids_block{e} = ceil(trial_idx / 120);
-        
+
         % Identify Event Type
         if startsWith(marker, 'go_signal')
             bids_event_type{e} = 'go_signal';
@@ -780,39 +781,39 @@ for subj = 1:length(dircont_subj)
         else
             bids_event_type{e} = 'audio';
         end
-        
+
         % Extract trial-level context (shared for both lines within the trial)
         cur_trial = merged_beh(trial_idx, :);
-        
+
         % Set instruction for both rows in the trial
         if strcmp(cur_trial.task, 'act')
             bids_instruction{e} = 'active';
         else
             bids_instruction{e} = 'passive';
         end
-        
+
         bids_probe_onset{e} = cur_trial.probe_onset_cat{1};
         bids_probe_type{e} = cur_trial.probe_type{1};
         bids_probe{e} = cur_trial.probe{1};
-        
+
         % Clean up values for BIDS standard "n/a"
         if strcmpi(bids_probe_onset{e}, 'None'), bids_probe_onset{e} = 'n/a'; end
         if strcmpi(bids_probe_type{e}, 'None'), bids_probe_type{e} = 'n/a'; end
-        
+
         % Force probe to strict lowercase to match the events.json levels exactly
         if strcmpi(bids_probe{e}, 'None') || strcmpi(bids_probe{e}, 'no')
-            bids_probe{e} = 'no'; 
+            bids_probe{e} = 'no';
         elseif strcmpi(bids_probe{e}, 'yes')
-            bids_probe{e} = 'yes'; 
+            bids_probe{e} = 'yes';
         end
-        
+
         % Boolean logic for correctness
         if cur_trial.correct_resp
             bids_correct_resp{e} = 'yes';
         else
             bids_correct_resp{e} = 'no';
         end
-        
+
         % Vocal metrics logic
         if strcmp(bids_event_type{e}, 'go_signal')
             if cur_trial.vocal_response_tab == 1
@@ -824,7 +825,7 @@ for subj = 1:length(dircont_subj)
                 bids_vocal_f0{e} = 'n/a';
                 bids_vocal_rt{e} = 'n/a';
             end
-            
+
             % Go-signal is the final event of the trial; move to next trial
             trial_idx = min(trial_idx + 1, height(merged_beh));
         else
@@ -834,7 +835,7 @@ for subj = 1:length(dircont_subj)
             bids_vocal_rt{e} = 'n/a';
         end
     end
-    
+
     % Assemble Final Table
     final_events_tsv = table(bids_onset, bids_duration, bids_trial, bids_block, bids_event_type, ...
         bids_marker_label, bids_instruction, bids_vocal_f0, bids_vocal_rt, bids_vocal_resp, bids_correct_resp, ...
@@ -842,86 +843,86 @@ for subj = 1:length(dircont_subj)
         'VariableNames', {'onset', 'duration', 'trial', 'block', 'event_type', 'marker_label', ...
         'task_condition', 'vocal_f0', 'vocal_rt', 'vocal_resp', 'correct_resp', 'probe_onset', 'probe_type', ...
         'probe', 'subj_probe_unaltered_f0', 'subj_probe_altered_f0'});
-    
+
     % Save _events.tsv
     tsv_filename = sprintf('%s_task-%s_events.tsv', subjID, TASKNAME);
     writetable(final_events_tsv, fullfile(dest_eeg_dir, tsv_filename), ...
         'FileType', 'text', 'Delimiter', '\t', 'QuoteStrings', false);
-    
+
     fprintf('--- [OK] %s created successfully! ---\n', tsv_filename);
 
 
 
     % --- Create _events.json ---
     events_json = struct();
-    
+
     % Create fields
     events_json.onset.Description = 'Onset time of the event relative to the start of the EEG recording';
     events_json.onset.Units = 's';
-    
+
     events_json.duration.Description = 'Duration of the event';
     events_json.duration.Units = 's';
-    
+
     events_json.trial.Description = 'Chronological trial number within the experiment';
 
     events_json.block.Description = 'Experimental block number (1 to 8, with 120 trials per block)';
-    
+
     events_json.event_type.Description = 'General category of the experimental event';
     events_json.event_type.Levels.audio = 'Auditory probe presentation';
     events_json.event_type.Levels.go_signal = 'Visual go-signal prompting the vocal response (or silence)';
     events_json.event_type.Levels.control = 'Control/sham auditory marker (no sound presented, timepoint when a marker would have been presented)';
-    
+
     events_json.marker_label.Description = 'Specific condition marker derived from EEG hardware triggers';
-    
+
     events_json.task_condition.Description = 'Task condition (instruction) for the current trial';
     events_json.task_condition.Levels.active = 'Active trial (participant prepares to vocalize /ga/)';
     events_json.task_condition.Levels.passive = 'Passive trial (participant observes without vocalizing)';
-    
+
     events_json.vocal_f0.Description = 'Fundamental frequency (F0) of the vocal response extracted via Praat. Only applicalble if a vocal response was made.';
     events_json.vocal_f0.Units = 'Hz';
-    
+
     events_json.vocal_rt.Description = 'Vocal reaction time calculated relative to the visual go-signal. Only applicalble if a vocal response was made.';
     events_json.vocal_rt.Units = 's';
-    
+
     events_json.vocal_resp.Description = 'Indicates if a vocal response was physically detected during the trial';
     events_json.vocal_resp.Levels.yes = 'Vocal response detected';
     events_json.vocal_resp.Levels.no = 'No vocal response detected';
-    
+
     events_json.correct_resp.Description = 'Whether the participant correctly followed the task instructions';
     events_json.correct_resp.Levels.yes = 'Correct (vocalized during active, or stayed silent during passive)';
     events_json.correct_resp.Levels.no = 'Incorrect (vocalized during passive, or stayed silent during active)';
-    
+
     events_json.probe_onset.Description = 'Timing of the auditory probe relative to the go-signal';
     events_json.probe_onset.Levels.early = '-400 ms relative to go-signal';
     events_json.probe_onset.Levels.late = '-200 ms relative to go-signal';
-    
+
     events_json.probe_type.Description = 'Acoustic manipulation of the auditory probe';
     events_json.probe_type.Levels.unaltered = 'Probe unaltered';
     events_json.probe_type.Levels.altered = 'Probe pitch-shifted down by -4 semitones';
-    
+
     events_json.probe.Description = 'Indicates whether an auditory probe was actually presented during the trial';
     events_json.probe.Levels.yes = 'Probe presented';
     events_json.probe.Levels.no = 'No probe presented (control/baseline trial)';
-    
+
     events_json.subj_probe_unaltered_f0.Description = 'Baseline F0 of the subject-specific unaltered auditory probe';
     events_json.subj_probe_unaltered_f0.Units = 'Hz';
-    
+
     events_json.subj_probe_altered_f0.Description = 'Pitch-shifted F0 of the subject-specific altered auditory probe (-4 semitones)';
     events_json.subj_probe_altered_f0.Units = 'Hz';
 
     events_json.StimulusPresentation.OperatingSystem = 'Windows';
     events_json.StimulusPresentation.SoftwareName = 'PsychoPy';
     events_json.StimulusPresentation.SoftwareVersion = '2024.2.4';
-    
+
     % Convert to json
     events_json_text = jsonencode(events_json, 'PrettyPrint', true);
-    
+
     % Write file
     json_filename = sprintf('%s_task-%s_events.json', subjID, TASKNAME);
     fid = fopen(fullfile(dest_eeg_dir, json_filename), 'w');
     fprintf(fid, '%s', events_json_text);
     fclose(fid);
-    
+
     fprintf('--- [OK] %s created successfully! ---\n', json_filename);
 
 end
