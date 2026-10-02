@@ -59,7 +59,7 @@ pipeline_params.MAX_BROKEN_TIME = 0.4;
 pipeline_params.BADCHAN_FRAC_THRESH = 0.3; 
 pipeline_params.FLATLINE_CRIT_BADCHAN = 3;
 pipeline_params.LINENOISE_CRIT_BADCHAN = 'off';
-pipeline_params.ICLABEL_THRESHOLDS = [0 0; 0.7 1; 0.7 1; 0.7 1; 0.7 1; 0.7 1; 0.7 1];
+pipeline_params.ICLABEL_THRESHOLDS = [0 0.1; 0.8 1; 0.7 1; 0.8 1; 0.8 1; 0.8 1; NaN NaN];
 pipeline_params.NUM_WORKERS = 1; % Set to 1 for laptop/serial mode, increase for HPC
 
 % Check resources
