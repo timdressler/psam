@@ -158,28 +158,6 @@ for subj_idx = 1:length(dircont_subj)
         % Store channel locations in another field
         EEG.urchanlocs = EEG.chanlocs;
         
-        % Rename events
-        clear event
-        for event = 1:length(EEG.event)
-            switch EEG.event(event).type
-                case 'S 931'
-                    EEG.event(event).type = 'act_early_unalt';
-                case 'S 932'
-                    EEG.event(event).type = 'act_early_alt';
-                case 'S 933'
-                    EEG.event(event).type = 'act_late_unalt';
-                case 'S 934'
-                    EEG.event(event).type = 'act_late_alt';
-                case 'S 941'
-                    EEG.event(event).type = 'pas_early_unalt';
-                case 'S 942'
-                    EEG.event(event).type = 'pas_early_alt';
-                case 'S 943'
-                    EEG.event(event).type = 'pas_late_unalt';
-                case 'S 944'
-                    EEG.event(event).type = 'pas_late_alt';
-            end
-        end
         EEG.setname = ['sub-' subj '_task-' task '_ready_for_preprocessing'];
         [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
         
