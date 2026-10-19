@@ -1,4 +1,4 @@
-% tid_psam_SVM_preprocessing.m
+% tid_psam_svm_preprocessing.m
 %
 % Performs preprocessing for SVM analysis and saves datasets.
 %
@@ -31,7 +31,6 @@ clear
 close all
 clc
 
-rng(123)
 set(0,'DefaultTextInterpreter','none')
 
 % Set up paths
@@ -46,9 +45,9 @@ else
 end
 
 MAINPATH = strrep(SCRIPTPATH, fullfile('analysis_script', 'MATLAB'), '');
-INPATH_RAW = fullfile(MAINPATH, 'data', 'processed_data', 'markers_included');
-INPATH_ICA = fullfile(MAINPATH, 'data', 'processed_data', 'ica_preprocessed');
-OUTPATH = fullfile(MAINPATH, 'data', 'processed_data', 'svm_preprocessed');
+INPATH_RAW = fullfile(MAINPATH, 'data');
+INPATH_ICA = fullfile(MAINPATH, 'data', 'derivatives', 'preprocessing', 'ica_preprocessing');
+OUTPATH = fullfile(MAINPATH, 'data', 'derivatives', 'preprocessing', 'svm_preprocessing');
 FUNPATH = fullfile(MAINPATH, 'functions');
 
 addpath(FUNPATH);
@@ -57,22 +56,28 @@ tid_psam_check_folder_TD(MAINPATH, INPATH_RAW, INPATH_ICA, OUTPATH)
 tid_psam_clean_up_folder_TD(OUTPATH)
 
 % Variables to edit
-EOG_CHAN = {'E29','E30'}; % Labels of EOG electrodes
-EPO_FROM = -1;
-EPO_TILL = 0.1;
-HCF = 30;
-BL_FROM = -1000;
-BL_TILL = -800;
-SD_PROB = 3;
-EVENTS = {'go_act', 'go_pas'};
+pipeline_params.RANDOM_SEED = 123;
+pipeline_params.EOG_CHAN = {'E29','E30'};
+pipeline_params.EPO_FROM = -1;
+pipeline_params.EPO_TILL = 0.1;
+pipeline_params.HCF = 30;
+pipeline_params.BL_FROM = -1000;
+pipeline_params.BL_TILL = -800;
+pipeline_params.SD_PROB = 3;
+pipeline_params.EVENTS = {'go_signal_act', 'go_signal_pas'};
 
-% Get directory content
-dircont_subj = dir(fullfile(INPATH_RAW, 'sub-*.set'));
+% Unpack and save parameters
+rng(pipeline_params.RANDOM_SEED)
+tid_psam_unpack_params(pipeline_params);
+tid_psam_save_params(pipeline_params, 'tid_psam_svm_preprocessing', OUTPATH);
 
-% Sanity Check: Same number of files for raw data and ICA data
-if length(dir(fullfile(INPATH_RAW, 'sub-*.set'))) == length(dir(fullfile(INPATH_ICA, 'sub-*.set')))
-else
-    error('Number of raw data files and ICA data files does not match')
+% Get directory content (BIDS format)
+dircont_subj = dir(fullfile(INPATH_RAW, 'sub-*'));
+dircont_subj = dircont_subj([dircont_subj.isdir]); % Keep only directories
+
+% Sanity Check: Ensure subjects exist
+if isempty(dircont_subj)
+    error('No BIDS subject folders found in INPATH_RAW')
 end
 
 %initialize sanity check variables
@@ -85,141 +90,138 @@ wb = waitbar(0,'starting tid_psam_svm_preprocessing.m');
 clear subj_idx
 for subj_idx= 1:length(dircont_subj)
 
-    % Get current ID
-    subj = dircont_subj(subj_idx).name;
-    subj = regexp(subj, 'sub-\d+', 'match', 'once');
+    % Get current ID and paths
+    subj = extractAfter(dircont_subj(subj_idx).name, 'sub-');
+    subj_path = fullfile(INPATH_RAW, ['sub-' subj]);
+    subj_eeg_path = fullfile(subj_path, 'eeg');
 
     % Update progress bar
-    waitbar(subj_idx/length(dircont_subj),wb, [subj ' tid_psam_svm_preprocessing.m'])
+    waitbar(subj_idx/length(dircont_subj),wb, ['sub-' subj ' tid_psam_svm_preprocessing.m'])
+    
+    % Get list of task files for the subject
+    dircont_files = dir(fullfile(subj_eeg_path, '*.set'));
+    
+    for file_idx = 1:length(dircont_files)
+        file_name = dircont_files(file_idx).name;
+        file_path = dircont_files(file_idx).folder;
+        task = extractBefore(extractAfter(file_name,'task-'),'_eeg');
 
-    tic;
-    % Start eeglab
-    [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
+        tic;
+        % Start eeglab
+        [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
 
-    % Load ICA data
-    EEG = pop_loadset('filename',[subj '_ica_weights.set'],'filepath',INPATH_ICA);
+        % Load ICA data using dynamic naming matching the reference script
+        ica_file_name = ['sub-' subj '_task-' task '_ica_preprocessing.set'];
+        EEG = pop_loadset('filename', ica_file_name, 'filepath', INPATH_ICA);
 
-    % Get flagged components as identified in tid_psam_ica_preprocessing.m
-    flagged_comps = EEG.reject.gcompreject;
+        % Get flagged components as identified in tid_psam_ica_preprocessing.m
+        flagged_comps = EEG.reject.gcompreject;
 
-    EEG.setname = [subj '_ICA_weights'];
-    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+        EEG.setname = ['sub-' subj '_task-' task '_ICA_weights'];
+        [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
-    % Get bad channels as identified in tid_psam_ica_preprocessing.m
-    chans_to_interp = EEG.badchans;
+        % Get bad channels as identified in tid_psam_ica_preprocessing.m
+        chans_to_interp = EEG.badchans;
 
-    % Load raw data
-    EEG = pop_loadset('filename',[subj '_markers_inlcuded.set'],'filepath',INPATH_RAW);
+        % Load raw data
+        EEG = pop_loadset('filename', file_name, 'filepath', file_path);
 
-    % Remove Marker-Channel
-    EEG = pop_select( EEG, 'rmchannel',{'M'});
+        % Add channel locations from BIDS TSV
+        chanlocs_file = ['sub-' subj '_electrodes.tsv'];
+        EEG = pop_chanedit(EEG, 'load',{fullfile(file_path, chanlocs_file),'filetype','tsv'});
+        EEG = eeg_checkset( EEG );
 
-    % Add channel locations
-    EEG.chanlocs = readlocs( fullfile(MAINPATH,'\config\elec_96ch_adapted.elp'));
-    EEG = eeg_checkset( EEG );
+        % Add channel type from BIDS TSV
+        chantype_file = ['sub-' subj '_task-' task '_channels.tsv'];
+        chantype = readtable(fullfile(file_path, chantype_file), 'FileType','text', 'Delimiter','\t');
 
-    % Add type = EOG for EOG electrodes
-    eog_chani = find(ismember({EEG.chanlocs.labels}, EOG_CHAN));
-    [EEG.chanlocs(eog_chani).type] = deal('EOG');
-    EEG = eeg_checkset( EEG );
-
-    % Store channel locations in another field
-    EEG.urchanlocs = EEG.chanlocs;
-
-    % Rename events
-    clear event
-    for event = 1:length(EEG.event)
-        if strcmp(EEG.event(event).type, 'S  5') && strncmp(EEG.event(event-1).type, 'con', 3) % Get all go-signals (S  5) during no-probe trials
-            if strcmp(EEG.event(event-2).type, 'S 21')
-                EEG.event(event).type = 'go_act';
-            elseif strcmp(EEG.event(event-2).type, 'S 22')
-                EEG.event(event).type = 'go_pas';
+        for i = 1:length(EEG.chanlocs)
+            current_label = EEG.chanlocs(i).labels;
+            row_idx = find(strcmp(chantype.name, current_label));
+            if ~isempty(row_idx)
+                EEG.chanlocs(i).type = chantype.type{row_idx};
             else
-                error('Unkown Marker!')
+                EEG.chanlocs(i).type = 'UNKNOWN';
             end
         end
+        EEG = eeg_checkset( EEG );
+        
+        % Remove EOG-Channels
+        EEG = pop_select(EEG, 'rmchannel', EOG_CHAN);
+
+        % Store channel locations in another field
+        EEG.urchanlocs = EEG.chanlocs;
+
+        EEG.setname = ['sub-' subj '_task-' task '_ready_for_preprocessing'];
+        [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+
+        % Filter
+        % Lowpass-Filter
+        HCF_ord = pop_firwsord('hamming', EEG.srate, tid_psam_get_transition_bandwidth_TD(HCF)); % Get filter order (also see pop_firwsord.m, tid_psam_get_transition_bandwidth_TD.m)
+        EEG = pop_firws(EEG, 'fcutoff', HCF, 'ftype', 'lowpass', 'wtype', 'hamming', 'forder',HCF_ord, 'minphase', 0, 'usefftfilt', 0, 'plotfresp', 0, 'causal', 0);
+
+        % Remove bad channels as identified in tid_psam_ica_preprocessing.m (see above)
+        EEG.badchans = chans_to_interp;
+        EEG = pop_select(EEG,'nochannel', EEG.badchans);
+
+        EEG.setname = ['sub-' subj '_task-' task '_ready_for_ICA_weights'];
+        [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+
+        % Attach ICA weight to main data
+        EEG = pop_editset(EEG,'run', [], 'icaweights','ALLEEG(1).icaweights', 'icasphere','ALLEEG(1).icasphere');
+
+        % Remove previously flagged ICs (see tid_psam_ica_preprocessing.m)
+        EEG.reject.gcompreject = flagged_comps;
+        EEG = pop_subcomp( EEG, [], 0);
+
+        % Interpolate bad channels
+        if ~isempty(EEG.badchans)
+            EEG = pop_interp(EEG, EEG.urchanlocs , 'spherical');
+        end
+
+        % Sanity Check: Plot RMS in 10s bins for each electode
+        tid_psam_plot_rms_bins_TD(EEG, ['sub-' subj '_task-' task ' RMS bins'], 'SavePath', fullfile(OUTPATH, ['sub-' subj '_task-' task '_channel_rms.png']), 'PlotOn', false)
+
+        % Epoching
+        EEG = pop_epoch( EEG, EVENTS, [EPO_FROM        EPO_TILL], 'epochinfo', 'yes');
+
+        % Baseline-Removal
+        EEG = pop_rmbase( EEG, [BL_FROM BL_TILL] ,[]);
+
+        % Probability-based removal
+        EEG = pop_jointprob(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
+        EEG = pop_rejkurt(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
+        EEG = eeg_rejsuperpose( EEG, 1, 1, 1, 1, 1, 1, 1, 1);
+
+        % Save dataset
+        EEG.setname = ['sub-' subj '_task-' task '_svm_preprocessed'];
+        [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+        EEG = pop_saveset(EEG, 'filename',['sub-' subj '_task-' task '_svm_preprocessing.set'],'filepath', OUTPATH);
+
+        % Update Protocol dynamically for BIDS layout
+        file_time = toc;
+        if any(strcmp(marked_subj, subj), 'all')
+            status_str = 'MARKED';
+        else
+            status_str = 'OK';
+        end
+        protocol(end+1, 1:4) = {subj, task, file_time, status_str};
+        
     end
-
-    EEG.setname = [subj '_ready_for_preprocessing'];
-    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
-
-    % Filter
-    % Lowpass-Filter
-    HCF_ord = pop_firwsord('hamming', EEG.srate, tid_psam_get_transition_bandwidth_TD(HCF)); % Get filter order (also see pop_firwsord.m, tid_psam_get_transition_bandwidth_TD.m)
-    EEG = pop_firws(EEG, 'fcutoff', HCF, 'ftype', 'lowpass', 'wtype', 'hamming', 'forder',HCF_ord, 'minphase', 0, 'usefftfilt', 0, 'plotfresp', 0, 'causal', 0);
-
-    % Remove bad channels as identified in tid_psam_ica_preprocessing.m (see above)
-    EEG.badchans = chans_to_interp;
-    EEG = pop_select(EEG,'nochannel', EEG.badchans);
-
-    EEG.setname = [subj '_ready_for_ICA_weights'];
-    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
-
-    % Attach ICA weight to main data
-    EEG = pop_editset(EEG,'run', [], 'icaweights','ALLEEG(1).icaweights', 'icasphere','ALLEEG(1).icasphere');
-
-    % Remove previously flagged ICs (see tid_psam_ica_preprocessing.m)
-    EEG.reject.gcompreject = flagged_comps;
-    EEG = pop_subcomp( EEG, [], 0);
-
-    % Interpolate bad channels
-    if ~isempty(EEG.badchans)
-        EEG = pop_interp(EEG, EEG.urchanlocs , 'spherical');
-    end
-
-    % Sanity Check: Plot RMS in 10s bins for each electode
-    tid_psam_plot_rms_bins_TD(EEG, [subj ' RMS bins'], 'SavePath', fullfile(OUTPATH, [subj '_channel_rms.png']), 'PlotOn', false)
-
-    % Epoching
-    EEG = pop_epoch( EEG, EVENTS, [EPO_FROM        EPO_TILL], 'epochinfo', 'yes');
-
-    % Baseline-Removal
-    EEG = pop_rmbase( EEG, [BL_FROM BL_TILL] ,[]);
-
-    % Probability-based removal
-    EEG = pop_jointprob(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
-    EEG = pop_rejkurt(EEG,1,[1:EEG.nbchan] ,SD_PROB,0,0,0,[],0);
-    EEG = eeg_rejsuperpose( EEG, 1, 1, 1, 1, 1, 1, 1, 1);
-
-    % Save dataset
-    EEG.setname = [subj '_preprocessed'];
-    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
-    EEG = pop_saveset(EEG, 'filename',[subj '_svm_preprocessed.set'],'filepath', OUTPATH);
-
-    % Update Protocol
-    subj_time = toc;
-    protocol{subj_idx,1} = subj;
-    protocol{subj_idx,2} = subj_time;
-    if any(strcmp(marked_subj, subj), 'all')
-        protocol{subj_idx,3} = 'MARKED';
-    else
-        protocol{subj_idx,3} = 'OK';
-    end
-
 end
 
 % End of processing
 
-protocol = cell2table(protocol, 'VariableNames',{'subj','time', 'status'})
-writetable(protocol,fullfile(OUTPATH, 'tid_psam_svm_preprocessing_protocol.xlsx'))
+if ~isempty(protocol)
+    protocol = cell2table(protocol, 'VariableNames',{'subj', 'task', 'time', 'status'});
+    writetable(protocol,fullfile(OUTPATH, 'tid_psam_svm_preprocessing_protocol.xlsx'))
+end
 
 if ~isempty(marked_subj)
-    marked_subj = cell2table(marked_subj, 'VariableNames',{'subj','issue'})
+    marked_subj = cell2table(marked_subj, 'VariableNames',{'subj', 'task', 'issue'});
     writetable(marked_subj,fullfile(OUTPATH, 'tid_psam_svm_preprocessing_marked_subj.xlsx'))
 end
 
 check_done = 'tid_psam_svm_preprocessing_DONE'
 
 close all; delete(wb)
-
-
-
-
-
-
-
-
-
-
-
-
