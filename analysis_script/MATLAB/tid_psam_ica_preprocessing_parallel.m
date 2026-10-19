@@ -243,7 +243,7 @@ parfor subj_idx = 1:num_subj
             end
         end
 
-        % Remove Marker-Channel
+        % Remove EOG-Channels
         EEG = pop_select(EEG, 'rmchannel', CHANNELS_TO_REMOVE);
 
         % Highpass-Filter
